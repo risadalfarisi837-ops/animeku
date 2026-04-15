@@ -8,11 +8,13 @@
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/1a1a1a/3b82f6?text=App">
     
     <title>Animeku - Nonton Streaming Anime Sub Indo Gratis</title>
-    <meta name="description" content="Animeku tempat nonton streaming dan download anime subtitle Indonesia terlengkap.">
+    <meta name="description" content="Animeku tempat nonton streaming dan download anime subtitle Indonesia terlengkap, resolusi HD, dan update setiap hari tanpa iklan mengganggu.">
+    <meta name="keywords" content="animeku, nonton anime sub indo, streaming anime, download anime, anime subtitle indonesia, anime terbaru 2026">
+    <meta name="author" content="Risyadh Al Farisy">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -27,30 +29,18 @@
         .app-logo .blue { color: #3b82f6; }
         .app-logo .white { color: #fff; }
         
-        .top-search-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; }
-        .top-search-bar input { background: transparent; border: none; color: #fff; width: 100%; margin-left: 8px; outline: none; font-size: 14px; }
+        .top-search-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; -webkit-tap-highlight-color: transparent; }
+        .top-search-bar input { 
+            background: transparent !important; border: none !important; color: #fff !important; width: 100%; margin-left: 8px; 
+            outline: none !important; box-shadow: none !important; font-size: 14px; font-family: 'Outfit', sans-serif; 
+            -webkit-appearance: none;
+        }
+        .top-search-bar input:focus { outline: none !important; box-shadow: none !important; background: transparent !important; }
 
-        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(5px); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease; }
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease; }
         #loading.hidden { display: none !important; }
         #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* UI Komentar Custom */
-        .comment-section { padding: 20px; border-top: 1px solid #111; }
-        .comment-input-box { background: #111; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #222; }
-        .comment-input-box textarea { width: 100%; background: transparent; border: none; color: #fff; resize: none; font-family: inherit; font-size: 14px; outline: none; min-height: 60px; }
-        .comment-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .btn-comment { background: #3b82f6; color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        
-        .comment-item { display: flex; gap: 12px; margin-bottom: 20px; }
-        .comment-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #222; }
-        .comment-content { flex: 1; }
-        .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .comment-name { font-weight: 800; font-size: 14px; }
-        .comment-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
-        .badge-dev { background: #ef4444; color: #fff; }
-        .badge-lvl { background: #333; color: #fbbf24; border: 1px solid #fbbf24; }
-        .comment-text { font-size: 14px; color: #d1d5db; line-height: 1.5; }
 
         .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 10px; }
         .hero-slider { width: calc(100% - 24px); height: 210px; margin: 0 12px; border-radius: 12px; position: relative; overflow: hidden; background: #111; }
@@ -90,7 +80,7 @@
         .detail-hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.8) 40%, transparent 100%); }
         .detail-hero-content { position: relative; z-index: 2; padding: 20px; width: 100%; }
         .nav-back { position: absolute; top: 15px; left: 15px; z-index: 10; }
-        .nav-back button { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); border: none; color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .nav-back button { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); border: none; color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; -webkit-tap-highlight-color: transparent;}
 
         .synopsis-text { font-size: 13px; color: #a1a1aa; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .synopsis-text.expanded { -webkit-line-clamp: unset; }
@@ -117,8 +107,38 @@
         #app { padding-bottom: 80px; }
         .tab-content-container { padding-top: 15px; }
 
-        /* Login Button Styling */
-        .login-btn-google { display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px; }
+        /* ================= CSS BARU UNTUK PROFIL/AKUN UI ================= */
+        .profile-header { text-align: center; padding: 10px 0 20px 0; }
+        .profile-avatar-container { position: relative; display: inline-block; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #1a1a1a; object-fit: cover; }
+        .profile-camera-icon { position: absolute; bottom: 0; right: 0; background: #3b82f6; padding: 6px; border-radius: 50%; color: white; border: 2px solid #050505; display: flex; align-items: center; justify-content: center; }
+        .profile-name { font-size: 22px; font-weight: 800; margin: 12px 0 8px 0; }
+        
+        .profile-badges { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .p-badge { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; }
+        .badge-role { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; }
+        .badge-lvl { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); display: flex; align-items: center; gap: 4px; }
+        .badge-uid { background: rgba(255, 255, 255, 0.05); color: #a1a1aa; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        .profile-stats { display: flex; justify-content: space-around; padding: 0 10px 25px 10px; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .stat-lbl { font-size: 11px; color: #a1a1aa; line-height: 1.3; font-weight: 500; }
+        
+        .profile-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .ptab { padding: 12px 20px; color: #a1a1aa; font-weight: 800; font-size: 14px; cursor: pointer; position: relative; transition: 0.2s; }
+        .ptab.active { color: #fff; }
+        .ptab.active::after { content: ''; position: absolute; bottom: -1px; left: 20%; width: 60%; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+        
+        .profile-list-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; padding: 0 15px; cursor: pointer; }
+        .pli-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; }
+        .pli-info { flex: 1; }
+        .pli-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .pli-ep { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; font-weight: 500; }
+        .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+        .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+        /* ================================================================= */
+
     </style>
 </head>
 <body>
@@ -152,7 +172,7 @@
         
         <div id="home-view"></div>
         <div id="search-view" class="hidden tab-content-container"></div>
-        
+
         <div id="recent-view" class="hidden tab-content-container">
             <div style="padding: 0 10px; margin-bottom: 15px;"><h1 style="font-size: 20px; font-weight: bold; margin: 0;">Terakhir Ditonton</h1></div>
             <div id="recent-results-container" class="search-results-container"></div>
@@ -164,16 +184,14 @@
         </div>
 
         <div id="developer-view" class="hidden">
-            <div class="social-profile-container" style="background: #050505; min-height: 100vh;">
-                <div id="auth-check-container" style="padding: 20px;">
-                    </div>
-            </div>
+            <div id="auth-check-container" style="padding-bottom: 20px;">
+                </div>
         </div>
 
         <div id="detail-view" class="hidden"></div>
         <div id="watch-view" class="hidden"></div>
         
-        <div style="text-align: center; padding: 40px 20px 20px 20px; color: #555; font-size: 13px; font-weight: 500;">
+        <div style="text-align: center; padding: 30px 20px 20px 20px; color: #555; font-size: 13px; font-weight: 500;">
             &copy; 2026 Animeku. Developed by <a href="https://wa.me/6281315059849" target="_blank" style="color: #3b82f6; font-weight:bold; text-decoration: none;">Risyadh Al Farisy</a>
         </div>
     </main>
