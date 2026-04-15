@@ -1,3 +1,112 @@
+// ==========================================
+// 1. FIREBASE CONFIGURATION & INIT
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDHtgikUcph-eQh7qZEJELFogpPjIgtB0M",
+  authDomain: "animeku-c39ab.firebaseapp.com",
+  databaseURL: "https://animeku-c39ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "animeku-c39ab",
+  storageBucket: "animeku-c39ab.firebasestorage.app",
+  messagingSenderId: "583107813249",
+  appId: "1:583107813249:web:4a2ebe047393f4f744d280",
+  measurementId: "G-3E8VRPRM0F"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+let currentUser = null;
+
+// ==========================================
+// 2. AUTHENTICATION & USER UI LOGIC
+// ==========================================
+auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateDevUI();
+});
+
+window.loginDenganGoogle = function() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then(res => {
+        const u = res.user;
+        db.ref('users/' + u.uid).once('value').then(snap => {
+            if(!snap.exists()){
+                db.ref('users/' + u.uid).set({
+                    nama: u.displayName, 
+                    email: u.email, 
+                    foto: u.photoURL,
+                    role: 'Member', 
+                    level: 1, 
+                    exp: 0
+                });
+            }
+        });
+    }).catch(err => {
+        console.error("Login gagal: ", err);
+        alert("Gagal login: " + err.message);
+    });
+};
+
+window.logoutAkun = function() {
+    auth.signOut().then(() => {
+        alert("Berhasil keluar dari akun.");
+        location.reload();
+    });
+};
+
+function updateDevUI() {
+    const container = document.getElementById('auth-check-container');
+    if(!container) return;
+
+    if(!currentUser) {
+        container.innerHTML = `
+            <div style="text-align:center; padding: 40px 0;">
+                <img src="https://placehold.co/100x100/1a1a1a/3b82f6?text=Akun" style="border-radius:50%; margin-bottom:15px; border:3px solid #333;">
+                <h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2>
+                <p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p>
+                <button class="login-btn-google" onclick="loginDenganGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg>
+                    Lanjutkan dengan Google
+                </button>
+            </div>
+        `;
+    } else {
+        db.ref('users/' + currentUser.uid).on('value', snap => {
+            const data = snap.val();
+            if(!data) return;
+            const progress = (data.exp % 200) / 200 * 100; // 200 XP per level
+            
+            container.innerHTML = `
+                <div style="background:#111; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #222;">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+                        <img src="${data.foto}" style="width:65px; height:65px; border-radius:50%; border:3px solid #3b82f6; object-fit:cover;">
+                        <div style="flex:1;">
+                            <div style="font-weight:900; font-size:18px; color:#fff;">${data.nama}</div>
+                            <div style="color:#a1a1aa; font-size:13px; margin-bottom:4px;">${data.email}</div>
+                            <div style="display:inline-block; background:rgba(251, 191, 36, 0.1); border:1px solid #fbbf24; color:#fbbf24; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">${data.role}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#1a1a1a; padding:12px; border-radius:10px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-size:13px; font-weight:bold; color:#fff;">Level ${data.level}</span>
+                            <span style="font-size:12px; color:#3b82f6; font-weight:bold;">${data.exp} XP</span>
+                        </div>
+                        <div style="width:100%; height:6px; background:#333; border-radius:3px; overflow:hidden;">
+                            <div style="height:100%; width:${progress}%; background:#3b82f6; border-radius:3px;"></div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="logoutAkun()" style="margin-top:15px; background:rgba(239, 68, 68, 0.1); border:1px solid #ef4444; color:#ef4444; width:100%; padding:10px; border-radius:10px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                </div>
+            `;
+        });
+    }
+}
+
+// ==========================================
+// 3. CORE APP VARIABLES & SERVICE WORKER
+// ==========================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed:', err)); });
 }
@@ -31,59 +140,55 @@ function getEpBadge(anime) {
     return text.length > 8 ? text.substring(0, 8) : text;
 }
 
+// ==========================================
+// 4. FIREBASE LEVELING SYSTEM
+// ==========================================
 function addXP(amount) {
-    let currentXP = parseInt(localStorage.getItem('animekuXP')) || 0;
-    let oldLevel = Math.floor(currentXP / 100) + 1; 
-    let newXP = currentXP + amount;
-    localStorage.setItem('animekuXP', newXP);
-    let newLevel = Math.floor(newXP / 100) + 1;
-    
-    const toast = document.getElementById('xp-toast');
-    const toastText = document.getElementById('xp-toast-text');
-    
-    if (newLevel > oldLevel) {
-        toastText.innerText = `Level Up! Level ${newLevel} 🎉`;
-        toast.style.background = '#f59e0b';
-    } else {
-        toastText.innerText = `+${amount} XP`;
-        toast.style.background = '#3b82f6';
-    }
-    
-    toast.style.display = 'flex';
-    setTimeout(() => { toast.style.display = 'none'; }, 3000);
-    updateDevLevel();
+    if(!currentUser) return; // Hanya tambah XP kalau login
+    const userRef = db.ref('users/' + currentUser.uid);
+    userRef.once('value').then(snap => {
+        let data = snap.val();
+        if(!data) return;
+        
+        let oldExp = data.exp || 0;
+        let oldLvl = data.level || 1;
+        let newExp = oldExp + amount;
+        let newLvl = Math.floor(newExp / 200) + 1; // Naik level tiap 200 XP
+        
+        userRef.update({ exp: newExp, level: newLvl });
+        
+        const toast = document.getElementById('xp-toast');
+        const toastText = document.getElementById('xp-toast-text');
+        
+        if (newLvl > oldLvl) {
+            toastText.innerText = `Level Up! Level ${newLvl} 🎉`;
+            toast.style.background = '#f59e0b';
+        } else {
+            toastText.innerText = `+${amount} XP`;
+            toast.style.background = '#3b82f6';
+        }
+        
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    });
 }
 
-function updateDevLevel() {
-    let currentXP = parseInt(localStorage.getItem('animekuXP')) || 0;
-    let level = Math.floor(currentXP / 100) + 1;
-    let levelEl = document.getElementById('user-level-display');
-    if(levelEl) levelEl.innerText = `Lvl. ${level}`;
-}
-
-// LOGIKA LIKE & DISLIKE
+// ==========================================
+// 5. INDEXED DB (HISTORY & FAVORITES)
+// ==========================================
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
     
     if (type === 'like') {
-        if (btn.style.color === 'rgb(59, 130, 246)' || btn.style.color === '#3b82f6') {
-            btn.style.color = '#fff';
-        } else {
-            btn.style.color = '#3b82f6';
-            if(dislikeBtn) dislikeBtn.style.color = '#fff';
-        }
+        if (btn.style.color === 'rgb(59, 130, 246)' || btn.style.color === '#3b82f6') { btn.style.color = '#fff'; } 
+        else { btn.style.color = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.color = '#fff'; }
     } else {
-        if (btn.style.color === 'rgb(239, 68, 68)' || btn.style.color === '#ef4444') {
-            btn.style.color = '#fff';
-        } else {
-            btn.style.color = '#ef4444';
-            if(likeBtn) likeBtn.style.color = '#fff';
-        }
+        if (btn.style.color === 'rgb(239, 68, 68)' || btn.style.color === '#ef4444') { btn.style.color = '#fff'; } 
+        else { btn.style.color = '#ef4444'; if(likeBtn) likeBtn.style.color = '#fff'; }
     }
 };
 
-// LOGIKA SINOPSIS SELENGKAPNYA
 window.toggleSynopsis = function() {
     const text = document.getElementById('detail-synopsis-text');
     const btn = document.getElementById('read-more-btn');
@@ -100,9 +205,9 @@ function initDB() {
     return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, 2); 
         req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(STORE_HISTORY)) db.createObjectStore(STORE_HISTORY, { keyPath: 'url' });
-            if (!db.objectStoreNames.contains(STORE_FAV)) db.createObjectStore(STORE_FAV, { keyPath: 'url' });
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains(STORE_HISTORY)) database.createObjectStore(STORE_HISTORY, { keyPath: 'url' });
+            if (!database.objectStoreNames.contains(STORE_FAV)) database.createObjectStore(STORE_FAV, { keyPath: 'url' });
         };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
@@ -110,14 +215,14 @@ function initDB() {
 }
 
 async function saveHistory(animeObj) {
-    try { const db = await initDB(); const tx = db.transaction(STORE_HISTORY, 'readwrite'); animeObj.timestamp = Date.now(); tx.objectStore(STORE_HISTORY).put(animeObj); } catch(e) {}
+    try { const database = await initDB(); const tx = database.transaction(STORE_HISTORY, 'readwrite'); animeObj.timestamp = Date.now(); tx.objectStore(STORE_HISTORY).put(animeObj); } catch(e) {}
 }
 
 async function getHistory() {
     try {
-        const db = await initDB();
+        const database = await initDB();
         return new Promise((resolve) => {
-            const req = db.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll();
+            const req = database.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll();
             req.onsuccess = () => resolve(req.result.sort((a,b) => b.timestamp - a.timestamp));
         });
     } catch(e) { return []; }
@@ -125,8 +230,8 @@ async function getHistory() {
 
 async function toggleFavorite(url, title, image, score, episode) {
     try {
-        const db = await initDB(); const isFav = await checkFavorite(url);
-        const tx = db.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV);
+        const database = await initDB(); const isFav = await checkFavorite(url);
+        const tx = database.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV);
         const btn = document.getElementById('favBtn');
         
         if (isFav) { 
@@ -147,18 +252,21 @@ async function toggleFavorite(url, title, image, score, episode) {
 
 async function checkFavorite(url) {
     try {
-        const db = await initDB();
-        return new Promise((resolve) => { const req = db.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => resolve(!!req.result); });
+        const database = await initDB();
+        return new Promise((resolve) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => resolve(!!req.result); });
     } catch(e) { return false; }
 }
 
 async function getFavorites() {
     try {
-        const db = await initDB();
-        return new Promise((resolve) => { const req = db.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => resolve(req.result.sort((a,b) => b.timestamp - a.timestamp)); });
+        const database = await initDB();
+        return new Promise((resolve) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => resolve(req.result.sort((a,b) => b.timestamp - a.timestamp)); });
     } catch(e) { return []; }
 }
 
+// ==========================================
+// 6. UI VIEWS & NAVIGATION
+// ==========================================
 const HOME_SECTIONS = [
     { title: "Action Hits", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach", "hunter", "shingeki"] },
     { title: "Romance & Drama", queries: ["love", "kanojo", "romance", "heroine", "uso"] },
@@ -191,7 +299,7 @@ function switchTab(tabName) {
     if (tabName === 'home') { document.getElementById('tab-home').classList.add('active'); if (document.getElementById('home-view').innerHTML === '') loadLatest(); } 
     else if (tabName === 'recent') { document.getElementById('tab-recent').classList.add('active'); loadRecentHistory(); } 
     else if (tabName === 'favorite') { document.getElementById('tab-favorite').classList.add('active'); loadFavorites(); } 
-    else if (tabName === 'developer') { document.getElementById('tab-developer').classList.add('active'); updateDevLevel(); }
+    else if (tabName === 'developer') { document.getElementById('tab-developer').classList.add('active'); updateDevUI(); }
 }
 
 function generateCardHtml(anime) {
@@ -353,8 +461,7 @@ window.closeServerModal = function() {
 };
 
 // ==========================================
-// TAMPILAN DETAIL
-// URUTAN: HERO -> SINOPSIS (DI ATAS) -> EPISODE LIST MEMANJANG (DI BAWAH)
+// 7. DETAIL VIEW
 // ==========================================
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
@@ -421,9 +528,6 @@ async function loadDetail(url) {
             <div style="padding: 0 20px; margin-top:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                     <h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2>
-                    <div style="display:flex; gap:10px;">
-                        <button style="background:transparent; border:1px solid #333; color:#fff; padding:6px 10px; border-radius:8px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid</button>
-                    </div>
                 </div>
                 <div id="episode-list-detail-container"></div>
             </div>
@@ -459,9 +563,7 @@ async function loadDetail(url) {
 }
 
 // ==========================================
-// TAMPILAN WATCH / NONTON
-// URUTAN: VIDEO -> ACTION BTN (TERMASUK SERVER QUALITY MODAL & REPORT) -> EPISODE (KOTAK/KAPSUL) -> DISQUS
-// SINOPSIS DIHILANGKAN DI SINI
+// 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
@@ -484,8 +586,11 @@ async function loadVideo(url) {
         if (!watchedEps.includes(url)) { 
             watchedEps.push(url); 
             localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); 
-            addXP(50); 
+            addXP(20); // EXP saat nonton episode baru
         }
+
+        // Bikin ID unik untuk setiap URL episode supaya komennya beda-beda per video
+        let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
 
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed">
@@ -494,7 +599,6 @@ async function loadVideo(url) {
             </div>
             
             <div style="padding: 15px 20px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;">
-                <img src="295a6dc7f4efe03269d55d35a91668d3.jpg" style="width: 42px; height: 42px; border-radius: 50%; border: 1px solid #333; object-fit: cover;">
                 <div style="flex: 1;">
                     <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
                     <div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">
@@ -504,38 +608,34 @@ async function loadVideo(url) {
             </div>
 
             <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center;">
-                <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                <button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
-                
+                <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> Like</button>
                 <button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button>
-
                 <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
-                <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
             </div>
 
             <div style="padding: 20px 20px 10px 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2>
-                    <div style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:bold; color:#facc15;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2 10a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V10zm10-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-1 6v4h2v-4h-2z"></path></svg> 0
-                    </div>
-                </div>
+                <h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2>
                 <div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
             </div>
 
-            <div style="margin-top: 10px; padding: 0 20px;"><div id="disqus_thread"></div></div>
+            <div class="comment-section">
+                <h2 style="font-size:18px; font-weight:800; margin-bottom:15px;">Komentar Realtime</h2>
+                <div id="custom-comment-area"></div>
+                <div id="comment-list-container"></div>
+            </div>
             <div style="padding-bottom: 40px;"></div>
         `;
 
+        // Render Server List
         if (data.streams.length > 0) {
             const modalServerContainer = document.getElementById('modal-server-list');
             modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
                 let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
                 return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
             }).join('');
-        } else { alert('Maaf, stream belum tersedia untuk episode ini.'); }
+        }
 
+        // Render Episode Squares
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer && currentAnimeEpisodes.length > 0) {
             watchEpListContainer.innerHTML = [...currentAnimeEpisodes].reverse().map((ep, index) => {
@@ -551,21 +651,83 @@ async function loadVideo(url) {
             }).join('');
         }
 
-        try {
-            const disqusThread = document.getElementById('disqus_thread');
-            if (disqusThread) {
-                disqusThread.innerHTML = '';
-                if (typeof DISQUS === 'undefined') {
-                    window.disqus_config = function () { this.page.url = window.location.origin + "/?watch=" + encodeURIComponent(url); this.page.identifier = url; this.page.title = data.title; };
-                    let d = document, s = d.createElement('script'); s.src = 'https://risadalfarisi.disqus.com/embed.js'; s.setAttribute('data-timestamp', +new Date()); (d.head || d.body).appendChild(s);
-                } else { 
-                    DISQUS.reset({ reload: true, config: function () { this.page.identifier = url; this.page.url = window.location.origin + "/?watch=" + encodeURIComponent(url); this.page.title = data.title; }}); 
-                }
-            }
-        } catch(e) {}
+        // Render Komentar Input & Fetch Komen Database
+        renderCommentInput(episodeID);
+        listenToComments(episodeID);
+
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
+function renderCommentInput(epID) {
+    const container = document.getElementById('custom-comment-area');
+    if(!currentUser) {
+        container.innerHTML = `<div style="background:#111; padding:20px; border-radius:12px; text-align:center; font-size:14px; color:#888; border:1px dashed #333;">Silakan <span style="color:#3b82f6; font-weight:bold; cursor:pointer;" onclick="switchTab('developer')">Login</span> di menu Akun untuk ikut berdiskusi.</div>`;
+    } else {
+        container.innerHTML = `
+            <div class="comment-input-box">
+                <textarea id="main-comment-input" placeholder="Tulis komentar seru kamu..."></textarea>
+                <div class="comment-footer">
+                    <span style="font-size:11px; color:#555;">Hormati opini user lain ya!</span>
+                    <button class="btn-comment" onclick="postComment('${epID}')">Kirim</button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+window.postComment = function(epID) {
+    const text = document.getElementById('main-comment-input').value;
+    if(!text.trim() || !currentUser) return;
+
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        const u = snap.val();
+        const newCommentRef = db.ref('comments/' + epID).push();
+        newCommentRef.set({
+            uid: currentUser.uid,
+            nama: u.nama,
+            foto: u.foto,
+            role: u.role || 'Member',
+            level: u.level || 1,
+            teks: text,
+            waktu: Date.now()
+        });
+        document.getElementById('main-comment-input').value = '';
+        addXP(10); // Dapat +10 XP tiap kasih komen
+    });
+};
+
+function listenToComments(epID) {
+    const list = document.getElementById('comment-list-container');
+    db.ref('comments/' + epID).on('value', snap => {
+        if(!snap.exists()) { list.innerHTML = '<p style="color:#555; text-align:center; padding: 20px 0; font-size:13px;">Belum ada komentar. Jadilah yang pertama!</p>'; return; }
+        
+        let html = '';
+        snap.forEach(child => {
+            const c = child.val();
+            // Cek apakah dia Developer atau Member biasa untuk warna Badge
+            const badgeClass = c.role === 'Developer' ? 'badge-dev' : 'badge-lvl';
+            const roleText = c.role === 'Developer' ? 'DEVELOPER' : `Lvl ${c.level}`;
+            
+            html = `
+                <div class="comment-item">
+                    <img src="${c.foto}" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-name">${c.nama}</span>
+                            <span class="comment-badge ${badgeClass}">${roleText}</span>
+                        </div>
+                        <div class="comment-text">${c.teks}</div>
+                    </div>
+                </div>
+            ` + html; // Trik supaya komen terbaru ada di atas
+        });
+        list.innerHTML = html;
+    });
+}
+
+// ==========================================
+// 9. ROUTING & CONTROLS
+// ==========================================
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
     document.getElementById('current-quality-text').innerText = serverName;
@@ -587,7 +749,7 @@ function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
 document.addEventListener('DOMContentLoaded', () => { 
-    updateDevLevel(); 
+    updateDevUI(); 
     history.replaceState({page: 'home'}, '', window.location.pathname); 
     switchTab('home'); 
 });
