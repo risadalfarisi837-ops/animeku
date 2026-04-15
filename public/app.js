@@ -704,6 +704,58 @@ async function loadVideo(url) {
         }
 
         renderCommentInput(episodeID);
+        function listenToComments(epID) {
+    const list = document.getElementById('comment-list-container');
+    db.ref('comments/' + epID).on('value', snap => {
+        if(!snap.exists()) { 
+            list.innerHTML = '<p style="color:#444; text-align:center; padding:20px; font-size:13px;">Belum ada komentar.</p>'; 
+            return; 
+        }
+        
+        let html = '';
+        snap.forEach(child => {
+            const c = child.val();
+            
+            // Logika Warna Badge Role (Developed by Risyadh Al Farisy)
+            let roleClass = 'badge-role-biasa';
+            let roleLabel = 'Wibu Biasa';
+            
+            if(c.role === 'Developer') {
+                roleClass = 'badge-role-dev';
+                roleLabel = 'Developer';
+            } else if(c.level > 10) { 
+                roleClass = 'badge-role-wibu';
+                roleLabel = 'Wibu Premium';
+            }
+
+            const shortUid = "#" + (c.uid ? c.uid.substring(0, 7) : "8500932");
+            const timeLabel = " • Baru saja";
+
+            html = `
+                <div class="comment-item">
+                    <img src="${c.foto}" class="comment-avatar">
+                    <div class="comment-main">
+                        <div class="comment-user-row">
+                            <span class="c-name">${c.nama}</span>
+                            <span class="c-time">${timeLabel}</span>
+                            <div class="c-badge badge-lvl">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                Lvl. ${c.level || 1}
+                            </div>
+                            <div class="c-badge ${roleClass}">${roleLabel}</div>
+                            <span class="c-uid">${shortUid}</span>
+                        </div>
+                        <div class="c-text">${c.teks}</div>
+                        <div class="c-reply">Reply</div>
+                    </div>
+                    <div class="c-menu-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+                </div>
+            ` + html;
+        });
+        list.innerHTML = html;
+    });
+}
+
         listenToComments(episodeID);
 
     } catch (err) { console.error(err); } finally { loader(false); }
@@ -752,32 +804,51 @@ function listenToComments(epID) {
     const list = document.getElementById('comment-list-container');
     db.ref('comments/' + epID).on('value', snap => {
         if(!snap.exists()) { 
-            list.innerHTML = '<div style="text-align:center; padding:40px 0;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><p style="color:#555; font-size:13px; margin-top:10px;">Belum ada komentar. Jadilah yang pertama!</p></div>'; 
+            list.innerHTML = '<p style="color:#444; text-align:center; padding:20px; font-size:13px;">Belum ada komentar.</p>'; 
             return; 
         }
         
-        let html = '';
+                let html = '';
         snap.forEach(child => {
             const c = child.val();
-            const badgeClass = c.role === 'Developer' ? 'badge-dev' : 'badge-lvl';
-            const roleLabel = c.role === 'Developer' ? 'DEV' : 'LVL ' + c.level;
             
+            // Logika Role: dikelola oleh Risyadh Al Farisy
+            let roleClass = 'badge-role-biasa';
+            let roleLabel = 'Wibu Biasa';
+            
+            if(c.role === 'Developer') {
+                roleClass = 'badge-role-dev';
+                roleLabel = 'Developer';
+            } else if(c.level > 10) { 
+                roleClass = 'badge-role-wibu';
+                roleLabel = 'Wibu Premium';
+            }
+
+            const shortUid = "#" + (c.uid ? c.uid.substring(0, 7) : "8500932");
+            const timeLabel = " • Baru saja";
+
             html = `
                 <div class="comment-item">
                     <img src="${c.foto}" class="comment-avatar">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <span class="comment-name">${c.nama}</span>
-                            <span class="comment-badge ${badgeClass}">${roleLabel}</span>
+                    <div class="comment-main">
+                        <div class="comment-user-row">
+                            <span class="c-name">${c.nama}</span>
+                            <span class="c-time">${timeLabel}</span>
+                            <div class="c-badge badge-lvl">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                Lvl. ${c.level || 1}
+                            </div>
+                            <div class="c-badge ${roleClass}">${roleLabel}</div>
+                            <span class="c-uid">${shortUid}</span>
                         </div>
-                        <div class="comment-text">${c.teks}</div>
+                        <div class="c-text">${c.teks}</div>
+                        <div class="c-reply">Reply</div>
                     </div>
+                    <div class="c-menu-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
                 </div>
             ` + html;
         });
         list.innerHTML = html;
-    });
-}
 
 // ==========================================
 // 9. ROUTING & CONTROLS
