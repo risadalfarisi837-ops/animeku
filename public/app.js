@@ -25,7 +25,6 @@ auth.onAuthStateChanged(user => {
     updateDevUI();
 });
 
-// LOGIC BARU: Kembali pakai Popup karena domain Vercel sudah aman!
 window.loginDenganGoogle = function() {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
@@ -35,17 +34,13 @@ window.loginDenganGoogle = function() {
         db.ref('users/' + u.uid).once('value').then(snap => {
             if(!snap.exists()){
                 db.ref('users/' + u.uid).set({
-                    nama: u.displayName, 
-                    email: u.email, 
-                    foto: u.photoURL,
-                    role: 'Member', 
-                    level: 1, 
-                    exp: 0
+                    nama: u.displayName, email: u.email, foto: u.photoURL,
+                    role: 'Member', level: 1, exp: 0
                 });
             }
         });
         alert("Login Berhasil! Selamat datang, " + u.displayName);
-        updateDevUI(); // Update layar tanpa perlu refresh halaman
+        updateDevUI(); 
     }).catch(err => {
         console.error("Login gagal: ", err);
         alert("Gagal login: " + err.message);
@@ -59,58 +54,115 @@ window.logoutAkun = function() {
     });
 };
 
+// ==========================================
+// MENGGAMBAR TAMPILAN PROFIL YANG BARU
+// ==========================================
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
 
     if(!currentUser) {
         container.innerHTML = `
-            <div style="text-align:center; padding: 40px 0;">
+            <div style="text-align:center; padding: 40px 20px;">
                 <img src="https://placehold.co/100x100/1a1a1a/3b82f6?text=Akun" style="border-radius:50%; margin-bottom:15px; border:3px solid #333;">
                 <h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2>
                 <p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p>
-                <button class="login-btn-google" onclick="loginDenganGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg>
-                    Lanjutkan dengan Google
+                <button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google
                 </button>
             </div>
         `;
     } else {
-        db.ref('users/' + currentUser.uid).on('value', snap => {
+        db.ref('users/' + currentUser.uid).on('value', async snap => {
             const data = snap.val();
             if(!data) return;
-            const progress = (data.exp % 200) / 200 * 100; 
             
+            const historyData = await getHistory();
+            
+            // Kalkulasi Stats buatan
+            const totalMenit = historyData.length * 24; // Anggap 1 eps = 24 menit
+            const joinMonths = Math.max(1, new Date().getMonth() + 1); // Mock data bergabung
+            const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
+            const displayName = data.role === 'Member' ? 'Wibu Biasa' : data.role;
+
+            // Generate History List HTML (Dipakai untuk Tab 'All' dan 'History')
+            let historyHtml = historyData.length > 0 ? historyData.map(item => {
+                // Waktu relatif (contoh: '2 hari lalu')
+                let timeDiff = Date.now() - item.timestamp;
+                let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
+                let randProgress = Math.floor(Math.random() * 80 + 20); // Progress bar acak 20-100%
+                
+                return `
+                <div class="profile-list-item" onclick="loadDetail('${item.url}')">
+                    <div style="position:relative;">
+                        <img src="${item.image}" class="pli-img">
+                        <div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${data.foto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div>
+                    </div>
+                    <div class="pli-info">
+                        <div class="pli-title">${item.title}</div>
+                        <div class="pli-ep">${item.episode} • ${daysAgo} hari lalu</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                            <div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div>
+                            <span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
+
             container.innerHTML = `
-                <div style="background:#111; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #222;">
-                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
-                        <img src="${data.foto}" style="width:65px; height:65px; border-radius:50%; border:3px solid #3b82f6; object-fit:cover;">
-                        <div style="flex:1;">
-                            <div style="font-weight:900; font-size:18px; color:#fff;">${data.nama}</div>
-                            <div style="color:#a1a1aa; font-size:13px; margin-bottom:4px;">${data.email}</div>
-                            <div style="display:inline-block; background:rgba(251, 191, 36, 0.1); border:1px solid #fbbf24; color:#fbbf24; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">${data.role}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="background:#1a1a1a; padding:12px; border-radius:10px;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span style="font-size:13px; font-weight:bold; color:#fff;">Level ${data.level}</span>
-                            <span style="font-size:12px; color:#3b82f6; font-weight:bold;">${data.exp} XP</span>
-                        </div>
-                        <div style="width:100%; height:6px; background:#333; border-radius:3px; overflow:hidden;">
-                            <div style="height:100%; width:${progress}%; background:#3b82f6; border-radius:3px;"></div>
-                        </div>
-                    </div>
-                    
-                    <button onclick="logoutAkun()" style="margin-top:15px; background:rgba(239, 68, 68, 0.1); border:1px solid #ef4444; color:#ef4444; width:100%; padding:10px; border-radius:10px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; padding-bottom:0;">
+                    <button onclick="switchTab('home')" style="background:none; border:none; color:#fff; padding:0; cursor:pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                    <span style="font-weight:900; font-size:18px;">Setting</span>
                 </div>
+
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <img src="${data.foto}" class="profile-avatar">
+                        <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+                    </div>
+                    <div class="profile-name">${data.nama}</div>
+                    
+                    <div class="profile-badges">
+                        <span class="p-badge badge-role">${displayName}</span>
+                        <span class="p-badge badge-lvl"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${data.level}</span>
+                        <span class="p-badge badge-uid">${shortUid}</span>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                    <div class="stat-box"><div class="stat-val">${data.exp}</div><div class="stat-lbl">total<br>exp point</div></div>
+                    <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                    <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">teman</div></div>
+                </div>
+
+                <div class="profile-tabs">
+                    <div class="ptab active" onclick="switchProfileTab('all', this)">All</div>
+                    <div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div>
+                    <div class="ptab" onclick="switchProfileTab('history', this)">History</div>
+                </div>
+
+                <div id="ptab-all" class="ptab-content">${historyHtml}</div>
+                <div id="ptab-comments" class="ptab-content" style="display:none;"><p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Komentar kamu akan segera muncul di sini (Tahap Pengembangan).</p></div>
+                <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
+                
+                <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
             `;
         });
     }
 }
 
+// Fungsi untuk mengganti Tab di dalam Profil
+window.switchProfileTab = function(tabName, element) {
+    document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none');
+    document.getElementById('ptab-' + tabName).style.display = 'block';
+};
+
 // ==========================================
-// 3. CORE APP VARIABLES & SERVICE WORKER
+// 3. CORE APP VARIABLES & INDEXED DB
 // ==========================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed:', err)); });
@@ -145,9 +197,6 @@ function getEpBadge(anime) {
     return text.length > 8 ? text.substring(0, 8) : text;
 }
 
-// ==========================================
-// 4. FIREBASE LEVELING SYSTEM
-// ==========================================
 function addXP(amount) {
     if(!currentUser) return; 
     const userRef = db.ref('users/' + currentUser.uid);
@@ -178,13 +227,9 @@ function addXP(amount) {
     });
 }
 
-// ==========================================
-// 5. INDEXED DB (HISTORY & FAVORITES)
-// ==========================================
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
-    
     if (type === 'like') {
         if (btn.style.color === 'rgb(59, 130, 246)' || btn.style.color === '#3b82f6') { btn.style.color = '#fff'; } 
         else { btn.style.color = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.color = '#fff'; }
