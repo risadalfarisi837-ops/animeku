@@ -25,15 +25,12 @@ auth.onAuthStateChanged(user => {
     updateDevUI();
 });
 
-// LOGIC BARU: Login pakai Redirect biar mulus di HP
+// LOGIC BARU: Kembali pakai Popup karena domain Vercel sudah aman!
 window.loginDenganGoogle = function() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-};
-
-// Menangkap data user setelah kembali dari halaman Google
-auth.getRedirectResult().then(res => {
-    if(res && res.user) {
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    auth.signInWithPopup(provider).then(res => {
         const u = res.user;
         db.ref('users/' + u.uid).once('value').then(snap => {
             if(!snap.exists()){
@@ -47,10 +44,13 @@ auth.getRedirectResult().then(res => {
                 });
             }
         });
-    }
-}).catch(err => {
-    console.error("Login gagal: ", err);
-});
+        alert("Login Berhasil! Selamat datang, " + u.displayName);
+        updateDevUI(); // Update layar tanpa perlu refresh halaman
+    }).catch(err => {
+        console.error("Login gagal: ", err);
+        alert("Gagal login: " + err.message);
+    });
+};
 
 window.logoutAkun = function() {
     auth.signOut().then(() => {
