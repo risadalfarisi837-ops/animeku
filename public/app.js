@@ -727,7 +727,8 @@ function renderCommentInput(epID) {
 }
 
 window.postComment = function(epID) {
-    const text = document.getElementById('main-comment-input').value;
+    const input = document.getElementById('main-comment-input');
+    const text = input.value;
     if(!text.trim() || !currentUser) return;
 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -742,7 +743,7 @@ window.postComment = function(epID) {
             teks: text,
             waktu: Date.now()
         });
-        document.getElementById('main-comment-input').value = '';
+        input.value = '';
         addXP(10); 
     });
 };
@@ -750,13 +751,16 @@ window.postComment = function(epID) {
 function listenToComments(epID) {
     const list = document.getElementById('comment-list-container');
     db.ref('comments/' + epID).on('value', snap => {
-        if(!snap.exists()) { list.innerHTML = '<p style="color:#555; text-align:center; padding: 20px 0; font-size:13px;">Belum ada komentar. Jadilah yang pertama!</p>'; return; }
+        if(!snap.exists()) { 
+            list.innerHTML = '<div style="text-align:center; padding:40px 0;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><p style="color:#555; font-size:13px; margin-top:10px;">Belum ada komentar. Jadilah yang pertama!</p></div>'; 
+            return; 
+        }
         
         let html = '';
         snap.forEach(child => {
             const c = child.val();
             const badgeClass = c.role === 'Developer' ? 'badge-dev' : 'badge-lvl';
-            const roleText = c.role === 'Developer' ? 'DEVELOPER' : `Lvl ${c.level}`;
+            const roleLabel = c.role === 'Developer' ? 'DEV' : 'LVL ' + c.level;
             
             html = `
                 <div class="comment-item">
@@ -764,12 +768,12 @@ function listenToComments(epID) {
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-name">${c.nama}</span>
-                            <span class="comment-badge ${badgeClass}">${roleText}</span>
+                            <span class="comment-badge ${badgeClass}">${roleLabel}</span>
                         </div>
                         <div class="comment-text">${c.teks}</div>
                     </div>
                 </div>
-            ` + html; 
+            ` + html;
         });
         list.innerHTML = html;
     });
