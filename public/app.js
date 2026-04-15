@@ -25,9 +25,15 @@ auth.onAuthStateChanged(user => {
     updateDevUI();
 });
 
+// LOGIC BARU: Login pakai Redirect biar mulus di HP
 window.loginDenganGoogle = function() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(res => {
+    auth.signInWithRedirect(provider);
+};
+
+// Menangkap data user setelah kembali dari halaman Google
+auth.getRedirectResult().then(res => {
+    if(res && res.user) {
         const u = res.user;
         db.ref('users/' + u.uid).once('value').then(snap => {
             if(!snap.exists()){
@@ -41,11 +47,10 @@ window.loginDenganGoogle = function() {
                 });
             }
         });
-    }).catch(err => {
-        console.error("Login gagal: ", err);
-        alert("Gagal login: " + err.message);
-    });
-};
+    }
+}).catch(err => {
+    console.error("Login gagal: ", err);
+});
 
 window.logoutAkun = function() {
     auth.signOut().then(() => {
@@ -74,7 +79,7 @@ function updateDevUI() {
         db.ref('users/' + currentUser.uid).on('value', snap => {
             const data = snap.val();
             if(!data) return;
-            const progress = (data.exp % 200) / 200 * 100; // 200 XP per level
+            const progress = (data.exp % 200) / 200 * 100; 
             
             container.innerHTML = `
                 <div style="background:#111; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #222;">
@@ -144,7 +149,7 @@ function getEpBadge(anime) {
 // 4. FIREBASE LEVELING SYSTEM
 // ==========================================
 function addXP(amount) {
-    if(!currentUser) return; // Hanya tambah XP kalau login
+    if(!currentUser) return; 
     const userRef = db.ref('users/' + currentUser.uid);
     userRef.once('value').then(snap => {
         let data = snap.val();
@@ -153,7 +158,7 @@ function addXP(amount) {
         let oldExp = data.exp || 0;
         let oldLvl = data.level || 1;
         let newExp = oldExp + amount;
-        let newLvl = Math.floor(newExp / 200) + 1; // Naik level tiap 200 XP
+        let newLvl = Math.floor(newExp / 200) + 1; 
         
         userRef.update({ exp: newExp, level: newLvl });
         
@@ -586,12 +591,12 @@ async function loadVideo(url) {
         if (!watchedEps.includes(url)) { 
             watchedEps.push(url); 
             localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); 
-            addXP(20); // EXP saat nonton episode baru
+            addXP(20); 
         }
 
-        // Bikin ID unik untuk setiap URL episode supaya komennya beda-beda per video
         let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
 
+        // BAGIAN HTML WATCH YANG SUDAH DIPERBAIKI (TOMBOL KOMPLIT & REPORT WA)
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed">
                 <button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
@@ -608,9 +613,14 @@ async function loadVideo(url) {
             </div>
 
             <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center;">
-                <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> Like</button>
+                <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                <button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                
                 <button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button>
+
                 <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                <button class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                <button class="action-btn" onclick="window.open('https://wa.me/6281325059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
             </div>
 
             <div style="padding: 20px 20px 10px 20px;">
@@ -626,7 +636,6 @@ async function loadVideo(url) {
             <div style="padding-bottom: 40px;"></div>
         `;
 
-        // Render Server List
         if (data.streams.length > 0) {
             const modalServerContainer = document.getElementById('modal-server-list');
             modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
@@ -635,7 +644,6 @@ async function loadVideo(url) {
             }).join('');
         }
 
-        // Render Episode Squares
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer && currentAnimeEpisodes.length > 0) {
             watchEpListContainer.innerHTML = [...currentAnimeEpisodes].reverse().map((ep, index) => {
@@ -651,7 +659,6 @@ async function loadVideo(url) {
             }).join('');
         }
 
-        // Render Komentar Input & Fetch Komen Database
         renderCommentInput(episodeID);
         listenToComments(episodeID);
 
@@ -692,7 +699,7 @@ window.postComment = function(epID) {
             waktu: Date.now()
         });
         document.getElementById('main-comment-input').value = '';
-        addXP(10); // Dapat +10 XP tiap kasih komen
+        addXP(10); 
     });
 };
 
@@ -704,7 +711,6 @@ function listenToComments(epID) {
         let html = '';
         snap.forEach(child => {
             const c = child.val();
-            // Cek apakah dia Developer atau Member biasa untuk warna Badge
             const badgeClass = c.role === 'Developer' ? 'badge-dev' : 'badge-lvl';
             const roleText = c.role === 'Developer' ? 'DEVELOPER' : `Lvl ${c.level}`;
             
@@ -719,7 +725,7 @@ function listenToComments(epID) {
                         <div class="comment-text">${c.teks}</div>
                     </div>
                 </div>
-            ` + html; // Trik supaya komen terbaru ada di atas
+            ` + html; 
         });
         list.innerHTML = html;
     });
