@@ -23,7 +23,7 @@
         body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-family: 'Outfit', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
+        
         .navbar { position: sticky; top: 0; z-index: 1000; background: #050505; padding: 12px 15px; display: flex; align-items: center; gap: 12px; }
         .app-logo { display: flex; align-items: center; font-weight: 900; font-size: 18px; letter-spacing: -0.5px; }
         .app-logo .blue { color: #3b82f6; }
@@ -41,6 +41,23 @@
         #loading.hidden { display: none !important; }
         #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* UI Komentar Custom */
+        .comment-section { padding: 20px; border-top: 1px solid #111; }
+        .comment-input-box { background: #111; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #222; }
+        .comment-input-box textarea { width: 100%; background: transparent; border: none; color: #fff; resize: none; font-family: inherit; font-size: 14px; outline: none; min-height: 60px; }
+        .comment-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn-comment { background: #3b82f6; color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        
+        .comment-item { display: flex; gap: 12px; margin-bottom: 20px; }
+        .comment-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #222; }
+        .comment-content { flex: 1; }
+        .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .comment-name { font-weight: 800; font-size: 14px; }
+        .comment-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; }
+        .badge-dev { background: #ef4444; color: #fff; }
+        .badge-lvl { background: #333; color: #fbbf24; border: 1px solid #fbbf24; }
+        .comment-text { font-size: 14px; color: #d1d5db; line-height: 1.5; }
 
         .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 10px; }
         .hero-slider { width: calc(100% - 24px); height: 210px; margin: 0 12px; border-radius: 12px; position: relative; overflow: hidden; background: #111; }
