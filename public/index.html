@@ -104,19 +104,17 @@
         .video-container-fixed iframe { width: 100%; height: 240px; border: none; display: block; }
         .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* TOMBOL ACTION (Like, Dislike, Download, Share, Report) */
         .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         
         .ep-square { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1c1c1e; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .ep-square.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
         .ep-square.watched { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
-        /* MODAL / BOTTOM SHEET SERVER (WARNA GELAP!) */
+        /* MODAL / BOTTOM SHEET SERVER */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(2px); display: none; }
         .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; z-index: 99999; border-radius: 24px 24px 0 0; padding: 25px 20px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: none; }
         .bottom-sheet.show { transform: translateY(0); }
         
-        /* PERBAIKAN TOMBOL SERVER WARNA GELAP */
         .server-list-btn { background: #2c2c2e; color: #fff; border: none; padding: 16px 20px; border-radius: 16px; font-weight: 700; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
         .server-list-btn:hover { background: #3a3a3c; }
         .server-list-btn.active { background: #3b82f6; color: #fff; }
@@ -183,7 +181,7 @@
 </head>
 <body>
 
-    <div id="xp-toast">
+    <div id="xp-toast" style="display: none;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 
         <span id="xp-toast-text">+50 XP!</span>
     </div>
@@ -223,7 +221,12 @@
         
         <div id="home-view"></div>
         <div id="search-view" class="hidden tab-content-container"></div>
+        
         <div id="recent-view" class="hidden tab-content-container">
+            <div style="text-align: center; padding-top: 10px; padding-bottom: 25px;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Menonton</h1>
+                <div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div>
+            </div>
             <div id="recent-results-container" class="search-results-container"></div>
         </div>
         
@@ -279,6 +282,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=4.0"></script>
+    <script src="app.js"></script>
 </body>
 </html>
