@@ -150,13 +150,15 @@ window.switchProfileTab = function(tabName, element) {
 };
 
 // ==========================================
-// 3. CORE APP VARIABLES & HELPERS
+// 3. CORE APP VARIABLES & INDEXED DB
 // ==========================================
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed:', err)); }); }
+
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
-window.currentFavData = []; // State untuk filter sorting Subscribe
+window.currentFavData = []; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 function getEpBadge(anime) { let text = String(anime.episode || anime.episodes || anime.status || ''); if (!text || text === 'undefined') return 'Anime'; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); return epMatch ? `Eps ${epMatch[1]}` : text.substring(0, 8); }
@@ -370,16 +372,14 @@ window.handleShare = function() {
 
 // ==== TIMELINE HISTORY ====
 async function loadRecentHistory() {
-    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    
-    const headerTitle = document.querySelector('#recent-view > div:first-child');
-    if(headerTitle) {
-        headerTitle.innerHTML = `<div style="text-align:center; padding-top: 10px;"><div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div><div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div></div>`;
-        headerTitle.style.marginBottom = '30px';
-    }
+    const container = document.getElementById('recent-results-container'); 
+    container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
 
     const historyData = await getHistory();
-    if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
+    if (!historyData || historyData.length === 0) { 
+        container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; 
+        return; 
+    }
 
     const groupedData = {};
     historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
@@ -407,7 +407,7 @@ async function loadRecentHistory() {
     container.innerHTML = timelineHtml + '</div>';
 }
 
-// ==== SUBSCRIBE (FAVORITES) LOGIC UPDATE ====
+// ==== SUBSCRIBE / FAVORITES ====
 window.toggleSortMenu = function() {
     const menu = document.getElementById('sort-dropdown-menu');
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -417,15 +417,10 @@ window.applyFavSort = function(type, label) {
     document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
     document.getElementById('sort-dropdown-menu').style.display = 'none';
 
-    if(type === 'new') {
-        window.currentFavData.sort((a, b) => b.timestamp - a.timestamp);
-    } else if(type === 'az') {
-        window.currentFavData.sort((a, b) => a.title.localeCompare(b.title));
-    } else if(type === 'za') {
-        window.currentFavData.sort((a, b) => b.title.localeCompare(a.title));
-    } else if(type === 'rating') {
-        window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
-    }
+    if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } 
+    else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } 
+    else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } 
+    else if(type === 'rating') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); }
     
     renderFavoritesList();
 };
@@ -446,11 +441,9 @@ async function loadFavorites() {
         container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
         return; 
     }
-    
     renderFavoritesList();
 }
 
-// Close sorting dropdown when clicked outside
 document.addEventListener('click', function(event) {
     const btn = document.getElementById('current-sort-btn');
     const menu = document.getElementById('sort-dropdown-menu');
@@ -566,8 +559,7 @@ async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
-        switchTab('watch'); 
-        addXP(20); 
+        switchTab('watch'); addXP(20); 
         
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
@@ -627,7 +619,8 @@ async function loadVideo(url) {
         `;
 
         if (data.streams.length > 0) {
-            document.getElementById('modal-server-list').innerHTML = data.streams.map((stream, idx) => {
+            const modalServerContainer = document.getElementById('modal-server-list');
+            modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
                 let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
                 return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
             }).join('');
