@@ -319,7 +319,8 @@ function generateRecentCardHtml(anime) {
 
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
-    const forceStopLoading = setTimeout(() => { loader(false); }, 10000);
+    const forceStopLoading = setTimeout(() => { loader(false); }, 10000); // Safety Net biar loading nggak nyangkut
+    
     try {
         try {
             let sliderData = []; const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json();
