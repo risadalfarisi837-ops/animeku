@@ -16,11 +16,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
-let sliderInterval;
-window.currentAnimeEpisodes = []; 
-window.currentAnimeMeta = {}; 
-window.currentFavData = []; 
-window.currentCommentSort = 'top';
 
 // ==========================================
 // 2. AUTHENTICATION & USER UI LOGIC
@@ -161,9 +156,32 @@ const API_BASE = '/api';
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
+window.currentFavData = []; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
-function getEpBadge(anime) { let text = String(anime.episode || anime.episodes || anime.status || ''); if (!text || text === 'undefined') return 'Anime'; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); return epMatch ? `Eps ${epMatch[1]}` : text.substring(0, 8); }
+
+// === LOGIKA PINTAR PENDETEKSI EPISODE ===
+function getEpBadge(anime) { 
+    let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
+    if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
+    
+    let lowText = text.toLowerCase().trim();
+    if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
+    if (lowText.includes('movie')) return 'Movie';
+    if (lowText.includes('ongoin')) return 'Ongoing';
+    
+    // Jika data murni hanya berisi angka (contoh: "2" atau "12"), tambahkan kata "Episode"
+    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
+    
+    let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
+    if (epMatch) return `Episode ${epMatch[1]}`; 
+    
+    let numMatch = text.match(/\d+/g);
+    if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`;
+    
+    return text.length > 10 ? text.substring(0, 10) : text; 
+}
+// ==========================================
 
 function formatTimelineDate(timestamp) {
     const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
@@ -192,7 +210,14 @@ function addXP(amount) {
         const toast = document.getElementById('xp-toast');
         document.getElementById('xp-toast-text').innerText = (nLvl > (d.level||1)) ? `Level Up! Lvl ${nLvl} 🎉` : `+${amount} XP`;
         toast.style.background = (nLvl > (d.level||1)) ? '#f59e0b' : '#3b82f6';
-        toast.style.display = 'flex'; setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        
+        // Animasi pop-up XP yang aman
+        toast.style.display = 'flex'; 
+        toast.style.opacity = '1';
+        setTimeout(() => { 
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 300); // Tunggu transisi pudar selesai
+        }, 3000);
     });
 }
 
@@ -246,6 +271,7 @@ const HOME_SECTIONS = [
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
 
+let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
@@ -404,10 +430,11 @@ async function loadRecentHistory() {
             const dateObj = new Date(anime.timestamp); const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
             const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
+            const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
             
             timelineHtml += `
                 <div class="timeline-card" onclick="loadDetail('${anime.url}')">
-                    <div class="timeline-img"><img src="${anime.image}" alt="${anime.title}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+                    <div class="timeline-img"><img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
                     <div class="timeline-info">
                         <div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div>
                         <div class="timeline-ep">${getEpBadge(anime)}</div>
@@ -571,6 +598,8 @@ async function loadDetail(url) {
 // ==========================================
 // 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
+window.currentCommentSort = 'top';
+
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
@@ -817,7 +846,7 @@ window.postReply = function(parentID) {
 };
 
 // ==========================================
-// 9. ROUTING & CONTROLS (ANTI BLANK SCREEN)
+// 9. ROUTING & CONTROLS
 // ==========================================
 window.addEventListener('popstate', (e) => {
     const page = e.state ? e.state.page : 'home'; switchTab(page); 
@@ -833,8 +862,9 @@ function initApp() {
     switchTab('home'); 
 }
 
+// Inisialisasi yang AMAN agar tidak menyebabkan blank screen
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
     initApp();
-} 
+}
