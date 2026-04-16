@@ -49,16 +49,16 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL ====
+// ==== SISTEM RANKING LEVEL (DENGAN EMOJI ELEGAN) ====
 const RANK_TIERS = [
-    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🪨" },
-    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🧱" },
-    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥄" },
-    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.25)", icon: "🪙" },
-    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.25)", icon: "🔮" },
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
+    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" },
+    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
     { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
-    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "💠" },
-    { name: "Mythic", minLvl: 20000, maxLvl: 999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🔥" }
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
+    { name: "Mythic", minLvl: 20000, maxLvl: 999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
 ];
 
 function getRankInfo(level) {
@@ -339,72 +339,80 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL (DENGAN BATAS LEVEL 2000) ====
+// ==== FUNGSI XP MODAL (HARD CAP LEVEL 2000 ANTI RESET) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
         
         let prevExp = d.exp || 0;
-        let prevLvl = Math.floor(prevExp / 200) + 1;
+        let maxExp = 399800; // Batas Pas untuk Level 2000
         
-        // JIKA SUDAH LEVEL 2000, JANGAN TAMBAH XP LAGI (BIAR GAK KE RESET)
-        if (prevLvl >= 2000) {
-            return; // Berhenti di sini, fungsi nggak akan dilanjutkan
+        // JIKA SUDAH LEVEL 2000, JANGAN TAMBAH XP KE DATABASE LAGI
+        if (prevExp >= maxExp) {
+            showXPModal(0, 2000, 100, false, true); // (added, lvl, %, isUp, isMax)
+            return; 
         }
         
         let nExp = prevExp + amount; 
-        let nLvl = Math.floor(nExp / 200) + 1; 
         
-        // CEGAH LEVEL LEWAT DARI 2000 JIKA XP TIBA-TIBA MEMBLUDAK
-        if (nLvl > 2000) {
-            nLvl = 2000;
-            nExp = 399800; // Dasar EXP untuk Level 2000
+        // KUNCI MATI BILA NEXP MELEBIHI BATAS TERTINGGI (CEGAH JEBOL KE 2001+)
+        if (nExp >= maxExp) {
+            nExp = maxExp;
         }
-
+        
+        let prevLvl = Math.floor(prevExp / 200) + 1;
+        let nLvl = Math.floor(nExp / 200) + 1; 
         let isLevelUp = nLvl > prevLvl;
         
+        // SIMPAN KE DATABASE
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
         
-        const overlay = document.getElementById('xp-modal-overlay');
-        const card = document.getElementById('xp-modal-card');
-        const titleText = document.getElementById('xp-title-text');
-        const amountText = document.getElementById('xp-amount-text');
-        const levelText = document.getElementById('xp-level-text');
-        const progressText = document.getElementById('xp-progress-text');
-        const progressFill = document.getElementById('xp-progress-fill');
-        
         let currentLevelXp = nExp % 200;
-        let progressPercent = nLvl === 2000 ? 100 : Math.floor((currentLevelXp / 200) * 100);
-        
-        amountText.innerText = `+${amount}`;
-        levelText.innerText = `Level ${nLvl}`;
-        progressText.innerText = nLvl === 2000 ? `MAX` : `${progressPercent}%`;
-        progressFill.style.width = nLvl === 2000 ? `100%` : `${progressPercent}%`;
-        
-        if (nLvl === 2000) {
-            titleText.innerText = "MAX LEVEL!";
-            titleText.style.color = "#3b82f6";
-        } else if (isLevelUp) {
-            titleText.innerText = "LEVEL UP!";
-            titleText.style.color = "#3b82f6";
-        } else {
-            titleText.innerText = "EXP Gained";
-            titleText.style.color = "#fff";
-        }
-        
-        overlay.style.display = 'flex'; 
-        setTimeout(() => { 
-            overlay.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, 10);
-        
-        setTimeout(() => { 
-            overlay.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            setTimeout(() => { overlay.style.display = 'none'; }, 300); 
-        }, 2500);
+        let progressPercent = (nLvl === 2000) ? 100 : Math.floor((currentLevelXp / 200) * 100);
+        let actualAdded = nExp - prevExp;
+        let isMax = (nLvl === 2000);
+
+        showXPModal(actualAdded, nLvl, progressPercent, isLevelUp, isMax);
     });
+}
+
+function showXPModal(addedAmount, level, progress, isLevelUp, isMax) {
+    const overlay = document.getElementById('xp-modal-overlay');
+    const card = document.getElementById('xp-modal-card');
+    const titleText = document.getElementById('xp-title-text');
+    const amountText = document.getElementById('xp-amount-text');
+    const levelText = document.getElementById('xp-level-text');
+    const progressText = document.getElementById('xp-progress-text');
+    const progressFill = document.getElementById('xp-progress-fill');
+
+    amountText.innerText = `+${addedAmount}`;
+    levelText.innerText = `Level ${level}`;
+    progressText.innerText = isMax ? `MAX` : `${progress}%`;
+    progressFill.style.width = isMax ? `100%` : `${progress}%`;
+    
+    if (isMax) {
+        titleText.innerText = "MAX LEVEL!";
+        titleText.style.color = "#3b82f6";
+    } else if (isLevelUp) {
+        titleText.innerText = "LEVEL UP!";
+        titleText.style.color = "#3b82f6";
+    } else {
+        titleText.innerText = "EXP Gained";
+        titleText.style.color = "#fff";
+    }
+    
+    overlay.style.display = 'flex'; 
+    setTimeout(() => { 
+        overlay.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 10);
+    
+    setTimeout(() => { 
+        overlay.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
+    }, 2500);
 }
 
 function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
