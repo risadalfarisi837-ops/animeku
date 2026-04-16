@@ -1,4 +1,25 @@
 // ==========================================
+// 0. TRIK ANTI-CACHE UNTUK MEMAKSA ANIMASI MUNCUL
+// ==========================================
+const dynamicStyles = document.createElement('style');
+dynamicStyles.innerHTML = `
+    .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
+    .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
+    .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
+    .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
+    .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+    
+    .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
+    .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+    .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+    
+    @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
+    @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
+    @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
+`;
+document.head.appendChild(dynamicStyles);
+
+// ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
 const firebaseConfig = {
@@ -58,7 +79,7 @@ const RANK_TIERS = [
     { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
     { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
     { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Mythic", minLvl: 999999+, maxLvl: 999999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" } // <-- Angka 20000 ini bisa kamu ganti berapapun!
+    { name: "Mythic", minLvl: 20000, maxLvl: 9999999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
 ];
 
 function getRankInfo(level) {
@@ -83,7 +104,6 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
-        // Tampilkan loading sebentar saat mengambil profil database
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
         
         db.ref('users/' + currentUser.uid).on('value', async snap => {
@@ -116,7 +136,6 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
 
-                // RENDERING RIWAYAT TONTONAN
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let timeDiff = Date.now() - item.timestamp;
                     let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
@@ -139,7 +158,6 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER
                 let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
                 let totalKomentar = 0;
                 
@@ -149,11 +167,7 @@ function updateDevUI() {
                         epSnap.forEach(commentSnap => {
                             let cData = commentSnap.val();
                             if(cData.uid === currentUser.uid) {
-                                allUserComments.push({
-                                    id: commentSnap.key,
-                                    epID: epSnap.key,
-                                    ...cData
-                                });
+                                allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData });
                             }
                         });
                     });
@@ -173,7 +187,7 @@ function updateDevUI() {
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
                             let aImage = c.animeImage || 'https://placehold.co/100';
                             let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}\\n(Fitur menuju video lawas sedang diproses)')`;
+                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}')`;
 
                             return `
                                 <div style="margin-bottom: 25px; padding: 0 5px;">
@@ -261,8 +275,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
         
-        // Logika teks level requirement 
-        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
+        let reqText = rank.maxLvl >= 9999999999 ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
 
         html += `
             <div class="level-rank-item" style="${bgStyle}">
@@ -602,9 +615,10 @@ async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
-        // MENYIMPAN INFO ANIME SAAT INI UNTUK DIPAKAI DI KOMENTAR NANTI
+        
         window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url };
         window.currentAnimeEpisodes = data.episodes || []; 
+        
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
         const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -658,6 +672,7 @@ async function loadVideo(url) {
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
         
+        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
         window.currentPlayingAnime = {
             title: window.currentAnimeMeta?.title || displayTitle,
             image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
@@ -667,7 +682,9 @@ async function loadVideo(url) {
 
         let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
         if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
-        let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+        
+        // 🔥 INI DIA KUNCI ANTI NYAMPUR!
+        let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
         
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
@@ -731,7 +748,7 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
