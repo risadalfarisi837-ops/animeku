@@ -78,19 +78,15 @@ function updateDevUI() {
             if(!data) return;
             
             const historyData = await getHistory();
-            
-            // Kalkulasi Stats buatan
-            const totalMenit = historyData.length * 24; // Anggap 1 eps = 24 menit
-            const joinMonths = Math.max(1, new Date().getMonth() + 1); // Mock data bergabung
+            const totalMenit = historyData.length * 24; 
+            const joinMonths = Math.max(1, new Date().getMonth() + 1); 
             const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
             const displayName = data.role === 'Member' ? 'Wibu Biasa' : data.role;
 
-            // Generate History List HTML (Dipakai untuk Tab 'All' dan 'History')
             let historyHtml = historyData.length > 0 ? historyData.map(item => {
-                // Waktu relatif (contoh: '2 hari lalu')
                 let timeDiff = Date.now() - item.timestamp;
                 let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
-                let randProgress = Math.floor(Math.random() * 80 + 20); // Progress bar acak 20-100%
+                let randProgress = Math.floor(Math.random() * 80 + 20); 
                 
                 return `
                 <div class="profile-list-item" onclick="loadDetail('${item.url}')">
@@ -122,7 +118,6 @@ function updateDevUI() {
                         <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
                     </div>
                     <div class="profile-name">${data.nama}</div>
-                    
                     <div class="profile-badges">
                         <span class="p-badge badge-role">${displayName}</span>
                         <span class="p-badge badge-lvl"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${data.level}</span>
@@ -153,7 +148,6 @@ function updateDevUI() {
     }
 }
 
-// Fungsi untuk mengganti Tab di dalam Profil
 window.switchProfileTab = function(tabName, element) {
     document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
@@ -183,18 +177,28 @@ function getEpBadge(anime) {
     let text = String(anime.episode || anime.episodes || anime.status || anime.type || '');
     if (!text || text === 'undefined' || text.trim() === '') return 'Anime';
     let lowText = text.toLowerCase();
-    
     if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
     if (lowText.includes('movie')) return 'Movie';
     if (lowText.includes('ongoin')) return 'Ongoing';
-    
     let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i);
     if (epMatch) return `Eps ${epMatch[1]}`;
-    
     let numMatch = text.match(/\d+/g);
     if (numMatch) return `Eps ${numMatch[numMatch.length - 1]}`;
-
     return text.length > 8 ? text.substring(0, 8) : text;
+}
+
+// ==== FUNGSI FORMAT TANGGAL ====
+function formatTimelineDate(timestamp) {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return "Hari ini";
+    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 function addXP(amount) {
@@ -203,17 +207,14 @@ function addXP(amount) {
     userRef.once('value').then(snap => {
         let data = snap.val();
         if(!data) return;
-        
         let oldExp = data.exp || 0;
         let oldLvl = data.level || 1;
         let newExp = oldExp + amount;
         let newLvl = Math.floor(newExp / 200) + 1; 
-        
         userRef.update({ exp: newExp, level: newLvl });
         
         const toast = document.getElementById('xp-toast');
         const toastText = document.getElementById('xp-toast-text');
-        
         if (newLvl > oldLvl) {
             toastText.innerText = `Level Up! Level ${newLvl} 🎉`;
             toast.style.background = '#f59e0b';
@@ -221,7 +222,6 @@ function addXP(amount) {
             toastText.innerText = `+${amount} XP`;
             toast.style.background = '#3b82f6';
         }
-        
         toast.style.display = 'flex';
         setTimeout(() => { toast.style.display = 'none'; }, 3000);
     });
@@ -384,30 +384,16 @@ function generateRecentCardHtml(anime) {
     </div>`;
 }
 
-// === TAMBAHAN FUNGSI BANTUAN TANGGAL TIMELINE ===
-function formatTimelineDate(timestamp) {
-    const date = new Date(timestamp);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) return "Hari ini";
-    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
-
-    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-}
-
-// === FUNGSI LOAD RIWAYAT TIMELINE (PENGGANTI FUNGSI LAMA) ===
+// ==== LOAD RECENT HISTORY DENGAN TIMELINE FULL SCREEN ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); 
     container.innerHTML = '<div class="spinner"></div>';
     
-    // Mengubah Header agar di tengah
+    // Perbaikan Header agar presisi di tengah
     const headerTitle = document.querySelector('#recent-view > div:first-child');
     if(headerTitle) {
         headerTitle.innerHTML = `
-            <div style="text-align:center;">
+            <div style="text-align:center; padding-top: 10px;">
                 <div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div>
                 <div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div>
             </div>`;
@@ -420,7 +406,6 @@ async function loadRecentHistory() {
         return; 
     }
 
-    // Mengelompokkan riwayat
     const groupedData = {};
     historyData.forEach(anime => {
         const dateLabel = formatTimelineDate(anime.timestamp);
@@ -428,7 +413,6 @@ async function loadRecentHistory() {
         groupedData[dateLabel].push(anime);
     });
 
-    // Menggambar Timeline HTML
     let timelineHtml = '<div class="timeline-wrapper">';
     
     for (const [dateLabel, animes] of Object.entries(groupedData)) {
