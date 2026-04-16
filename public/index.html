@@ -34,8 +34,9 @@
         #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 10px; }
-        .hero-slider { width: calc(100% - 24px); height: 210px; margin: 0 12px; border-radius: 12px; position: relative; overflow: hidden; background: #111; }
+        /* BANNER HERO HOME: DIBUAT FULL LAYAR EDGE-TO-EDGE */
+        .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 0; }
+        .hero-slider { width: 100%; height: 280px; margin: 0; border-radius: 0 0 16px 16px; position: relative; overflow: hidden; background: #050505; }
         .hero-wrapper { display: flex; height: 100%; width: 100%; }
         .hero-slide { min-width: 100%; height: 100%; position: relative; cursor: pointer; }
         .hero-bg { width: 100%; height: 100%; object-fit: cover; }
@@ -96,7 +97,7 @@
         .synopsis-text.expanded { -webkit-line-clamp: unset; }
         .read-more-btn { color: #3b82f6; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 5px; display: inline-block; }
         
-        /* INI KODE VIDEO PLAYER YANG SUDAH DIBUAT FULL LAYAR PROPOSIONAL (16:9) */
+        /* VIDEO PLAYER DIBUAT FULL 16:9 PROPOSIONAL */
         .video-container-fixed { width: 100%; background: #000; position: relative; padding-top: 56.25%; }
         .video-container-fixed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block; }
         .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -273,6 +274,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>
