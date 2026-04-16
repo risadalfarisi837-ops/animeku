@@ -150,7 +150,7 @@ window.switchProfileTab = function(tabName, element) {
 };
 
 // ==========================================
-// 3. CORE APP VARIABLES & HELPERS
+// 3. CORE APP VARIABLES & HELPERS (ANTI CRASH)
 // ==========================================
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
@@ -159,6 +159,17 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+
+// === FUNGSI MENGHAPUS DUPLIKAT YANG SANGAT AMAN ===
+function removeDuplicates(array, key) {
+    const seen = new Set();
+    return array.filter(item => {
+        if (!item || !item[key]) return false;
+        if (seen.has(item[key])) return false;
+        seen.add(item[key]);
+        return true;
+    });
+}
 
 // === LOGIKA PINTAR PENDETEKSI EPISODE ===
 function getEpBadge(anime) { 
@@ -170,7 +181,7 @@ function getEpBadge(anime) {
     if (lowText.includes('movie')) return 'Movie';
     if (lowText.includes('ongoin')) return 'Ongoing';
     
-    // Kalau cuma angka, ubah jadi "Episode X"
+    // Kalau isinya cuma angka (misal "2" atau "12"), tambahkan kata "Episode" biar bagus
     if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
     
     let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
@@ -269,6 +280,7 @@ const HOME_SECTIONS = [
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
 
+let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
@@ -317,38 +329,54 @@ function generateRecentCardHtml(anime) {
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
+// ==== FUNGSI LOAD LATEST (ANTI BLANK/HANG SCRIPT) ====
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
+    
     try {
-        let sliderData = []; try { const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json(); } catch (e) {}
-        if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
+        // Blok 1: Memuat Hero Slider
+        try {
+            let sliderData = []; const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json();
+            if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
+        } catch (e) { console.error("Gagal load slider:", e); }
 
-        const historyData = await getHistory();
-        if (historyData && historyData.length > 0) {
-            const histDiv = document.createElement('div');
-            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><a href="#" class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></a></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-            homeContainer.appendChild(histDiv);
-        }
-
-        const sectionPromises = HOME_SECTIONS.map(async (section) => {
-            let combinedData = [];
-            if (section.queries) {
-                const promises = section.queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
-                const results = await Promise.all(promises); results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
+        // Blok 2: Memuat Riwayat (Terakhir Ditonton)
+        try {
+            const historyData = await getHistory();
+            if (historyData && historyData.length > 0) {
+                const histDiv = document.createElement('div');
+                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><a href="#" class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></a></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(histDiv);
             }
-            combinedData = [ ...new Map(combinedData.map(item => [item['url'], item])).values() ];
-            return { section, data: combinedData };
-        });
+        } catch (e) { console.error("Gagal load riwayat:", e); }
 
-        const loadedSections = await Promise.all(sectionPromises);
-        loadedSections.forEach(({section, data}) => {
-            if (data.length > 0) {
-                const sectionDiv = document.createElement('div'); const keyword = section.title.split(' ')[0];
-                sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="handleSearch('${keyword}')">Lihat Lainnya ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(sectionDiv);
-            }
-        });
-    } catch (err) { console.error(err); } finally { loader(false); }
+        // Blok 3: Memuat Kategori (Action, Romance, dll)
+        try {
+            const sectionPromises = HOME_SECTIONS.map(async (section) => {
+                let combinedData = [];
+                if (section.queries) {
+                    const promises = section.queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
+                    const results = await Promise.all(promises); results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
+                }
+                combinedData = removeDuplicates(combinedData, 'url');
+                return { section, data: combinedData };
+            });
+
+            const loadedSections = await Promise.all(sectionPromises);
+            loadedSections.forEach(({section, data}) => {
+                if (data && data.length > 0) {
+                    const sectionDiv = document.createElement('div'); const keyword = section.title.split(' ')[0];
+                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="handleSearch('${keyword}')">Lihat Lainnya ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    homeContainer.appendChild(sectionDiv);
+                }
+            });
+        } catch (e) { console.error("Gagal load kategori section:", e); }
+
+    } catch (err) { 
+        console.error("Home loading failed total", err); 
+    } finally { 
+        loader(false); 
+    }
 }
 
 function renderHeroSlider(data, container) {
@@ -401,9 +429,14 @@ async function handleSearch(query) {
     } catch (err) {} finally { loader(false); }
 }
 
-// ==== FUNGSI TOMBOL AKSI & MODAL ====
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
+
+window.handleDownload = function() { alert('Fitur Download sedang dalam tahap pengembangan! Nantikan update selanjutnya.'); };
+window.handleShare = function() { 
+    if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } 
+    else { alert('Tautan disalin: ' + window.location.href); }
+};
 
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
@@ -411,12 +444,6 @@ window.changeServer = function(url, serverName, btnElement) {
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
     btnElement.classList.add('active'); 
     window.closeServerModal();
-};
-
-window.handleDownload = function() { alert('Fitur Download sedang dalam tahap pengembangan! Nantikan update selanjutnya.'); };
-window.handleShare = function() { 
-    if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } 
-    else { alert('Tautan disalin: ' + window.location.href); }
 };
 
 // ==== TIMELINE HISTORY (FULL WIDTH) ====
@@ -604,7 +631,6 @@ async function loadDetail(url) {
 // ==========================================
 // 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
-window.currentCommentSort = 'top';
 
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
