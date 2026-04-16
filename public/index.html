@@ -111,12 +111,11 @@
         .ep-square.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
         .ep-square.watched { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
-        /* MODAL / BOTTOM SHEET SERVER (WARNA GELAP!) */
+        /* MODAL / BOTTOM SHEET SERVER */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(2px); display: none; }
         .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; z-index: 99999; border-radius: 24px 24px 0 0; padding: 25px 20px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: none; }
         .bottom-sheet.show { transform: translateY(0); }
         
-        /* PERBAIKAN TOMBOL SERVER WARNA GELAP */
         .server-list-btn { background: #2c2c2e; color: #fff; border: none; padding: 16px 20px; border-radius: 16px; font-weight: 700; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
         .server-list-btn:hover { background: #3a3a3c; }
         .server-list-btn.active { background: #3b82f6; color: #fff; }
@@ -159,13 +158,25 @@
         .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
         .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
 
+        /* FAVORITE SORT MENU & CARD CSS */
+        .sort-option { padding: 12px 15px; font-size: 13px; font-weight: 600; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #2c2c2e; transition: 0.2s; }
+        .sort-option:last-child { border-bottom: none; }
+        .sort-option:hover { background: #2c2c2e; color: #fff; }
+        
+        .fav-card { width: 100%; display: flex; flex-direction: column; cursor: pointer; }
+        .fav-card-img { position: relative; width: 100%; padding-top: 140%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
+        .fav-card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fav-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1; }
+        .fav-ep { position: absolute; bottom: 8px; left: 8px; color: #fff; font-size: 12px; font-weight: 800; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .fav-score { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 11px; font-weight: bold; padding: 4px 6px; border-radius: 6px; z-index: 2; display: flex; align-items: center; gap: 4px; }
+        .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+        .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
         /* NAVIGATION BAR BAWAH */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-
-        #xp-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 12px 24px; border-radius: 24px; font-weight: 800; font-size: 14px; z-index: 999999; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); display: none; align-items: center; gap: 8px; }
 
     </style>
 </head>
@@ -211,14 +222,41 @@
         
         <div id="home-view"></div>
         <div id="search-view" class="hidden tab-content-container"></div>
+        
         <div id="recent-view" class="hidden tab-content-container">
-            <div style="padding: 0 10px; margin-bottom: 15px;"><h1 style="font-size: 20px; font-weight: bold; margin: 0;">Terakhir Ditonton</h1></div>
+            <div style="text-align: center; padding-top: 10px; padding-bottom: 25px;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Menonton</h1>
+                <div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div>
+            </div>
             <div id="recent-results-container" class="search-results-container"></div>
         </div>
+        
         <div id="favorite-view" class="hidden tab-content-container">
-            <div style="padding: 0 10px; margin-bottom: 15px;"><h1 style="font-size: 20px; font-weight: bold; margin: 0;">Anime Subscribed</h1></div>
-            <div id="favorite-results-container" class="search-results-container"></div>
+            <div style="text-align: center; padding-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Subscribed Anime</h1>
+            </div>
+
+            <div style="padding: 15px 15px 5px 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 16px; font-weight: 800; color: #fff;">Total (<span id="fav-total-count">0</span>)</div>
+                <div style="position: relative;">
+                    <button onclick="toggleSortMenu()" id="current-sort-btn" style="background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 0;">New Update <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></button>
+                    <div id="sort-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; background: #1c1c1e; border: 1px solid #333; border-radius: 12px; width: 140px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                        <div class="sort-option" onclick="applyFavSort('new', 'New Update')">New Update</div>
+                        <div class="sort-option" onclick="applyFavSort('az', 'A-Z')">A-Z</div>
+                        <div class="sort-option" onclick="applyFavSort('za', 'Z-A')">Z-A</div>
+                        <div class="sort-option" onclick="applyFavSort('rating', 'Rating')">Rating</div>
+                        <div class="sort-option" onclick="applyFavSort('popular', 'Popular')">Popular</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 0 15px; margin-bottom: 10px;">
+                <div style="font-size: 14px; font-weight: 700; color: #fff;">Completed (<span id="fav-completed-count">0</span>)</div>
+            </div>
+            
+            <div id="favorite-results-container" style="padding-top: 5px;"></div>
         </div>
+
         <div id="developer-view" class="hidden">
             <div id="auth-check-container" style="padding-bottom: 20px;"></div>
         </div>
@@ -244,7 +282,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
         </button>
     </nav>
-
-    <script src="app.js"></script>
+    
+    <script src="app.js?v=3.1"></script>
 </body>
 </html>
