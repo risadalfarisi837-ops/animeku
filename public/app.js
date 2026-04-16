@@ -152,13 +152,6 @@ window.switchProfileTab = function(tabName, element) {
 // ==========================================
 // 3. CORE APP VARIABLES & HELPERS
 // ==========================================
-// MENGHAPUS CACHE SERVICE WORKER YANG BIKIN NYANGKUT!
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) { registration.unregister(); }
-    });
-}
-
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
@@ -277,7 +270,7 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
-// FORMAT CARD UNTUK FAVORITES (Sesuai Referensi Gambar)
+// ==== FORMAT CARD KHUSUS FAVORITES (SUBSCRIBE) ====
 function generateFavCardHtml(anime) {
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -292,7 +285,7 @@ function generateFavCardHtml(anime) {
             <div class="fav-ep">${epsBadge}</div>
             <div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div>
         </div>
-        <div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div>
+        <div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div>
         <div class="fav-title">${anime.title}</div>
     </div>`;
 }
@@ -398,6 +391,12 @@ window.handleShare = function() {
 // ==== TIMELINE HISTORY ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
+    
+    const headerTitle = document.querySelector('#recent-view > div:first-child');
+    if(headerTitle) {
+        headerTitle.innerHTML = `<div style="text-align:center; padding-top: 10px;"><div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div><div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div></div>`;
+        headerTitle.style.marginBottom = '30px';
+    }
 
     const historyData = await getHistory();
     if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
@@ -428,7 +427,7 @@ async function loadRecentHistory() {
     container.innerHTML = timelineHtml + '</div>';
 }
 
-// ==== SUBSCRIBE / FAVORITES ====
+// ==== SUBSCRIBE / FAVORITES SORTING LOGIC ====
 window.toggleSortMenu = function() {
     const menu = document.getElementById('sort-dropdown-menu');
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -441,7 +440,7 @@ window.applyFavSort = function(type, label) {
     if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } 
     else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } 
     else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } 
-    else if(type === 'rating') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); }
+    else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); }
     
     renderFavoritesList();
 };
@@ -581,8 +580,7 @@ async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
-        switchTab('watch'); 
-        addXP(20); 
+        switchTab('watch'); addXP(20); 
         
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
@@ -642,8 +640,7 @@ async function loadVideo(url) {
         `;
 
         if (data.streams.length > 0) {
-            const modalServerContainer = document.getElementById('modal-server-list');
-            modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
+            document.getElementById('modal-server-list').innerHTML = data.streams.map((stream, idx) => {
                 let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
                 return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
             }).join('');
