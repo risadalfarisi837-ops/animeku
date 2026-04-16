@@ -141,7 +141,7 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER TERCANTIK (PERSIS FOTO)
+                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER TERCANTIK
                 let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
                 let totalKomentar = 0;
                 
@@ -349,7 +349,7 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL (POPUP SAAT DAPAT XP) ====
+// ==== FUNGSI XP MODAL (WARNA BIRU) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -382,7 +382,7 @@ function addXP(amount) {
         
         if (isLevelUp) {
             titleText.innerText = "LEVEL UP!";
-            titleText.style.color = "#facc15";
+            titleText.style.color = "#3b82f6"; // Diubah jadi biru
         } else {
             titleText.innerText = "EXP Gained";
             titleText.style.color = "#fff";
