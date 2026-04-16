@@ -150,9 +150,14 @@ window.switchProfileTab = function(tabName, element) {
 };
 
 // ==========================================
-// 3. CORE APP VARIABLES & INDEXED DB
+// 3. CORE APP VARIABLES & HELPERS
 // ==========================================
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed:', err)); }); }
+// MENGHAPUS CACHE SERVICE WORKER YANG BIKIN NYANGKUT!
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) { registration.unregister(); }
+    });
+}
 
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
@@ -272,6 +277,26 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
+// FORMAT CARD UNTUK FAVORITES (Sesuai Referensi Gambar)
+function generateFavCardHtml(anime) {
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
+    let views = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K views`;
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+
+    return `
+    <div class="fav-card" onclick="loadDetail('${anime.url}')">
+        <div class="fav-card-img">
+            <img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
+            <div class="fav-overlay"></div>
+            <div class="fav-ep">${epsBadge}</div>
+            <div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div>
+        </div>
+        <div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div>
+        <div class="fav-title">${anime.title}</div>
+    </div>`;
+}
+
 function generateRecentCardHtml(anime) {
     let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
@@ -372,14 +397,10 @@ window.handleShare = function() {
 
 // ==== TIMELINE HISTORY ====
 async function loadRecentHistory() {
-    const container = document.getElementById('recent-results-container'); 
-    container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
+    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
 
     const historyData = await getHistory();
-    if (!historyData || historyData.length === 0) { 
-        container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; 
-        return; 
-    }
+    if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
 
     const groupedData = {};
     historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
@@ -427,7 +448,7 @@ window.applyFavSort = function(type, label) {
 
 function renderFavoritesList() {
     const container = document.getElementById('favorite-results-container');
-    container.innerHTML = `<div class="anime-grid">${window.currentFavData.map(anime => generateCardHtml(anime)).join('')}</div>`;
+    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(2, 1fr); padding: 0 15px; gap: 15px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
 }
 
 async function loadFavorites() {
@@ -436,6 +457,7 @@ async function loadFavorites() {
     
     window.currentFavData = await getFavorites(); 
     document.getElementById('fav-total-count').innerText = window.currentFavData.length;
+    document.getElementById('fav-completed-count').innerText = window.currentFavData.length;
 
     if (!window.currentFavData || window.currentFavData.length === 0) { 
         container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
@@ -559,7 +581,8 @@ async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
-        switchTab('watch'); addXP(20); 
+        switchTab('watch'); 
+        addXP(20); 
         
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
