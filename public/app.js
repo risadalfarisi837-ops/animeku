@@ -270,7 +270,7 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
-// ==== FORMAT CARD KHUSUS FAVORITES (SUBSCRIBE) ====
+// FORMAT CARD KHUSUS FAVORITES (SUBSCRIBE)
 function generateFavCardHtml(anime) {
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -391,12 +391,6 @@ window.handleShare = function() {
 // ==== TIMELINE HISTORY ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    
-    const headerTitle = document.querySelector('#recent-view > div:first-child');
-    if(headerTitle) {
-        headerTitle.innerHTML = `<div style="text-align:center; padding-top: 10px;"><div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div><div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div></div>`;
-        headerTitle.style.marginBottom = '30px';
-    }
 
     const historyData = await getHistory();
     if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
@@ -640,7 +634,8 @@ async function loadVideo(url) {
         `;
 
         if (data.streams.length > 0) {
-            document.getElementById('modal-server-list').innerHTML = data.streams.map((stream, idx) => {
+            const modalServerContainer = document.getElementById('modal-server-list');
+            modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
                 let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
                 return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
             }).join('');
@@ -822,7 +817,7 @@ window.postReply = function(parentID) {
 };
 
 // ==========================================
-// 9. ROUTING & CONTROLS
+// 9. ROUTING & CONTROLS (ANTI BLANK SCREEN)
 // ==========================================
 window.addEventListener('popstate', (e) => {
     const page = e.state ? e.state.page : 'home'; switchTab(page); 
@@ -832,6 +827,15 @@ window.addEventListener('popstate', (e) => {
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-document.addEventListener('DOMContentLoaded', () => { 
-    updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); 
-});
+// FUNGSI INIT YANG DIJAMIN JALAN (TIDAK AKAN BLANK)
+function initApp() {
+    updateDevUI(); 
+    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    switchTab('home'); 
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
