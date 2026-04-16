@@ -170,7 +170,6 @@ function getEpBadge(anime) {
     if (lowText.includes('movie')) return 'Movie';
     if (lowText.includes('ongoin')) return 'Ongoing';
     
-    // Jika data murni hanya berisi angka (contoh: "2" atau "12"), tambahkan kata "Episode"
     if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
     
     let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
@@ -211,12 +210,11 @@ function addXP(amount) {
         document.getElementById('xp-toast-text').innerText = (nLvl > (d.level||1)) ? `Level Up! Lvl ${nLvl} 🎉` : `+${amount} XP`;
         toast.style.background = (nLvl > (d.level||1)) ? '#f59e0b' : '#3b82f6';
         
-        // Animasi pop-up XP yang aman
         toast.style.display = 'flex'; 
         toast.style.opacity = '1';
         setTimeout(() => { 
             toast.style.opacity = '0';
-            setTimeout(() => { toast.style.display = 'none'; }, 300); // Tunggu transisi pudar selesai
+            setTimeout(() => { toast.style.display = 'none'; }, 300); 
         }, 3000);
     });
 }
@@ -271,7 +269,6 @@ const HOME_SECTIONS = [
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
 
-let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
@@ -467,7 +464,8 @@ window.applyFavSort = function(type, label) {
 
 function renderFavoritesList() {
     const container = document.getElementById('favorite-results-container');
-    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(2, 1fr); padding: 0 15px; gap: 15px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
+    // Diatur jadi 3 kolom agar tidak kebesaran
+    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
 }
 
 async function loadFavorites() {
