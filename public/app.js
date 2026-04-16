@@ -83,11 +83,14 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
+        // Tampilkan loading sebentar saat mengambil profil database
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
         
         db.ref('users/' + currentUser.uid).on('value', async snap => {
             try {
                 let data = snap.val(); 
+                
+                // SISTEM RECOVERY: Jika data database hilang, buatkan baru instan!
                 if(!data) {
                     data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 };
                     await db.ref('users/' + currentUser.uid).set(data);
@@ -138,7 +141,7 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER DARI SEMUA ANIME
+                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER TERCANTIK (PERSIS FOTO)
                 let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
                 let totalKomentar = 0;
                 
@@ -165,14 +168,33 @@ function updateDevUI() {
                     } else {
                         allUserComments.sort((a, b) => b.waktu - a.waktu);
                         let commentsHtml = allUserComments.map(c => {
-                            let timeStr = timeAgo(c.waktu || Date.now());
+                            let d = new Date(c.waktu || Date.now());
+                            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+                            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                            
+                            let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
+                            let aImage = c.animeImage || 'https://placehold.co/100';
+                            let aEp = c.animeEp || 'Episode ?';
+                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}\\n(Fitur menuju video lawas sedang diproses)')`;
+
                             return `
-                                <div class="profile-comment-box">
-                                    <div class="profile-comment-header">
-                                        <span class="profile-comment-anime" onclick="alert('Komentar ini ada di ID Episode: ${c.epID}\\n(Fitur langsung menuju video segera hadir)')">Komentar di Episode Anime</span>
-                                        <span>${timeStr}</span>
+                                <div style="margin-bottom: 25px; padding: 0 5px;">
+                                    <div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}">
+                                        <div style="position:relative; flex-shrink:0;">
+                                            <img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;">
+                                            <div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;">
+                                                <img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;">
+                                            </div>
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div>
+                                            <div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div>
+                                        </div>
                                     </div>
-                                    <div class="profile-comment-text">"${c.teks}"</div>
+                                    <div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">
+                                        ${c.teks}
+                                    </div>
+                                    <div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Reply</div>
                                 </div>
                             `;
                         }).join('');
@@ -218,7 +240,7 @@ function updateDevUI() {
     }
 }
 
-// ==== FUNGSI BUKA MODAL LEVEL (KAYAK DI VIDEO) ====
+// ==== FUNGSI BUKA MODAL LEVEL ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -280,6 +302,7 @@ const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
 window.currentFavData = []; 
+window.currentPlayingAnime = null; // Menyimpan info anime yang sedang ditonton
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 
@@ -573,7 +596,9 @@ async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
-        window.currentAnimeEpisodes = data.episodes || []; window.currentAnimeMeta = { title: data.title, description: data.description };
+        // MENYIMPAN INFO ANIME SAAT INI UNTUK DIPAKAI DI KOMENTAR NANTI
+        window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url };
+        window.currentAnimeEpisodes = data.episodes || []; 
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
         const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -626,6 +651,15 @@ async function loadVideo(url) {
             let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url);
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
+        
+        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
+        window.currentPlayingAnime = {
+            title: window.currentAnimeMeta?.title || displayTitle,
+            image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
+            ep: 'Episode ' + currentEpNum,
+            url: window.currentAnimeMeta?.url || url
+        };
+
         let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
         if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
         let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
@@ -653,7 +687,30 @@ function renderCommentInput(epID) {
     else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 }
 
-window.postComment = function(epID) { const input = document.getElementById('main-comment-input'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(10); }); };
+// ==== SIMPAN INFO ANIME SAAT KOMENTAR ====
+window.postComment = function(epID) { 
+    const input = document.getElementById('main-comment-input'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        db.ref('comments/' + epID).push().set({ 
+            uid: currentUser.uid, 
+            nama: u.nama, 
+            foto: u.foto, 
+            role: u.role || 'Member', 
+            level: u.level || 1, 
+            teks: text, 
+            waktu: Date.now(),
+            animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui',
+            animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100',
+            animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?',
+            url: window.currentPlayingAnime ? window.currentPlayingAnime.url : ''
+        }); 
+        input.value = ''; addXP(10); 
+    }); 
+};
 
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
