@@ -90,7 +90,7 @@
         .timeline-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
         .timeline-progress-text { font-size: 11px; color: #a1a1aa; text-align: right; font-weight: 600; }
 
-        /* DETAIL & WATCH CSS (DIKEMBALIKAN KE ASLINYA) */
+        /* DETAIL & WATCH CSS */
         .detail-hero { position: relative; width: 100%; height: 380px; background-size: cover; background-position: center top; display: flex; align-items: flex-end; }
         .detail-hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.8) 40%, transparent 100%); }
         .detail-hero-content { position: relative; z-index: 2; padding: 20px; width: 100%; }
@@ -104,12 +104,14 @@
         .video-container-fixed iframe { width: 100%; height: 240px; border: none; display: block; }
         .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
+        /* TOMBOL ACTION (Like, Dislike, Download, Share, Report) */
         .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         
         .ep-square { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1c1c1e; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .ep-square.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
         .ep-square.watched { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
+        /* MODAL / BOTTOM SHEET SERVER (WARNA GELAP!) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(2px); display: none; }
         .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; z-index: 99999; border-radius: 24px 24px 0 0; padding: 25px 20px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: none; }
         .bottom-sheet.show { transform: translateY(0); }
@@ -156,10 +158,19 @@
         .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
         .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
 
-        /* FAVORITE SORT MENU CSS */
+        /* FAVORITE SORT MENU & CARD CSS (DESAIN SUBSCRIBE BARU) */
         .sort-option { padding: 12px 15px; font-size: 13px; font-weight: 600; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #2c2c2e; transition: 0.2s; }
         .sort-option:last-child { border-bottom: none; }
         .sort-option:hover { background: #2c2c2e; color: #fff; }
+        
+        .fav-card { width: 100%; display: flex; flex-direction: column; cursor: pointer; }
+        .fav-card-img { position: relative; width: 100%; padding-top: 140%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
+        .fav-card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fav-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1; }
+        .fav-ep { position: absolute; bottom: 8px; left: 8px; color: #fff; font-size: 14px; font-weight: 800; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .fav-score { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 11px; font-weight: bold; padding: 4px 6px; border-radius: 6px; z-index: 2; display: flex; align-items: center; gap: 4px; }
+        .fav-views { font-size: 10px; color: #a1a1aa; margin-top: 8px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+        .fav-title { font-size: 13px; color: #fff; margin-top: 4px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* NAVIGATION BAR BAWAH */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
@@ -170,6 +181,12 @@
         #xp-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 12px 24px; border-radius: 24px; font-weight: 800; font-size: 14px; z-index: 999999; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); display: none; align-items: center; gap: 8px; }
 
     </style>
+    
+    <script>
+        // Script ini akan memaksa browser kamu buat ambil file JS dan CSS terbaru
+        // Kamu bisa ganti angka "?v=1.1" jadi "?v=1.2" dsb setiap kali update kode
+        document.write('<script src="app.js?v=' + new Date().getTime() + '"><\\/script>');
+    </script>
 </head>
 <body>
 
@@ -234,7 +251,12 @@
                     </div>
                 </div>
             </div>
-            <div id="favorite-results-container" style="padding-top: 10px;"></div>
+            
+            <div style="padding: 0 15px; margin-bottom: 10px;">
+                <div style="font-size: 14px; font-weight: 700; color: #fff;">Completed (<span id="fav-completed-count">0</span>)</div>
+            </div>
+            
+            <div id="favorite-results-container" style="padding-top: 5px;"></div>
         </div>
 
         <div id="developer-view" class="hidden">
@@ -262,7 +284,6 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
         </button>
     </nav>
-
-    <script src="app.js"></script>
-</body>
+    
+    </body>
 </html>
