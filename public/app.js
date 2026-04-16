@@ -49,6 +49,23 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
+// ==== SISTEM RANKING LEVEL ====
+const RANK_TIERS = [
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🪨" },
+    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🧱" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥄" },
+    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.25)", icon: "🪙" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.25)", icon: "🔮" },
+    { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "💠" },
+    { name: "Mythic", minLvl: 20000, maxLvl: 999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🔥" }
+];
+
+function getRankInfo(level) {
+    return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0];
+}
+
+// ==== MEMUAT PROFIL USER ====
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -80,6 +97,7 @@ function updateDevUI() {
                 try { historyData = await getHistory(); } catch(e) {}
                 
                 const totalMenit = (historyData.length || 0) * 24; 
+                const jamNonton = Math.floor(totalMenit / 60);
                 const joinMonths = Math.max(1, new Date().getMonth() + 1);
                 
                 const role = data.role || 'Member';
@@ -94,10 +112,10 @@ function updateDevUI() {
                 else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
                 else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
-                let lvlClass = 'badge-lvl-normal';
-                if (level >= 100) lvlClass = 'badge-lvl-gold';
-                else if (level >= 50) lvlClass = 'badge-lvl-silver';
+                const rankInfo = getRankInfo(level);
+                let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
 
+                // RENDERING RIWAYAT TONTONAN
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let timeDiff = Date.now() - item.timestamp;
                     let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
@@ -120,6 +138,50 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
+                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER DARI SEMUA ANIME
+                let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
+                let totalKomentar = 0;
+                
+                db.ref('comments').once('value').then(commentsSnap => {
+                    let allUserComments = [];
+                    commentsSnap.forEach(epSnap => {
+                        epSnap.forEach(commentSnap => {
+                            let cData = commentSnap.val();
+                            if(cData.uid === currentUser.uid) {
+                                allUserComments.push({
+                                    id: commentSnap.key,
+                                    epID: epSnap.key,
+                                    ...cData
+                                });
+                            }
+                        });
+                    });
+                    
+                    totalKomentar = allUserComments.length;
+                    document.getElementById('stat-komentar-val').innerText = totalKomentar;
+                    
+                    if(allUserComments.length === 0) {
+                        document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Kamu belum pernah berkomentar.</p>';
+                    } else {
+                        allUserComments.sort((a, b) => b.waktu - a.waktu);
+                        let commentsHtml = allUserComments.map(c => {
+                            let timeStr = timeAgo(c.waktu || Date.now());
+                            return `
+                                <div class="profile-comment-box">
+                                    <div class="profile-comment-header">
+                                        <span class="profile-comment-anime" onclick="alert('Komentar ini ada di ID Episode: ${c.epID}\\n(Fitur langsung menuju video segera hadir)')">Komentar di Episode Anime</span>
+                                        <span>${timeStr}</span>
+                                    </div>
+                                    <div class="profile-comment-text">"${c.teks}"</div>
+                                </div>
+                            `;
+                        }).join('');
+                        document.getElementById('ptab-comments').innerHTML = commentsHtml;
+                    }
+                }).catch(() => {
+                    document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#ef4444; font-size:13px; margin-top:30px;">Gagal memuat riwayat komentar.</p>';
+                });
+
                 container.innerHTML = `
                     <div class="profile-header">
                         <div class="profile-avatar-container">
@@ -127,17 +189,16 @@ function updateDevUI() {
                             <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
                         </div>
                         <div class="profile-name">${userName}</div>
-                        <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center;">
+                        <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, ${exp}, ${jamNonton})">
                             <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                            <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span>
+                            <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
                             <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                         </div>
                     </div>
                     <div class="profile-stats">
                         <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                        <div class="stat-box"><div class="stat-val">${exp}</div><div class="stat-lbl">total<br>exp point</div></div>
+                        <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
                         <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-                        <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">teman</div></div>
                     </div>
                     <div class="profile-tabs">
                         <div class="ptab active" onclick="switchProfileTab('all', this)">All</div>
@@ -145,7 +206,7 @@ function updateDevUI() {
                         <div class="ptab" onclick="switchProfileTab('history', this)">History</div>
                     </div>
                     <div id="ptab-all" class="ptab-content">${historyHtml}</div>
-                    <div id="ptab-comments" class="ptab-content" style="display:none;"><p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Komentar kamu akan segera muncul di sini (Tahap Pengembangan).</p></div>
+                    <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div>
                     <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
                     <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                 `;
@@ -156,6 +217,56 @@ function updateDevUI() {
         });
     }
 }
+
+// ==== FUNGSI BUKA MODAL LEVEL (KAYAK DI VIDEO) ====
+window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
+    const modalOverlay = document.getElementById('levelModalOverlay');
+    const modal = document.getElementById('levelModal');
+    const listContainer = document.getElementById('level-modal-list');
+    
+    const currRank = getRankInfo(currentLvl);
+    document.getElementById('level-modal-subtitle').innerText = `Level ${currentLvl} • ${currRank.name}`;
+    document.getElementById('level-modal-total-exp').innerText = currentExp.toLocaleString('id-ID');
+    document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
+
+    let html = '';
+    RANK_TIERS.forEach(rank => {
+        let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl);
+        let isPassed = currentLvl > rank.maxLvl;
+        
+        let statusIcon = '';
+        if (isCurrent) statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        else if (isPassed) statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+        
+        let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
+
+        html += `
+            <div class="level-rank-item" style="${bgStyle}">
+                <div class="rank-info">
+                    <div class="rank-icon" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
+                    <div>
+                        <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
+                        <div class="rank-req">Level ${rank.minLvl} - ${rank.maxLvl === 999999 ? 'Max' : rank.maxLvl}</div>
+                    </div>
+                </div>
+                <div class="rank-status">${statusIcon}</div>
+            </div>
+        `;
+    });
+
+    listContainer.innerHTML = html;
+
+    modalOverlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.classList.add('show'); }, 10);
+};
+
+window.closeLevelModal = function() {
+    const modal = document.getElementById('levelModal');
+    modal.classList.remove('show');
+    setTimeout(() => { document.getElementById('levelModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300);
+};
 
 window.switchProfileTab = function(tabName, element) {
     document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active'));
@@ -215,7 +326,7 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL BARU (KAYAK DI VIDEO) ====
+// ==== FUNGSI XP MODAL (POPUP SAAT DAPAT XP) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -547,9 +658,9 @@ window.postComment = function(epID) { const input = document.getElementById('mai
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-    let lvlClass = 'badge-lvl-normal'; if (level >= 100) lvlClass = 'badge-lvl-gold'; else if (level >= 50) lvlClass = 'badge-lvl-silver';
+    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="margin-right:3px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
