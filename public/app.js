@@ -125,10 +125,6 @@ function updateDevUI() {
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
                 container.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; padding-bottom:0;">
-                        <button onclick="switchTab('home')" style="background:none; border:none; color:#fff; padding:0; cursor:pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                        <span style="font-weight:900; font-size:18px;">Setting</span>
-                    </div>
                     <div class="profile-header">
                         <div class="profile-avatar-container">
                             <img src="${userFoto}" class="profile-avatar">
