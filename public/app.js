@@ -23,7 +23,6 @@ let currentUser = null;
 auth.onAuthStateChanged(user => {
     currentUser = user;
     updateDevUI();
-    // Refresh input komentar jika user login saat berada di halaman watch
     if(document.getElementById('custom-comment-area')) {
         renderCommentInput(window.currentEpID);
     }
@@ -157,6 +156,7 @@ const API_BASE = '/api';
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
+window.currentFavData = []; // State untuk filter sorting Subscribe
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 function getEpBadge(anime) { let text = String(anime.episode || anime.episodes || anime.status || ''); if (!text || text === 'undefined') return 'Anime'; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); return epMatch ? `Eps ${epMatch[1]}` : text.substring(0, 8); }
@@ -322,7 +322,7 @@ function renderHeroSlider(data, container) {
                 <div class="hero-content">
                     <div class="hero-badge">${getEpBadge(anime)}</div>
                     <h2 class="hero-title">${anime.title}</h2>
-                    <button class="hero-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button>
+                    <button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button>
                 </div>
             </div>`;
     }).join('');
@@ -353,11 +353,9 @@ function renderHeroSlider(data, container) {
 async function handleSearch(query) {
     if (!query) { switchTab('home'); return; }
     switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    
-    const searchContainer = document.getElementById('search-view'); 
     try {
         const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json();
-        searchContainer.innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
+        document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
     } catch (err) {} finally { loader(false); }
 }
 
@@ -409,12 +407,58 @@ async function loadRecentHistory() {
     container.innerHTML = timelineHtml + '</div>';
 }
 
-async function loadFavorites() {
-    const container = document.getElementById('favorite-results-container'); container.innerHTML = '<div class="spinner"></div>';
-    const favData = await getFavorites();
-    if (!favData || favData.length === 0) { container.innerHTML = `<div class="empty-state"><h2>Belum ada Subscribe Anime</h2></div>`; return; }
-    container.innerHTML = `<div class="anime-grid" style="margin-top:15px;">${favData.map(anime => generateCardHtml(anime)).join('')}</div>`;
+// ==== SUBSCRIBE (FAVORITES) LOGIC UPDATE ====
+window.toggleSortMenu = function() {
+    const menu = document.getElementById('sort-dropdown-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+window.applyFavSort = function(type, label) {
+    document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
+    document.getElementById('sort-dropdown-menu').style.display = 'none';
+
+    if(type === 'new') {
+        window.currentFavData.sort((a, b) => b.timestamp - a.timestamp);
+    } else if(type === 'az') {
+        window.currentFavData.sort((a, b) => a.title.localeCompare(b.title));
+    } else if(type === 'za') {
+        window.currentFavData.sort((a, b) => b.title.localeCompare(a.title));
+    } else if(type === 'rating') {
+        window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    }
+    
+    renderFavoritesList();
+};
+
+function renderFavoritesList() {
+    const container = document.getElementById('favorite-results-container');
+    container.innerHTML = `<div class="anime-grid">${window.currentFavData.map(anime => generateCardHtml(anime)).join('')}</div>`;
 }
+
+async function loadFavorites() {
+    const container = document.getElementById('favorite-results-container'); 
+    container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
+    
+    window.currentFavData = await getFavorites(); 
+    document.getElementById('fav-total-count').innerText = window.currentFavData.length;
+
+    if (!window.currentFavData || window.currentFavData.length === 0) { 
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
+        return; 
+    }
+    
+    renderFavoritesList();
+}
+
+// Close sorting dropdown when clicked outside
+document.addEventListener('click', function(event) {
+    const btn = document.getElementById('current-sort-btn');
+    const menu = document.getElementById('sort-dropdown-menu');
+    if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+});
+
 
 // ==========================================
 // 7. DETAIL VIEW (RESTORASI PENUH)
@@ -446,7 +490,6 @@ async function loadDetail(url) {
         saveHistory({ url: url, title: data.title, image: data.image, score: score, episode: `Eps ${newestEpNum}` });
         const isFav = await checkFavorite(url); 
 
-        // RESTORASI: Rating, TV, Season Info dikembalikan!
         document.getElementById('detail-view').innerHTML = `
             <div class="detail-hero" style="background-image: url('${getHighRes(data.image)}')">
                 <div class="detail-hero-overlay"></div>
@@ -494,7 +537,6 @@ async function loadDetail(url) {
             let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
             let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
             
-            // RESTORASI: Info views dan tanggal episode
             let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views • 16 Apr 2026`;
             let isActive = watchedEps.includes(ep.url);
             let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)';
@@ -516,7 +558,7 @@ async function loadDetail(url) {
 }
 
 // ==========================================
-// 8. WATCH VIEW & COMMENTS SYSTEM (RESTORASI PENUH)
+// 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
 window.currentCommentSort = 'top';
 
@@ -585,14 +627,12 @@ async function loadVideo(url) {
         `;
 
         if (data.streams.length > 0) {
-            const modalServerContainer = document.getElementById('modal-server-list');
-            modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
+            document.getElementById('modal-server-list').innerHTML = data.streams.map((stream, idx) => {
                 let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
                 return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
             }).join('');
         }
 
-        // RESTORASI KOTAK EPISODE: Kalau datanya kosong (misal langsung buka link / refresh), paksakan muncul 1 kotak setidaknya.
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) {
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
@@ -622,7 +662,7 @@ window.setCommentFilter = function(sortType, btnElement) {
 
 function renderCommentInput(epID) {
     const container = document.getElementById('custom-comment-area');
-    if(!container) return; // Mencegah error jika DOM belum siap
+    if(!container) return; 
     
     if(!currentUser) {
         container.innerHTML = `
