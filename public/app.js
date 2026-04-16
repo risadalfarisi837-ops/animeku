@@ -24,7 +24,7 @@ auth.onAuthStateChanged(user => {
     currentUser = user;
     updateDevUI();
     if(document.getElementById('custom-comment-area')) {
-        renderCommentInput(window.currentEpID);
+        try { renderCommentInput(window.currentEpID); } catch(e) {}
     }
 });
 
@@ -49,6 +49,7 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
+// FUNGSI PROFIL YANG SUDAH KEBAL BUG!
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -56,7 +57,9 @@ function updateDevUI() {
     if(!currentUser) {
         container.innerHTML = `
             <div style="text-align:center; padding: 40px 20px;">
-                <img src="https://placehold.co/100x100/1a1a1a/3b82f6?text=Akun" style="border-radius:50%; margin-bottom:15px; border:3px solid #333;">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
                 <h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2>
                 <p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p>
                 <button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()">
@@ -64,80 +67,100 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
+        // Tampilkan loading sebentar saat mengambil profil database
+        container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
+        
         db.ref('users/' + currentUser.uid).on('value', async snap => {
-            const data = snap.val(); if(!data) return;
-            const historyData = await getHistory();
-            const totalMenit = historyData.length * 24; 
-            const joinMonths = Math.max(1, new Date().getMonth() + 1);
-            
-            const role = data.role || 'Member';
-            const level = data.level || 1;
-            const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
+            try {
+                let data = snap.val(); 
+                
+                // SISTEM RECOVERY: Jika data database hilang, buatkan baru instan!
+                if(!data) {
+                    data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 };
+                    await db.ref('users/' + currentUser.uid).set(data);
+                }
+                
+                let historyData = [];
+                try { historyData = await getHistory(); } catch(e) {}
+                
+                const totalMenit = (historyData.length || 0) * 24; 
+                const joinMonths = Math.max(1, new Date().getMonth() + 1);
+                
+                const role = data.role || 'Member';
+                const level = data.level || 1;
+                const exp = data.exp || 0;
+                const userName = data.nama || 'User Animeku';
+                const userFoto = data.foto || 'https://placehold.co/100';
+                const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
 
-            let roleBadgeClass = 'badge-member'; let roleName = role;
-            if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
-            else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
-            else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+                let roleBadgeClass = 'badge-member'; let roleName = role;
+                if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
+                else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
+                else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
-            let lvlClass = 'badge-lvl-normal';
-            if (level >= 100) lvlClass = 'badge-lvl-gold';
-            else if (level >= 50) lvlClass = 'badge-lvl-silver';
+                let lvlClass = 'badge-lvl-normal';
+                if (level >= 100) lvlClass = 'badge-lvl-gold';
+                else if (level >= 50) lvlClass = 'badge-lvl-silver';
 
-            let historyHtml = historyData.length > 0 ? historyData.map(item => {
-                let timeDiff = Date.now() - item.timestamp;
-                let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
-                let randProgress = Math.floor(Math.random() * 80 + 20);
-                return `
-                <div class="profile-list-item" onclick="loadDetail('${item.url}')">
-                    <div style="position:relative;">
-                        <img src="${item.image}" class="pli-img">
-                        <div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${data.foto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div>
+                let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
+                    let timeDiff = Date.now() - item.timestamp;
+                    let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
+                    let randProgress = Math.floor(Math.random() * 80 + 20);
+                    return `
+                    <div class="profile-list-item" onclick="loadDetail('${item.url}')">
+                        <div style="position:relative;">
+                            <img src="${item.image}" class="pli-img">
+                            <div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div>
+                        </div>
+                        <div class="pli-info">
+                            <div class="pli-title">${item.title}</div>
+                            <div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                                <div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div>
+                                <span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
+
+                container.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; padding-bottom:0;">
+                        <button onclick="switchTab('home')" style="background:none; border:none; color:#fff; padding:0; cursor:pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                        <span style="font-weight:900; font-size:18px;">Setting</span>
                     </div>
-                    <div class="pli-info">
-                        <div class="pli-title">${item.title}</div>
-                        <div class="pli-ep">${item.episode} • ${daysAgo} hari lalu</div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-                            <div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div>
-                            <span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span>
+                    <div class="profile-header">
+                        <div class="profile-avatar-container">
+                            <img src="${userFoto}" class="profile-avatar">
+                            <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+                        </div>
+                        <div class="profile-name">${userName}</div>
+                        <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center;">
+                            <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                            <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span>
+                            <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                         </div>
                     </div>
-                </div>`;
-            }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
-
-            container.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; padding-bottom:0;">
-                    <button onclick="switchTab('home')" style="background:none; border:none; color:#fff; padding:0; cursor:pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                    <span style="font-weight:900; font-size:18px;">Setting</span>
-                </div>
-                <div class="profile-header">
-                    <div class="profile-avatar-container">
-                        <img src="${data.foto}" class="profile-avatar">
-                        <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+                    <div class="profile-stats">
+                        <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                        <div class="stat-box"><div class="stat-val">${exp}</div><div class="stat-lbl">total<br>exp point</div></div>
+                        <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                        <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">teman</div></div>
                     </div>
-                    <div class="profile-name">${data.nama}</div>
-                    <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center;">
-                        <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                        <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span>
-                        <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                    <div class="profile-tabs">
+                        <div class="ptab active" onclick="switchProfileTab('all', this)">All</div>
+                        <div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div>
+                        <div class="ptab" onclick="switchProfileTab('history', this)">History</div>
                     </div>
-                </div>
-                <div class="profile-stats">
-                    <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                    <div class="stat-box"><div class="stat-val">${data.exp}</div><div class="stat-lbl">total<br>exp point</div></div>
-                    <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-                    <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">teman</div></div>
-                </div>
-                <div class="profile-tabs">
-                    <div class="ptab active" onclick="switchProfileTab('all', this)">All</div>
-                    <div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div>
-                    <div class="ptab" onclick="switchProfileTab('history', this)">History</div>
-                </div>
-                <div id="ptab-all" class="ptab-content">${historyHtml}</div>
-                <div id="ptab-comments" class="ptab-content" style="display:none;"><p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Komentar kamu akan segera muncul di sini (Tahap Pengembangan).</p></div>
-                <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
-                <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
-            `;
+                    <div id="ptab-all" class="ptab-content">${historyHtml}</div>
+                    <div id="ptab-comments" class="ptab-content" style="display:none;"><p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Komentar kamu akan segera muncul di sini (Tahap Pengembangan).</p></div>
+                    <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
+                    <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                `;
+            } catch(errorProfile) {
+                console.error(errorProfile);
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`;
+            }
         });
     }
 }
@@ -150,7 +173,7 @@ window.switchProfileTab = function(tabName, element) {
 };
 
 // ==========================================
-// 3. CORE APP VARIABLES & HELPERS (ANTI CRASH)
+// 3. CORE APP VARIABLES & HELPERS
 // ==========================================
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
@@ -219,7 +242,7 @@ function addXP(amount) {
         toast.style.background = (nLvl > (d.level||1)) ? '#f59e0b' : '#3b82f6';
         
         toast.style.display = 'flex'; 
-        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '1', 10);
         setTimeout(() => { 
             toast.style.opacity = '0';
             setTimeout(() => { toast.style.display = 'none'; }, 300); 
@@ -277,6 +300,7 @@ const HOME_SECTIONS = [
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
 
+let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
@@ -443,27 +467,15 @@ window.handleShare = function() {
 
 // ==== TIMELINE HISTORY (FULL WIDTH) ====
 async function loadRecentHistory() {
-    const container = document.getElementById('recent-results-container'); 
-    container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-
-    // Header Riwayat Disuntikkan Lewat JS agar Anti-Hilang
-    const headerHtml = `
-        <div style="text-align: center; padding-top: 10px; padding-bottom: 25px;">
-            <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Menonton</h1>
-            <div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div>
-        </div>
-    `;
+    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
 
     const historyData = await getHistory();
-    if (!historyData || historyData.length === 0) { 
-        container.innerHTML = headerHtml + `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; 
-        return; 
-    }
+    if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
 
     const groupedData = {};
     historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
 
-    let timelineHtml = headerHtml + '<div class="timeline-wrapper">';
+    let timelineHtml = '<div class="timeline-wrapper">';
     for (const [dateLabel, animes] of Object.entries(groupedData)) {
         timelineHtml += `<div class="timeline-group"><div class="timeline-date-badge">${dateLabel}</div><div class="timeline-items">`;
         animes.forEach(anime => {
@@ -485,12 +497,6 @@ async function loadRecentHistory() {
         timelineHtml += `</div></div>`;
     }
     container.innerHTML = timelineHtml + '</div>';
-    
-    // Hapus judul ganda kalau di index.html masih ada sisanya
-    const oldHeader = document.querySelector('#recent-view > div:first-child');
-    if (oldHeader && oldHeader.id !== 'recent-results-container') {
-        oldHeader.remove();
-    }
 }
 
 // ==== SUBSCRIBE / FAVORITES SORTING ====
