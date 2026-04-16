@@ -96,8 +96,9 @@
         .synopsis-text.expanded { -webkit-line-clamp: unset; }
         .read-more-btn { color: #3b82f6; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 5px; display: inline-block; }
         
-        .video-container-fixed { width: 100%; background: #000; position: relative; }
-        .video-container-fixed iframe { width: 100%; height: 240px; border: none; display: block; }
+        /* INI KODE VIDEO PLAYER YANG SUDAH DIBUAT FULL LAYAR PROPOSIONAL (16:9) */
+        .video-container-fixed { width: 100%; background: #000; position: relative; padding-top: 56.25%; }
+        .video-container-fixed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block; }
         .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
         .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
@@ -217,7 +218,6 @@
             <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
                 <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Nonton</h1>
             </div>
-            
             <div id="recent-results-container" class="search-results-container"></div>
         </div>
         
@@ -273,6 +273,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>
