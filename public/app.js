@@ -23,7 +23,6 @@ let currentUser = null;
 auth.onAuthStateChanged(user => {
     currentUser = user;
     updateDevUI();
-    // Refresh input komentar jika user login saat berada di halaman watch
     if(document.getElementById('custom-comment-area')) {
         renderCommentInput(window.currentEpID);
     }
@@ -157,6 +156,7 @@ const API_BASE = '/api';
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
+window.currentFavData = []; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 function getEpBadge(anime) { let text = String(anime.episode || anime.episodes || anime.status || ''); if (!text || text === 'undefined') return 'Anime'; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); return epMatch ? `Eps ${epMatch[1]}` : text.substring(0, 8); }
@@ -270,6 +270,25 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
+function generateFavCardHtml(anime) {
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
+    let views = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K views`;
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+
+    return `
+    <div class="fav-card" onclick="loadDetail('${anime.url}')">
+        <div class="fav-card-img">
+            <img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
+            <div class="fav-overlay"></div>
+            <div class="fav-ep">${epsBadge}</div>
+            <div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div>
+        </div>
+        <div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div>
+        <div class="fav-title">${anime.title}</div>
+    </div>`;
+}
+
 function generateRecentCardHtml(anime) {
     let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
@@ -322,7 +341,7 @@ function renderHeroSlider(data, container) {
                 <div class="hero-content">
                     <div class="hero-badge">${getEpBadge(anime)}</div>
                     <h2 class="hero-title">${anime.title}</h2>
-                    <button class="hero-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button>
+                    <button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button>
                 </div>
             </div>`;
     }).join('');
@@ -353,11 +372,9 @@ function renderHeroSlider(data, container) {
 async function handleSearch(query) {
     if (!query) { switchTab('home'); return; }
     switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    
-    const searchContainer = document.getElementById('search-view'); 
     try {
         const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json();
-        searchContainer.innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
+        document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
     } catch (err) {} finally { loader(false); }
 }
 
@@ -370,15 +387,9 @@ window.handleShare = function() {
     else { alert('Tautan disalin: ' + window.location.href); }
 };
 
-// ==== TIMELINE HISTORY ====
+// ==== TIMELINE HISTORY (JUDUL DIKUNCI DI HTML) ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    
-    const headerTitle = document.querySelector('#recent-view > div:first-child');
-    if(headerTitle) {
-        headerTitle.innerHTML = `<div style="text-align:center; padding-top: 10px;"><div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div><div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div></div>`;
-        headerTitle.style.marginBottom = '30px';
-    }
 
     const historyData = await getHistory();
     if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
@@ -409,15 +420,55 @@ async function loadRecentHistory() {
     container.innerHTML = timelineHtml + '</div>';
 }
 
-async function loadFavorites() {
-    const container = document.getElementById('favorite-results-container'); container.innerHTML = '<div class="spinner"></div>';
-    const favData = await getFavorites();
-    if (!favData || favData.length === 0) { container.innerHTML = `<div class="empty-state"><h2>Belum ada Subscribe Anime</h2></div>`; return; }
-    container.innerHTML = `<div class="anime-grid" style="margin-top:15px;">${favData.map(anime => generateCardHtml(anime)).join('')}</div>`;
+// ==== SUBSCRIBE / FAVORITES SORTING LOGIC ====
+window.toggleSortMenu = function() {
+    const menu = document.getElementById('sort-dropdown-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+window.applyFavSort = function(type, label) {
+    document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
+    document.getElementById('sort-dropdown-menu').style.display = 'none';
+
+    if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } 
+    else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } 
+    else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } 
+    else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); }
+    
+    renderFavoritesList();
+};
+
+function renderFavoritesList() {
+    const container = document.getElementById('favorite-results-container');
+    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(2, 1fr); padding: 0 15px; gap: 15px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
 }
 
+async function loadFavorites() {
+    const container = document.getElementById('favorite-results-container'); 
+    container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
+    
+    window.currentFavData = await getFavorites(); 
+    document.getElementById('fav-total-count').innerText = window.currentFavData.length;
+    document.getElementById('fav-completed-count').innerText = window.currentFavData.length;
+
+    if (!window.currentFavData || window.currentFavData.length === 0) { 
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
+        return; 
+    }
+    renderFavoritesList();
+}
+
+document.addEventListener('click', function(event) {
+    const btn = document.getElementById('current-sort-btn');
+    const menu = document.getElementById('sort-dropdown-menu');
+    if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+
 // ==========================================
-// 7. DETAIL VIEW (RESTORASI PENUH)
+// 7. DETAIL VIEW
 // ==========================================
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
@@ -446,7 +497,6 @@ async function loadDetail(url) {
         saveHistory({ url: url, title: data.title, image: data.image, score: score, episode: `Eps ${newestEpNum}` });
         const isFav = await checkFavorite(url); 
 
-        // RESTORASI: Rating, TV, Season Info dikembalikan!
         document.getElementById('detail-view').innerHTML = `
             <div class="detail-hero" style="background-image: url('${getHighRes(data.image)}')">
                 <div class="detail-hero-overlay"></div>
@@ -494,7 +544,6 @@ async function loadDetail(url) {
             let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
             let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
             
-            // RESTORASI: Info views dan tanggal episode
             let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views • 16 Apr 2026`;
             let isActive = watchedEps.includes(ep.url);
             let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)';
@@ -516,7 +565,7 @@ async function loadDetail(url) {
 }
 
 // ==========================================
-// 8. WATCH VIEW & COMMENTS SYSTEM (RESTORASI PENUH)
+// 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
 window.currentCommentSort = 'top';
 
@@ -524,8 +573,7 @@ async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
-        switchTab('watch'); 
-        addXP(20); 
+        switchTab('watch'); addXP(20); 
         
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
@@ -592,7 +640,6 @@ async function loadVideo(url) {
             }).join('');
         }
 
-        // RESTORASI KOTAK EPISODE: Kalau datanya kosong (misal langsung buka link / refresh), paksakan muncul 1 kotak setidaknya.
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) {
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
@@ -622,7 +669,7 @@ window.setCommentFilter = function(sortType, btnElement) {
 
 function renderCommentInput(epID) {
     const container = document.getElementById('custom-comment-area');
-    if(!container) return; // Mencegah error jika DOM belum siap
+    if(!container) return; 
     
     if(!currentUser) {
         container.innerHTML = `
