@@ -384,11 +384,97 @@ function generateRecentCardHtml(anime) {
     </div>`;
 }
 
+function formatTimelineDate(timestamp) {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) return "Hari ini";
+    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 async function loadRecentHistory() {
-    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner"></div>';
+    const container = document.getElementById('recent-results-container'); 
+    container.innerHTML = '<div class="spinner"></div>';
+    
+    const headerTitle = document.querySelector('#recent-view > div:first-child');
+    if(headerTitle) {
+        headerTitle.innerHTML = `
+            <div style="text-align:center;">
+                <div style="font-size: 20px; font-weight: 900;">Riwayat Menonton</div>
+                <div style="font-size: 13px; color: #a1a1aa; font-weight: 500; margin-top: 4px;">Tap tahan untuk memilih & hapus</div>
+            </div>`;
+        headerTitle.style.marginBottom = '30px';
+    }
+
     const historyData = await getHistory();
-    if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state"><h2>Belum ada riwayat</h2></div>`; return; }
-    container.innerHTML = `<div class="anime-grid" style="margin-top:15px;">${historyData.map(anime => generateCardHtml(anime)).join('')}</div>`;
+    if (!historyData || historyData.length === 0) { 
+        container.innerHTML = `<div class="empty-state"><h2>Belum ada riwayat tontonan</h2></div>`; 
+        return; 
+    }
+
+    const groupedData = {};
+    historyData.forEach(anime => {
+        const dateLabel = formatTimelineDate(anime.timestamp);
+        if (!groupedData[dateLabel]) groupedData[dateLabel] = [];
+        groupedData[dateLabel].push(anime);
+    });
+
+    let timelineHtml = '<div class="timeline-wrapper">';
+    
+    for (const [dateLabel, animes] of Object.entries(groupedData)) {
+        timelineHtml += `
+            <div class="timeline-group">
+                <div class="timeline-date-badge">${dateLabel}</div>
+                <div class="timeline-items">
+        `;
+        
+        animes.forEach(anime => {
+            const dateObj = new Date(anime.timestamp);
+            const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            const epsBadge = getEpBadge(anime);
+            
+            const progress = Math.floor(Math.random() * 70 + 20); 
+            const durasiMenit = 24;
+            const currentMenit = Math.floor((progress/100) * durasiMenit);
+            const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
+            
+            const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+
+            timelineHtml += `
+                <div class="timeline-card" onclick="loadDetail('${anime.url}')">
+                    <div class="timeline-img">
+                        <img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}">
+                        <div class="timeline-play-icon">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                    <div class="timeline-info">
+                        <div class="timeline-header">
+                            <div class="timeline-title">${anime.title}</div>
+                            <div class="timeline-time">${timeStr}</div>
+                        </div>
+                        <div class="timeline-ep">${epsBadge}</div>
+                        <div class="timeline-progress-container">
+                            <div class="timeline-progress-bg">
+                                <div class="timeline-progress-fill" style="width: ${progress}%;"></div>
+                            </div>
+                            <div class="timeline-progress-text">${currentStr}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        timelineHtml += `</div></div>`;
+    }
+    
+    timelineHtml += '</div>';
+    container.innerHTML = timelineHtml;
 }
 
 async function loadFavorites() {
