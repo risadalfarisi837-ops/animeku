@@ -121,15 +121,28 @@
         .comment-filter-btn { background: transparent; border: 1px solid #333; color: #aaa; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .comment-filter-btn.active { background: #fff; color: #000; border-color: #fff; }
         
+        /* WARNA BADGE & EFEK ANIMASI KHUSUS 3 TERATAS */
         .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
+        
         .badge-lvl-stone { background: rgba(168, 162, 158, 0.15); color: #a8a29e; border: 1px solid rgba(168, 162, 158, 0.3); }
         .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15); color: #d97706; border: 1px solid rgba(180, 83, 9, 0.3); }
         .badge-lvl-silver { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid rgba(226, 232, 240, 0.3); }
         .badge-lvl-gold { background: rgba(251, 191, 36, 0.15); color: #facc15; border: 1px solid rgba(251, 191, 36, 0.4); }
         .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
-        .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25); color: #22d3ee; border: 1px solid #06b6d4; animation: pulseGlowCyan 2s infinite alternate; }
-        .badge-lvl-master { background: rgba(236, 72, 153, 0.25); color: #f472b6; border: 1px solid #ec4899; animation: pulseGlowPink 1.5s infinite alternate; }
-        .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444); background-size: 200% 100%; color: #fff; border: none; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate; }
+        
+        .badge-lvl-diamond { 
+            background: rgba(6, 182, 212, 0.25); color: #22d3ee; border: 1px solid #06b6d4; 
+            animation: pulseGlowCyan 2s infinite alternate; 
+        }
+        .badge-lvl-master { 
+            background: rgba(236, 72, 153, 0.25); color: #f472b6; border: 1px solid #ec4899; 
+            animation: pulseGlowPink 1.5s infinite alternate; 
+        }
+        .badge-lvl-mythic { 
+            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444); background-size: 200% 100%; 
+            color: #fff; border: none; 
+            animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate; 
+        }
         
         @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
         @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
@@ -331,6 +344,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=21"></script>
 </body>
 </html>
