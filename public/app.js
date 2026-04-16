@@ -439,7 +439,6 @@ async function loadDetail(url) {
         saveHistory({ url: url, title: data.title, image: data.image, score: score, episode: `Eps ${newestEpNum}` });
         const isFav = await checkFavorite(url); 
         
-        // PADDING DETAIL-VIEW DIBUAT 12PX (LEBIH MENTOK / LEBAR)
         document.getElementById('detail-view').innerHTML = `
             <div class="detail-hero" style="background-image: url('${getHighRes(data.image)}')">
                 <div class="detail-hero-overlay"></div>
@@ -485,7 +484,6 @@ async function loadVideo(url) {
         if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
         let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
         
-        // PADDING WATCH-VIEW DIBUAT 12PX (LEBIH MENTOK / LEBAR)
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
             <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
