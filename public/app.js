@@ -58,7 +58,7 @@ const RANK_TIERS = [
     { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
     { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
     { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" } // <-- Angka 20000 ini bisa kamu ganti berapapun!
+    { name: "Mythic", minLvl: 20000, maxLvl: 9999999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" } // <-- Angka 20000 ini bisa kamu ganti berapapun!
 ];
 
 function getRankInfo(level) {
