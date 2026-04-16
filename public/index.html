@@ -3,92 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Animeku - Nonton Anime Sub Indo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/1a1a1a/3b82f6?text=App">
+    
+    <title>Animeku - Nonton Streaming Anime Sub Indo Gratis</title>
+    <meta name="description" content="Animeku tempat nonton streaming dan download anime subtitle Indonesia terlengkap, resolusi HD, dan update setiap hari tanpa iklan mengganggu.">
+    <meta name="keywords" content="animeku, nonton anime sub indo, streaming anime, download anime, anime subtitle indonesia, anime terbaru 2026">
+    <meta name="author" content="Risyadh Al Farisy">
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
         body, html { margin: 0; padding: 0; background: #050505; color: #fff; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-        .hidden { display: none !important; }
-        .navbar { position: sticky; top: 0; z-index: 1000; background: #050505; padding: 12px 15px; display: flex; align-items: center; gap: 12px; }
-        .app-logo { font-weight: 900; font-size: 18px; }
-        .top-search-bar { flex: 1; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; }
-        .top-search-bar input { background: transparent; border: none; color: #fff; width: 100%; outline: none; margin-left: 8px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #111; border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+        .navbar { position: sticky; top: 0; z-index: 1000; background: #050505; padding: 12px 15px; display: flex; align-items: center; gap: 12px; }
+        .app-logo { display: flex; align-items: center; font-weight: 900; font-size: 18px; letter-spacing: -0.5px; }
+        .app-logo .blue { color: #3b82f6; }
+        .app-logo .white { color: #fff; }
+        
+        .top-search-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; -webkit-tap-highlight-color: transparent; }
+        .top-search-bar input { 
+            background: transparent !important; border: none !important; color: #fff !important; width: 100%; margin-left: 8px; 
+            outline: none !important; box-shadow: none !important; font-size: 14px; font-family: 'Outfit', sans-serif; 
+            -webkit-appearance: none;
+        }
+        .top-search-bar input:focus { outline: none !important; box-shadow: none !important; background: transparent !important; }
+
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease; }
+        #loading.hidden { display: none !important; }
+        #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .hero-section-container { width: 100%; margin-bottom: 15px; padding-top: 10px; }
+        .hero-slider { width: calc(100% - 24px); height: 210px; margin: 0 12px; border-radius: 12px; position: relative; overflow: hidden; background: #111; }
+        .hero-wrapper { display: flex; height: 100%; width: 100%; }
+        .hero-slide { min-width: 100%; height: 100%; position: relative; }
+        .hero-bg { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.4) 50%, transparent 100%); }
+        .hero-content { position: absolute; bottom: 15px; left: 15px; right: 15px; z-index: 2; }
+        .hero-badge { background: #3b82f6; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .hero-title { font-size: 16px; color: #fff; font-weight: bold; margin: 0 0 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-btn { background: #fff; color: #000; border: none; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
 
-        /* TIMELINE CSS - FULL WIDTH */
-        #recent-view { padding-left: 0 !important; padding-right: 0 !important; }
-        .timeline-wrapper { position: relative; width: 100%; }
-        .timeline-group { position: relative; margin-bottom: 25px; }
-        .timeline-group::before { content: ''; position: absolute; left: 20px; top: 35px; bottom: -35px; width: 2px; background: #222; }
-        .timeline-date-badge { background: #1c3d73; color: #fff; font-size: 13px; font-weight: 800; padding: 6px 20px; border-radius: 0 20px 20px 0; margin-bottom: 15px; display: inline-block; position: relative; z-index: 1; }
-        .timeline-items { padding-left: 45px; padding-right: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .timeline-card { background: #111; border-radius: 12px; display: flex; gap: 12px; padding: 12px; border: 1px solid #1a1a1a; width: 100%; box-sizing: border-box; }
-        .timeline-img { width: 70px; height: 95px; border-radius: 8px; overflow: hidden; position: relative; flex-shrink: 0; }
+        .anime-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 8px; padding: 0 10px; align-items: start; }
+        .scroll-card { background: transparent; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; display: flex; flex-direction: column; width: 100%; min-width: 0; }
+        
+        .horizontal-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 10px; scroll-snap-type: x mandatory; }
+        .horizontal-scroll .scroll-card { width: 115px; flex-shrink: 0; scroll-snap-align: start; }
+
+        .scroll-card-img { position: relative; width: 100%; padding-top: 140%; border-radius: 6px; overflow: hidden; background: #1a1a1a; }
+        .scroll-card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .badge-ep { position: absolute; top: 5px; left: 5px; background: #3b82f6; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 5px; border-radius: 4px; z-index: 2; text-transform: capitalize; }
+        .badge-score { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 10px; font-weight: bold; padding: 3px 4px; border-radius: 4px; z-index: 2; display: flex; align-items: center; gap: 2px; }
+        .scroll-card-title { font-size: 13px; color: #fff; margin-top: 8px; line-height: 1.4; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+        
+        .recent-card { width: 140px; flex-shrink: 0; scroll-snap-align: start; display: flex; flex-direction: column; cursor: pointer; position: relative; }
+        .recent-img-box { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
+        .recent-img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .recent-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1; }
+        .recent-ep-text { position: absolute; bottom: 6px; left: 8px; color: #fff; font-size: 11px; font-weight: 800; z-index: 2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .recent-title { font-size: 12px; color: #fff; margin-top: 6px; line-height: 1.3; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; padding: 15px 10px; }
+        .header-flex h2 { font-size: 18px; margin: 0; font-weight: bold; }
+        .more-link { color: #3b82f6; font-size: 13px; text-decoration: none; font-weight: 500; }
+
+        .detail-hero { position: relative; width: 100%; height: 380px; background-size: cover; background-position: center top; display: flex; align-items: flex-end; }
+        .detail-hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.8) 40%, transparent 100%); }
+        .detail-hero-content { position: relative; z-index: 2; padding: 20px; width: 100%; }
+        .nav-back { position: absolute; top: 15px; left: 15px; z-index: 10; }
+        .nav-back button { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); border: none; color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; -webkit-tap-highlight-color: transparent;}
+
+        .synopsis-text { font-size: 13px; color: #a1a1aa; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .synopsis-text.expanded { -webkit-line-clamp: unset; }
+        .read-more-btn { color: #3b82f6; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 5px; display: inline-block; }
+
+        .video-container-fixed { width: 100%; background: #000; position: relative; }
+        .video-container-fixed iframe { width: 100%; height: 240px; border: none; display: block; }
+        .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
+        
+        .ep-square { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1c1c1e; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .ep-square.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+        .ep-square.watched { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+
+        #serverModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(2px); display: none; }
+        #serverModal { position: fixed; bottom: 0; left: 0; width: 100%; background: #1c1c1e; z-index: 99999; border-radius: 24px 24px 0 0; padding: 25px 20px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: none;}
+        #serverModal.show { transform: translateY(0); }
+        .server-list-btn { background: #2c2c2e; color: #fff; border: none; padding: 16px 20px; border-radius: 16px; font-weight: 700; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 10px; }
+        .server-list-btn.active { background: #3b82f6; color: #fff; }
+
+        #xp-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 12px 24px; border-radius: 24px; font-weight: 800; font-size: 14px; z-index: 999999; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); display: none; align-items: center; gap: 8px; }
+
+        #app { padding-bottom: 80px; }
+        .tab-content-container { padding-top: 15px; }
+
+        /* ================= CSS BARU UNTUK PROFIL/AKUN UI ================= */
+        .profile-header { text-align: center; padding: 10px 0 20px 0; }
+        .profile-avatar-container { position: relative; display: inline-block; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #1a1a1a; object-fit: cover; }
+        .profile-camera-icon { position: absolute; bottom: 0; right: 0; background: #3b82f6; padding: 6px; border-radius: 50%; color: white; border: 2px solid #050505; display: flex; align-items: center; justify-content: center; }
+        .profile-name { font-size: 22px; font-weight: 800; margin: 12px 0 8px 0; }
+        
+        .profile-badges { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .p-badge { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; }
+        .badge-role { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; }
+        .badge-lvl { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); display: flex; align-items: center; gap: 4px; }
+        .badge-uid { background: rgba(255, 255, 255, 0.05); color: #a1a1aa; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        .profile-stats { display: flex; justify-content: space-around; padding: 0 10px 25px 10px; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .stat-lbl { font-size: 11px; color: #a1a1aa; line-height: 1.3; font-weight: 500; }
+        
+        .profile-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .ptab { padding: 12px 20px; color: #a1a1aa; font-weight: 800; font-size: 14px; cursor: pointer; position: relative; transition: 0.2s; }
+        .ptab.active { color: #fff; }
+        .ptab.active::after { content: ''; position: absolute; bottom: -1px; left: 20%; width: 60%; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+        
+        .profile-list-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; padding: 0 15px; cursor: pointer; }
+        .pli-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; }
+        .pli-info { flex: 1; }
+        .pli-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .pli-ep { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; font-weight: 500; }
+        .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+        .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+
+
+        /* ==== TAMBAHAN CSS UNTUK RIWAYAT TIMELINE (FULL WIDTH) ==== */
+        #recent-view.tab-content-container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        #recent-results-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .timeline-wrapper { 
+            padding: 0; 
+            margin: 0;
+            position: relative; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-group { 
+            position: relative; 
+            margin-bottom: 25px; 
+            width: 100%;
+        }
+
+        .timeline-group::before {
+            content: ''; 
+            position: absolute; 
+            left: 20px; 
+            top: 35px; 
+            bottom: -35px; 
+            width: 2px; 
+            background: #333; 
+            z-index: 0;
+        }
+        .timeline-group:last-child::before { display: none; }
+
+        .timeline-date-badge {
+            background: #1c3d73; 
+            color: #fff; 
+            font-size: 14px; 
+            font-weight: 800;
+            padding: 6px 18px 6px 20px; 
+            border-radius: 0 20px 20px 0; 
+            display: inline-block;
+            position: relative; 
+            z-index: 1; 
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            left: 0;
+        }
+
+        .timeline-items { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            padding-left: 45px; 
+            padding-right: 15px; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .timeline-card {
+            background: #1c1c1e; 
+            border-radius: 12px; 
+            display: flex; 
+            gap: 12px;
+            padding: 12px; 
+            cursor: pointer; 
+            position: relative; 
+            z-index: 1;
+            border: 1px solid #2c2c2e;
+            width: 100%;
+            box-sizing: border-box; 
+        }
+
+        .timeline-img {
+            width: 75px; 
+            height: 100px; 
+            border-radius: 8px; 
+            overflow: hidden;
+            position: relative; 
+            flex-shrink: 0; 
+            background: #111;
+        }
         .timeline-img img { width: 100%; height: 100%; object-fit: cover; }
-        .timeline-play-icon { position: absolute; bottom: 5px; right: 5px; background: #3b82f6; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-        .timeline-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
-        .timeline-title { font-size: 14px; font-weight: 800; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .timeline-progress-bg { height: 3px; background: #222; border-radius: 2px; margin: 8px 0 4px 0; }
-        .timeline-progress-fill { height: 100%; background: #ef4444; }
-        .timeline-progress-text { font-size: 10px; color: #666; text-align: right; }
-
-        /* KOMENTAR & ANIMASI */
-        .c-badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-flex; }
-        .badge-lvl-gold { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; }
-        .badge-premium-anim { 
-            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb); background-size: 200%; 
-            color: #fff; animation: shim 2s infinite linear; 
+        
+        .timeline-play-icon {
+            position: absolute; bottom: 6px; right: 6px; background: #3b82f6;
+            width: 22px; height: 22px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; color: white;
         }
-        .badge-dev-anim { 
-            background: #dc2626; color: #fff; animation: pulse 1.5s infinite ease-in-out; 
-            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5); font-weight: 900;
-        }
-        @keyframes shim { 0% { background-position: 100%; } 100% { background-position: -100%; } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); box-shadow: 0 0 15px #f00; } }
 
-        /* Lainnya */
-        .horizontal-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 0 15px; }
-        .recent-card { width: 140px; flex-shrink: 0; }
-        .recent-img-box { position: relative; width: 100%; padding-top: 56%; border-radius: 8px; overflow: hidden; }
-        .recent-img-box img { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #050505; display: flex; border-top: 1px solid #111; z-index: 1000; }
-        .nav-item { flex: 1; padding: 12px 0; text-align: center; color: #555; font-size: 11px; cursor: pointer; }
-        .nav-item.active { color: #3b82f6; font-weight: 800; }
+        .timeline-info { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            min-width: 0; 
+        }
+        .timeline-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .timeline-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .timeline-time { font-size: 12px; color: #a1a1aa; font-weight: 700; flex-shrink: 0; }
+        .timeline-ep { font-size: 13px; color: #d1d5db; font-weight: 500; margin-top: 4px; }
+
+        .timeline-progress-container { margin-top: auto; padding-top: 10px; }
+        .timeline-progress-bg { height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+        .timeline-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+        .timeline-progress-text { font-size: 11px; color: #a1a1aa; text-align: right; font-weight: 600; }
+        
+
+        /* ================= UI KOMENTAR TERBARU & ANIMASI ================= */
+        .comment-filter-btn {
+            background: transparent; border: 1px solid #333; color: #aaa; 
+            padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .comment-filter-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        .c-badge {
+            padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; 
+            display: inline-flex; align-items: center; letter-spacing: 0.2px;
+        }
+
+        /* Varian Badge Level */
+        .badge-lvl-normal { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+        .badge-lvl-silver { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid rgba(226, 232, 240, 0.3); }
+        .badge-lvl-gold { background: rgba(251, 191, 36, 0.25); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.6); box-shadow: 0 0 6px rgba(251, 191, 36, 0.4); }
+
+        .badge-member { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* Animasi Wibu Premium (Glow Biru Berjalan) */
+        .badge-premium-anim {
+            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb);
+            background-size: 200% 100%;
+            color: #fff;
+            border: none;
+            animation: shimmerPremium 2.5s infinite linear;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Animasi Developer (Merah Menyala, Berdenyut & Gagah) */
+        .badge-dev-anim {
+            background: linear-gradient(90deg, #dc2626, #7f1d1d, #dc2626);
+            background-size: 200% 100%;
+            color: #fff;
+            border: 1px solid #fca5a5;
+            animation: devPulse 2s infinite ease-in-out, shimmerPremium 3s infinite linear;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+            text-shadow: 0 0 4px rgba(255,255,255,0.5);
+        }
+
+        @keyframes shimmerPremium {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+        @keyframes devPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 16px rgba(239, 68, 68, 1); }
+        }
+        /* ================================================================= */
+
     </style>
 </head>
 <body>
-    <div id="loading" class="hidden"><div class="spinner"></div></div>
-    <div id="xp-toast" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#3b82f6; padding:10px 20px; border-radius:20px; display:none; z-index:10001; font-weight:800;"><span id="xp-toast-text"></span></div>
+
+    <div id="xp-toast">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 
+        <span id="xp-toast-text">+50 XP!</span>
+    </div>
+
+    <div id="serverModalOverlay" onclick="closeServerModal()"></div>
+    <div id="serverModal">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="font-weight: 800; font-size: 18px;">Pilih Quality Server</div>
+            <button onclick="closeServerModal()" style="background: transparent; border: none; color: #aaa; cursor: pointer; padding: 5px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div id="modal-server-list" style="display: flex; flex-direction: column; max-height: 50vh; overflow-y: auto;" class="hide-scrollbar"></div>
+    </div>
 
     <nav class="navbar" id="mainNavbar">
-        <div class="app-logo"><span style="color:#3b82f6">Anime</span>ku</div>
-        <div class="top-search-bar">
-            <input type="text" placeholder="Cari anime..." onkeypress="if(event.key==='Enter') handleSearch(this.value)">
+        <div class="app-logo">
+            <span class="blue">Anime</span><span class="white">ku</span>
+        </div>
+        <div class="top-search-bar" id="searchBarWrapper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="Cari Anime..." onkeypress="if(event.key === 'Enter') handleSearch(this.value)">
         </div>
     </nav>
 
     <main id="app">
+        <div id="loading" class="hidden"><div class="spinner"></div><p>Memuat Anime...</p></div>
+        
         <div id="home-view"></div>
-        <div id="search-view" class="hidden"></div>
-        <div id="recent-view" class="hidden">
-            <div class="view-header-title"></div>
-            <div id="recent-results-container"></div>
+        <div id="search-view" class="hidden tab-content-container"></div>
+
+        <div id="recent-view" class="hidden tab-content-container">
+            <div style="padding: 0 10px; margin-bottom: 15px;"><h1 style="font-size: 20px; font-weight: bold; margin: 0;">Terakhir Ditonton</h1></div>
+            <div id="recent-results-container" class="search-results-container"></div>
         </div>
-        <div id="developer-view" class="hidden"><div id="auth-check-container"></div></div>
+
+        <div id="favorite-view" class="hidden tab-content-container">
+            <div style="padding: 0 10px; margin-bottom: 15px;"><h1 style="font-size: 20px; font-weight: bold; margin: 0;">Anime Subscribed</h1></div>
+            <div id="favorite-results-container" class="search-results-container"></div>
+        </div>
+
+        <div id="developer-view" class="hidden">
+            <div id="auth-check-container" style="padding-bottom: 20px;">
+                </div>
+        </div>
+
         <div id="detail-view" class="hidden"></div>
         <div id="watch-view" class="hidden"></div>
+        
+        <div style="text-align: center; padding: 30px 20px 20px 20px; color: #555; font-size: 13px; font-weight: 500;">
+            &copy; 2026 Animeku. Developed by <a href="https://wa.me/6281315059849" target="_blank" style="color: #3b82f6; font-weight:bold; text-decoration: none;">Risyadh Al Farisy</a>
+        </div>
     </main>
 
     <nav class="bottom-nav" id="bottomNav">
-        <div class="nav-item active" onclick="switchTab('home')" id="tab-home">Home</div>
-        <div class="nav-item" onclick="switchTab('recent')" id="tab-recent">Recent</div>
-        <div class="nav-item" onclick="switchTab('developer')" id="tab-developer">Akun</div>
+        <button class="nav-item active" onclick="switchTab('home')" id="tab-home" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('recent')" id="tab-recent" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Recent</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('favorite')" id="tab-favorite" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span>Subscribe</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('developer')" id="tab-developer" style="flex:1;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
+        </button>
     </nav>
 
     <script src="app.js"></script>
