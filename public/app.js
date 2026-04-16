@@ -49,7 +49,7 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL (UNLIMITED MAX LEVEL, EMOJI ELEGAN) ====
+// ==== SISTEM RANKING LEVEL ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -58,7 +58,7 @@ const RANK_TIERS = [
     { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
     { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
     { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Developer", minLvl: 20000, maxLvl: 9999999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
+    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" } // <-- Angka 20000 ini bisa kamu ganti berapapun!
 ];
 
 function getRankInfo(level) {
@@ -83,6 +83,7 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
+        // Tampilkan loading sebentar saat mengambil profil database
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
         
         db.ref('users/' + currentUser.uid).on('value', async snap => {
@@ -115,6 +116,7 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
 
+                // RENDERING RIWAYAT TONTONAN
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let timeDiff = Date.now() - item.timestamp;
                     let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
@@ -137,6 +139,7 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
+                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER
                 let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
                 let totalKomentar = 0;
                 
@@ -146,7 +149,11 @@ function updateDevUI() {
                         epSnap.forEach(commentSnap => {
                             let cData = commentSnap.val();
                             if(cData.uid === currentUser.uid) {
-                                allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData });
+                                allUserComments.push({
+                                    id: commentSnap.key,
+                                    epID: epSnap.key,
+                                    ...cData
+                                });
                             }
                         });
                     });
@@ -166,7 +173,7 @@ function updateDevUI() {
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
                             let aImage = c.animeImage || 'https://placehold.co/100';
                             let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}')`;
+                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}\\n(Fitur menuju video lawas sedang diproses)')`;
 
                             return `
                                 <div style="margin-bottom: 25px; padding: 0 5px;">
@@ -253,6 +260,8 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
+        
+        // Logika teks level requirement 
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
 
         html += `
@@ -341,7 +350,7 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL (UNLIMITED LEVEL: AMAN & TIDAK RESET) ====
+// ==== FUNGSI XP MODAL (UNLIMITED LEVEL) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -354,7 +363,7 @@ function addXP(amount) {
         let nLvl = Math.floor(nExp / 200) + 1; 
         let isLevelUp = nLvl > prevLvl;
         
-        // SIMPAN KE DATABASE (TANPA BATAS MAX)
+        // SIMPAN KE DATABASE (TIDAK ADA BATAS MAX)
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
         
         let currentLevelXp = nExp % 200;
@@ -649,7 +658,6 @@ async function loadVideo(url) {
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
         
-        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
         window.currentPlayingAnime = {
             title: window.currentAnimeMeta?.title || displayTitle,
             image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
