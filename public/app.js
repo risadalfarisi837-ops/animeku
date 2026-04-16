@@ -49,7 +49,6 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// FUNGSI PROFIL YANG SUDAH KEBAL BUG!
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -67,14 +66,11 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
-        // Tampilkan loading sebentar saat mengambil profil database
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
         
         db.ref('users/' + currentUser.uid).on('value', async snap => {
             try {
                 let data = snap.val(); 
-                
-                // SISTEM RECOVERY: Jika data database hilang, buatkan baru instan!
                 if(!data) {
                     data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 };
                     await db.ref('users/' + currentUser.uid).set(data);
@@ -168,9 +164,6 @@ window.switchProfileTab = function(tabName, element) {
     document.getElementById('ptab-' + tabName).style.display = 'block';
 };
 
-// ==========================================
-// 3. CORE APP VARIABLES & HELPERS
-// ==========================================
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
@@ -192,20 +185,15 @@ function removeDuplicates(array, key) {
 function getEpBadge(anime) { 
     let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
     if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
-    
     let lowText = text.toLowerCase().trim();
     if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
     if (lowText.includes('movie')) return 'Movie';
     if (lowText.includes('ongoin')) return 'Ongoing';
-    
     if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
-    
     let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
     if (epMatch) return `Episode ${epMatch[1]}`; 
-    
     let numMatch = text.match(/\d+/g);
     if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`;
-    
     return text.length > 10 ? text.substring(0, 10) : text; 
 }
 
@@ -236,7 +224,6 @@ function addXP(amount) {
         const toast = document.getElementById('xp-toast');
         document.getElementById('xp-toast-text').innerText = (nLvl > (d.level||1)) ? `Level Up! Lvl ${nLvl} 🎉` : `+${amount} XP`;
         toast.style.background = (nLvl > (d.level||1)) ? '#f59e0b' : '#3b82f6';
-        
         toast.style.display = 'flex'; 
         setTimeout(() => toast.style.opacity = '1', 10);
         setTimeout(() => { 
@@ -286,9 +273,6 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// ==========================================
-// 6. UI VIEWS & NAVIGATION
-// ==========================================
 const HOME_SECTIONS = [
     { title: "Action Hits", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach", "hunter", "shingeki"] },
     { title: "Romance & Drama", queries: ["love", "kanojo", "romance", "heroine", "uso"] },
@@ -308,7 +292,6 @@ function switchTab(tabName) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabName + '-view')?.classList.remove('hidden');
     document.getElementById('tab-' + tabName)?.classList.add('active');
-
     if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
     if (tabName === 'recent') loadRecentHistory();
     if (tabName === 'favorite') loadFavorites();
@@ -326,18 +309,7 @@ function generateFavCardHtml(anime) {
     let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
     let views = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K views`;
     const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-
-    return `
-    <div class="fav-card" onclick="loadDetail('${anime.url}')">
-        <div class="fav-card-img">
-            <img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
-            <div class="fav-overlay"></div>
-            <div class="fav-ep">${epsBadge}</div>
-            <div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div>
-        </div>
-        <div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div>
-        <div class="fav-title">${anime.title}</div>
-    </div>`;
+    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div></div><div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div><div class="fav-title">${anime.title}</div></div>`;
 }
 
 function generateRecentCardHtml(anime) {
@@ -347,15 +319,12 @@ function generateRecentCardHtml(anime) {
 
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
-    
+    const forceStopLoading = setTimeout(() => { loader(false); }, 10000);
     try {
-        // Blok 1: Memuat Hero Slider
         try {
             let sliderData = []; const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json();
             if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
         } catch (e) { console.error("Gagal load slider:", e); }
-
-        // Blok 2: Memuat Riwayat
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -364,8 +333,6 @@ async function loadLatest() {
                 homeContainer.appendChild(histDiv);
             }
         } catch (e) { console.error("Gagal load riwayat:", e); }
-
-        // Blok 3: Memuat Kategori
         try {
             const sectionPromises = HOME_SECTIONS.map(async (section) => {
                 let combinedData = [];
@@ -376,7 +343,6 @@ async function loadLatest() {
                 combinedData = removeDuplicates(combinedData, 'url');
                 return { section, data: combinedData };
             });
-
             const loadedSections = await Promise.all(sectionPromises);
             loadedSections.forEach(({section, data}) => {
                 if (data && data.length > 0) {
@@ -386,50 +352,23 @@ async function loadLatest() {
                 }
             });
         } catch (e) { console.error("Gagal load kategori section:", e); }
-
-    } catch (err) { 
-        console.error("Home loading failed total", err); 
-    } finally { 
-        loader(false); 
-    }
+    } catch (err) { console.error("Home loading failed total", err); } finally { clearTimeout(forceStopLoading); loader(false); }
 }
 
 function renderHeroSlider(data, container) {
     const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
     const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
     const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
-
     const slidesHtml = loopData.map((anime, index) => {
-        return `
-            <div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;">
-                <img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}">
-                <div class="hero-overlay"></div>
-                <div class="hero-content">
-                    <div class="hero-badge">${getEpBadge(anime)}</div>
-                    <h2 class="hero-title">${anime.title}</h2>
-                    <button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button>
-                </div>
-            </div>`;
+        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
     }).join('');
-
     sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
     sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
-
     const wrapper = document.getElementById('heroWrapper');
     let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
-
-    function nextSlide() {
-        if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return;
-        currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-        if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); }
-    }
-    function prevSlide() {
-        if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return;
-        if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; }
-        currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-    }
+    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
+    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
     function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
-
     wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
     wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
     startAutoSlide();
@@ -438,39 +377,21 @@ function renderHeroSlider(data, container) {
 async function handleSearch(query) {
     if (!query) { switchTab('home'); return; }
     switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    try {
-        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json();
-        document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
-    } catch (err) {} finally { loader(false); }
+    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
-
-window.changeServer = function(url, serverName, btnElement) { 
-    document.getElementById('video-player').src = url; 
-    document.getElementById('current-quality-text').innerText = serverName;
-    document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
-    btnElement.classList.add('active'); 
-    window.closeServerModal();
-};
-
+window.changeServer = function(url, serverName, btnElement) { document.getElementById('video-player').src = url; document.getElementById('current-quality-text').innerText = serverName; document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); btnElement.classList.add('active'); window.closeServerModal(); };
 window.handleDownload = function() { alert('Fitur Download sedang dalam tahap pengembangan! Nantikan update selanjutnya.'); };
-window.handleShare = function() { 
-    if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } 
-    else { alert('Tautan disalin: ' + window.location.href); }
-};
+window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { alert('Tautan disalin: ' + window.location.href); } };
 
-// ==== TIMELINE HISTORY (FULL WIDTH) ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-
     const historyData = await getHistory();
     if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
-
     const groupedData = {};
     historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
-
     let timelineHtml = '<div class="timeline-wrapper">';
     for (const [dateLabel, animes] of Object.entries(groupedData)) {
         timelineHtml += `<div class="timeline-group"><div class="timeline-date-badge">${dateLabel}</div><div class="timeline-items">`;
@@ -479,173 +400,69 @@ async function loadRecentHistory() {
             const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
             const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
             const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
-            
-            timelineHtml += `
-                <div class="timeline-card" onclick="loadDetail('${anime.url}')">
-                    <div class="timeline-img"><img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
-                    <div class="timeline-info">
-                        <div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div>
-                        <div class="timeline-ep">${getEpBadge(anime)}</div>
-                        <div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div>
-                    </div>
-                </div>`;
+            timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
         });
         timelineHtml += `</div></div>`;
     }
     container.innerHTML = timelineHtml + '</div>';
 }
 
-// ==== SUBSCRIBE / FAVORITES SORTING ====
-window.toggleSortMenu = function() {
-    const menu = document.getElementById('sort-dropdown-menu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-};
-
-window.applyFavSort = function(type, label) {
-    document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
-    document.getElementById('sort-dropdown-menu').style.display = 'none';
-
-    if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } 
-    else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } 
-    else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } 
-    else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); }
-    
-    renderFavoritesList();
-};
-
-function renderFavoritesList() {
-    const container = document.getElementById('favorite-results-container');
-    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
-}
-
+window.toggleSortMenu = function() { const menu = document.getElementById('sort-dropdown-menu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; };
+window.applyFavSort = function(type, label) { document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; document.getElementById('sort-dropdown-menu').style.display = 'none'; if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); } renderFavoritesList(); };
+function renderFavoritesList() { const container = document.getElementById('favorite-results-container'); container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; }
 async function loadFavorites() {
-    const container = document.getElementById('favorite-results-container'); 
-    container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
-    
+    const container = document.getElementById('favorite-results-container'); container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
     window.currentFavData = await getFavorites(); 
-    
     const count = window.currentFavData ? window.currentFavData.length : 0;
-    const countTotal = document.getElementById('fav-total-count');
-    const countCompleted = document.getElementById('fav-completed-count');
-    if(countTotal) countTotal.innerText = count;
-    if(countCompleted) countCompleted.innerText = count;
-
-    if (count === 0) { 
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
-        return; 
-    }
+    const countTotal = document.getElementById('fav-total-count'); const countCompleted = document.getElementById('fav-completed-count');
+    if(countTotal) countTotal.innerText = count; if(countCompleted) countCompleted.innerText = count;
+    if (count === 0) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; return; }
     renderFavoritesList();
 }
 
-document.addEventListener('click', function(event) {
-    const btn = document.getElementById('current-sort-btn');
-    const menu = document.getElementById('sort-dropdown-menu');
-    if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) {
-        menu.style.display = 'none';
-    }
-});
+document.addEventListener('click', function(event) { const btn = document.getElementById('current-sort-btn'); const menu = document.getElementById('sort-dropdown-menu'); if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } });
 
-
-// ==========================================
-// 7. DETAIL VIEW 
-// ==========================================
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
-        window.currentAnimeEpisodes = data.episodes || [];
-        window.currentAnimeMeta = { title: data.title, description: data.description };
+        window.currentAnimeEpisodes = data.episodes || []; window.currentAnimeMeta = { title: data.title, description: data.description };
         switchTab('detail'); 
-
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
         const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
         const type = data.info?.tipe || data.info?.type || 'TV';
-        const musim = data.info?.musim || data.info?.season || '';
-        const rilis = data.info?.dirilis || data.info?.released || '';
-        const seasonInfo = `${musim} ${rilis}`.trim() || 'Unknown';
-
+        const musim = data.info?.musim || data.info?.season || ''; const rilis = data.info?.dirilis || data.info?.released || ''; const seasonInfo = `${musim} ${rilis}`.trim() || 'Unknown';
         let newestEpUrl = data.episodes.length > 0 ? data.episodes[0].url : '';
         let newestEpNum = data.episodes.length > 0 ? `${data.episodes.length}` : '?';
-        
-        if (data.episodes.length > 0 && data.episodes[0].title) {
-            let epMatch = data.episodes[0].title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            if(epMatch) newestEpNum = epMatch[1];
-            else { let nums = data.episodes[0].title.match(/\d+/g); if (nums) newestEpNum = nums[nums.length - 1]; }
-        }
-
+        if (data.episodes.length > 0 && data.episodes[0].title) { let epMatch = data.episodes[0].title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); if(epMatch) newestEpNum = epMatch[1]; else { let nums = data.episodes[0].title.match(/\d+/g); if (nums) newestEpNum = nums[nums.length - 1]; } }
         saveHistory({ url: url, title: data.title, image: data.image, score: score, episode: `Eps ${newestEpNum}` });
         const isFav = await checkFavorite(url); 
-
         document.getElementById('detail-view').innerHTML = `
             <div class="detail-hero" style="background-image: url('${getHighRes(data.image)}')">
                 <div class="detail-hero-overlay"></div>
                 <div class="detail-hero-content">
                     <div style="background:#3b82f6; color:#fff; display:inline-block; margin-bottom:8px; padding:6px 12px; border-radius:6px; font-weight:bold; font-size:12px;">Episode ${newestEpNum}</div>
                     <h1 style="font-size:24px; line-height:1.2; font-weight:800; margin:0 0 8px 0; color:#fff;">${data.title}</h1>
-                    
-                    <div style="font-size: 13px; color: #d1d5db; margin-bottom: 20px; display:flex; align-items:center; gap:8px; font-weight:500;">
-                        <span style="color:#fbbf24;">⭐ ${score}</span> • <span>${type}</span> • <span>${seasonInfo}</span>
-                    </div>
-                    
-                    <div style="display:flex; gap:10px; width:100%;">
-                        <button style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="${newestEpUrl ? `loadVideo('${newestEpUrl}')` : `alert('Belum ada episode')`}">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Tonton
-                        </button>
-                        <button id="favBtn" onclick="toggleFavorite('${url}', '${data.title.replace(/'/g, "\\'")}', '${data.image}', '${score}', 'Eps ${newestEpNum}')" style="flex:1; background:#1c1c1e; color:${isFav ? '#ef4444' : '#fff'}; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:0.2s;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> 
-                            ${isFav ? 'Disubscribe' : 'Subscribe'}
-                        </button>
-                    </div>
+                    <div style="font-size: 13px; color: #d1d5db; margin-bottom: 20px; display:flex; align-items:center; gap:8px; font-weight:500;"><span style="color:#fbbf24;">⭐ ${score}</span> • <span>${type}</span> • <span>${seasonInfo}</span></div>
+                    <div style="display:flex; gap:10px; width:100%;"><button style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="${newestEpUrl ? `loadVideo('${newestEpUrl}')` : `alert('Belum ada episode')`}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Tonton</button><button id="favBtn" onclick="toggleFavorite('${url}', '${data.title.replace(/'/g, "\\'")}', '${data.image}', '${score}', 'Eps ${newestEpNum}')" style="flex:1; background:#1c1c1e; color:${isFav ? '#ef4444' : '#fff'}; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:0.2s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> ${isFav ? 'Disubscribe' : 'Subscribe'}</button></div>
                 </div>
                 <div class="nav-back"><button onclick="goHome()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button></div>
             </div>
-
-            <div style="padding: 20px;">
-                <h2 style="font-size: 18px; margin: 0 0 12px 0; font-weight:bold; border-left: 4px solid #3b82f6; padding-left: 10px;">Sinopsis</h2>
-                <p id="detail-synopsis-text" class="synopsis-text">${data.description || 'Tidak ada deskripsi tersedia.'}</p>
-                <div id="read-more-btn" class="read-more-btn" onclick="toggleSynopsis()">Selengkapnya ▼</div>
-            </div>
-            
-            <div style="padding: 0 20px; margin-top:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2>
-                </div>
-                <div id="episode-list-detail-container"></div>
-            </div>
+            <div style="padding: 20px;"><h2 style="font-size: 18px; margin: 0 0 12px 0; font-weight:bold; border-left: 4px solid #3b82f6; padding-left: 10px;">Sinopsis</h2><p id="detail-synopsis-text" class="synopsis-text">${data.description || 'Tidak ada deskripsi tersedia.'}</p><div id="read-more-btn" class="read-more-btn" onclick="toggleSynopsis()">Selengkapnya ▼</div></div>
+            <div style="padding: 0 20px; margin-top:10px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2></div><div id="episode-list-detail-container"></div></div>
             <div style="padding-bottom: 40px;"></div>
         `;
-
         let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
         const epListContainer = document.getElementById('episode-list-detail-container');
-        
         epListContainer.innerHTML = [...data.episodes].reverse().map((ep, index) => {
-            let epsRaw = String(ep.title || '1'); 
-            let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-            let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
-            
+            let epsRaw = String(ep.title || '1'); let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
             let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views • 16 Apr 2026`;
-            let isActive = watchedEps.includes(ep.url);
-            let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)';
-            let btnText = isActive ? 'Ditonton' : 'Buka';
-
-            return `
-               <div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #1a1a1a; cursor:pointer;">
-                   <div>
-                       <div style="font-size:16px; font-weight:800; color:#fff; margin-bottom:5px;">Episode ${epNum}</div>
-                       <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:5px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews}</div>
-                   </div>
-                   <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-                       <button style="background:${btnBg}; border:none; color:#fff; font-size:13px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
-                   </div>
-               </div>`;
+            let isActive = watchedEps.includes(ep.url); let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)'; let btnText = isActive ? 'Ditonton' : 'Buka';
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #1a1a1a; cursor:pointer;"><div><div style="font-size:16px; font-weight:800; color:#fff; margin-bottom:5px;">Episode ${epNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:5px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews}</div></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;"><button style="background:${btnBg}; border:none; color:#fff; font-size:13px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
         }).join('');
-        
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
-// ==========================================
-// 8. WATCH VIEW & COMMENTS SYSTEM
-// ==========================================
 window.currentCommentSort = 'top';
 
 async function loadVideo(url) {
@@ -653,265 +470,65 @@ async function loadVideo(url) {
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
         switchTab('watch'); addXP(20); 
-        
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
         let mockDate = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
-        
         let currentEpNum = '1';
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
             let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url);
-            if(foundEp) {
-                let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-                currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1");
-            }
+            if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
-
         let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
         if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
-
         let episodeID = btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
-
         document.getElementById('watch-view').innerHTML = `
-            <div class="video-container-fixed">
-                <button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                <iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe>
-            </div>
-            
-            <div style="padding: 15px 20px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;">
-                <div style="flex: 1;">
-                    <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
-                    <div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div>
-                </div>
-            </div>
-
-            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center;">
-                <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                <button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
-                <button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button>
-                <button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
-                <button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
-            </div>
-
-            <div style="padding: 20px 20px 10px 20px;">
-                <h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2>
-                <div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
-            </div>
-
-            <div class="comment-section" style="padding: 20px;">
-                <div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button>
-                    <button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button>
-                </div>
-                <div id="custom-comment-area" style="margin-bottom: 30px;"></div>
-                <div id="comment-list-container"></div>
-            </div>
+            <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
+            <div style="padding: 15px 20px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
+            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 20px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
+            <div style="padding: 20px 20px 10px 20px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+            <div class="comment-section" style="padding: 20px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
         `;
-
-        if (data.streams.length > 0) {
-            const modalServerContainer = document.getElementById('modal-server-list');
-            modalServerContainer.innerHTML = data.streams.map((stream, idx) => {
-                let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
-                return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
-            }).join('');
-        }
-
+        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         const watchEpListContainer = document.getElementById('watch-episode-squares');
-        if (watchEpListContainer) {
-            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => {
-                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-                    let eNum = m ? m[1] : (index + 1);
-                    let c = (ep.url === url) ? "ep-square active" : (watchedEps.includes(ep.url) ? "ep-square watched" : "ep-square");
-                    return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-                }).join('');
-            } else {
-                watchEpListContainer.innerHTML = `<div class="ep-square active">${currentEpNum}</div>`;
-            }
-        }
-
-        window.currentEpID = episodeID;
-        renderCommentInput(episodeID);
-        listenToComments(episodeID);
-
+        if (watchEpListContainer) { if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (index + 1); let c = (ep.url === url) ? "ep-square active" : (watchedEps.includes(ep.url) ? "ep-square watched" : "ep-square"); return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; }).join(''); } else { watchEpListContainer.innerHTML = `<div class="ep-square active">${currentEpNum}</div>`; } }
+        window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
-window.setCommentFilter = function(sortType, btnElement) {
-    document.querySelectorAll('.comment-filter-btn').forEach(b => b.classList.remove('active'));
-    btnElement.classList.add('active'); window.currentCommentSort = sortType;
-    if (window.currentEpID) listenToComments(window.currentEpID); 
-}
+window.setCommentFilter = function(sortType, btnElement) { document.querySelectorAll('.comment-filter-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); window.currentCommentSort = sortType; if (window.currentEpID) listenToComments(window.currentEpID); };
 
 function renderCommentInput(epID) {
-    const container = document.getElementById('custom-comment-area');
-    if(!container) return; 
-    
-    if(!currentUser) {
-        container.innerHTML = `
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-                <div style="flex: 1; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 10px 16px; border-radius: 24px; color: #888; font-size: 13px; cursor: pointer;" onclick="switchTab('developer')">Login untuk menambahkan komentar...</div>
-            </div>`;
-    } else {
-        const userFoto = currentUser.photoURL || 'https://placehold.co/40';
-        container.innerHTML = `
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-                <div style="flex: 1; position: relative;">
-                    <input type="text" id="main-comment-input" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;">
-                    <button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
-                </div>
-            </div>`;
-    }
+    const container = document.getElementById('custom-comment-area'); if(!container) return; 
+    if(!currentUser) { container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div style="flex: 1; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 10px 16px; border-radius: 24px; color: #888; font-size: 13px; cursor: pointer;" onclick="switchTab('developer')">Login untuk menambahkan komentar...</div></div>`; } 
+    else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 }
 
-window.postComment = function(epID) {
-    const input = document.getElementById('main-comment-input'); const text = input.value;
-    if(!text.trim() || !currentUser) return;
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        const u = snap.val();
-        db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() });
-        input.value = ''; addXP(10); 
-    });
-};
+window.postComment = function(epID) { const input = document.getElementById('main-comment-input'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(10); }); };
 
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
-    const role = c.role || 'Member'; const level = c.level || 1;
-    const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000";
-    const timeStr = timeAgo(c.waktu || Date.now());
-
-    let roleBadgeClass = 'badge-member'; let roleName = role;
-    if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
-    else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
-    else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-
-    let lvlClass = 'badge-lvl-normal';
-    if (level >= 100) lvlClass = 'badge-lvl-gold'; else if (level >= 50) lvlClass = 'badge-lvl-silver';
-
-    let replyBtnHtml = '';
-    if(!isReply && epID && parentID) { 
-        replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`;
-    }
-
-    return `
-        <div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">
-            <img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;">
-            <div style="flex: 1; min-width: 0;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                    <span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span>
-                    <span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-                    <span class="c-badge ${lvlClass}"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="margin-right:3px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span>
-                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
-                    <span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span>
-                </div>
-                <div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>
-                ${replyBtnHtml}
-            </div>
-        </div>
-    `;
+    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
+    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+    let lvlClass = 'badge-lvl-normal'; if (level >= 100) lvlClass = 'badge-lvl-gold'; else if (level >= 50) lvlClass = 'badge-lvl-silver';
+    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="margin-right:3px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
-function listenToComments(epID) {
-    db.ref('comments/' + epID).on('value', snap => {
-        const list = document.getElementById('comment-list-container');
-        const countEl = document.getElementById('comment-count-text');
-        
-        if(!snap.exists()) { 
-            if(countEl) countEl.innerText = "0 Comments";
-            if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; 
-            return; 
-        }
-
-        let commentsArr = [];
-        snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); });
-        
-        if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; }
-
-        if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } 
-        else { commentsArr.sort((a, b) => a.waktu - b.waktu); }
-        
-        if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join('');
-    });
-}
+function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
 
 window.openReplyModal = function(epID, parentID) {
-    document.getElementById('replyModalOverlay').style.display = 'block';
-    document.getElementById('replyModal').style.display = 'block';
-    setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
-
-    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => {
-        if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false);
-    });
-
-    db.ref(`replies/${parentID}`).on('value', snap => {
-        const list = document.getElementById('reply-list-container');
-        if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; }
-        let repliesArr = []; snap.forEach(child => repliesArr.push(child.val()));
-        repliesArr.sort((a, b) => a.waktu - b.waktu); 
-        list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join('');
-    });
-
-    const inputArea = document.getElementById('reply-input-area');
-    if(!currentUser) {
-        inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`;
-    } else {
-        const userFoto = currentUser.photoURL || 'https://placehold.co/40';
-        inputArea.innerHTML = `
-            <div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;">
-                <img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                <div style="flex: 1; position: relative;">
-                    <input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;">
-                    <button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
+    document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
+    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
+    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
 
-window.closeReplyModal = function() {
-    const modal = document.getElementById('replyModal'); modal.classList.remove('show');
-    setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300);
-};
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
 
-window.postReply = function(parentID) {
-    const input = document.getElementById('reply-input-text'); const text = input.value;
-    if(!text.trim() || !currentUser) return;
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        const u = snap.val();
-        db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() });
-        input.value = ''; addXP(5);
-    });
-};
-
-// ==========================================
-// 9. ROUTING & CONTROLS
-// ==========================================
-window.addEventListener('popstate', (e) => {
-    const page = e.state ? e.state.page : 'home'; switchTab(page); 
-    if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; }
-});
-
+window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-function initApp() {
-    updateDevUI(); 
-    history.replaceState({page: 'home'}, '', window.location.pathname); 
-    switchTab('home'); 
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
+function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
