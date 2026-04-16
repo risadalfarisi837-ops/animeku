@@ -150,7 +150,7 @@ window.switchProfileTab = function(tabName, element) {
 };
 
 // ==========================================
-// 3. CORE APP VARIABLES & DB AMAN!
+// 3. CORE APP VARIABLES & HELPERS
 // ==========================================
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
@@ -160,7 +160,7 @@ window.currentFavData = [];
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 
-// === LOGIKA PINTAR PENDETEKSI EPISODE (GAK CUMA ANGKA) ===
+// === LOGIKA PINTAR PENDETEKSI EPISODE ===
 function getEpBadge(anime) { 
     let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
     if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
@@ -170,7 +170,7 @@ function getEpBadge(anime) {
     if (lowText.includes('movie')) return 'Movie';
     if (lowText.includes('ongoin')) return 'Ongoing';
     
-    // Kalau cuma berisi angka "2", ubah jadi "Episode 2"
+    // Kalau cuma angka, ubah jadi "Episode X"
     if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
     
     let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
@@ -219,40 +219,10 @@ function addXP(amount) {
     });
 }
 
-// ==== FUNGSI DB YANG AMAN (ANTI HANG) ====
-function initDB() { 
-    return new Promise((resolve, reject) => { 
-        const req = indexedDB.open(DB_NAME, 2); 
-        req.onupgradeneeded = (e) => { 
-            const d = e.target.result; 
-            if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); 
-            if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); 
-        }; 
-        req.onsuccess = () => resolve(req.result); 
-        req.onerror = () => reject(req.error); // Cegah hang jika error
-    }); 
-}
-async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
-async function getHistory() { 
-    try { 
-        const d = await initDB(); 
-        return new Promise((resolve) => { 
-            const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); 
-            req.onsuccess = () => resolve(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
-            req.onerror = () => resolve([]); 
-        }); 
-    } catch(e) { return []; } 
-}
-async function getFavorites() { 
-    try { 
-        const d = await initDB(); 
-        return new Promise((resolve) => { 
-            const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); 
-            req.onsuccess = () => resolve(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
-            req.onerror = () => resolve([]); 
-        }); 
-    } catch(e) { return []; } 
-}
+function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); }); }
+async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) {} }
+async function getHistory() { try { const d = await initDB(); return new Promise(res => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); }); } catch(e) { return []; } }
+async function getFavorites() { try { const d = await initDB(); return new Promise(res => { const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); }); } catch(e) { return []; } }
 
 async function toggleFavorite(url, title, image, score, episode) {
     try {
@@ -266,9 +236,9 @@ async function toggleFavorite(url, title, image, score, episode) {
             store.put({url, title, image, score, episode, timestamp: Date.now()}); 
             if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; btn.style.color = '#ef4444'; }
         }
-    } catch(e) { console.error(e); }
+    } catch(e) {}
 }
-async function checkFavorite(url) { try { const database = await initDB(); return new Promise((resolve) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => resolve(!!req.result); req.onerror = () => resolve(false); }); } catch(e) { return false; } }
+async function checkFavorite(url) { try { const database = await initDB(); return new Promise((resolve) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => resolve(!!req.result); }); } catch(e) { return false; } }
 
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
@@ -299,7 +269,6 @@ const HOME_SECTIONS = [
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
 
-let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
@@ -348,55 +317,38 @@ function generateRecentCardHtml(anime) {
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
-// ==== FUNGSI LOAD LATEST (ANTI BLANK) ====
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
-    
     try {
-        // Blok 1: Hero Slider
-        try {
-            let sliderData = []; const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json();
-            if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
-        } catch (e) { console.error("Slider error:", e); }
+        let sliderData = []; try { const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json(); } catch (e) {}
+        if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
 
-        // Blok 2: History
-        try {
-            const historyData = await getHistory();
-            if (historyData && historyData.length > 0) {
-                const histDiv = document.createElement('div');
-                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><a href="#" class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></a></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(histDiv);
+        const historyData = await getHistory();
+        if (historyData && historyData.length > 0) {
+            const histDiv = document.createElement('div');
+            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><a href="#" class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></a></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+            homeContainer.appendChild(histDiv);
+        }
+
+        const sectionPromises = HOME_SECTIONS.map(async (section) => {
+            let combinedData = [];
+            if (section.queries) {
+                const promises = section.queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
+                const results = await Promise.all(promises); results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
             }
-        } catch (e) { console.error("History error:", e); }
+            combinedData = [ ...new Map(combinedData.map(item => [item['url'], item])).values() ];
+            return { section, data: combinedData };
+        });
 
-        // Blok 3: Kategori (Action, Romance, dll)
-        try {
-            const sectionPromises = HOME_SECTIONS.map(async (section) => {
-                let combinedData = [];
-                if (section.queries) {
-                    const promises = section.queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
-                    const results = await Promise.all(promises); results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
-                }
-                combinedData = combinedData.filter(item => item && item.url);
-                combinedData = [ ...new Map(combinedData.map(item => [item.url, item])).values() ];
-                return { section, data: combinedData };
-            });
-
-            const loadedSections = await Promise.all(sectionPromises);
-            loadedSections.forEach(({section, data}) => {
-                if (data.length > 0) {
-                    const sectionDiv = document.createElement('div'); const keyword = section.title.split(' ')[0];
-                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="handleSearch('${keyword}')">Lihat Lainnya ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                    homeContainer.appendChild(sectionDiv);
-                }
-            });
-        } catch (e) { console.error("Sections error:", e); }
-
-    } catch (err) { 
-        console.error("Home loading failed", err); 
-    } finally { 
-        loader(false); 
-    }
+        const loadedSections = await Promise.all(sectionPromises);
+        loadedSections.forEach(({section, data}) => {
+            if (data.length > 0) {
+                const sectionDiv = document.createElement('div'); const keyword = section.title.split(' ')[0];
+                sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="handleSearch('${keyword}')">Lihat Lainnya ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(sectionDiv);
+            }
+        });
+    } catch (err) { console.error(err); } finally { loader(false); }
 }
 
 function renderHeroSlider(data, container) {
@@ -449,8 +401,17 @@ async function handleSearch(query) {
     } catch (err) {} finally { loader(false); }
 }
 
+// ==== FUNGSI TOMBOL AKSI & MODAL ====
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
+
+window.changeServer = function(url, serverName, btnElement) { 
+    document.getElementById('video-player').src = url; 
+    document.getElementById('current-quality-text').innerText = serverName;
+    document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
+    btnElement.classList.add('active'); 
+    window.closeServerModal();
+};
 
 window.handleDownload = function() { alert('Fitur Download sedang dalam tahap pengembangan! Nantikan update selanjutnya.'); };
 window.handleShare = function() { 
