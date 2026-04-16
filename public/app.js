@@ -319,7 +319,7 @@ function generateRecentCardHtml(anime) {
 
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
-    const forceStopLoading = setTimeout(() => { loader(false); }, 10000); // Safety Net biar loading nggak nyangkut
+    const forceStopLoading = setTimeout(() => { loader(false); }, 10000); 
     
     try {
         try {
