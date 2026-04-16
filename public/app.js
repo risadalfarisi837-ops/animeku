@@ -215,21 +215,56 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
+// ==== FUNGSI XP MODAL BARU (KAYAK DI VIDEO) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
-        let nExp = (d.exp || 0) + amount; let nLvl = Math.floor(nExp / 200) + 1; 
+        
+        let prevExp = d.exp || 0;
+        let prevLvl = Math.floor(prevExp / 200) + 1;
+        
+        let nExp = prevExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > prevLvl;
+        
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        const toast = document.getElementById('xp-toast');
-        document.getElementById('xp-toast-text').innerText = (nLvl > (d.level||1)) ? `Level Up! Lvl ${nLvl} 🎉` : `+${amount} XP`;
-        toast.style.background = (nLvl > (d.level||1)) ? '#f59e0b' : '#3b82f6';
-        toast.style.display = 'flex'; 
-        setTimeout(() => toast.style.opacity = '1', 10);
+        
+        const overlay = document.getElementById('xp-modal-overlay');
+        const card = document.getElementById('xp-modal-card');
+        const titleText = document.getElementById('xp-title-text');
+        const amountText = document.getElementById('xp-amount-text');
+        const levelText = document.getElementById('xp-level-text');
+        const progressText = document.getElementById('xp-progress-text');
+        const progressFill = document.getElementById('xp-progress-fill');
+        
+        let currentLevelXp = nExp % 200;
+        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        
+        amountText.innerText = `+${amount}`;
+        levelText.innerText = `Level ${nLvl}`;
+        progressText.innerText = `${progressPercent}%`;
+        progressFill.style.width = `${progressPercent}%`;
+        
+        if (isLevelUp) {
+            titleText.innerText = "LEVEL UP!";
+            titleText.style.color = "#facc15";
+        } else {
+            titleText.innerText = "EXP Gained";
+            titleText.style.color = "#fff";
+        }
+        
+        overlay.style.display = 'flex'; 
         setTimeout(() => { 
-            toast.style.opacity = '0';
-            setTimeout(() => { toast.style.display = 'none'; }, 300); 
-        }, 3000);
+            overlay.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => { 
+            overlay.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => { overlay.style.display = 'none'; }, 300); 
+        }, 2500);
     });
 }
 
