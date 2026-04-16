@@ -104,7 +104,6 @@
         .video-container-fixed iframe { width: 100%; height: 240px; border: none; display: block; }
         .watch-back-btn { position: absolute; top: 15px; left: 15px; z-index: 10; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: none; color: #fff; padding: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* TOMBOL ACTION (Like, Dislike, Download, Share, Report) */
         .action-btn { background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         
         .ep-square { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #1c1c1e; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
@@ -238,17 +237,16 @@
                 <div style="position: relative;">
                     <button onclick="toggleSortMenu()" id="current-sort-btn" style="background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 0;">New Update <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></button>
                     <div id="sort-dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; background: #1c1c1e; border: 1px solid #333; border-radius: 12px; width: 140px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-                        <div class="sort-option" onclick="applyFavSort('az', 'A-Z')">A-Z</div>
                         <div class="sort-option" onclick="applyFavSort('new', 'New Update')">New Update</div>
-                        <div class="sort-option" onclick="applyFavSort('rating', 'Rating')">Rating</div>
-                        <div class="sort-option" onclick="applyFavSort('popular', 'Popular')">Popular</div>
+                        <div class="sort-option" onclick="applyFavSort('az', 'A-Z')">A-Z</div>
                         <div class="sort-option" onclick="applyFavSort('za', 'Z-A')">Z-A</div>
+                        <div class="sort-option" onclick="applyFavSort('rating', 'Rating')">Rating</div>
                     </div>
                 </div>
             </div>
             
             <div style="padding: 0 15px; margin-bottom: 10px;">
-                <div style="font-size: 16px; font-weight: 700; color: #fff;">Completed (<span id="fav-completed-count">0</span>)</div>
+                <div style="font-size: 14px; font-weight: 700; color: #fff;">Completed (<span id="fav-completed-count">0</span>)</div>
             </div>
             
             <div id="favorite-results-container" style="padding-top: 5px;"></div>
@@ -281,7 +279,7 @@
     </nav>
     
     <script>
-        let script = document.createElement('script');
+        var script = document.createElement('script');
         script.src = "app.js?v=" + new Date().getTime();
         document.body.appendChild(script);
     </script>
