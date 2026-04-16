@@ -49,7 +49,7 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL (DENGAN EMOJI ELEGAN) ====
+// ==== SISTEM RANKING LEVEL (UNLIMITED MAX LEVEL, EMOJI ELEGAN) ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -58,7 +58,7 @@ const RANK_TIERS = [
     { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
     { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
     { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Mythic", minLvl: 20000, maxLvl: 999999, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
+    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
 ];
 
 function getRankInfo(level) {
@@ -259,7 +259,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
                     <div class="rank-icon" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
                     <div>
                         <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
-                        <div class="rank-req">Level ${rank.minLvl} - ${rank.maxLvl === 999999 ? 'Max' : rank.maxLvl}</div>
+                        <div class="rank-req">Level ${rank.minLvl} - ${rank.maxLvl === Infinity ? 'Unli' : rank.maxLvl}</div>
                     </div>
                 </div>
                 <div class="rank-status">${statusIcon}</div>
@@ -339,45 +339,31 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL (HARD CAP LEVEL 2000 ANTI RESET) ====
+// ==== FUNGSI XP MODAL (UNLIMITED LEVEL) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
         
         let prevExp = d.exp || 0;
-        let maxExp = 399800; // Batas Pas untuk Level 2000
-        
-        // JIKA SUDAH LEVEL 2000, JANGAN TAMBAH XP KE DATABASE LAGI
-        if (prevExp >= maxExp) {
-            showXPModal(0, 2000, 100, false, true); // (added, lvl, %, isUp, isMax)
-            return; 
-        }
+        let prevLvl = Math.floor(prevExp / 200) + 1;
         
         let nExp = prevExp + amount; 
-        
-        // KUNCI MATI BILA NEXP MELEBIHI BATAS TERTINGGI (CEGAH JEBOL KE 2001+)
-        if (nExp >= maxExp) {
-            nExp = maxExp;
-        }
-        
-        let prevLvl = Math.floor(prevExp / 200) + 1;
         let nLvl = Math.floor(nExp / 200) + 1; 
         let isLevelUp = nLvl > prevLvl;
         
-        // SIMPAN KE DATABASE
+        // SIMPAN KE DATABASE (TIDAK ADA BATAS MAX)
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
         
         let currentLevelXp = nExp % 200;
-        let progressPercent = (nLvl === 2000) ? 100 : Math.floor((currentLevelXp / 200) * 100);
-        let actualAdded = nExp - prevExp;
-        let isMax = (nLvl === 2000);
+        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        let actualAdded = amount;
 
-        showXPModal(actualAdded, nLvl, progressPercent, isLevelUp, isMax);
+        showXPModal(actualAdded, nLvl, progressPercent, isLevelUp);
     });
 }
 
-function showXPModal(addedAmount, level, progress, isLevelUp, isMax) {
+function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay');
     const card = document.getElementById('xp-modal-card');
     const titleText = document.getElementById('xp-title-text');
@@ -388,13 +374,10 @@ function showXPModal(addedAmount, level, progress, isLevelUp, isMax) {
 
     amountText.innerText = `+${addedAmount}`;
     levelText.innerText = `Level ${level}`;
-    progressText.innerText = isMax ? `MAX` : `${progress}%`;
-    progressFill.style.width = isMax ? `100%` : `${progress}%`;
+    progressText.innerText = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
     
-    if (isMax) {
-        titleText.innerText = "MAX LEVEL!";
-        titleText.style.color = "#3b82f6";
-    } else if (isLevelUp) {
+    if (isLevelUp) {
         titleText.innerText = "LEVEL UP!";
         titleText.style.color = "#3b82f6";
     } else {
@@ -739,7 +722,7 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
