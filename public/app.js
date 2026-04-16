@@ -16,6 +16,11 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
+let sliderInterval;
+window.currentAnimeEpisodes = []; 
+window.currentAnimeMeta = {}; 
+window.currentFavData = []; 
+window.currentCommentSort = 'top';
 
 // ==========================================
 // 2. AUTHENTICATION & USER UI LOGIC
@@ -156,7 +161,6 @@ const API_BASE = '/api';
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
-window.currentFavData = []; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 function getEpBadge(anime) { let text = String(anime.episode || anime.episodes || anime.status || ''); if (!text || text === 'undefined') return 'Anime'; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); return epMatch ? `Eps ${epMatch[1]}` : text.substring(0, 8); }
@@ -241,10 +245,6 @@ const HOME_SECTIONS = [
     { title: "Isekai & Fantasy", queries: ["isekai", "reincarnation", "world", "maou"] },
     { title: "Comedy & Chill", queries: ["comedy", "slice of life", "bocchi", "spy"] }
 ];
-
-let sliderInterval;
-let currentAnimeEpisodes = []; 
-let currentAnimeMeta = {}; 
 
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
@@ -387,7 +387,7 @@ window.handleShare = function() {
     else { alert('Tautan disalin: ' + window.location.href); }
 };
 
-// ==== TIMELINE HISTORY (JUDUL DIKUNCI DI HTML) ====
+// ==== TIMELINE HISTORY (FULL WIDTH & AMAN) ====
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
 
@@ -420,7 +420,7 @@ async function loadRecentHistory() {
     container.innerHTML = timelineHtml + '</div>';
 }
 
-// ==== SUBSCRIBE / FAVORITES SORTING LOGIC ====
+// ==== SUBSCRIBE / FAVORITES SORTING ====
 window.toggleSortMenu = function() {
     const menu = document.getElementById('sort-dropdown-menu');
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -448,10 +448,14 @@ async function loadFavorites() {
     container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
     
     window.currentFavData = await getFavorites(); 
-    document.getElementById('fav-total-count').innerText = window.currentFavData.length;
-    document.getElementById('fav-completed-count').innerText = window.currentFavData.length;
+    
+    const count = window.currentFavData ? window.currentFavData.length : 0;
+    const countTotal = document.getElementById('fav-total-count');
+    const countCompleted = document.getElementById('fav-completed-count');
+    if(countTotal) countTotal.innerText = count;
+    if(countCompleted) countCompleted.innerText = count;
 
-    if (!window.currentFavData || window.currentFavData.length === 0) { 
+    if (count === 0) { 
         container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; 
         return; 
     }
@@ -468,7 +472,7 @@ document.addEventListener('click', function(event) {
 
 
 // ==========================================
-// 7. DETAIL VIEW
+// 7. DETAIL VIEW 
 // ==========================================
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
@@ -567,8 +571,6 @@ async function loadDetail(url) {
 // ==========================================
 // 8. WATCH VIEW & COMMENTS SYSTEM
 // ==========================================
-window.currentCommentSort = 'top';
-
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
@@ -763,7 +765,6 @@ function listenToComments(epID) {
     });
 }
 
-// ==== FUNGSI REPLY BOTTOM SHEET ====
 window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block';
     document.getElementById('replyModal').style.display = 'block';
@@ -816,7 +817,7 @@ window.postReply = function(parentID) {
 };
 
 // ==========================================
-// 9. ROUTING & CONTROLS
+// 9. ROUTING & CONTROLS (ANTI BLANK SCREEN)
 // ==========================================
 window.addEventListener('popstate', (e) => {
     const page = e.state ? e.state.page : 'home'; switchTab(page); 
@@ -826,6 +827,14 @@ window.addEventListener('popstate', (e) => {
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-document.addEventListener('DOMContentLoaded', () => { 
-    updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); 
-});
+function initApp() {
+    updateDevUI(); 
+    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    switchTab('home'); 
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+} 
