@@ -83,14 +83,11 @@ function updateDevUI() {
                 </button>
             </div>`;
     } else {
-        // Tampilkan loading sebentar saat mengambil profil database
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
         
         db.ref('users/' + currentUser.uid).on('value', async snap => {
             try {
                 let data = snap.val(); 
-                
-                // SISTEM RECOVERY: Jika data database hilang, buatkan baru instan!
                 if(!data) {
                     data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 };
                     await db.ref('users/' + currentUser.uid).set(data);
@@ -118,7 +115,6 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
 
-                // RENDERING RIWAYAT TONTONAN
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let timeDiff = Date.now() - item.timestamp;
                     let daysAgo = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)));
@@ -141,7 +137,6 @@ function updateDevUI() {
                     </div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                // MENGAMBIL DAN MERENDER RIWAYAT KOMENTAR USER TERCANTIK
                 let userCommentsHtml = '<div class="spinner" style="margin: 30px auto;"></div>';
                 let totalKomentar = 0;
                 
@@ -151,11 +146,7 @@ function updateDevUI() {
                         epSnap.forEach(commentSnap => {
                             let cData = commentSnap.val();
                             if(cData.uid === currentUser.uid) {
-                                allUserComments.push({
-                                    id: commentSnap.key,
-                                    epID: epSnap.key,
-                                    ...cData
-                                });
+                                allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData });
                             }
                         });
                     });
@@ -175,7 +166,7 @@ function updateDevUI() {
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
                             let aImage = c.animeImage || 'https://placehold.co/100';
                             let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}\\n(Fitur menuju video lawas sedang diproses)')`;
+                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}')`;
 
                             return `
                                 <div style="margin-bottom: 25px; padding: 0 5px;">
@@ -240,7 +231,6 @@ function updateDevUI() {
     }
 }
 
-// ==== FUNGSI BUKA MODAL LEVEL ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -302,7 +292,7 @@ const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
 const STORE_FAV = 'favorites';
 window.currentFavData = []; 
-window.currentPlayingAnime = null; // Menyimpan info anime yang sedang ditonton
+window.currentPlayingAnime = null; 
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 
@@ -349,7 +339,7 @@ function timeAgo(ms) {
     return "Baru saja";
 }
 
-// ==== FUNGSI XP MODAL (WARNA BIRU) ====
+// ==== FUNGSI XP MODAL (DENGAN BATAS LEVEL 2000) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -358,8 +348,20 @@ function addXP(amount) {
         let prevExp = d.exp || 0;
         let prevLvl = Math.floor(prevExp / 200) + 1;
         
+        // JIKA SUDAH LEVEL 2000, JANGAN TAMBAH XP LAGI (BIAR GAK KE RESET)
+        if (prevLvl >= 2000) {
+            return; // Berhenti di sini, fungsi nggak akan dilanjutkan
+        }
+        
         let nExp = prevExp + amount; 
         let nLvl = Math.floor(nExp / 200) + 1; 
+        
+        // CEGAH LEVEL LEWAT DARI 2000 JIKA XP TIBA-TIBA MEMBLUDAK
+        if (nLvl > 2000) {
+            nLvl = 2000;
+            nExp = 399800; // Dasar EXP untuk Level 2000
+        }
+
         let isLevelUp = nLvl > prevLvl;
         
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
@@ -373,16 +375,19 @@ function addXP(amount) {
         const progressFill = document.getElementById('xp-progress-fill');
         
         let currentLevelXp = nExp % 200;
-        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        let progressPercent = nLvl === 2000 ? 100 : Math.floor((currentLevelXp / 200) * 100);
         
         amountText.innerText = `+${amount}`;
         levelText.innerText = `Level ${nLvl}`;
-        progressText.innerText = `${progressPercent}%`;
-        progressFill.style.width = `${progressPercent}%`;
+        progressText.innerText = nLvl === 2000 ? `MAX` : `${progressPercent}%`;
+        progressFill.style.width = nLvl === 2000 ? `100%` : `${progressPercent}%`;
         
-        if (isLevelUp) {
+        if (nLvl === 2000) {
+            titleText.innerText = "MAX LEVEL!";
+            titleText.style.color = "#3b82f6";
+        } else if (isLevelUp) {
             titleText.innerText = "LEVEL UP!";
-            titleText.style.color = "#3b82f6"; // Diubah jadi biru
+            titleText.style.color = "#3b82f6";
         } else {
             titleText.innerText = "EXP Gained";
             titleText.style.color = "#fff";
