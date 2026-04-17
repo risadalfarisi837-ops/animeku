@@ -1,25 +1,4 @@
 // ==========================================
-// 0. TRIK ANTI-CACHE UNTUK MEMAKSA ANIMASI MUNCUL
-// ==========================================
-const dynamicStyles = document.createElement('style');
-dynamicStyles.innerHTML = `
-    .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
-    .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
-    .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
-    .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
-    .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
-    
-    .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
-    .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
-    .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
-    
-    @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
-    @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
-    @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
-`;
-document.head.appendChild(dynamicStyles);
-
-// ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
 const firebaseConfig = {
@@ -270,6 +249,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
+        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
 
         html += `
@@ -305,22 +285,6 @@ window.switchProfileTab = function(tabName, element) {
     document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none');
     document.getElementById('ptab-' + tabName).style.display = 'block';
 };
-
-// ==========================================
-// 3. FUNGSI FETCH DENGAN TIMEOUT (ANTI HANG/MUTER-MUTER)
-// ==========================================
-async function fetchTimeout(url, timeoutMs = 8000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(id);
-        return res;
-    } catch (e) {
-        clearTimeout(id);
-        throw e;
-    }
-}
 
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
@@ -470,15 +434,15 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// ==== KATEGORI HALAMAN HOME (DENGAN KEYWORD LENGKAP) ====
+// ==== KATEGORI HALAMAN HOME (DENGAN KEYWORD LENGKAP & AMAN) ====
 const HOME_SECTIONS = [
-    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach", "hero"] },
-    { title: "Romance Anime", queries: ["romance", "love", "kanojo", "gotoubun", "kaguya", "horimiya"] },
-    { title: "Sci-Fi Anime", queries: ["sci-fi", "mecha", "science", "stone", "gundam", "cyberpunk"] },
-    { title: "Comedy Anime", queries: ["comedy", "funny", "slice of life", "spy", "bocchi", "nichijou"] },
-    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf", "dragon"] },
-    { title: "Isekai Anime", queries: ["isekai", "reincarnation", "world", "slime", "mushoku"] },
-    { title: "School Anime", queries: ["school", "classroom", "student", "academy"] },
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
+    { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] },
+    { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] },
+    { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
+    { title: "School Anime", queries: ["school", "classroom", "academy"] },
     { title: "Movie Anime", queries: ["movie", "film"] }
 ];
 
@@ -488,13 +452,13 @@ const hide = (id) => { const el = document.getElementById(id); if(el) el.style.d
 const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
 
 function switchTab(tabName) {
-    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'genre-view'].forEach(v => {
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
         let el = document.getElementById(v);
         if(el) el.classList.add('hidden');
     });
     
-    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search' || tabName === 'genre') ? 'flex' : 'none';
-    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch' || tabName === 'genre') ? 'none' : 'flex';
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     
     let targetView = document.getElementById(tabName + '-view');
@@ -515,71 +479,54 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
-function generateGenreCardHtml(anime) {
-    let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
-    let views = `${Math.floor(Math.random()*900 + 10)},${Math.floor(Math.random()*9)}K views`;
-    let desc = anime.description || `Menceritakan kisah menarik dari ${anime.title}. Jangan lewatkan petualangan seru dan menegangkan di setiap episodenya hanya di Animeku.`;
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    
-    return `
-    <div class="genre-list-card" onclick="loadDetail('${anime.url}')">
-        <div class="genre-img-box">
-            <img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
-            <div class="genre-badge-new">New</div>
-        </div>
-        <div class="genre-info">
-            <div class="genre-title">${anime.title}</div>
-            <div class="genre-meta">
-                <span style="color:#fbbf24; display:flex; align-items:center; gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</span>
-                <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</span>
-            </div>
-            <div class="genre-desc">${desc}</div>
-        </div>
-    </div>`;
-}
-
-function generateFavCardHtml(anime) {
-    let epsBadge = getEpBadge(anime);
-    let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
-    let views = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K views`;
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</div></div><div class="fav-views"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</div><div class="fav-title">${anime.title}</div></div>`;
-}
-
 function generateRecentCardHtml(anime) {
     let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
+// ==== FUNGSI FETCH DENGAN TIMEOUT ANTI HANG ====
+async function fetchTimeout(url, timeoutMs = 6000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
+}
+
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
-    const forceStopLoading = setTimeout(() => { loader(false); }, 10000); 
     
     try {
-        // LOAD SLIDER & HISTORY SECARA BERSAMAAN
-        const [sliderRes, historyData] = await Promise.all([
-            fetchTimeout(`${API_BASE}/latest`, 8000).catch(() => null),
-            getHistory().catch(() => [])
-        ]);
-
-        if (sliderRes && sliderRes.ok) {
-            const sliderData = await sliderRes.json();
-            if (sliderData && sliderData.length > 0) renderHeroSlider(sliderData.slice(0, 15), homeContainer);
-        }
-
-        if (historyData && historyData.length > 0) {
-            const histDiv = document.createElement('div');
-            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-            homeContainer.appendChild(histDiv);
-        }
-
-        // LOAD KATEGORI SATU PER SATU AGAR SERVER TIDAK DOWN (ANTI MUTER-MUTER)
+        // LOAD SLIDER (DIPERBANYAK)
+        try {
+            let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 8000); 
+            if (res && res.ok) {
+                sliderData = await res.json();
+                if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); } 
+            }
+        } catch (e) { console.warn("Gagal load slider:", e); }
+        
+        // LOAD RECENT HISTORY (OTOMATIS MENUJU TAB RECENT KALAU DI KLIK)
+        try {
+            const historyData = await getHistory();
+            if (historyData && historyData.length > 0) {
+                const histDiv = document.createElement('div');
+                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(histDiv);
+            }
+        } catch (e) { console.warn("Gagal load riwayat:", e); }
+        
+        // LOAD KATEGORI HOME BERURUTAN (ANTI ERROR)
         for (const section of HOME_SECTIONS) {
             let combinedData = [];
-            // Ambil maksimal 2 keyword pertama untuk Home agar sangat cepat
-            for (const q of section.queries.slice(0, 2)) {
+            for (const q of section.queries.slice(0, 3)) {
                 try {
-                    const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 6000);
+                    const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
                     if (res.ok) {
                         const data = await res.json();
                         if (Array.isArray(data)) combinedData.push(...data);
@@ -590,11 +537,12 @@ async function loadLatest() {
             combinedData = removeDuplicates(combinedData, 'url');
             if (combinedData.length > 0) {
                 const sectionDiv = document.createElement('div'); 
-                sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="openGenre('${section.title}', '${section.queries.join(',')}')">Lihat Genre ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                // UBAH: LIHAT LAINNYA OTOMATIS BUKA MENU PENCARIAN SESUAI GENRE
+                sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
                 homeContainer.appendChild(sectionDiv);
             }
         }
-    } catch (err) { console.error("Home loading failed total", err); } finally { clearTimeout(forceStopLoading); loader(false); }
+    } catch (err) { console.error("Home loading failed total", err); } finally { loader(false); }
 }
 
 function renderHeroSlider(data, container) {
@@ -676,80 +624,7 @@ document.addEventListener('click', function(event) {
     const btn = document.getElementById('current-sort-btn'); 
     const menu = document.getElementById('sort-dropdown-menu'); 
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
-    
-    const genBtn = document.getElementById('current-genre-sort-btn'); 
-    const genMenu = document.getElementById('genre-sort-dropdown'); 
-    if (genBtn && genMenu && !genBtn.contains(event.target) && !genMenu.contains(event.target)) { genMenu.style.display = 'none'; } 
 });
-
-// ==== FUNGSI BUKA HALAMAN GENRE (DENGAN FETCH TIMEOUT AMAN) ====
-window.openGenre = async function(title, queriesStr) {
-    history.pushState({page: 'genre'}, '', '#genre');
-    switchTab('genre');
-    loader(true);
-    
-    document.getElementById('genre-title-text').innerText = title;
-    document.getElementById('genre-results-container').innerHTML = '';
-    document.getElementById('current-genre-sort-btn').innerHTML = `Latest <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
-    
-    try {
-        let queries = queriesStr.split(',').map(q => q.trim()).filter(q => q);
-        let combinedData = [];
-        
-        // AMBIL DATA SATU PER SATU AGAR TIDAK ERROR (MAX 8 DETIK PER KATA KUNCI)
-        for (let q of queries) {
-            try {
-                const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data)) combinedData.push(...data);
-                }
-            } catch(e) { console.warn("Timeout/Error fetching genre:", q); }
-        }
-        
-        window.currentGenreData = removeDuplicates(combinedData, 'url');
-        document.getElementById('genre-count-text').innerText = `(${window.currentGenreData.length})`;
-        
-        renderGenreList();
-    } catch (e) {
-        console.error(e);
-        document.getElementById('genre-results-container').innerHTML = '<p style="text-align:center; padding:20px; color:#ef4444;">Gagal memuat data. Silakan coba lagi.</p>';
-    } finally {
-        loader(false);
-    }
-};
-
-window.toggleGenreSortMenu = function() { 
-    const menu = document.getElementById('genre-sort-dropdown'); 
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; 
-};
-
-window.applyGenreSort = function(type, label) { 
-    document.getElementById('current-genre-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; 
-    document.getElementById('genre-sort-dropdown').style.display = 'none'; 
-    
-    if(type === 'latest') { 
-        window.currentGenreData.reverse(); 
-    } else if(type === 'az') { 
-        window.currentGenreData.sort((a, b) => a.title.localeCompare(b.title)); 
-    } else if(type === 'za') { 
-        window.currentGenreData.sort((a, b) => b.title.localeCompare(a.title)); 
-    } else if(type === 'rating' || type === 'popular') { 
-        window.currentGenreData.sort((a, b) => parseFloat(b.score || b.skor || b.rating || 0) - parseFloat(a.score || a.skor || a.rating || 0)); 
-    } 
-    renderGenreList(); 
-};
-
-function renderGenreList() {
-    const container = document.getElementById('genre-results-container');
-    if (!window.currentGenreData || window.currentGenreData.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding: 40px; color:#888;">Tidak ada anime ditemukan di genre ini.</div>';
-        return;
-    }
-    
-    container.innerHTML = window.currentGenreData.map(anime => generateGenreCardHtml(anime)).join('');
-}
-
 
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
