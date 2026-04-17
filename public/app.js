@@ -448,40 +448,30 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
+// ==== LOGIKA LIKE DAN DISLIKE ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
     
-    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)';
+    // Mengecek apakah warna background transparan atau berisi warna aktif
+    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
 
     if (type === 'like') {
         if (isActive) {
-            btn.style.backgroundColor = '#1c1c1e';
-            btn.style.borderColor = '#333';
-            btn.style.color = '#fff';
+            btn.style.backgroundColor = 'transparent';
         } else {
             btn.style.backgroundColor = '#3b82f6'; 
-            btn.style.borderColor = '#3b82f6';
-            btn.style.color = '#fff';
             if(dislikeBtn) {
-                dislikeBtn.style.backgroundColor = '#1c1c1e';
-                dislikeBtn.style.borderColor = '#333';
-                dislikeBtn.style.color = '#fff';
+                dislikeBtn.style.backgroundColor = 'transparent';
             }
         }
     } else {
         if (isActive) {
-            btn.style.backgroundColor = '#1c1c1e';
-            btn.style.borderColor = '#333';
-            btn.style.color = '#fff';
+            btn.style.backgroundColor = 'transparent';
         } else {
             btn.style.backgroundColor = '#ef4444';
-            btn.style.borderColor = '#ef4444';
-            btn.style.color = '#fff';
             if(likeBtn) {
-                likeBtn.style.backgroundColor = '#1c1c1e';
-                likeBtn.style.borderColor = '#333';
-                likeBtn.style.color = '#fff';
+                likeBtn.style.backgroundColor = 'transparent';
             }
         }
     }
@@ -678,8 +668,31 @@ async function handleSearch(query) {
 
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
-window.changeServer = function(url, serverName, btnElement) { document.getElementById('video-player').src = url; document.getElementById('current-quality-text').innerText = serverName; document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); btnElement.classList.add('active'); window.closeServerModal(); };
-window.handleDownload = function() { alert('Fitur Download sedang dalam tahap pengembangan! Nantikan update selanjutnya.'); };
+
+// ==== UPDATE TEKS QUALITY SAAT GANTI SERVER ====
+window.changeServer = function(url, serverName, btnElement) { 
+    document.getElementById('video-player').src = url; 
+    
+    // Ambil resolusi dari nama server, kalau ga ada set ke 'Quality'
+    let qualMatch = serverName.match(/\d{3,4}p/i);
+    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
+    
+    document.getElementById('current-quality-text').innerText = displayQuality; 
+    document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
+    btnElement.classList.add('active'); 
+    window.closeServerModal(); 
+};
+
+// ==== FUNGSI DOWNLOAD (MEMBUKA LINK VIDEO DI TAB BARU) ====
+window.handleDownload = function() { 
+    let iframe = document.getElementById('video-player');
+    if(iframe && iframe.src) {
+        window.open(iframe.src, '_blank');
+    } else {
+        alert('Video tidak ditemukan atau server belum dimuat.'); 
+    }
+};
+
 window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { alert('Tautan disalin: ' + window.location.href); } };
 
 async function loadRecentHistory() {
@@ -791,7 +804,6 @@ async function loadVideo(url) {
         switchTab('watch'); addXP(20); 
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         
-        // FORMAT TEXT VIEWS DAN TANGGAL
         let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`;
         let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
         
@@ -808,7 +820,6 @@ async function loadVideo(url) {
             url: window.currentAnimeMeta?.url || url
         };
 
-        // PROGRESS BAR SIMULASI
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
         let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
         oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
@@ -821,6 +832,11 @@ async function loadVideo(url) {
 
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
         
+        // Cek label server awal untuk ditaruh di tombol (Cari tulisan resolusi kalau ada)
+        let initialServer = data.streams.length > 0 ? data.streams[0].server : '';
+        let initQualMatch = initialServer.match(/\d{3,4}p/i);
+        let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
             
@@ -838,11 +854,17 @@ async function loadVideo(url) {
             
             <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
                 <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                    <button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
-                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button>
+                    
+                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center;">
+                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 15px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 15px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                    </div>
+
+                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
+                    
                     <button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
                 </div>
+                
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
                     <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
@@ -869,7 +891,6 @@ async function loadVideo(url) {
                     let c = "ep-square";
                     let inlineStyle = "";
 
-                    // LOGIKA VISUAL KOTAK EPISODE:
                     if (progress >= 100) {
                         c += " active"; 
                         if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
