@@ -265,7 +265,6 @@ function updateDevUI() {
     }
 }
 
-// ==== FUNGSI BUKA LEVEL MODAL BESERTA PROGRESS BAR ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -576,81 +575,157 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// Kategori Load Dikurangi Jadi 2 Agar Tidak Membebani API
-async function loadLatest() {
+const HOME_SECTIONS = [
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
+    { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] },
+    { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] },
+    { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
+    { title: "School Anime", queries: ["school", "classroom", "academy"] },
+    { title: "Movie Anime", queries: ["movie", "film"] }
+];
+
+let sliderInterval;
+const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
+const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
+
+function switchTab(tabName) {
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
+        let el = document.getElementById(v);
+        if(el) el.classList.add('hidden');
+    });
+    
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    let targetView = document.getElementById(tabName + '-view');
+    if(targetView) targetView.classList.remove('hidden');
+    
+    let targetNav = document.getElementById('tab-' + tabName);
+    if(targetNav) targetNav.classList.add('active');
+    
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatestSafe();
+    if (tabName === 'recent') loadRecentHistory();
+    if (tabName === 'favorite') loadFavorites();
+}
+
+function generateCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating;
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
+}
+
+function generateRecentCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
+}
+
+function generateFavCardHtml(anime) {
+    if (!anime) return '';
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || '?';
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
+}
+
+async function fetchTimeout(url, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
+}
+
+// ==== FUNGSI LOADING BARU YANG AMAN (ANTI LIMIT SERVER/BLANK SCREEN) ====
+async function loadLatestSafe() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
     homeContainer.innerHTML = ''; 
     let hasAnyData = false;
     
+    // 1. Buat Wrapper Atas (Slider & History)
+    const topContentDiv = document.createElement('div');
+    homeContainer.appendChild(topContentDiv);
+
+    // 2. Tampilkan Kerangka Loading (Skeleton) Terlebih Dahulu
+    const sectionDivs = [];
+    for (const section of HOME_SECTIONS) {
+        const div = document.createElement('div');
+        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat...</div></div>`;
+        homeContainer.appendChild(div);
+        sectionDivs.push({ section, div });
+    }
+
+    loader(false); // Kerangka sudah muncul, sembunyikan loading tengah layar
+
+    // 3. Load Slider (Terbaru)
     try {
-        try {
-            let sliderData = []; 
-            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
-            if (res && res.ok) {
-                sliderData = await res.json();
-                if (sliderData && sliderData.length > 0) { 
-                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
-                    hasAnyData = true;
-                } 
-            }
-        } catch (e) {}
-        
-        try {
-            const historyData = await getHistory();
-            if (historyData && historyData.length > 0) {
-                const histDiv = document.createElement('div');
-                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(histDiv);
+        const resSlider = await fetchTimeout(`${API_BASE}/latest`, 8000); 
+        if (resSlider && resSlider.ok) {
+            let sliderData = await resSlider.json();
+            if (sliderData && sliderData.length > 0) { 
+                renderHeroSlider(sliderData.slice(0, 15), topContentDiv); 
                 hasAnyData = true;
+            } 
+        }
+    } catch (e) { console.log("Slider error", e); }
+    
+    // 4. Load Histori Lokal
+    try {
+        const historyData = await getHistory();
+        if (historyData && historyData.length > 0) {
+            const histDiv = document.createElement('div');
+            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+            topContentDiv.appendChild(histDiv);
+            hasAnyData = true;
+        }
+    } catch (e) {}
+
+    // 5. Load Kategori BERURUTAN (1 Kategori = 1 Request) agar API tidak Error 504
+    for (const { section, div } of sectionDivs) {
+        try {
+            let combinedData = [];
+            let q = section.queries[0]; // Hanya ambil 1 kata kunci per section biar ringan
+            
+            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
+            if (res && res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) combinedData.push(...data);
             }
-        } catch (e) {}
-        
-        loader(false); 
 
-        // Pemuatan Berurutan Secara Aman Agar Tidak Kena Limit
-        for (const section of HOME_SECTIONS) {
-            const div = document.createElement('div');
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
-            homeContainer.appendChild(div);
-
-            try {
-                let combinedData = [];
-                for(let q of section.queries.slice(0, 2)) {
-                    try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
-                        if (res && res.ok) {
-                            const data = await res.json();
-                            if (Array.isArray(data)) combinedData.push(...data);
-                        }
-                    } catch(e) {}
-                }
-
-                combinedData = removeDuplicates(combinedData, 'url');
-                if (combinedData.length > 0) {
-                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                    hasAnyData = true;
-                } else {
-                    div.remove(); 
-                }
-            } catch(e) { div.remove(); }
+            combinedData = removeDuplicates(combinedData, 'url');
+            if (combinedData.length > 0) {
+                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 12).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                hasAnyData = true;
+            } else {
+                div.remove(); 
+            }
+        } catch(e) { 
+            div.remove(); 
         }
+    }
 
-        if (!hasAnyData) {
-            homeContainer.innerHTML = `
-                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
-                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
-                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                </div>
-            `;
-        }
-
-    } catch (err) { 
-        console.error("Home loading failed total", err);
-        loader(false); 
-    } 
+    // 6. Kalau Koneksi Beneran Terputus Semua
+    if (!hasAnyData) {
+        homeContainer.innerHTML = `
+            <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                <button onclick="loadLatestSafe()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+            </div>
+        `;
+    }
 }
 
 function renderHeroSlider(data, container) {
@@ -721,6 +796,7 @@ function injectReportModal() {
 window.openReportModal = function() {
     const overlay = document.getElementById('reportModalOverlay');
     const modal = document.getElementById('reportModal');
+    if(!overlay || !modal) return;
     overlay.style.display = 'block';
     modal.style.display = 'block';
     setTimeout(() => {
@@ -829,6 +905,113 @@ document.addEventListener('click', function(event) {
     const menu = document.getElementById('sort-dropdown-menu'); 
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
+
+window.epSortOrder = 'desc'; 
+window.epLayoutMode = 'list'; 
+
+window.toggleEpLayout = function() {
+    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
+    window.renderDetailEpisodeUI();
+};
+
+window.toggleEpSort = function() {
+    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
+    window.renderDetailEpisodeUI();
+};
+
+window.renderDetailEpisodeUI = function() {
+    let containerDetail = document.getElementById('episode-list-detail-container');
+    if(!containerDetail) return;
+    
+    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+    
+    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+
+    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+
+    let eps = [...(window.currentAnimeEpisodes || [])];
+    if (window.epSortOrder === 'desc') eps.reverse();
+
+    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+
+    let renderHtml = '';
+
+    if (window.epLayoutMode === 'grid') {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+            let c = "ep-square";
+            let inlineStyle = "width: 55px; height: 55px;"; 
+
+            if (progress >= 100) {
+                c += " active";
+                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
+            } else if (progress > 0) {
+                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+            } else if (progress === 0 || isCurrent) {
+                c += " watched";
+            } else if (watchedEps.includes(ep.url)) {
+                c += " active";
+            }
+
+            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+        
+    } else {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
+            let mockEpDate = `16 Apr 2026`;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+
+            let btnBg = 'rgba(255,255,255,0.1)';
+            let btnText = 'Buka';
+
+            if (progress >= 100 || watchedEps.includes(ep.url)) {
+                btnBg = '#3b82f6'; btnText = 'Ditonton';
+            } else if (progress > 0) {
+                btnBg = '#3b82f6'; btnText = 'Lanjut';
+            }
+
+            if (isCurrent) {
+                btnBg = '#ef4444'; btnText = 'Diputar';
+            }
+
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
+                <div>
+                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
+                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
+                    </div>
+                </div>
+                <div>
+                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
+                </div>
+            </div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; flex-direction: column;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+    }
+};
 
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
@@ -968,6 +1151,7 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
+        // RENDER KOTAK EPISODE HORIZONTAL DI HALAMAN NONTON
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
@@ -1036,7 +1220,7 @@ window.postComment = function(epID) {
     }); 
 };
 
-// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL, JUGA OPEN LEVEL MODAL BILA LEVEL DIKLIK
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
