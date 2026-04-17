@@ -555,6 +555,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
+// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -586,6 +587,7 @@ async function loadLatest() {
         
         loader(false); 
 
+        // Bikin kerangka container dulu biar rapi di layar
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
@@ -594,6 +596,7 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
+        // Pecah antrean per 3 kategori sekaligus biar cepat (semi-paralel)
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
         const batches = chunkArray(sectionContainers, 3);
 
@@ -624,6 +627,7 @@ async function loadLatest() {
             }));
         }
 
+        // Jika semua API beneran gagal
         if (!hasAnyData) {
             homeContainer.innerHTML = `
                 <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
@@ -669,15 +673,9 @@ async function handleSearch(query) {
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
-// ==== UPDATE TEKS QUALITY SAAT GANTI SERVER ====
+// ==== FUNGSI GANTI SERVER ====
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
-    
-    // Ambil resolusi dari nama server, kalau ga ada set ke 'Quality'
-    let qualMatch = serverName.match(/\d{3,4}p/i);
-    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
-    
-    document.getElementById('current-quality-text').innerText = displayQuality; 
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
     btnElement.classList.add('active'); 
     window.closeServerModal(); 
@@ -831,11 +829,6 @@ async function loadVideo(url) {
         localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
 
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
-        
-        // Cek label server awal untuk ditaruh di tombol (Cari tulisan resolusi kalau ada)
-        let initialServer = data.streams.length > 0 ? data.streams[0].server : '';
-        let initQualMatch = initialServer.match(/\d{3,4}p/i);
-        let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
 
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
@@ -860,7 +853,7 @@ async function loadVideo(url) {
                         <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 15px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
                     </div>
 
-                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
+                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> Quality</button>
                     
                     <button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
                 </div>
