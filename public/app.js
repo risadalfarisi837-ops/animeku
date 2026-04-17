@@ -534,41 +534,6 @@ function addXP(amount) {
     });
 }
 
-function showXPModal(addedAmount, level, progress, isLevelUp) {
-    const overlay = document.getElementById('xp-modal-overlay');
-    const card = document.getElementById('xp-modal-card');
-    const titleText = document.getElementById('xp-title-text');
-    const amountText = document.getElementById('xp-amount-text');
-    const levelText = document.getElementById('xp-level-text');
-    const progressText = document.getElementById('xp-progress-text');
-    const progressFill = document.getElementById('xp-progress-fill');
-
-    amountText.innerText = `+${addedAmount}`;
-    levelText.innerText = `Level ${level}`;
-    progressText.innerText = `${progress}%`;
-    progressFill.style.width = `${progress}%`;
-    
-    if (isLevelUp) {
-        titleText.innerText = "LEVEL UP!";
-        titleText.style.color = "#3b82f6";
-    } else {
-        titleText.innerText = "EXP Gained";
-        titleText.style.color = "#fff";
-    }
-    
-    overlay.style.display = 'flex'; 
-    setTimeout(() => { 
-        overlay.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-    }, 10);
-    
-    setTimeout(() => { 
-        overlay.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
-    }, 2500);
-}
-
 function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
 async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
 async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
@@ -611,66 +576,7 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-let sliderInterval;
-const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
-const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
-const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
-
-function switchTab(tabName) {
-    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
-        let el = document.getElementById(v);
-        if(el) el.classList.add('hidden');
-    });
-    
-    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
-    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    
-    let targetView = document.getElementById(tabName + '-view');
-    if(targetView) targetView.classList.remove('hidden');
-    
-    let targetNav = document.getElementById('tab-' + tabName);
-    if(targetNav) targetNav.classList.add('active');
-    
-    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
-    if (tabName === 'recent') loadRecentHistory();
-    if (tabName === 'favorite') loadFavorites();
-}
-
-function generateCardHtml(anime) {
-    let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating;
-    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
-}
-
-function generateRecentCardHtml(anime) {
-    let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
-}
-
-function generateFavCardHtml(anime) {
-    if (!anime) return '';
-    let epsBadge = getEpBadge(anime);
-    let scoreStr = anime.score || anime.skor || anime.rating || '?';
-    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
-}
-
-async function fetchTimeout(url, timeoutMs = 15000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(id);
-        return res;
-    } catch (e) {
-        clearTimeout(id);
-        throw e;
-    }
-}
-
+// Kategori Load Dikurangi Jadi 2 Agar Tidak Membebani API
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -702,42 +608,32 @@ async function loadLatest() {
         
         loader(false); 
 
-        const sectionContainers = [];
+        // Pemuatan Berurutan Secara Aman Agar Tidak Kena Limit
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
             div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
             homeContainer.appendChild(div);
-            sectionContainers.push({ section, div });
-        }
 
-        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
-        const batches = chunkArray(sectionContainers, 3);
+            try {
+                let combinedData = [];
+                for(let q of section.queries.slice(0, 2)) {
+                    try {
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
+                        if (res && res.ok) {
+                            const data = await res.json();
+                            if (Array.isArray(data)) combinedData.push(...data);
+                        }
+                    } catch(e) {}
+                }
 
-        for (const batch of batches) {
-            await Promise.all(batch.map(async ({ section, div }) => {
-                try {
-                    let combinedData = [];
-                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
-                        try {
-                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                            if (res && res.ok) {
-                                const data = await res.json();
-                                if (Array.isArray(data)) combinedData.push(...data);
-                            }
-                        } catch(e) {}
-                    });
-
-                    await Promise.all(fetchPromises);
-
-                    combinedData = removeDuplicates(combinedData, 'url');
-                    if (combinedData.length > 0) {
-                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                        hasAnyData = true;
-                    } else {
-                        div.remove(); 
-                    }
-                } catch(e) { div.remove(); }
-            }));
+                combinedData = removeDuplicates(combinedData, 'url');
+                if (combinedData.length > 0) {
+                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    hasAnyData = true;
+                } else {
+                    div.remove(); 
+                }
+            } catch(e) { div.remove(); }
         }
 
         if (!hasAnyData) {
@@ -823,7 +719,6 @@ function injectReportModal() {
 }
 
 window.openReportModal = function() {
-    injectReportModal();
     const overlay = document.getElementById('reportModalOverlay');
     const modal = document.getElementById('reportModal');
     overlay.style.display = 'block';
@@ -1141,12 +1036,13 @@ window.postComment = function(epID) {
     }); 
 };
 
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL, JUGA OPEN LEVEL MODAL BILA LEVEL DIKLIK
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="if('${c.uid}' !== 'undefined') { event.stopPropagation(); openUserProfile('${c.uid}'); }" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="if('${c.uid}' !== 'undefined') { event.stopPropagation(); openUserProfile('${c.uid}'); }" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="event.stopPropagation(); openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" class="c-badge ${lvlClass}" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="event.stopPropagation(); window.openUserProfile('${c.uid || ''}')" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="event.stopPropagation(); window.openUserProfile('${c.uid || ''}')" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="event.stopPropagation(); openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" class="c-badge ${lvlClass}" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1192,11 +1088,16 @@ function injectUserProfileModal() {
 }
 
 window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') return;
-    injectUserProfileModal();
+    if(!uid || uid === 'undefined') {
+        alert("Profil dari komentar lama ini tidak dapat dibuka karena belum memiliki ID pengguna.");
+        return;
+    }
+    
     const overlay = document.getElementById('userProfileOverlay');
     const modal = document.getElementById('userProfileModal');
     const content = document.getElementById('user-profile-content');
+    
+    if(!overlay || !modal || !content) return;
     
     overlay.style.display = 'block';
     modal.style.display = 'flex';
@@ -1318,6 +1219,7 @@ function backToDetail() { history.back(); }
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
+    injectUserProfileModal(); 
     history.replaceState({page: 'home'}, '', window.location.pathname); 
     switchTab('home'); 
 }
