@@ -27,9 +27,15 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        /* MATIKAN SEMUA ANIMASI UNTUK EMERALD & MASTER */
+        .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
+        .rank-icon-emerald::after, .rank-icon-emerald::before { animation: none !important; }
+        
+        .rank-icon-master, .badge-lvl-master { animation: none !important; }
+        .rank-icon-master::before, .rank-icon-master::after { animation: none !important; }
+
+        /* DIAMOND & MYTHIC TETAP BERANIMASI */
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
@@ -325,9 +331,9 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 window.currentPlayingAnime = null; 
 
-// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
-window.epSortOrder = 'desc'; 
-window.epLayoutMode = 'list'; 
+// ==== FITUR FILTER & SORT EPISODE GLOBAL ====
+window.epSortOrder = 'desc'; // 'desc' = 99 -> 1, 'asc' = 1 -> 99
+window.epLayoutMode = 'list'; // 'list' atau 'grid'
 
 window.toggleEpLayout = function() {
     window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
@@ -568,7 +574,6 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -847,7 +852,6 @@ window.toggleEpSort = function() {
     window.renderDetailEpisodeUI();
 };
 
-// Fungsi Render Episode khusus di Halaman Detail
 window.renderDetailEpisodeUI = function() {
     let containerDetail = document.getElementById('episode-list-detail-container');
     if(!containerDetail) return;
@@ -1080,7 +1084,6 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
-        // RENDER KOTAK EPISODE HORIZONTAL
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
@@ -1092,23 +1095,23 @@ async function loadVideo(url) {
                     let isCurrent = (ep.url === url);
                     
                     let c = "ep-square";
-                    let inlineStyle = "";
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;"; // Memperbesar kotak di halaman nonton biar seragam
 
                     if (progress >= 100) {
                         c += " active"; 
-                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
+                        if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; 
                     } 
                     else if (progress > 0) {
-                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
+                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
                     } 
                     else if (progress === 0 || isCurrent) {
                         c += " watched";
                     }
 
-                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; 
             } 
         }
         
