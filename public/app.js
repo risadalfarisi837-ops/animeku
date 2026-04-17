@@ -29,11 +29,11 @@ function injectPremiumStyles() {
             100% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* 1. EFEK BADGE PROFIL */
+        /* 1. EFEK BADGE PROFIL BAWAH NAMA */
         .c-badge { position: relative; overflow: visible !important; } 
-        .badge-lvl-emerald { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important; }
-        .badge-lvl-diamond { box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important; }
-        .badge-lvl-master { box-shadow: 0 0 12px rgba(250, 204, 21, 0.5) !important; }
+        .badge-lvl-emerald { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important; border: 1px solid rgba(16,185,129,0.5) !important; }
+        .badge-lvl-diamond { box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important; border: 1px solid rgba(6,182,212,0.5) !important; }
+        .badge-lvl-master { box-shadow: 0 0 12px rgba(250, 204, 21, 0.5) !important; border: 1px solid rgba(250,204,21,0.5) !important; }
         .badge-lvl-mythic { 
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important; 
             background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
@@ -46,9 +46,9 @@ function injectPremiumStyles() {
 
         /* 2. EFEK IKON RANK KOTAK (DI DALAM MODAL) */
         .rank-icon { position: relative; overflow: visible !important; } 
-        .rank-icon-emerald { box-shadow: 0 0 12px rgba(147, 51, 234, 0.6) !important; border-color: rgba(168, 85, 247, 0.5) !important; background: rgba(147, 51, 234, 0.15) !important; }
+        .rank-icon-emerald { box-shadow: 0 0 12px rgba(147, 51, 234, 0.6) !important; border: 1px solid rgba(168, 85, 247, 0.5) !important; background: rgba(147, 51, 234, 0.15) !important; }
         .rank-icon-emerald::after { content: '✨'; position: absolute; top: -8px; right: -8px; font-size: 14px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; }
-        .rank-icon-diamond { box-shadow: 0 0 14px rgba(59, 130, 246, 0.7), inset 0 0 4px rgba(255,255,255,0.3) !important; border-color: rgba(59, 130, 246, 0.6) !important; background: rgba(59, 130, 246, 0.15) !important; }
+        .rank-icon-diamond { box-shadow: 0 0 14px rgba(59, 130, 246, 0.7), inset 0 0 4px rgba(255,255,255,0.3) !important; border: 1px solid rgba(59, 130, 246, 0.6) !important; background: rgba(59, 130, 246, 0.15) !important; }
         .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; border: 1px solid rgba(250, 204, 21, 0.5) !important; }
         .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -10px; left: -10px; font-size: 15px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
         .rank-icon-master::after { content: '⭐'; position: absolute; top: -10px; right: -8px; font-size: 13px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
@@ -62,7 +62,6 @@ function injectPremiumStyles() {
     `;
     document.head.appendChild(style);
 }
-// Panggil langsung saat file js dimuat
 injectPremiumStyles();
 
 auth.onAuthStateChanged(user => {
@@ -160,7 +159,7 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
                 
-                // Tambahkan class CSS ke avatar sesuai Rank
+                // Tambahkan class CSS ke avatar sesuai Rank (ini buat foto profil bercahaya)
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
@@ -545,7 +544,6 @@ function generateFavCardHtml(anime) {
     return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
 }
 
-// ==== FUNGSI FETCH DENGAN TIMEOUT KHUSUS VERCEL (15 DETIK) ====
 async function fetchTimeout(url, timeoutMs = 15000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -559,22 +557,27 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BERANDA YANG TIDAK NGE-BLANK SAAT VERCEL COLD START ====
+// ==== FUNGSI LOADING BERANDA YANG TIDAK NGE-BLANK ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
     homeContainer.innerHTML = ''; 
+    let hasData = false;
     
     try {
+        // 1. SLIDER
         try {
-            let sliderData = []; 
-            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 10000); 
             if (res && res.ok) {
-                sliderData = await res.json();
-                if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); } 
+                const data = await res.json();
+                if (data && data.length > 0) { 
+                    renderHeroSlider(data.slice(0, 20), homeContainer); 
+                    hasData = true;
+                } 
             }
-        } catch (e) { console.warn("Gagal load slider:", e); }
+        } catch (e) {}
         
+        // 2. HISTORY
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -582,60 +585,52 @@ async function loadLatest() {
                 histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
                 homeContainer.appendChild(histDiv);
             }
-        } catch (e) { console.warn("Gagal load riwayat:", e); }
+        } catch (e) {}
         
+        // Matikan loader utama biar user bisa melihat layar, nggak freeze
         loader(false); 
 
-        const sectionContainers = HOME_SECTIONS.map(section => {
+        // 3. KATEGORI (Dimuat BERURUTAN biar Vercel tidak keblokir/DDoS)
+        for (const section of HOME_SECTIONS) {
+            // Tampilkan placeholder loading per baris
             const div = document.createElement('div');
-            // Menampilkan teks loading agar user tahu aplikasi tidak mati
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div style="padding: 0 15px; color: #555; font-size: 13px; font-weight: bold;">Sedang memuat data...</div>`;
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center; color:#555; font-size:12px; border:1px dashed #222;">Sedang memuat data...</div></div>`;
             homeContainer.appendChild(div);
-            return { section, div };
-        });
-
-        sectionContainers.forEach(async ({ section, div }) => {
-            try {
-                let combinedData = [];
-                const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
-                    try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 15000);
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (Array.isArray(data)) return data;
-                        }
-                    } catch(e) {}
-                    return [];
-                });
-
-                const results = await Promise.all(fetchPromises);
-                results.forEach(data => combinedData.push(...data));
-
-                combinedData = removeDuplicates(combinedData, 'url');
-                if (combinedData.length > 0) {
-                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                } else {
-                    div.remove(); 
-                }
-            } catch(e) { div.remove(); }
-        });
-
-        // SAFETY NET: JIKA SETELAH 16 DETIK LAYAR TETAP KOSONG KARENA VERCEL MATI
-        setTimeout(() => {
-            if (homeContainer.innerHTML.trim() === '') {
-                homeContainer.innerHTML = `
-                    <div style="text-align:center; padding:80px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                        <h2 style="margin:0 0 10px 0; color:#fff; font-size:20px; font-weight:900;">Gagal Terhubung ke Server</h2>
-                        <p style="color:#888; font-size:14px; line-height:1.5; margin-bottom:25px;">Server (Vercel) kamu sedang tidak merespons atau sedang dalam mode tidur (Cold Start). Silakan coba lagi.</p>
-                        <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                    </div>
-                `;
+            
+            let combinedData = [];
+            for (const q of section.queries.slice(0, 2)) {
+                try {
+                    const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data)) combinedData.push(...data);
+                    }
+                } catch(e) {}
             }
-        }, 16000); 
+
+            combinedData = removeDuplicates(combinedData, 'url');
+            if (combinedData.length > 0) {
+                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                hasData = true;
+            } else {
+                div.remove(); // Hapus baris kalau API kosong
+            }
+        }
+
+        // Kalau benar-benar semua API gagal dipanggil
+        if (!hasData) {
+            homeContainer.innerHTML += `
+                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Terhubung ke Server</h2>
+                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server Vercel sedang sibuk atau mengalami Cold Start. Pastikan internetmu stabil.</p>
+                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                </div>
+            `;
+        }
 
     } catch (err) { 
-        console.error("Home loading failed total", err); 
+        console.error("Fatal Error", err);
         loader(false); 
     } 
 }
@@ -860,4 +855,15 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding:
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+};
+
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+
+window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
+function goHome() { history.back(); }
+function backToDetail() { history.back(); }
+
+function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
