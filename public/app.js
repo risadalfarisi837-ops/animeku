@@ -17,7 +17,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// ==== INJEKSI CSS PREMIUM VIA JS (TANPA BINTANG-BINTANG) ====
+// ==== INJEKSI CSS PREMIUM VIA JS ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style');
@@ -27,39 +27,11 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* ================= EMERALD ================= */
-        .badge-lvl-emerald, .rank-icon-emerald { 
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; 
-            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
+        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
-        /* ================= DIAMOND ================= */
-        .badge-lvl-diamond, .rank-icon-diamond { 
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; 
-            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= MASTER ================= */
-        .badge-lvl-master, .rank-icon-master { 
-            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
-            background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= MYTHIC ================= */
-        .badge-lvl-mythic, .rank-icon-mythic { 
-            box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; 
-            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= GLOWING PADA FOTO PROFIL (AVATAR) ================= */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -77,7 +49,6 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// ==== SISTEM LOGIN ANTI SPAM KLIK ====
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
     if (isLoggingIn) return; 
@@ -107,7 +78,6 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -123,7 +93,6 @@ function getRankInfo(level) {
     return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0];
 }
 
-// ==== MEMUAT PROFIL USER ====
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -479,12 +448,10 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
-// ==== UPDATE WARNA LIKES ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
     
-    // Mengecek apakah tombol sudah dalam keadaan aktif
     const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)';
 
     if (type === 'like') {
@@ -838,9 +805,23 @@ async function loadVideo(url) {
             url: window.currentAnimeMeta?.url || url
         };
 
-        let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-        if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
+        // ==== SISTEM PROGRESS BAR SIMULASI ====
+        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
         
+        // Migrasi data lama dari watchedEps (kalau ada) jadi 100% full
+        let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
+        oldWatched.forEach(oldUrl => { if(!watchProgress[oldUrl]) watchProgress[oldUrl] = 100; });
+        
+        // Simulasi penambahan progress. 
+        // Kenapa simulasi? Karena player video pakai iFrame, website luar nggak bisa baca durasinya asli.
+        // Jadi kita setting aja, tiap di-klik dia nambah progress 40% biar kamu bisa lihat efeknya berjalan.
+        if (!watchProgress[url]) {
+            watchProgress[url] = 20; // Mulai dari 20%
+        } else if (watchProgress[url] < 100) {
+            watchProgress[url] = Math.min(100, watchProgress[url] + 40); // Nambah tiap diklik
+        }
+        localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
+
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
         
         document.getElementById('watch-view').innerHTML = `
@@ -851,23 +832,40 @@ async function loadVideo(url) {
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
         `;
-        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
-        const watchEpListContainer = document.getElementById('watch-episode-squares');
         
-        // ==== LOGIKA EPS DIBALIK ====
+        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
+        
+        const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
                 watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
                     let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
                     let eNum = m ? m[1] : (index + 1); 
                     
-                    // Kalau sedang diputar (cuma garis luar), kalau udah ditonton (warna full active)
-                    let c = (ep.url === url) ? "ep-square watched" : (watchedEps.includes(ep.url) ? "ep-square active" : "ep-square"); 
+                    let progress = watchProgress[ep.url];
+                    let isCurrent = (ep.url === url);
                     
-                    return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                    let c = "ep-square";
+                    let inlineStyle = "";
+
+                    if (isCurrent) {
+                        // Sedang ditonton (Active): Full Biru sesuai CSS
+                        c += " active"; 
+                    } else if (progress !== undefined) {
+                        c += " watched";
+                        // Punya progress bar: Kita isi warna dengan linear-gradient mengikuti persentase dari kiri
+                        if (progress < 100) {
+                            inlineStyle = `style="background: linear-gradient(to right, rgba(59, 130, 246, 0.45) ${progress}%, #1c1c1e ${progress}%); border-color: #3b82f6; color: #fff;"`;
+                        } else {
+                            // Kalau udah 100% full (Bisa dibedakan warnanya sedikit biar gak nabrak dengan yg sedang active)
+                            inlineStyle = `style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #3b82f6;"`;
+                        }
+                    }
+
+                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
+                watchEpListContainer.innerHTML = `<div class="ep-square active">${currentEpNum}</div>`; 
             } 
         }
         
