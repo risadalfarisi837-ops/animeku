@@ -228,7 +228,7 @@ function updateDevUI() {
     }
 }
 
-// ==== UPDATE DI SINI: MANGGIL CLASS ANIMASI CSS BERDASARKAN NAMA RANK ====
+// ==== PEMICU CLASS ANIMASI RANK DI MODAL LEVEL ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -252,7 +252,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         
-        // Pemicu Animasi CSS berdasarkan nama Rank (Emerald, Diamond, Master, Mythic)
+        // Panggil class animasi yang ada di file index.html
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
         html += `
@@ -486,6 +486,7 @@ function generateRecentCardHtml(anime) {
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
+// ==== FUNGSI CARD FAVORITE/SUBSCRIBE ====
 function generateFavCardHtml(anime) {
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || '?';
@@ -507,6 +508,7 @@ async function fetchTimeout(url, timeoutMs = 6000) {
     }
 }
 
+// ==== FUNGSI LOADING CEPAT YANG SUDAH DIBENERIN (JANGAN DIHAPUS YAH) ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -530,6 +532,7 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load riwayat:", e); }
         
+        // MATIKAN LOADING SCREEN DI SINI BIAR GAK FREEZE NUNGGUIN BAWAHNYA
         loader(false); 
 
         const sectionContainers = HOME_SECTIONS.map(section => {
@@ -539,28 +542,29 @@ async function loadLatest() {
         });
 
         sectionContainers.forEach(async ({ section, div }) => {
-            let combinedData = [];
-            
-            const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
-                try {
-                    const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (Array.isArray(data)) return data;
-                    }
-                } catch(e) { console.warn("Skip keyword timeout:", q); }
-                return [];
-            });
+            try {
+                let combinedData = [];
+                const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
+                    try {
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (Array.isArray(data)) return data;
+                        }
+                    } catch(e) { console.warn("Skip keyword timeout:", q); }
+                    return [];
+                });
 
-            const results = await Promise.all(fetchPromises);
-            results.forEach(data => combinedData.push(...data));
+                const results = await Promise.all(fetchPromises);
+                results.forEach(data => combinedData.push(...data));
 
-            combinedData = removeDuplicates(combinedData, 'url');
-            if (combinedData.length > 0) {
-                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-            } else {
-                div.remove(); 
-            }
+                combinedData = removeDuplicates(combinedData, 'url');
+                if (combinedData.length > 0) {
+                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                } else {
+                    div.remove(); 
+                }
+            } catch(e) { div.remove(); }
         });
 
     } catch (err) { 
@@ -627,7 +631,13 @@ async function loadRecentHistory() {
 
 window.toggleSortMenu = function() { const menu = document.getElementById('sort-dropdown-menu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; };
 window.applyFavSort = function(type, label) { document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; document.getElementById('sort-dropdown-menu').style.display = 'none'; if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); } renderFavoritesList(); };
-function renderFavoritesList() { const container = document.getElementById('favorite-results-container'); container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; }
+
+function renderFavoritesList() { 
+    const container = document.getElementById('favorite-results-container'); 
+    try {
+        container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; 
+    } catch(e) { console.error("Error render:", e); }
+}
 
 async function loadFavorites() {
     const container = document.getElementById('favorite-results-container'); 
@@ -787,4 +797,6 @@ window.openReplyModal = function(epID, parentID) {
 };
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+
+window.addEventListener('popstate', (e) => {
