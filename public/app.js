@@ -228,6 +228,7 @@ function updateDevUI() {
     }
 }
 
+// ==== UPDATE DI SINI: MANGGIL CLASS ANIMASI CSS BERDASARKAN NAMA RANK ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -251,7 +252,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         
-        // Pemicu Animasi CSS berdasarkan nama Rank
+        // Pemicu Animasi CSS berdasarkan nama Rank (Emerald, Diamond, Master, Mythic)
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
         html += `
@@ -436,7 +437,6 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// ==== KATEGORI HALAMAN HOME (DENGAN KEYWORD LENGKAP & AMAN) ====
 const HOME_SECTIONS = [
     { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
     { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
@@ -494,7 +494,6 @@ function generateFavCardHtml(anime) {
     return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
 }
 
-// ==== FUNGSI FETCH DENGAN TIMEOUT ANTI HANG ====
 async function fetchTimeout(url, timeoutMs = 6000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -514,7 +513,6 @@ async function loadLatest() {
     homeContainer.innerHTML = ''; 
     
     try {
-        // 1. LOAD SLIDER
         try {
             let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 8000); 
             if (res && res.ok) {
@@ -523,7 +521,6 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load slider:", e); }
         
-        // 2. LOAD RECENT HISTORY
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -533,22 +530,17 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load riwayat:", e); }
         
-        // Matikan loading di sini agar user langsung bisa melihat hero slider / history
-        // sementara API bawahnya sedang dimuat secara asinkron
         loader(false); 
 
-        // 3. SIAPKAN CONTAINER BERURUTAN (Biar layout tidak melompat)
         const sectionContainers = HOME_SECTIONS.map(section => {
             const div = document.createElement('div');
             homeContainer.appendChild(div);
             return { section, div };
         });
 
-        // 4. LOAD KATEGORI HOME SECARA PARALEL (Jauh lebih cepat)
         sectionContainers.forEach(async ({ section, div }) => {
             let combinedData = [];
             
-            // Fetch queries bersamaan menggunakan Promise.all
             const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
                 try {
                     const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
@@ -567,7 +559,7 @@ async function loadLatest() {
             if (combinedData.length > 0) {
                 div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
             } else {
-                div.remove(); // Hapus container jika data API kosong/gagal
+                div.remove(); 
             }
         });
 
@@ -795,11 +787,4 @@ window.openReplyModal = function(epID, parentID) {
 };
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
-
-window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
-function goHome() { history.back(); }
-function backToDetail() { history.back(); }
-
-function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.
