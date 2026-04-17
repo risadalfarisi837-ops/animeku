@@ -27,15 +27,9 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* MATIKAN SEMUA ANIMASI BINTANG DAN GLOWING UNTUK EMERALD & MASTER */
-        .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
-        .rank-icon-emerald::after, .rank-icon-emerald::before { display: none !important; content: none !important; animation: none !important; }
-        
-        .rank-icon-master, .badge-lvl-master { animation: none !important; }
-        .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
-
-        /* DIAMOND & MYTHIC TETAP BERANIMASI */
+        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
@@ -276,7 +270,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
 
     let html = '';
-    RANK_TIERS.forEach((rank, idx) => {
+    RANK_TIERS.forEach(rank => {
         let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl);
         let isPassed = currentLvl > rank.maxLvl;
         
@@ -286,45 +280,17 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
+        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
-        // PROGRESS BAR JIKA RANK SEDANG AKTIF
-        let progressHtml = '';
-        if (isCurrent && rank.maxLvl !== Infinity) {
-            let totalLvlInRank = rank.maxLvl - rank.minLvl + 1;
-            let earnedLvl = currentLvl - rank.minLvl;
-            let percent = Math.floor((earnedLvl / totalLvlInRank) * 100);
-            let nextRankName = RANK_TIERS[idx+1] ? RANK_TIERS[idx+1].name : 'Max';
-            let lvlLeft = rank.maxLvl - currentLvl + 1;
-            
-            let barColor = '#3b82f6';
-            if(rank.name === 'Stone') barColor = '#a8a29e';
-            if(rank.name === 'Bronze') barColor = '#d97706';
-            if(rank.name === 'Silver') barColor = '#e2e8f0';
-            if(rank.name === 'Gold') barColor = '#facc15';
-            if(rank.name === 'Emerald') barColor = '#10b981';
-            if(rank.name === 'Diamond') barColor = '#22d3ee';
-            if(rank.name === 'Master') barColor = '#ec4899';
-            
-            progressHtml = `
-                <div style="margin-top: 12px; padding-right: 15px;">
-                    <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="height: 100%; width: ${percent}%; background: ${barColor}; border-radius: 3px;"></div>
-                    </div>
-                    <div style="font-size: 11px; color: #a1a1aa; font-weight: 600;">${percent}% • ${lvlLeft} levels to ${nextRankName}</div>
-                </div>
-            `;
-        }
-
         html += `
             <div class="level-rank-item" style="${bgStyle}">
-                <div class="rank-info" style="flex:1;">
+                <div class="rank-info">
                     <div class="${iconClass}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
-                    <div style="flex:1;">
+                    <div>
                         <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
                         <div class="rank-req">${reqText}</div>
-                        ${progressHtml}
                     </div>
                 </div>
                 <div class="rank-status">${statusIcon}</div>
@@ -333,6 +299,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     });
 
     listContainer.innerHTML = html;
+
     modalOverlay.style.display = 'block';
     modal.style.display = 'flex';
     setTimeout(() => { modal.classList.add('show'); }, 10);
@@ -370,100 +337,6 @@ window.toggleEpLayout = function() {
 window.toggleEpSort = function() {
     window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
     window.renderDetailEpisodeUI();
-};
-
-window.renderDetailEpisodeUI = function() {
-    let containerDetail = document.getElementById('episode-list-detail-container');
-    if(!containerDetail) return;
-    
-    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
-    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
-    
-    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
-
-    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
-    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
-
-    let eps = [...(window.currentAnimeEpisodes || [])];
-    if (window.epSortOrder === 'desc') eps.reverse();
-
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
-    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
-
-    let renderHtml = '';
-
-    if (window.epLayoutMode === 'grid') {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-            let c = "ep-square";
-            let inlineStyle = "width: 55px; height: 55px;"; 
-
-            if (progress >= 100) {
-                c += " active";
-                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
-            } else if (progress > 0) {
-                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
-            } else if (progress === 0 || isCurrent) {
-                c += " watched";
-            } else if (watchedEps.includes(ep.url)) {
-                c += " active";
-            }
-
-            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-        
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
-            let mockEpDate = `16 Apr 2026`;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-
-            let btnBg = 'rgba(255,255,255,0.1)';
-            let btnText = 'Buka';
-
-            if (progress >= 100 || watchedEps.includes(ep.url)) {
-                btnBg = '#3b82f6'; btnText = 'Ditonton';
-            } else if (progress > 0) {
-                btnBg = '#3b82f6'; btnText = 'Lanjut';
-            }
-
-            if (isCurrent) {
-                btnBg = '#ef4444'; btnText = 'Diputar';
-            }
-
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
-                <div>
-                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
-                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
-                    </div>
-                </div>
-                <div>
-                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
-                </div>
-            </div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; flex-direction: column;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-    }
 };
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
@@ -533,6 +406,41 @@ function addXP(amount) {
     });
 }
 
+function showXPModal(addedAmount, level, progress, isLevelUp) {
+    const overlay = document.getElementById('xp-modal-overlay');
+    const card = document.getElementById('xp-modal-card');
+    const titleText = document.getElementById('xp-title-text');
+    const amountText = document.getElementById('xp-amount-text');
+    const levelText = document.getElementById('xp-level-text');
+    const progressText = document.getElementById('xp-progress-text');
+    const progressFill = document.getElementById('xp-progress-fill');
+
+    amountText.innerText = `+${addedAmount}`;
+    levelText.innerText = `Level ${level}`;
+    progressText.innerText = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
+    
+    if (isLevelUp) {
+        titleText.innerText = "LEVEL UP!";
+        titleText.style.color = "#3b82f6";
+    } else {
+        titleText.innerText = "EXP Gained";
+        titleText.style.color = "#fff";
+    }
+    
+    overlay.style.display = 'flex'; 
+    setTimeout(() => { 
+        overlay.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 10);
+    
+    setTimeout(() => { 
+        overlay.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
+    }, 2500);
+}
+
 function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
 async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
 async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
@@ -554,17 +462,31 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
+// ==== LOGIKA LIKE DAN DISLIKE ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
+    
     const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
 
     if (type === 'like') {
-        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
-        else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.backgroundColor = 'transparent'; }
+        if (isActive) {
+            btn.style.backgroundColor = 'transparent';
+        } else {
+            btn.style.backgroundColor = '#3b82f6'; 
+            if(dislikeBtn) {
+                dislikeBtn.style.backgroundColor = 'transparent';
+            }
+        }
     } else {
-        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
-        else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) likeBtn.style.backgroundColor = 'transparent'; }
+        if (isActive) {
+            btn.style.backgroundColor = 'transparent';
+        } else {
+            btn.style.backgroundColor = '#ef4444';
+            if(likeBtn) {
+                likeBtn.style.backgroundColor = 'transparent';
+            }
+        }
     }
 };
 
@@ -607,7 +529,7 @@ function switchTab(tabName) {
     let targetNav = document.getElementById('tab-' + tabName);
     if(targetNav) targetNav.classList.add('active');
     
-    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatestSafe();
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
     if (tabName === 'recent') loadRecentHistory();
     if (tabName === 'favorite') loadFavorites();
 }
@@ -646,86 +568,91 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BARU YANG AMAN (ANTI LIMIT SERVER/BLANK SCREEN) ====
-async function loadLatestSafe() {
+// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
+async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
     homeContainer.innerHTML = ''; 
     let hasAnyData = false;
     
-    // 1. Buat Wrapper Atas (Slider & History)
-    const topContentDiv = document.createElement('div');
-    homeContainer.appendChild(topContentDiv);
-
-    // 2. Tampilkan Kerangka Loading (Skeleton) Terlebih Dahulu
-    const sectionDivs = [];
-    for (const section of HOME_SECTIONS) {
-        const div = document.createElement('div');
-        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat...</div></div>`;
-        homeContainer.appendChild(div);
-        sectionDivs.push({ section, div });
-    }
-
-    loader(false); // Kerangka sudah muncul, sembunyikan loading tengah layar
-
-    // 3. Load Slider (Terbaru)
     try {
-        const resSlider = await fetchTimeout(`${API_BASE}/latest`, 8000); 
-        if (resSlider && resSlider.ok) {
-            let sliderData = await resSlider.json();
-            if (sliderData && sliderData.length > 0) { 
-                renderHeroSlider(sliderData.slice(0, 15), topContentDiv); 
-                hasAnyData = true;
-            } 
-        }
-    } catch (e) { console.log("Slider error", e); }
-    
-    // 4. Load Histori Lokal
-    try {
-        const historyData = await getHistory();
-        if (historyData && historyData.length > 0) {
-            const histDiv = document.createElement('div');
-            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-            topContentDiv.appendChild(histDiv);
-            hasAnyData = true;
-        }
-    } catch (e) {}
-
-    // 5. Load Kategori BERURUTAN (1 Kategori = 1 Request) agar API tidak Error 504
-    for (const { section, div } of sectionDivs) {
         try {
-            let combinedData = [];
-            let q = section.queries[0]; // Hanya ambil 1 kata kunci per section biar ringan
-            
-            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
+            let sliderData = []; 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
             if (res && res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data)) combinedData.push(...data);
+                sliderData = await res.json();
+                if (sliderData && sliderData.length > 0) { 
+                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
+                    hasAnyData = true;
+                } 
             }
-
-            combinedData = removeDuplicates(combinedData, 'url');
-            if (combinedData.length > 0) {
-                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 12).map(anime => generateCardHtml(anime)).join('')}</div>`;
+        } catch (e) {}
+        
+        try {
+            const historyData = await getHistory();
+            if (historyData && historyData.length > 0) {
+                const histDiv = document.createElement('div');
+                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(histDiv);
                 hasAnyData = true;
-            } else {
-                div.remove(); 
             }
-        } catch(e) { 
-            div.remove(); 
-        }
-    }
+        } catch (e) {}
+        
+        loader(false); 
 
-    // 6. Kalau Koneksi Beneran Terputus Semua
-    if (!hasAnyData) {
-        homeContainer.innerHTML = `
-            <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
-                <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
-                <button onclick="loadLatestSafe()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-            </div>
-        `;
-    }
+        const sectionContainers = [];
+        for (const section of HOME_SECTIONS) {
+            const div = document.createElement('div');
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
+            homeContainer.appendChild(div);
+            sectionContainers.push({ section, div });
+        }
+
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
+
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                        try {
+                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) combinedData.push(...data);
+                            }
+                        } catch(e) {}
+                    });
+
+                    await Promise.all(fetchPromises);
+
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) {
+                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                        hasAnyData = true;
+                    } else {
+                        div.remove(); 
+                    }
+                } catch(e) { div.remove(); }
+            }));
+        }
+
+        if (!hasAnyData) {
+            homeContainer.innerHTML = `
+                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                </div>
+            `;
+        }
+
+    } catch (err) { 
+        console.error("Home loading failed total", err);
+        loader(false); 
+    } 
 }
 
 function renderHeroSlider(data, container) {
@@ -794,9 +721,9 @@ function injectReportModal() {
 }
 
 window.openReportModal = function() {
+    injectReportModal();
     const overlay = document.getElementById('reportModalOverlay');
     const modal = document.getElementById('reportModal');
-    if(!overlay || !modal) return;
     overlay.style.display = 'block';
     modal.style.display = 'block';
     setTimeout(() => {
@@ -906,6 +833,7 @@ document.addEventListener('click', function(event) {
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
 
+// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
 window.epSortOrder = 'desc'; 
 window.epLayoutMode = 'list'; 
 
@@ -919,6 +847,7 @@ window.toggleEpSort = function() {
     window.renderDetailEpisodeUI();
 };
 
+// Fungsi Render Episode khusus di Halaman Detail
 window.renderDetailEpisodeUI = function() {
     let containerDetail = document.getElementById('episode-list-detail-container');
     if(!containerDetail) return;
@@ -1151,12 +1080,11 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
-        // RENDER KOTAK EPISODE HORIZONTAL DI HALAMAN NONTON
+        // RENDER KOTAK EPISODE HORIZONTAL
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                let displayEps = [...window.currentAnimeEpisodes].reverse();
-                watchEpListContainer.innerHTML = displayEps.map((ep, index) => { 
+                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
                     let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
                     let eNum = m ? m[1] : (index + 1); 
                     
@@ -1164,23 +1092,23 @@ async function loadVideo(url) {
                     let isCurrent = (ep.url === url);
                     
                     let c = "ep-square";
-                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
+                    let inlineStyle = "";
 
                     if (progress >= 100) {
                         c += " active"; 
-                        if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; 
+                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
                     } 
                     else if (progress > 0) {
-                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
                     } 
                     else if (progress === 0 || isCurrent) {
                         c += " watched";
                     }
 
-                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
             } 
         }
         
@@ -1220,13 +1148,12 @@ window.postComment = function(epID) {
     }); 
 };
 
-// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="event.stopPropagation(); window.openUserProfile('${c.uid || ''}')" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="event.stopPropagation(); window.openUserProfile('${c.uid || ''}')" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="event.stopPropagation(); openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" class="c-badge ${lvlClass}" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1241,161 +1168,6 @@ window.openReplyModal = function(epID, parentID) {
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
 window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
 
-// ==== FUNGSI MELIHAT PROFIL USER LAIN ====
-window.switchUserProfileTab = function(tabName, element) {
-    document.querySelectorAll('.uptab').forEach(el => {
-        el.classList.remove('active');
-        el.style.color = '#a1a1aa';
-        el.style.borderBottom = 'none';
-    });
-    element.classList.add('active');
-    element.style.color = '#fff';
-    element.style.borderBottom = '2px solid #fff';
-    document.querySelectorAll('.uptab-content').forEach(el => el.style.display = 'none');
-    document.getElementById('uptab-' + tabName).style.display = 'block';
-};
-
-function injectUserProfileModal() {
-    if(document.getElementById('user-profile-modal-injected')) return;
-    const div = document.createElement('div');
-    div.id = 'user-profile-modal-injected';
-    div.innerHTML = `
-        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
-        <div id="userProfileModal" class="bottom-sheet" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
-            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
-                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-            </div>
-            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-
-window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') {
-        alert("Profil dari komentar lama ini tidak dapat dibuka karena belum memiliki ID pengguna.");
-        return;
-    }
-    
-    const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfileModal');
-    const content = document.getElementById('user-profile-content');
-    
-    if(!overlay || !modal || !content) return;
-    
-    overlay.style.display = 'block';
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.classList.add('show'); }, 10);
-    
-    content.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    
-    db.ref('users/' + uid).once('value').then(async snap => {
-        if(!snap.exists()) {
-            content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>';
-            return;
-        }
-        const data = snap.val();
-        const userName = data.nama || 'Wibu';
-        const userFoto = data.foto || 'https://placehold.co/100';
-        const role = data.role || 'Member';
-        const level = data.level || 1;
-        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        
-        let roleBadgeClass = 'badge-member'; let roleName = role;
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-
-        const rankInfo = getRankInfo(level);
-        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
-        
-        let userComments = [];
-        try {
-            const commentsSnap = await db.ref('comments').once('value');
-            commentsSnap.forEach(epSnap => {
-                epSnap.forEach(cSnap => {
-                    let c = cSnap.val();
-                    if(c.uid === uid) {
-                        userComments.push({ epID: epSnap.key, ...c });
-                    }
-                });
-            });
-        } catch(e) {}
-        
-        userComments.sort((a,b) => b.waktu - a.waktu);
-        let totalKomentar = userComments.length;
-        
-        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now());
-            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
-            let aImage = c.animeImage || 'https://placehold.co/100';
-            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            
-            return `
-                <div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();">
-                    <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
-                        <img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;">
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div>
-                            <div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div>
-                        </div>
-                    </div>
-                    <div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">
-                        ${c.teks}
-                    </div>
-                </div>
-            `;
-        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-
-        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
-        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan diprivasi.</p>';
-
-        content.innerHTML = `
-            <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container">
-                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;">
-                </div>
-                <div class="profile-name" style="font-size:20px;">${userName}</div>
-                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
-                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
-                    <span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, ${level*200}, ${Math.floor(totalMenit/60)})" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span>
-                    <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
-                </div>
-            </div>
-            <div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;">
-                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                <div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
-                <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-            </div>
-            
-            <div class="profile-tabs" style="display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; padding: 0 20px;">
-                <div class="uptab active" onclick="switchUserProfileTab('all', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #fff; border-bottom: 2px solid #fff; transition: 0.2s;">All</div>
-                <div class="uptab" onclick="switchUserProfileTab('comments', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #a1a1aa; transition: 0.2s;">Comments</div>
-                <div class="uptab" onclick="switchUserProfileTab('history', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #a1a1aa; transition: 0.2s;">History</div>
-            </div>
-            
-            <div id="uptab-all" class="uptab-content">${commentsHtml}</div>
-            <div id="uptab-comments" class="uptab-content" style="display:none;">${commentsHtml}</div>
-            <div id="uptab-history" class="uptab-content" style="display:none;">${historyHtml}</div>
-        `;
-    });
-};
-
-window.closeUserProfileModal = function() {
-    const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfileModal');
-    if(modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-        }, 300);
-    }
-};
-
 window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
@@ -1403,7 +1175,6 @@ function backToDetail() { history.back(); }
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectUserProfileModal(); 
     history.replaceState({page: 'home'}, '', window.location.pathname); 
     switchTab('home'); 
 }
