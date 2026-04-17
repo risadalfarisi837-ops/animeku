@@ -325,6 +325,20 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 window.currentPlayingAnime = null; 
 
+// ==== FITUR FILTER & SORT EPISODE GLOBAL ====
+window.epSortOrder = 'desc'; // 'desc' = 99 -> 1, 'asc' = 1 -> 99
+window.epLayoutMode = 'list'; // 'list' atau 'grid'
+
+window.toggleEpLayout = function() {
+    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
+    window.renderEpisodeUI();
+};
+
+window.toggleEpSort = function() {
+    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
+    window.renderEpisodeUI();
+};
+
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 
 function removeDuplicates(array, key) {
@@ -665,7 +679,6 @@ async function handleSearch(query) {
     try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
-// ==== FUNGSI REPORT MODAL INJECTION & LOGIC ====
 function injectReportModal() {
     if(document.getElementById('report-modal-injected')) return;
     const div = document.createElement('div');
@@ -819,6 +832,99 @@ document.addEventListener('click', function(event) {
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
 
+// ==== FUNGSI RENDER EPISODE UNIVERSAL (SORT & GRID/LIST) ====
+window.renderEpisodeUI = function() {
+    let containerDetail = document.getElementById('episode-list-detail-container');
+    let containerWatch = document.getElementById('watch-episode-squares');
+    
+    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+    
+    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+
+    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+
+    let eps = [...(window.currentAnimeEpisodes || [])];
+    if (window.epSortOrder === 'desc') eps.reverse();
+
+    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+
+    let renderHtml = '';
+
+    if (window.epLayoutMode === 'grid') {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+            let c = "ep-square";
+            let inlineStyle = "width: 55px; height: 55px;"; 
+
+            if (progress >= 100) {
+                c += " active";
+                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
+            } else if (progress > 0) {
+                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+            } else if (progress === 0 || isCurrent) {
+                c += " watched";
+            } else if (watchedEps.includes(ep.url)) {
+                c += " active";
+            }
+
+            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+        }).join('');
+        
+        if(containerDetail) { containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.className = ""; containerDetail.innerHTML = renderHtml; }
+        if(containerWatch) { containerWatch.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerWatch.className = ""; containerWatch.innerHTML = renderHtml; }
+        
+    } else {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
+            let mockEpDate = `16 Apr 2026`;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+
+            let btnBg = 'rgba(255,255,255,0.1)';
+            let btnText = 'Buka';
+
+            if (progress >= 100 || watchedEps.includes(ep.url)) {
+                btnBg = '#3b82f6'; btnText = 'Ditonton';
+            } else if (progress > 0) {
+                btnBg = '#3b82f6'; btnText = 'Lanjut';
+            }
+
+            if (isCurrent) {
+                btnBg = '#ef4444'; btnText = 'Diputar';
+            }
+
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
+                <div>
+                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
+                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
+                    </div>
+                </div>
+                <div>
+                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
+                </div>
+            </div>`;
+        }).join('');
+        
+        if(containerDetail) { containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.className = ""; containerDetail.innerHTML = renderHtml; }
+        if(containerWatch) { containerWatch.style = "display: flex; flex-direction: column;"; containerWatch.className = ""; containerWatch.innerHTML = renderHtml; }
+    }
+};
+
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
@@ -826,6 +932,8 @@ async function loadDetail(url) {
         
         window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url };
         window.currentAnimeEpisodes = data.episodes || []; 
+        window.currentPlayingAnime = null; // Biar ga ada tombol yg merah (diputar) pas di halaman detail
+        
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
         const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -849,17 +957,24 @@ async function loadDetail(url) {
                 <div class="nav-back"><button onclick="goHome()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button></div>
             </div>
             <div style="padding: 15px 12px;"><h2 style="font-size: 18px; margin: 0 0 12px 0; font-weight:bold; border-left: 4px solid #3b82f6; padding-left: 10px;">Sinopsis</h2><p id="detail-synopsis-text" class="synopsis-text">${data.description || 'Tidak ada deskripsi tersedia.'}</p><div id="read-more-btn" class="read-more-btn" onclick="toggleSynopsis()">Selengkapnya ▼</div></div>
-            <div style="padding: 0 12px; margin-top:10px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2></div><div id="episode-list-detail-container"></div></div>
+            
+            <div style="padding: 0 12px; margin-top:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episodes (${data.episodes.length})</h2>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="toggleEpLayout()" class="btn-ep-layout" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:0.2s;">
+                        </button>
+                        <button onclick="toggleEpSort()" class="btn-ep-sort" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; transition:0.2s;">
+                        </button>
+                    </div>
+                </div>
+                <div id="episode-list-detail-container"></div>
+            </div>
             <div style="padding-bottom: 40px;"></div>
         `;
-        let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-        const epListContainer = document.getElementById('episode-list-detail-container');
-        epListContainer.innerHTML = [...data.episodes].reverse().map((ep, index) => {
-            let epsRaw = String(ep.title || '1'); let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views • 16 Apr 2026`;
-            let isActive = watchedEps.includes(ep.url); let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)'; let btnText = isActive ? 'Ditonton' : 'Buka';
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #1a1a1a; cursor:pointer;"><div><div style="font-size:16px; font-weight:800; color:#fff; margin-bottom:5px;">Episode ${epNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:5px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews}</div></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;"><button style="background:${btnBg}; border:none; color:#fff; font-size:13px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
-        }).join('');
+        
+        window.renderEpisodeUI(); // Panggil fungsi render pintar kita
+
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
@@ -937,43 +1052,26 @@ async function loadVideo(url) {
                 </div>
             </div>
 
-            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+            <div style="padding: 20px 12px 10px 12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episodes (${window.currentAnimeEpisodes.length})</h2>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="toggleEpLayout()" class="btn-ep-layout" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:0.2s;">
+                        </button>
+                        <button onclick="toggleEpSort()" class="btn-ep-sort" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; transition:0.2s;">
+                        </button>
+                    </div>
+                </div>
+                <div id="watch-episode-squares"></div>
+            </div>
+
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
         `;
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
-        const watchEpListContainer = document.getElementById('watch-episode-squares');
-        if (watchEpListContainer) { 
-            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
-                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-                    let eNum = m ? m[1] : (index + 1); 
-                    
-                    let progress = watchProgress[ep.url];
-                    let isCurrent = (ep.url === url);
-                    
-                    let c = "ep-square";
-                    let inlineStyle = "";
-
-                    if (progress >= 100) {
-                        c += " active"; 
-                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
-                    } 
-                    else if (progress > 0) {
-                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
-                    } 
-                    else if (progress === 0 || isCurrent) {
-                        c += " watched";
-                    }
-
-                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
-                }).join(''); 
-            } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
-            } 
-        }
+        window.renderEpisodeUI(); // Panggil fungsi render pintar kita
         
         window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
     } catch (err) { console.error(err); } finally { loader(false); }
