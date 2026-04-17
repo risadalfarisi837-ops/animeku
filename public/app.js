@@ -27,14 +27,14 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* MATIKAN SEMUA ANIMASI UNTUK EMERALD & MASTER */
+        /* MATIKAN SEMUA ANIMASI BINTANG DAN GLOWING UNTUK EMERALD & MASTER */
         .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
-        .rank-icon-emerald::after, .rank-icon-emerald::before { animation: none !important; }
+        .rank-icon-emerald::after, .rank-icon-emerald::before { display: none !important; content: none !important; animation: none !important; }
         
         .rank-icon-master, .badge-lvl-master { animation: none !important; }
-        .rank-icon-master::before, .rank-icon-master::after { animation: none !important; }
+        .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
 
-        /* DIAMOND & MYTHIC TETAP BERANIMASI */
+        /* DIAMOND & MYTHIC TETAP BERANIMASI (JIKA ADA) */
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
@@ -265,6 +265,137 @@ function updateDevUI() {
     }
 }
 
+// ==== FUNGSI UNTUK MEMBUKA PROFIL USER LAIN DARI KOMENTAR ====
+function injectUserProfileModal() {
+    if(document.getElementById('user-profile-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'user-profile-modal-injected';
+    div.innerHTML = `
+        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
+        <div id="userProfileModal" class="bottom-sheet" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
+            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
+                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.openUserProfile = function(uid) {
+    if(!uid || uid === 'undefined') return;
+    injectUserProfileModal();
+    const overlay = document.getElementById('userProfileOverlay');
+    const modal = document.getElementById('userProfileModal');
+    const content = document.getElementById('user-profile-content');
+    
+    overlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.classList.add('show'); }, 10);
+    
+    content.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
+    
+    db.ref('users/' + uid).once('value').then(async snap => {
+        if(!snap.exists()) {
+            content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>';
+            return;
+        }
+        const data = snap.val();
+        const userName = data.nama || 'Wibu';
+        const userFoto = data.foto || 'https://placehold.co/100';
+        const role = data.role || 'Member';
+        const level = data.level || 1;
+        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
+        
+        let roleBadgeClass = 'badge-member'; let roleName = role;
+        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
+        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
+        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+
+        const rankInfo = getRankInfo(level);
+        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        
+        let userComments = [];
+        try {
+            const commentsSnap = await db.ref('comments').once('value');
+            commentsSnap.forEach(epSnap => {
+                epSnap.forEach(cSnap => {
+                    let c = cSnap.val();
+                    if(c.uid === uid) {
+                        userComments.push({ epID: epSnap.key, ...c });
+                    }
+                });
+            });
+        } catch(e) {}
+        
+        userComments.sort((a,b) => b.waktu - a.waktu);
+        let totalKomentar = userComments.length;
+        
+        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
+            let d = new Date(c.waktu || Date.now());
+            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
+            let aImage = c.animeImage || 'https://placehold.co/100';
+            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
+            
+            return `
+                <div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();">
+                    <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
+                        <img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div>
+                            <div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">
+                        ${c.teks}
+                    </div>
+                </div>
+            `;
+        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
+
+        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
+
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px;">
+                <div class="profile-avatar-container">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;">
+                </div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
+                    <span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            
+            <div style="border-top: 1px solid #111; padding-top: 20px;">
+                <h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>
+                ${commentsHtml}
+            </div>
+        `;
+    });
+};
+
+window.closeUserProfileModal = function() {
+    const overlay = document.getElementById('userProfileOverlay');
+    const modal = document.getElementById('userProfileModal');
+    if(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
+
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -331,9 +462,9 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 window.currentPlayingAnime = null; 
 
-// ==== FITUR FILTER & SORT EPISODE GLOBAL ====
-window.epSortOrder = 'desc'; // 'desc' = 99 -> 1, 'asc' = 1 -> 99
-window.epLayoutMode = 'list'; // 'list' atau 'grid'
+// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
+window.epSortOrder = 'desc'; 
+window.epLayoutMode = 'list'; 
 
 window.toggleEpLayout = function() {
     window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
@@ -343,6 +474,100 @@ window.toggleEpLayout = function() {
 window.toggleEpSort = function() {
     window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
     window.renderDetailEpisodeUI();
+};
+
+window.renderDetailEpisodeUI = function() {
+    let containerDetail = document.getElementById('episode-list-detail-container');
+    if(!containerDetail) return;
+    
+    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+    
+    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+
+    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+
+    let eps = [...(window.currentAnimeEpisodes || [])];
+    if (window.epSortOrder === 'desc') eps.reverse();
+
+    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+
+    let renderHtml = '';
+
+    if (window.epLayoutMode === 'grid') {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+            let c = "ep-square";
+            let inlineStyle = "width: 55px; height: 55px;"; 
+
+            if (progress >= 100) {
+                c += " active";
+                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
+            } else if (progress > 0) {
+                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+            } else if (progress === 0 || isCurrent) {
+                c += " watched";
+            } else if (watchedEps.includes(ep.url)) {
+                c += " active";
+            }
+
+            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+        
+    } else {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
+            let mockEpDate = `16 Apr 2026`;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+
+            let btnBg = 'rgba(255,255,255,0.1)';
+            let btnText = 'Buka';
+
+            if (progress >= 100 || watchedEps.includes(ep.url)) {
+                btnBg = '#3b82f6'; btnText = 'Ditonton';
+            } else if (progress > 0) {
+                btnBg = '#3b82f6'; btnText = 'Lanjut';
+            }
+
+            if (isCurrent) {
+                btnBg = '#ef4444'; btnText = 'Diputar';
+            }
+
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
+                <div>
+                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
+                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
+                    </div>
+                </div>
+                <div>
+                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
+                </div>
+            </div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; flex-direction: column;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+    }
 };
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
@@ -838,7 +1063,6 @@ document.addEventListener('click', function(event) {
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
 
-// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
 window.epSortOrder = 'desc'; 
 window.epLayoutMode = 'list'; 
 
@@ -1084,6 +1308,7 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
+        // RENDER KOTAK EPISODE HORIZONTAL DI HALAMAN NONTON
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
@@ -1095,7 +1320,7 @@ async function loadVideo(url) {
                     let isCurrent = (ep.url === url);
                     
                     let c = "ep-square";
-                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;"; // Memperbesar kotak di halaman nonton biar seragam
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
 
                     if (progress >= 100) {
                         c += " active"; 
@@ -1151,12 +1376,13 @@ window.postComment = function(epID) {
     }); 
 };
 
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1170,6 +1396,137 @@ window.openReplyModal = function(epID, parentID) {
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
 window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+
+// ==== FUNGSI MELIHAT PROFIL USER LAIN ====
+function injectUserProfileModal() {
+    if(document.getElementById('user-profile-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'user-profile-modal-injected';
+    div.innerHTML = `
+        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
+        <div id="userProfileModal" class="bottom-sheet" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
+            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
+                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.openUserProfile = function(uid) {
+    if(!uid || uid === 'undefined') return;
+    injectUserProfileModal();
+    const overlay = document.getElementById('userProfileOverlay');
+    const modal = document.getElementById('userProfileModal');
+    const content = document.getElementById('user-profile-content');
+    
+    overlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.classList.add('show'); }, 10);
+    
+    content.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
+    
+    db.ref('users/' + uid).once('value').then(async snap => {
+        if(!snap.exists()) {
+            content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>';
+            return;
+        }
+        const data = snap.val();
+        const userName = data.nama || 'Wibu';
+        const userFoto = data.foto || 'https://placehold.co/100';
+        const role = data.role || 'Member';
+        const level = data.level || 1;
+        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
+        
+        let roleBadgeClass = 'badge-member'; let roleName = role;
+        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
+        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
+        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+
+        const rankInfo = getRankInfo(level);
+        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        
+        let userComments = [];
+        try {
+            const commentsSnap = await db.ref('comments').once('value');
+            commentsSnap.forEach(epSnap => {
+                epSnap.forEach(cSnap => {
+                    let c = cSnap.val();
+                    if(c.uid === uid) {
+                        userComments.push({ epID: epSnap.key, ...c });
+                    }
+                });
+            });
+        } catch(e) {}
+        
+        userComments.sort((a,b) => b.waktu - a.waktu);
+        let totalKomentar = userComments.length;
+        
+        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
+            let d = new Date(c.waktu || Date.now());
+            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
+            let aImage = c.animeImage || 'https://placehold.co/100';
+            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
+            
+            return `
+                <div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();">
+                    <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
+                        <img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div>
+                            <div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">
+                        ${c.teks}
+                    </div>
+                </div>
+            `;
+        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
+
+        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
+
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px;">
+                <div class="profile-avatar-container">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;">
+                </div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
+                    <span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            
+            <div style="border-top: 1px solid #111; padding-top: 20px;">
+                <h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>
+                ${commentsHtml}
+            </div>
+        `;
+    });
+};
+
+window.closeUserProfileModal = function() {
+    const overlay = document.getElementById('userProfileOverlay');
+    const modal = document.getElementById('userProfileModal');
+    if(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
 
 window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
 function goHome() { history.back(); }
