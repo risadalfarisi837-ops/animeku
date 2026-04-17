@@ -249,13 +249,15 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
+        
+        // Pemicu Animasi CSS berdasarkan nama Rank
+        let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
         html += `
             <div class="level-rank-item" style="${bgStyle}">
                 <div class="rank-info">
-                    <div class="rank-icon" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
+                    <div class="${iconClass}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
                     <div>
                         <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
                         <div class="rank-req">${reqText}</div>
