@@ -545,7 +545,8 @@ function generateFavCardHtml(anime) {
     return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
 }
 
-async function fetchTimeout(url, timeoutMs = 6000) {
+// ==== FUNGSI FETCH DENGAN TIMEOUT KHUSUS VERCEL (15 DETIK) ====
+async function fetchTimeout(url, timeoutMs = 15000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -558,6 +559,7 @@ async function fetchTimeout(url, timeoutMs = 6000) {
     }
 }
 
+// ==== FUNGSI LOADING BERANDA YANG TIDAK NGE-BLANK SAAT VERCEL COLD START ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -566,7 +568,7 @@ async function loadLatest() {
     try {
         try {
             let sliderData = []; 
-            const res = await fetch(`${API_BASE}/latest`); 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
             if (res && res.ok) {
                 sliderData = await res.json();
                 if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); } 
@@ -586,6 +588,8 @@ async function loadLatest() {
 
         const sectionContainers = HOME_SECTIONS.map(section => {
             const div = document.createElement('div');
+            // Menampilkan teks loading agar user tahu aplikasi tidak mati
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div style="padding: 0 15px; color: #555; font-size: 13px; font-weight: bold;">Sedang memuat data...</div>`;
             homeContainer.appendChild(div);
             return { section, div };
         });
@@ -595,12 +599,12 @@ async function loadLatest() {
                 let combinedData = [];
                 const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
                     try {
-                        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`);
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 15000);
                         if (res.ok) {
                             const data = await res.json();
                             if (Array.isArray(data)) return data;
                         }
-                    } catch(e) { console.warn("Skip keyword timeout:", q); }
+                    } catch(e) {}
                     return [];
                 });
 
@@ -615,6 +619,20 @@ async function loadLatest() {
                 }
             } catch(e) { div.remove(); }
         });
+
+        // SAFETY NET: JIKA SETELAH 16 DETIK LAYAR TETAP KOSONG KARENA VERCEL MATI
+        setTimeout(() => {
+            if (homeContainer.innerHTML.trim() === '') {
+                homeContainer.innerHTML = `
+                    <div style="text-align:center; padding:80px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <h2 style="margin:0 0 10px 0; color:#fff; font-size:20px; font-weight:900;">Gagal Terhubung ke Server</h2>
+                        <p style="color:#888; font-size:14px; line-height:1.5; margin-bottom:25px;">Server (Vercel) kamu sedang tidak merespons atau sedang dalam mode tidur (Cold Start). Silakan coba lagi.</p>
+                        <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }, 16000); 
 
     } catch (err) { 
         console.error("Home loading failed total", err); 
@@ -842,4 +860,4 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding:
