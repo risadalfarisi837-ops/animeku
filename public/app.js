@@ -484,6 +484,14 @@ function generateRecentCardHtml(anime) {
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
+function generateFavCardHtml(anime) {
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || '?';
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
+}
+
 // ==== FUNGSI FETCH DENGAN TIMEOUT ANTI HANG ====
 async function fetchTimeout(url, timeoutMs = 6000) {
     const controller = new AbortController();
@@ -499,10 +507,12 @@ async function fetchTimeout(url, timeoutMs = 6000) {
 }
 
 async function loadLatest() {
-    loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; 
+    loader(true); 
+    const homeContainer = document.getElementById('home-view'); 
+    homeContainer.innerHTML = ''; 
     
     try {
-        // LOAD SLIDER (DIPERBANYAK)
+        // 1. LOAD SLIDER
         try {
             let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 8000); 
             if (res && res.ok) {
@@ -511,7 +521,7 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load slider:", e); }
         
-        // LOAD RECENT HISTORY (OTOMATIS MENUJU TAB RECENT KALAU DI KLIK)
+        // 2. LOAD RECENT HISTORY
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -521,28 +531,48 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load riwayat:", e); }
         
-        // LOAD KATEGORI HOME BERURUTAN (ANTI ERROR)
-        for (const section of HOME_SECTIONS) {
+        // Matikan loading di sini agar user langsung bisa melihat hero slider / history
+        // sementara API bawahnya sedang dimuat secara asinkron
+        loader(false); 
+
+        // 3. SIAPKAN CONTAINER BERURUTAN (Biar layout tidak melompat)
+        const sectionContainers = HOME_SECTIONS.map(section => {
+            const div = document.createElement('div');
+            homeContainer.appendChild(div);
+            return { section, div };
+        });
+
+        // 4. LOAD KATEGORI HOME SECARA PARALEL (Jauh lebih cepat)
+        sectionContainers.forEach(async ({ section, div }) => {
             let combinedData = [];
-            for (const q of section.queries.slice(0, 3)) {
+            
+            // Fetch queries bersamaan menggunakan Promise.all
+            const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
                 try {
                     const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
                     if (res.ok) {
                         const data = await res.json();
-                        if (Array.isArray(data)) combinedData.push(...data);
+                        if (Array.isArray(data)) return data;
                     }
                 } catch(e) { console.warn("Skip keyword timeout:", q); }
-            }
+                return [];
+            });
+
+            const results = await Promise.all(fetchPromises);
+            results.forEach(data => combinedData.push(...data));
 
             combinedData = removeDuplicates(combinedData, 'url');
             if (combinedData.length > 0) {
-                const sectionDiv = document.createElement('div'); 
-                // UBAH: LIHAT LAINNYA OTOMATIS BUKA MENU PENCARIAN SESUAI GENRE
-                sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(sectionDiv);
+                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+            } else {
+                div.remove(); // Hapus container jika data API kosong/gagal
             }
-        }
-    } catch (err) { console.error("Home loading failed total", err); } finally { loader(false); }
+        });
+
+    } catch (err) { 
+        console.error("Home loading failed total", err); 
+        loader(false); 
+    } 
 }
 
 function renderHeroSlider(data, container) {
