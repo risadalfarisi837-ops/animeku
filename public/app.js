@@ -555,7 +555,6 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -587,7 +586,6 @@ async function loadLatest() {
         
         loader(false); 
 
-        // Bikin kerangka container dulu biar rapi di layar
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
@@ -596,7 +594,6 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
-        // Pecah antrean per 3 kategori sekaligus biar cepat (semi-paralel)
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
         const batches = chunkArray(sectionContainers, 3);
 
@@ -627,7 +624,6 @@ async function loadLatest() {
             }));
         }
 
-        // Jika semua API beneran gagal
         if (!hasAnyData) {
             homeContainer.innerHTML = `
                 <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
@@ -673,7 +669,6 @@ async function handleSearch(query) {
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
-// ==== FUNGSI GANTI SERVER ====
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
@@ -681,7 +676,6 @@ window.changeServer = function(url, serverName, btnElement) {
     window.closeServerModal(); 
 };
 
-// ==== FUNGSI DOWNLOAD (MEMBUKA LINK VIDEO DI TAB BARU) ====
 window.handleDownload = function() { 
     let iframe = document.getElementById('video-player');
     if(iframe && iframe.src) {
@@ -846,21 +840,21 @@ async function loadVideo(url) {
             </div>
             
             <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
-                <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div class="hide-scrollbar" style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
                     
-                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center;">
-                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 15px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 15px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
+                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 7px 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 7px 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
                     </div>
 
-                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> Quality</button>
+                    <button class="action-btn" onclick="openServerModal()" style="padding: 7px 12px; font-size: 12px; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> Quality</button>
                     
-                    <button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                    <button class="action-btn" onclick="handleDownload()" style="padding: 7px 12px; font-size: 12px; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
                 </div>
                 
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                    <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="handleShare()" style="padding: 7px 12px; font-size: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                    <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))" style="padding: 7px 12px; font-size: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
                 </div>
             </div>
 
