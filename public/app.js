@@ -27,11 +27,43 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        /* MATIKAN BINTANG UNTUK EMERALD & MASTER */
+        .rank-icon-emerald::after, .rank-icon-emerald::before, .badge-lvl-emerald::after, .badge-lvl-emerald::before { display: none !important; content: none !important; animation: none !important; }
+        .rank-icon-master::before, .rank-icon-master::after, .badge-lvl-master::before, .badge-lvl-master::after { display: none !important; content: none !important; animation: none !important; }
 
+        /* ================= EMERALD ================= */
+        .badge-lvl-emerald, .rank-icon-emerald { 
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; 
+            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+
+        /* ================= DIAMOND ================= */
+        .badge-lvl-diamond, .rank-icon-diamond { 
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; 
+            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+
+        /* ================= MASTER ================= */
+        .badge-lvl-master, .rank-icon-master { 
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
+            background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+
+        /* ================= MYTHIC ================= */
+        .badge-lvl-mythic, .rank-icon-mythic { 
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; 
+            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+
+        /* ================= GLOWING PADA FOTO PROFIL (AVATAR) ================= */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -49,6 +81,7 @@ auth.onAuthStateChanged(user => {
     }
 });
 
+// ==== SISTEM LOGIN ANTI SPAM KLIK ====
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
     if (isLoggingIn) return; 
@@ -78,6 +111,7 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
+// ==== SISTEM RANKING LEVEL ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -93,6 +127,7 @@ function getRankInfo(level) {
     return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0];
 }
 
+// ==== MEMUAT PROFIL USER ====
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -325,20 +360,6 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 window.currentPlayingAnime = null; 
 
-// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
-window.epSortOrder = 'desc'; 
-window.epLayoutMode = 'list'; 
-
-window.toggleEpLayout = function() {
-    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
-    window.renderDetailEpisodeUI();
-};
-
-window.toggleEpSort = function() {
-    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
-    window.renderDetailEpisodeUI();
-};
-
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
 
 function removeDuplicates(array, key) {
@@ -462,31 +483,17 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
-// ==== LOGIKA LIKE DAN DISLIKE ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
-    
     const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
 
     if (type === 'like') {
-        if (isActive) {
-            btn.style.backgroundColor = 'transparent';
-        } else {
-            btn.style.backgroundColor = '#3b82f6'; 
-            if(dislikeBtn) {
-                dislikeBtn.style.backgroundColor = 'transparent';
-            }
-        }
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.backgroundColor = 'transparent'; }
     } else {
-        if (isActive) {
-            btn.style.backgroundColor = 'transparent';
-        } else {
-            btn.style.backgroundColor = '#ef4444';
-            if(likeBtn) {
-                likeBtn.style.backgroundColor = 'transparent';
-            }
-        }
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) likeBtn.style.backgroundColor = 'transparent'; }
     }
 };
 
@@ -568,7 +575,6 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -608,34 +614,29 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
-        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
-        const batches = chunkArray(sectionContainers, 3);
+        for (const { section, div } of sectionContainers) {
+            try {
+                let combinedData = [];
+                const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                    try {
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                        if (res && res.ok) {
+                            const data = await res.json();
+                            if (Array.isArray(data)) combinedData.push(...data);
+                        }
+                    } catch(e) {}
+                });
 
-        for (const batch of batches) {
-            await Promise.all(batch.map(async ({ section, div }) => {
-                try {
-                    let combinedData = [];
-                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
-                        try {
-                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                            if (res && res.ok) {
-                                const data = await res.json();
-                                if (Array.isArray(data)) combinedData.push(...data);
-                            }
-                        } catch(e) {}
-                    });
+                await Promise.all(fetchPromises);
 
-                    await Promise.all(fetchPromises);
-
-                    combinedData = removeDuplicates(combinedData, 'url');
-                    if (combinedData.length > 0) {
-                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                        hasAnyData = true;
-                    } else {
-                        div.remove(); 
-                    }
-                } catch(e) { div.remove(); }
-            }));
+                combinedData = removeDuplicates(combinedData, 'url');
+                if (combinedData.length > 0) {
+                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    hasAnyData = true;
+                } else {
+                    div.remove(); 
+                }
+            } catch(e) { div.remove(); }
         }
 
         if (!hasAnyData) {
@@ -680,87 +681,12 @@ async function handleSearch(query) {
     try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
-function injectReportModal() {
-    if(document.getElementById('report-modal-injected')) return;
-    const div = document.createElement('div');
-    div.id = 'report-modal-injected';
-    div.innerHTML = `
-        <div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
-        <div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;">
-            <div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                <div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                </div>
-            </div>
-            <h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3>
-            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;">
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>
-                    Video Tidak Bisa Diputar
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    Subtitle Rusak
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    Anime Berbeda
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    DMCA (Email)
-                </label>
-            </div>
-            <div style="display:flex; gap:12px;">
-                <button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
-                <button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-
-window.openReportModal = function() {
-    injectReportModal();
-    const overlay = document.getElementById('reportModalOverlay');
-    const modal = document.getElementById('reportModal');
-    overlay.style.display = 'block';
-    modal.style.display = 'block';
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        modal.style.transform = 'translate(-50%, -50%) scale(1)';
-    }, 10);
-};
-
-window.closeReportModal = function() {
-    const overlay = document.getElementById('reportModalOverlay');
-    const modal = document.getElementById('reportModal');
-    if(!modal) return;
-    modal.style.opacity = '0';
-    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        modal.style.display = 'none';
-    }, 300);
-};
-
-window.submitReport = function() {
-    const selected = document.querySelector('input[name="reportReason"]:checked');
-    if(!selected) return;
-    let reason = selected.value;
-    let text = `Halo Admin, saya mau report episode error.\n\nLink: ${window.location.href}\nAlasan: *${reason}*`;
-    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text));
-    closeReportModal();
-};
-
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
-    let qualMatch = serverName.match(/\d{3,4}p/i);
-    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
-    document.getElementById('current-quality-text').innerText = displayQuality; 
+    document.getElementById('current-quality-text').innerText = serverName; 
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
     btnElement.classList.add('active'); 
     window.closeServerModal(); 
@@ -833,115 +759,6 @@ document.addEventListener('click', function(event) {
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
 
-// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
-window.epSortOrder = 'desc'; 
-window.epLayoutMode = 'list'; 
-
-window.toggleEpLayout = function() {
-    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
-    window.renderDetailEpisodeUI();
-};
-
-window.toggleEpSort = function() {
-    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
-    window.renderDetailEpisodeUI();
-};
-
-// Fungsi Render Episode khusus di Halaman Detail
-window.renderDetailEpisodeUI = function() {
-    let containerDetail = document.getElementById('episode-list-detail-container');
-    if(!containerDetail) return;
-    
-    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
-    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
-    
-    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
-
-    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
-    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
-
-    let eps = [...(window.currentAnimeEpisodes || [])];
-    if (window.epSortOrder === 'desc') eps.reverse();
-
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
-    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
-
-    let renderHtml = '';
-
-    if (window.epLayoutMode === 'grid') {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-            let c = "ep-square";
-            let inlineStyle = "width: 55px; height: 55px;"; 
-
-            if (progress >= 100) {
-                c += " active";
-                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
-            } else if (progress > 0) {
-                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
-            } else if (progress === 0 || isCurrent) {
-                c += " watched";
-            } else if (watchedEps.includes(ep.url)) {
-                c += " active";
-            }
-
-            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-        
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
-            let mockEpDate = `16 Apr 2026`;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-
-            let btnBg = 'rgba(255,255,255,0.1)';
-            let btnText = 'Buka';
-
-            if (progress >= 100 || watchedEps.includes(ep.url)) {
-                btnBg = '#3b82f6'; btnText = 'Ditonton';
-            } else if (progress > 0) {
-                btnBg = '#3b82f6'; btnText = 'Lanjut';
-            }
-
-            if (isCurrent) {
-                btnBg = '#ef4444'; btnText = 'Diputar';
-            }
-
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
-                <div>
-                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
-                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
-                    </div>
-                </div>
-                <div>
-                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
-                </div>
-            </div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; flex-direction: column;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-    }
-};
-
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
@@ -949,8 +766,6 @@ async function loadDetail(url) {
         
         window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url };
         window.currentAnimeEpisodes = data.episodes || []; 
-        window.currentPlayingAnime = null; 
-        
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
         const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -974,24 +789,17 @@ async function loadDetail(url) {
                 <div class="nav-back"><button onclick="goHome()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button></div>
             </div>
             <div style="padding: 15px 12px;"><h2 style="font-size: 18px; margin: 0 0 12px 0; font-weight:bold; border-left: 4px solid #3b82f6; padding-left: 10px;">Sinopsis</h2><p id="detail-synopsis-text" class="synopsis-text">${data.description || 'Tidak ada deskripsi tersedia.'}</p><div id="read-more-btn" class="read-more-btn" onclick="toggleSynopsis()">Selengkapnya ▼</div></div>
-            
-            <div style="padding: 0 12px; margin-top:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episodes (${data.episodes.length})</h2>
-                    <div style="display:flex; gap:8px;">
-                        <button onclick="toggleEpLayout()" class="btn-ep-layout" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:0.2s;">
-                        </button>
-                        <button onclick="toggleEpSort()" class="btn-ep-sort" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; transition:0.2s;">
-                        </button>
-                    </div>
-                </div>
-                <div id="episode-list-detail-container"></div>
-            </div>
+            <div style="padding: 0 12px; margin-top:10px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="font-size:18px; font-weight:800; margin:0;">Episode List</h2></div><div id="episode-list-detail-container"></div></div>
             <div style="padding-bottom: 40px;"></div>
         `;
-        
-        window.renderDetailEpisodeUI(); 
-
+        let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+        const epListContainer = document.getElementById('episode-list-detail-container');
+        epListContainer.innerHTML = [...data.episodes].reverse().map((ep, index) => {
+            let epsRaw = String(ep.title || '1'); let epMatch = epsRaw.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let epNum = epMatch ? epMatch[1] : (epsRaw.match(/\d+/g) ? epsRaw.match(/\d+/g).pop() : (data.episodes.length - index));
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views • 16 Apr 2026`;
+            let isActive = watchedEps.includes(ep.url); let btnBg = isActive ? '#3b82f6' : 'rgba(255,255,255,0.1)'; let btnText = isActive ? 'Ditonton' : 'Buka';
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #1a1a1a; cursor:pointer;"><div><div style="font-size:16px; font-weight:800; color:#fff; margin-bottom:5px;">Episode ${epNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:5px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews}</div></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;"><button style="background:${btnBg}; border:none; color:#fff; font-size:13px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
+        }).join('');
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
@@ -1003,10 +811,8 @@ async function loadVideo(url) {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
         switchTab('watch'); addXP(20); 
         let displayTitle = window.currentAnimeMeta?.title || data.title;
-        
-        let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`;
-        let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
-        
+        let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
+        let mockDate = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
         let currentEpNum = '1';
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
             let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url);
@@ -1020,92 +826,31 @@ async function loadVideo(url) {
             url: window.currentAnimeMeta?.url || url
         };
 
-        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
-        let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
-        oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
-        if (watchProgress[url] === undefined) {
-            watchProgress[url] = 0; 
-        } else if (watchProgress[url] < 100) {
-            watchProgress[url] = Math.min(100, watchProgress[url] + 50);
-        }
-        localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
-
+        let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+        if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
+        
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
-
-        let initialServer = data.streams.length > 0 ? data.streams[0].server : '';
-        let initQualMatch = initialServer.match(/\d{3,4}p/i);
-        let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
-
+        
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
-            
-            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
-                <img src="${window.currentPlayingAnime.image}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
-                <div style="flex: 1;">
-                    <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
-                    <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-                        Episode ${currentEpNum} • 
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> 
-                        ${mockViews} • ${mockDate}
-                    </div>
-                </div>
-            </div>
-            
-            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
-                <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
-                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
-                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
-                    </div>
-
-                    <button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
-                    
-                    <button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
-                </div>
-                
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                    <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
-                </div>
-            </div>
-
-            <div style="padding: 20px 12px 10px 12px;">
-                <h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2>
-                <div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
-            </div>
-
+            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
+            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 12px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
+            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
         `;
-        
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
-        
-        // RENDER KOTAK EPISODE HORIZONTAL
         const watchEpListContainer = document.getElementById('watch-episode-squares');
+        
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
                 watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
                     let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
                     let eNum = m ? m[1] : (index + 1); 
                     
-                    let progress = watchProgress[ep.url];
-                    let isCurrent = (ep.url === url);
+                    let c = (ep.url === url) ? "ep-square watched" : (watchedEps.includes(ep.url) ? "ep-square active" : "ep-square"); 
                     
-                    let c = "ep-square";
-                    let inlineStyle = "";
-
-                    if (progress >= 100) {
-                        c += " active"; 
-                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
-                    } 
-                    else if (progress > 0) {
-                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
-                    } 
-                    else if (progress === 0 || isCurrent) {
-                        c += " watched";
-                    }
-
-                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                    return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
                 watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
@@ -1148,12 +893,13 @@ window.postComment = function(epID) {
     }); 
 };
 
+// ==== ONCLICK LEVEL BADGE DI KOMENTAR UNTUK BUKA MODAL ====
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" style="cursor:pointer;" class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1172,11 +918,5 @@ window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-function initApp() { 
-    updateDevUI(); 
-    injectReportModal(); 
-    history.replaceState({page: 'home'}, '', window.location.pathname); 
-    switchTab('home'); 
-}
-
+function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
