@@ -1,4 +1,25 @@
 // ==========================================
+// 0. TRIK ANTI-CACHE UNTUK MEMAKSA ANIMASI MUNCUL
+// ==========================================
+const dynamicStyles = document.createElement('style');
+dynamicStyles.innerHTML = `
+    .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
+    .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
+    .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
+    .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
+    .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+    
+    .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
+    .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+    .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+    
+    @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
+    @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
+    @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
+`;
+document.head.appendChild(dynamicStyles);
+
+// ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
 const firebaseConfig = {
@@ -17,9 +38,6 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// ==========================================
-// 2. AUTHENTICATION & USER UI LOGIC
-// ==========================================
 auth.onAuthStateChanged(user => {
     currentUser = user;
     updateDevUI();
@@ -49,7 +67,7 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL (UNLIMITED MAX LEVEL, EMOJI ELEGAN) ====
+// ==== SISTEM RANKING LEVEL ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -252,7 +270,6 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
 
         html += `
@@ -438,16 +455,16 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// ==== KATEGORI HALAMAN HOME (LENGKAP & AMAN) ====
+// KATEGORI HALAMAN HOME KITA BIKIN RAME DAN LENGKAP
 const HOME_SECTIONS = [
-    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
-    { title: "Romance Anime", queries: ["romance", "kanojo"] },
-    { title: "Sci-Fi Anime", queries: ["sci-fi", "science"] },
-    { title: "Comedy Anime", queries: ["comedy", "spy"] },
-    { title: "Fantasy Anime", queries: ["fantasy", "maou"] },
-    { title: "Isekai Anime", queries: ["isekai", "slime"] },
-    { title: "School Anime", queries: ["school", "classroom"] },
-    { title: "Movie Anime", queries: ["movie"] }
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach", "hero"] },
+    { title: "Romance & Drama", queries: ["romance", "love", "kanojo", "gotoubun", "kaguya"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "mecha", "science", "stone", "gundam"] },
+    { title: "Comedy Anime", queries: ["comedy", "funny", "slice of life", "spy", "bocchi"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf", "dragon"] },
+    { title: "Isekai Anime", queries: ["isekai", "reincarnation", "world", "slime", "mushoku"] },
+    { title: "School & Slice of Life", queries: ["school", "classroom", "student", "academy"] },
+    { title: "Movie Anime", queries: ["movie", "film"] }
 ];
 
 let sliderInterval;
@@ -528,7 +545,6 @@ async function loadLatest() {
             let sliderData = []; const res = await fetch(`${API_BASE}/latest`); sliderData = await res.json();
             if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 10), homeContainer); } 
         } catch (e) { console.error("Gagal load slider:", e); }
-        
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -541,9 +557,9 @@ async function loadLatest() {
         try {
             const sectionPromises = HOME_SECTIONS.map(async (section) => {
                 let combinedData = [];
-                // Load aman khusus buat home (cuma ambil 2 pertama biar cepet dan nggak error)
-                const homeQueries = section.queries.slice(0, 2);
-                const promises = homeQueries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
+                // Agar tidak berat di home, batasi max 3 query pertama dari daftar fullQ
+                const limitedQueries = section.queries.slice(0, 3);
+                const promises = limitedQueries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
                 const results = await Promise.all(promises);
                 results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
                 return { section, data: removeDuplicates(combinedData, 'url') };
@@ -552,7 +568,6 @@ async function loadLatest() {
             loadedSections.forEach(({section, data}) => {
                 if (data && data.length > 0) {
                     const sectionDiv = document.createElement('div'); 
-                    // Tombol Lihat Genre akan membuka FULL LIST
                     sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="openGenre('${section.title}', '${section.queries.join(',')}')">Lihat Genre ></span></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
                     homeContainer.appendChild(sectionDiv);
                 }
@@ -561,7 +576,7 @@ async function loadLatest() {
     } catch (err) { console.error("Home loading failed total", err); } finally { clearTimeout(forceStopLoading); loader(false); }
 }
 
-// ==== FUNGSI BUKA HALAMAN GENRE (AMAN DARI MUTER-MUTER) ====
+// ==== FUNGSI BUKA HALAMAN GENRE (SANGAT CEPAT, PARALEL & ANTI ERROR) ====
 window.openGenre = async function(title, queriesStr) {
     history.pushState({page: 'genre'}, '', '#genre');
     switchTab('genre');
@@ -572,20 +587,22 @@ window.openGenre = async function(title, queriesStr) {
     document.getElementById('current-genre-sort-btn').innerHTML = `Latest <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
     
     try {
-        let queries = queriesStr.split(',');
+        let queries = queriesStr.split(',').map(q => q.trim()).filter(q => q);
         let combinedData = [];
         
-        // PENGAMBILAN DATA BERURUTAN AGAR API TIDAK DOWN / ERROR
-        for (let q of queries) {
-            if(!q.trim()) continue;
-            try {
-                const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q.trim())}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (Array.isArray(data)) combinedData = [...combinedData, ...data];
-                }
-            } catch(e) { console.error("Fetch error for:", q); }
-        }
+        // PENGAMBILAN DATA PARALEL AMAN:
+        // Jika ada yang error/timeout, dia otomatis mengembalikan array kosong []
+        // Tanpa merusak keseluruhan list pencarian.
+        const promises = queries.map(q => {
+            return fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`)
+                .then(res => res.ok ? res.json() : [])
+                .catch(() => []);
+        });
+        
+        const results = await Promise.all(promises);
+        results.forEach(data => {
+            if (Array.isArray(data)) combinedData = [...combinedData, ...data];
+        });
         
         window.currentGenreData = removeDuplicates(combinedData, 'url');
         document.getElementById('genre-count-text').innerText = `(${window.currentGenreData.length})`;
@@ -766,7 +783,6 @@ async function loadVideo(url) {
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
         
-        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
         window.currentPlayingAnime = {
             title: window.currentAnimeMeta?.title || displayTitle,
             image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
