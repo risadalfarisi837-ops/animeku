@@ -1,4 +1,25 @@
 // ==========================================
+// 0. TRIK ANTI-CACHE UNTUK MEMAKSA ANIMASI MUNCUL
+// ==========================================
+const dynamicStyles = document.createElement('style');
+dynamicStyles.innerHTML = `
+    .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
+    .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
+    .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
+    .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
+    .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+    
+    .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
+    .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+    .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+    
+    @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
+    @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
+    @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
+`;
+document.head.appendChild(dynamicStyles);
+
+// ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
 const firebaseConfig = {
@@ -438,16 +459,16 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
-// ==== KATEGORI HALAMAN HOME (DI-SIMPLIFIKASI AGAR ANTI MUTER-MUTER) ====
+// ==== KATEGORI HALAMAN HOME ====
 const HOME_SECTIONS = [
-    { title: "Action Anime", query: "action" },
-    { title: "Romance Anime", query: "romance" },
-    { title: "Sci-Fi Anime", query: "sci-fi" },
-    { title: "Comedy Anime", query: "comedy" },
-    { title: "Fantasy Anime", query: "fantasy" },
-    { title: "Isekai Anime", query: "isekai" },
-    { title: "School Anime", query: "school" },
-    { title: "Movie Anime", query: "movie" }
+    { title: "Action Anime", homeQ: ["action", "jujutsu"], fullQ: ["action", "kimetsu", "jujutsu", "piece", "bleach", "hero"] },
+    { title: "Romance Anime", homeQ: ["romance", "kanojo"], fullQ: ["romance", "love", "kanojo", "gotoubun", "kaguya"] },
+    { title: "Sci-Fi Anime", homeQ: ["sci-fi", "science"], fullQ: ["sci-fi", "mecha", "science", "stone", "gundam"] },
+    { title: "Comedy Anime", homeQ: ["comedy", "spy"], fullQ: ["comedy", "funny", "slice of life", "spy", "bocchi"] },
+    { title: "Fantasy Anime", homeQ: ["fantasy", "maou"], fullQ: ["fantasy", "magic", "maou", "elf", "dragon"] },
+    { title: "Isekai Anime", homeQ: ["isekai", "slime"], fullQ: ["isekai", "reincarnation", "world", "slime", "mushoku"] },
+    { title: "School Anime", homeQ: ["school", "classroom"], fullQ: ["school", "classroom", "student", "academy"] },
+    { title: "Movie Anime", homeQ: ["movie"], fullQ: ["movie", "film"] }
 ];
 
 let sliderInterval;
@@ -483,7 +504,6 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
-// FUNGSI INI SEKARANG DIPAKAI UNTUK MENG-GENERATE KOTAK VERTIKAL DI HALAMAN GENRE
 function generateGenreCardHtml(anime) {
     let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
     let views = `${Math.floor(Math.random()*900 + 10)},${Math.floor(Math.random()*9)}K views`;
@@ -538,21 +558,19 @@ async function loadLatest() {
             }
         } catch (e) { console.error("Gagal load riwayat:", e); }
         
-        // MENGHINDARI SERVER ERROR: HANYA LOAD 1 QUERY PER KATEGORI SAAT DI HOME
         try {
             const sectionPromises = HOME_SECTIONS.map(async (section) => {
-                let data = [];
-                try {
-                    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(section.query)}`);
-                    data = await res.json();
-                } catch(e) {}
-                return { section, data: removeDuplicates(data, 'url') };
+                let combinedData = [];
+                const promises = section.homeQ.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
+                const results = await Promise.all(promises);
+                results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
+                return { section, data: removeDuplicates(combinedData, 'url') };
             });
             const loadedSections = await Promise.all(sectionPromises);
             loadedSections.forEach(({section, data}) => {
                 if (data && data.length > 0) {
                     const sectionDiv = document.createElement('div'); 
-                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="openGenre('${section.title}', '${section.query}')">Lihat Genre ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="openGenre('${section.title}', '${section.fullQ.join(',')}')">Lihat Genre ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
                     homeContainer.appendChild(sectionDiv);
                 }
             });
@@ -560,8 +578,8 @@ async function loadLatest() {
     } catch (err) { console.error("Home loading failed total", err); } finally { clearTimeout(forceStopLoading); loader(false); }
 }
 
-// ==== FUNGSI BUKA HALAMAN GENRE KHUSUS ====
-window.openGenre = async function(title, query) {
+// ==== FUNGSI BUKA HALAMAN GENRE (AMAN DARI MUTER-MUTER) ====
+window.openGenre = async function(title, queriesStr) {
     history.pushState({page: 'genre'}, '', '#genre');
     switchTab('genre');
     loader(true);
@@ -571,10 +589,21 @@ window.openGenre = async function(title, query) {
     document.getElementById('current-genre-sort-btn').innerHTML = `Latest <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
     
     try {
-        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        let queries = queriesStr.split(',');
+        let combinedData = [];
         
-        window.currentGenreData = removeDuplicates(data, 'url');
+        // PENGAMBILAN DATA BERURUTAN AGAR API TIDAK DOWN
+        for (let q of queries) {
+            try {
+                const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q.trim())}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) combinedData = [...combinedData, ...data];
+                }
+            } catch(e) { console.error("Fetch error for:", q); }
+        }
+        
+        window.currentGenreData = removeDuplicates(combinedData, 'url');
         document.getElementById('genre-count-text').innerText = `(${window.currentGenreData.length})`;
         
         renderGenreList();
