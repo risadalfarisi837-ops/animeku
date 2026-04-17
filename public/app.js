@@ -228,7 +228,6 @@ function updateDevUI() {
     }
 }
 
-// ==== PEMICU CLASS ANIMASI RANK DI MODAL LEVEL ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -250,9 +249,8 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         
-        // Panggil class animasi yang ada di file index.html
+        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
         html += `
@@ -309,6 +307,7 @@ function removeDuplicates(array, key) {
 }
 
 function getEpBadge(anime) { 
+    if (!anime) return 'Anime'; // PERBAIKAN ANTI ERROR
     let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
     if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
     let lowText = text.toLowerCase().trim();
@@ -486,8 +485,8 @@ function generateRecentCardHtml(anime) {
     return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
 }
 
-// ==== FUNGSI CARD FAVORITE/SUBSCRIBE ====
 function generateFavCardHtml(anime) {
+    if (!anime) return ''; // PERBAIKAN ANTI ERROR
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || '?';
     let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -495,20 +494,8 @@ function generateFavCardHtml(anime) {
     return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
 }
 
-async function fetchTimeout(url, timeoutMs = 6000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(id);
-        return res;
-    } catch (e) {
-        clearTimeout(id);
-        throw e;
-    }
-}
 
-// ==== FUNGSI LOADING CEPAT YANG SUDAH DIBENERIN (JANGAN DIHAPUS YAH) ====
+// ==== HOME FETCH DENGAN NORMAL FETCH AGAR VERCEL SEMPAT LOADING ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -516,7 +503,9 @@ async function loadLatest() {
     
     try {
         try {
-            let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 8000); 
+            let sliderData = []; 
+            // Kita pakai fetch bawaan supaya kalau API nya butuh waktu lama untuk cold start tidak langsung digagalkan
+            const res = await fetch(`${API_BASE}/latest`); 
             if (res && res.ok) {
                 sliderData = await res.json();
                 if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); } 
@@ -532,7 +521,7 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load riwayat:", e); }
         
-        // MATIKAN LOADING SCREEN DI SINI BIAR GAK FREEZE NUNGGUIN BAWAHNYA
+        // MATIKAN LOADING DI SINI AGAR USER BISA MENGGULIR HALAMAN
         loader(false); 
 
         const sectionContainers = HOME_SECTIONS.map(section => {
@@ -546,7 +535,7 @@ async function loadLatest() {
                 let combinedData = [];
                 const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
                     try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 5000);
+                        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`);
                         if (res.ok) {
                             const data = await res.json();
                             if (Array.isArray(data)) return data;
@@ -799,4 +788,9 @@ window.openReplyModal = function(epID, parentID) {
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
 window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
 
-window.addEventListener('popstate', (e) => {
+window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
+function goHome() { history.back(); }
+function backToDetail() { history.back(); }
+
+function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
