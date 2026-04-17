@@ -325,18 +325,18 @@ const STORE_FAV = 'favorites';
 window.currentFavData = []; 
 window.currentPlayingAnime = null; 
 
-// ==== FITUR FILTER & SORT EPISODE GLOBAL ====
-window.epSortOrder = 'desc'; // 'desc' = 99 -> 1, 'asc' = 1 -> 99
-window.epLayoutMode = 'list'; // 'list' atau 'grid'
+// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
+window.epSortOrder = 'desc'; 
+window.epLayoutMode = 'list'; 
 
 window.toggleEpLayout = function() {
     window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
-    window.renderEpisodeUI();
+    window.renderDetailEpisodeUI();
 };
 
 window.toggleEpSort = function() {
     window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
-    window.renderEpisodeUI();
+    window.renderDetailEpisodeUI();
 };
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
@@ -568,6 +568,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
+// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -832,10 +833,24 @@ document.addEventListener('click', function(event) {
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
 });
 
-// ==== FUNGSI RENDER EPISODE UNIVERSAL (SORT & GRID/LIST) ====
-window.renderEpisodeUI = function() {
+// ==== FITUR FILTER & SORT EPISODE KHUSUS HALAMAN DETAIL ====
+window.epSortOrder = 'desc'; 
+window.epLayoutMode = 'list'; 
+
+window.toggleEpLayout = function() {
+    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
+    window.renderDetailEpisodeUI();
+};
+
+window.toggleEpSort = function() {
+    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
+    window.renderDetailEpisodeUI();
+};
+
+// Fungsi Render Episode khusus di Halaman Detail
+window.renderDetailEpisodeUI = function() {
     let containerDetail = document.getElementById('episode-list-detail-container');
-    let containerWatch = document.getElementById('watch-episode-squares');
+    if(!containerDetail) return;
     
     let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
     let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
@@ -879,8 +894,9 @@ window.renderEpisodeUI = function() {
             return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
         }).join('');
         
-        if(containerDetail) { containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.className = ""; containerDetail.innerHTML = renderHtml; }
-        if(containerWatch) { containerWatch.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerWatch.className = ""; containerWatch.innerHTML = renderHtml; }
+        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
         
     } else {
         renderHtml = eps.map((ep, index) => {
@@ -920,8 +936,9 @@ window.renderEpisodeUI = function() {
             </div>`;
         }).join('');
         
-        if(containerDetail) { containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.className = ""; containerDetail.innerHTML = renderHtml; }
-        if(containerWatch) { containerWatch.style = "display: flex; flex-direction: column;"; containerWatch.className = ""; containerWatch.innerHTML = renderHtml; }
+        containerDetail.style = "display: flex; flex-direction: column;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
     }
 };
 
@@ -932,7 +949,7 @@ async function loadDetail(url) {
         
         window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url };
         window.currentAnimeEpisodes = data.episodes || []; 
-        window.currentPlayingAnime = null; // Biar ga ada tombol yg merah (diputar) pas di halaman detail
+        window.currentPlayingAnime = null; 
         
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25';
@@ -973,7 +990,7 @@ async function loadDetail(url) {
             <div style="padding-bottom: 40px;"></div>
         `;
         
-        window.renderEpisodeUI(); // Panggil fungsi render pintar kita
+        window.renderDetailEpisodeUI(); 
 
     } catch (err) { console.error(err); } finally { loader(false); }
 }
@@ -1053,16 +1070,8 @@ async function loadVideo(url) {
             </div>
 
             <div style="padding: 20px 12px 10px 12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="font-size:18px; font-weight:800; margin:0;">Episodes (${window.currentAnimeEpisodes.length})</h2>
-                    <div style="display:flex; gap:8px;">
-                        <button onclick="toggleEpLayout()" class="btn-ep-layout" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:0.2s;">
-                        </button>
-                        <button onclick="toggleEpSort()" class="btn-ep-sort" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; transition:0.2s;">
-                        </button>
-                    </div>
-                </div>
-                <div id="watch-episode-squares"></div>
+                <h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2>
+                <div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
             </div>
 
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
@@ -1071,7 +1080,37 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
-        window.renderEpisodeUI(); // Panggil fungsi render pintar kita
+        // RENDER KOTAK EPISODE HORIZONTAL
+        const watchEpListContainer = document.getElementById('watch-episode-squares');
+        if (watchEpListContainer) { 
+            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
+                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
+                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                    let eNum = m ? m[1] : (index + 1); 
+                    
+                    let progress = watchProgress[ep.url];
+                    let isCurrent = (ep.url === url);
+                    
+                    let c = "ep-square";
+                    let inlineStyle = "";
+
+                    if (progress >= 100) {
+                        c += " active"; 
+                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
+                    } 
+                    else if (progress > 0) {
+                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
+                    } 
+                    else if (progress === 0 || isCurrent) {
+                        c += " watched";
+                    }
+
+                    return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                }).join(''); 
+            } else { 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
+            } 
+        }
         
         window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
     } catch (err) { console.error(err); } finally { loader(false); }
