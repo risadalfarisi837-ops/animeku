@@ -460,10 +460,13 @@ window.toggleSynopsis = function() {
 };
 
 const HOME_SECTIONS = [
-    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
-    { title: "Sci-Fi Anime", queries: ["sci-fi", "mecha", "science"] },
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach"] },
+    { title: "Romance & Drama", queries: ["romance", "drama", "love", "kanojo"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "mecha", "science", "dr. stone"] },
     { title: "Comedy Anime", queries: ["comedy", "funny", "slice of life", "spy"] },
-    { title: "Fantasy Anime", queries: ["fantasy", "isekai", "magic", "maou"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou"] },
+    { title: "Isekai Anime", queries: ["isekai", "reincarnation", "world"] },
+    { title: "School & Slice of Life", queries: ["school", "classroom", "daily"] },
     { title: "Movie Anime", queries: ["movie", "film"] }
 ];
 
@@ -544,38 +547,12 @@ async function loadLatest() {
             loadedSections.forEach(({section, data}) => {
                 if (data && data.length > 0) {
                     const sectionDiv = document.createElement('div'); 
-                    // Tombol Lihat Genre membuka FULL GENRE
                     sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="openGenre('${section.title}', '${section.queries.join(',')}')">Lihat Genre ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
                     homeContainer.appendChild(sectionDiv);
                 }
             });
         } catch (e) { console.error("Gagal load kategori section:", e); }
     } catch (err) { console.error("Home loading failed total", err); } finally { clearTimeout(forceStopLoading); loader(false); }
-}
-
-function renderHeroSlider(data, container) {
-    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
-    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
-    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
-    const slidesHtml = loopData.map((anime, index) => {
-        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
-    }).join('');
-    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
-    sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
-    const wrapper = document.getElementById('heroWrapper');
-    let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
-    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
-    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
-    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
-    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
-    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
-    startAutoSlide();
-}
-
-async function handleSearch(query) {
-    if (!query) { switchTab('home'); return; }
-    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
 // ==== FUNGSI BUKA HALAMAN GENRE KHUSUS ====
@@ -599,7 +576,7 @@ window.openGenre = async function(title, queriesStr) {
         });
         
         window.currentGenreData = removeDuplicates(combinedData, 'url');
-        document.getElementById('genre-count-text').innerText = window.currentGenreData.length;
+        document.getElementById('genre-count-text').innerText = `(${window.currentGenreData.length})`;
         
         renderGenreList();
     } catch (e) {
@@ -638,7 +615,54 @@ function renderGenreList() {
         return;
     }
     
-    container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentGenreData.map(anime => generateFavCardHtml(anime)).join('')}</div>`;
+    container.innerHTML = window.currentGenreData.map(anime => {
+        let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
+        let views = `${Math.floor(Math.random()*900 + 10)},${Math.floor(Math.random()*9)}K views`;
+        let desc = anime.description || `Menceritakan kisah menarik dari ${anime.title}. Jangan lewatkan petualangan seru dan menegangkan di setiap episodenya hanya di Animeku.`;
+        const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+        
+        return `
+        <div class="genre-list-card" onclick="loadDetail('${anime.url}')">
+            <div class="genre-img-box">
+                <img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
+                <div class="genre-badge-new">New</div>
+            </div>
+            <div class="genre-info">
+                <div class="genre-title">${anime.title}</div>
+                <div class="genre-meta">
+                    <span style="color:#fbbf24; display:flex; align-items:center; gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</span>
+                    <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</span>
+                </div>
+                <div class="genre-desc">${desc}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+
+function renderHeroSlider(data, container) {
+    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
+    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
+    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
+    const slidesHtml = loopData.map((anime, index) => {
+        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
+    }).join('');
+    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
+    sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
+    const wrapper = document.getElementById('heroWrapper');
+    let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
+    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
+    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
+    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
+    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
+    startAutoSlide();
+}
+
+async function handleSearch(query) {
+    if (!query) { switchTab('home'); return; }
+    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
+    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
@@ -751,6 +775,7 @@ async function loadVideo(url) {
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
         
+        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
         window.currentPlayingAnime = {
             title: window.currentAnimeMeta?.title || displayTitle,
             image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
@@ -786,6 +811,7 @@ function renderCommentInput(epID) {
     else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 }
 
+// ==== SIMPAN INFO ANIME SAAT KOMENTAR ====
 window.postComment = function(epID) { 
     const input = document.getElementById('main-comment-input'); 
     const text = input.value; 
@@ -824,7 +850,7 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
 
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
