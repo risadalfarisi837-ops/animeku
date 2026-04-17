@@ -1,25 +1,4 @@
 // ==========================================
-// 0. TRIK ANTI-CACHE UNTUK MEMAKSA ANIMASI MUNCUL
-// ==========================================
-const dynamicStyles = document.createElement('style');
-dynamicStyles.innerHTML = `
-    .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
-    .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
-    .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
-    .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
-    .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
-    
-    .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
-    .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
-    .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
-    
-    @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
-    @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
-    @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
-`;
-document.head.appendChild(dynamicStyles);
-
-// ==========================================
 // 1. FIREBASE CONFIGURATION & INIT
 // ==========================================
 const firebaseConfig = {
@@ -459,15 +438,16 @@ window.toggleSynopsis = function() {
     else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
 };
 
+// ==== KATEGORI HALAMAN HOME (DI-SIMPLIFIKASI AGAR ANTI MUTER-MUTER) ====
 const HOME_SECTIONS = [
-    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece", "bleach"] },
-    { title: "Romance & Drama", queries: ["romance", "drama", "love", "kanojo"] },
-    { title: "Sci-Fi Anime", queries: ["sci-fi", "mecha", "science", "dr. stone"] },
-    { title: "Comedy Anime", queries: ["comedy", "funny", "slice of life", "spy"] },
-    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou"] },
-    { title: "Isekai Anime", queries: ["isekai", "reincarnation", "world"] },
-    { title: "School & Slice of Life", queries: ["school", "classroom", "daily"] },
-    { title: "Movie Anime", queries: ["movie", "film"] }
+    { title: "Action Anime", query: "action" },
+    { title: "Romance Anime", query: "romance" },
+    { title: "Sci-Fi Anime", query: "sci-fi" },
+    { title: "Comedy Anime", query: "comedy" },
+    { title: "Fantasy Anime", query: "fantasy" },
+    { title: "Isekai Anime", query: "isekai" },
+    { title: "School Anime", query: "school" },
+    { title: "Movie Anime", query: "movie" }
 ];
 
 let sliderInterval;
@@ -503,6 +483,30 @@ function generateCardHtml(anime) {
     return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
 }
 
+// FUNGSI INI SEKARANG DIPAKAI UNTUK MENG-GENERATE KOTAK VERTIKAL DI HALAMAN GENRE
+function generateGenreCardHtml(anime) {
+    let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
+    let views = `${Math.floor(Math.random()*900 + 10)},${Math.floor(Math.random()*9)}K views`;
+    let desc = anime.description || `Menceritakan kisah menarik dari ${anime.title}. Jangan lewatkan petualangan seru dan menegangkan di setiap episodenya hanya di Animeku.`;
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    
+    return `
+    <div class="genre-list-card" onclick="loadDetail('${anime.url}')">
+        <div class="genre-img-box">
+            <img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
+            <div class="genre-badge-new">New</div>
+        </div>
+        <div class="genre-info">
+            <div class="genre-title">${anime.title}</div>
+            <div class="genre-meta">
+                <span style="color:#fbbf24; display:flex; align-items:center; gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</span>
+                <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</span>
+            </div>
+            <div class="genre-desc">${desc}</div>
+        </div>
+    </div>`;
+}
+
 function generateFavCardHtml(anime) {
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -533,21 +537,22 @@ async function loadLatest() {
                 homeContainer.appendChild(histDiv);
             }
         } catch (e) { console.error("Gagal load riwayat:", e); }
+        
+        // MENGHINDARI SERVER ERROR: HANYA LOAD 1 QUERY PER KATEGORI SAAT DI HOME
         try {
             const sectionPromises = HOME_SECTIONS.map(async (section) => {
-                let combinedData = [];
-                if (section.queries) {
-                    const promises = section.queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
-                    const results = await Promise.all(promises); results.forEach(list => { if(Array.isArray(list)) combinedData = [...combinedData, ...list]; });
-                }
-                combinedData = removeDuplicates(combinedData, 'url');
-                return { section, data: combinedData };
+                let data = [];
+                try {
+                    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(section.query)}`);
+                    data = await res.json();
+                } catch(e) {}
+                return { section, data: removeDuplicates(data, 'url') };
             });
             const loadedSections = await Promise.all(sectionPromises);
             loadedSections.forEach(({section, data}) => {
                 if (data && data.length > 0) {
                     const sectionDiv = document.createElement('div'); 
-                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="openGenre('${section.title}', '${section.queries.join(',')}')">Lihat Genre ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    sectionDiv.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><a href="#" class="more-link" onclick="openGenre('${section.title}', '${section.query}')">Lihat Genre ></a></div><div class="horizontal-scroll">${data.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
                     homeContainer.appendChild(sectionDiv);
                 }
             });
@@ -556,7 +561,7 @@ async function loadLatest() {
 }
 
 // ==== FUNGSI BUKA HALAMAN GENRE KHUSUS ====
-window.openGenre = async function(title, queriesStr) {
+window.openGenre = async function(title, query) {
     history.pushState({page: 'genre'}, '', '#genre');
     switchTab('genre');
     loader(true);
@@ -566,22 +571,16 @@ window.openGenre = async function(title, queriesStr) {
     document.getElementById('current-genre-sort-btn').innerHTML = `Latest <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`;
     
     try {
-        let queries = queriesStr.split(',');
-        let combinedData = [];
-        const promises = queries.map(q => fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}`).then(res => res.json()).catch(() => []));
-        const results = await Promise.all(promises);
+        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
         
-        results.forEach(list => { 
-            if(Array.isArray(list)) combinedData = [...combinedData, ...list]; 
-        });
-        
-        window.currentGenreData = removeDuplicates(combinedData, 'url');
+        window.currentGenreData = removeDuplicates(data, 'url');
         document.getElementById('genre-count-text').innerText = `(${window.currentGenreData.length})`;
         
         renderGenreList();
     } catch (e) {
         console.error(e);
-        document.getElementById('genre-results-container').innerHTML = '<p style="text-align:center; padding:20px;">Gagal memuat data.</p>';
+        document.getElementById('genre-results-container').innerHTML = '<p style="text-align:center; padding:20px;">Gagal memuat data. Silakan coba lagi.</p>';
     } finally {
         loader(false);
     }
@@ -615,28 +614,7 @@ function renderGenreList() {
         return;
     }
     
-    container.innerHTML = window.currentGenreData.map(anime => {
-        let scoreStr = anime.score || anime.skor || anime.rating || (Math.random() * 1.5 + 7.0).toFixed(2);
-        let views = `${Math.floor(Math.random()*900 + 10)},${Math.floor(Math.random()*9)}K views`;
-        let desc = anime.description || `Menceritakan kisah menarik dari ${anime.title}. Jangan lewatkan petualangan seru dan menegangkan di setiap episodenya hanya di Animeku.`;
-        const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-        
-        return `
-        <div class="genre-list-card" onclick="loadDetail('${anime.url}')">
-            <div class="genre-img-box">
-                <img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}">
-                <div class="genre-badge-new">New</div>
-            </div>
-            <div class="genre-info">
-                <div class="genre-title">${anime.title}</div>
-                <div class="genre-meta">
-                    <span style="color:#fbbf24; display:flex; align-items:center; gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${scoreStr}</span>
-                    <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${views}</span>
-                </div>
-                <div class="genre-desc">${desc}</div>
-            </div>
-        </div>`;
-    }).join('');
+    container.innerHTML = window.currentGenreData.map(anime => generateGenreCardHtml(anime)).join('');
 }
 
 
@@ -775,7 +753,6 @@ async function loadVideo(url) {
             if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); }
         }
         
-        // SIMPAN INFO ANIME YANG SEDANG DITONTON UNTUK KOMENTAR
         window.currentPlayingAnime = {
             title: window.currentAnimeMeta?.title || displayTitle,
             image: window.currentAnimeMeta?.image || 'https://placehold.co/100',
@@ -811,7 +788,6 @@ function renderCommentInput(epID) {
     else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 }
 
-// ==== SIMPAN INFO ANIME SAAT KOMENTAR ====
 window.postComment = function(epID) { 
     const input = document.getElementById('main-comment-input'); 
     const text = input.value; 
