@@ -17,6 +17,54 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
+// ==== INJEKSI CSS PREMIUM VIA JS (BIAR GAK REPOT EDIT HTML) ====
+function injectPremiumStyles() {
+    if(document.getElementById('premium-rank-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'premium-rank-styles';
+    style.innerHTML = `
+        /* ANIMASI BINTANG KEDAP-KEDIP (SANGAT RINGAN) */
+        @keyframes twinkleOpacity {
+            0% { opacity: 0.2; transform: scale(0.6); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 1. EFEK BADGE PROFIL */
+        .c-badge { position: relative; overflow: visible !important; } 
+        .badge-lvl-emerald { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important; }
+        .badge-lvl-diamond { box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important; }
+        .badge-lvl-master { box-shadow: 0 0 12px rgba(250, 204, 21, 0.5) !important; }
+        .badge-lvl-mythic { 
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important; 
+            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+        .badge-lvl-emerald::after { content: '✨'; position: absolute; top: -6px; right: -6px; font-size: 10px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 2; }
+        .badge-lvl-master::after, .badge-lvl-mythic::after { content: '⭐'; position: absolute; top: -6px; right: -6px; font-size: 10px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 2; }
+        .badge-lvl-master::before, .badge-lvl-mythic::before { content: '🌟'; position: absolute; bottom: -4px; left: -6px; font-size: 11px; animation: twinkleOpacity 1.2s infinite alternate 0.3s; z-index: 2; }
+
+        /* 2. EFEK IKON RANK KOTAK (DI DALAM MODAL) */
+        .rank-icon { position: relative; overflow: visible !important; } 
+        .rank-icon-emerald { box-shadow: 0 0 12px rgba(147, 51, 234, 0.6) !important; border-color: rgba(168, 85, 247, 0.5) !important; background: rgba(147, 51, 234, 0.15) !important; }
+        .rank-icon-emerald::after { content: '✨'; position: absolute; top: -8px; right: -8px; font-size: 14px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; }
+        .rank-icon-diamond { box-shadow: 0 0 14px rgba(59, 130, 246, 0.7), inset 0 0 4px rgba(255,255,255,0.3) !important; border-color: rgba(59, 130, 246, 0.6) !important; background: rgba(59, 130, 246, 0.15) !important; }
+        .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; border: 1px solid rgba(250, 204, 21, 0.5) !important; }
+        .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -10px; left: -10px; font-size: 15px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
+        .rank-icon-master::after { content: '⭐'; position: absolute; top: -10px; right: -8px; font-size: 13px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
+        .rank-icon-mythic { box-shadow: 0 0 18px rgba(239, 68, 68, 0.8) !important; }
+
+        /* 3. EFEK GLOWING PADA FOTO PROFIL (AVATAR) */
+        .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
+        .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
+        .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
+        .avatar-rank-mythic { border-color: #ef4444 !important; box-shadow: 0 0 20px rgba(239,68,68,0.6) !important; }
+    `;
+    document.head.appendChild(style);
+}
+// Panggil langsung saat file js dimuat
+injectPremiumStyles();
+
 auth.onAuthStateChanged(user => {
     currentUser = user;
     updateDevUI();
@@ -111,6 +159,9 @@ function updateDevUI() {
 
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+                
+                // Tambahkan class CSS ke avatar sesuai Rank
+                let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let timeDiff = Date.now() - item.timestamp;
@@ -195,7 +246,7 @@ function updateDevUI() {
                 container.innerHTML = `
                     <div class="profile-header">
                         <div class="profile-avatar-container">
-                            <img src="${userFoto}" class="profile-avatar">
+                            <img src="${userFoto}" class="profile-avatar ${avatarClass}">
                             <div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
                         </div>
                         <div class="profile-name">${userName}</div>
@@ -307,7 +358,7 @@ function removeDuplicates(array, key) {
 }
 
 function getEpBadge(anime) { 
-    if (!anime) return 'Anime'; // PERBAIKAN ANTI ERROR
+    if (!anime) return 'Anime'; 
     let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
     if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
     let lowText = text.toLowerCase().trim();
@@ -486,7 +537,7 @@ function generateRecentCardHtml(anime) {
 }
 
 function generateFavCardHtml(anime) {
-    if (!anime) return ''; // PERBAIKAN ANTI ERROR
+    if (!anime) return '';
     let epsBadge = getEpBadge(anime);
     let scoreStr = anime.score || anime.skor || anime.rating || '?';
     let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -494,8 +545,19 @@ function generateFavCardHtml(anime) {
     return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
 }
 
+async function fetchTimeout(url, timeoutMs = 6000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
+}
 
-// ==== HOME FETCH DENGAN NORMAL FETCH AGAR VERCEL SEMPAT LOADING ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -504,7 +566,6 @@ async function loadLatest() {
     try {
         try {
             let sliderData = []; 
-            // Kita pakai fetch bawaan supaya kalau API nya butuh waktu lama untuk cold start tidak langsung digagalkan
             const res = await fetch(`${API_BASE}/latest`); 
             if (res && res.ok) {
                 sliderData = await res.json();
@@ -521,7 +582,6 @@ async function loadLatest() {
             }
         } catch (e) { console.warn("Gagal load riwayat:", e); }
         
-        // MATIKAN LOADING DI SINI AGAR USER BISA MENGGULIR HALAMAN
         loader(false); 
 
         const sectionContainers = HOME_SECTIONS.map(section => {
@@ -782,15 +842,4 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
-};
-
-window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
-
-window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
-function goHome() { history.back(); }
-function backToDetail() { history.back(); }
-
-function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser
