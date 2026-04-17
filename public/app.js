@@ -585,13 +585,15 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
+// ==== FUNGSI LOADING BERANDA DENGAN SISTEM ANTREAN BIAR VERCEL GAK ERROR 429 ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
     homeContainer.innerHTML = ''; 
-    let hasData = false;
+    let hasAnyData = false;
     
     try {
+        // 1. Load Slider
         try {
             let sliderData = []; 
             const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
@@ -599,71 +601,71 @@ async function loadLatest() {
                 sliderData = await res.json();
                 if (sliderData && sliderData.length > 0) { 
                     renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
-                    hasData = true;
+                    hasAnyData = true;
                 } 
             }
         } catch (e) {}
         
+        // 2. Load Riwayat
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
                 const histDiv = document.createElement('div');
                 histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
                 homeContainer.appendChild(histDiv);
+                hasAnyData = true;
             }
         } catch (e) {}
         
         loader(false); 
 
-        const sectionContainers = HOME_SECTIONS.map(section => {
+        // Bikin kerangka container dulu biar rapi di layar
+        const sectionContainers = [];
+        for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center; color:#555; font-size:12px; border:1px dashed #222;">Sedang memuat data...</div></div>`;
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center; color:#555; font-size:12px; border:1px dashed #222;">Sedang antre memuat data...</div></div>`;
             homeContainer.appendChild(div);
-            return { section, div };
-        });
+            sectionContainers.push({ section, div });
+        }
 
-        sectionContainers.forEach(async ({ section, div }) => {
+        // Fetch berurutan (Satu per satu) biar Vercel tidak nge-block (Error 429 Too Many Requests)
+        for (const { section, div } of sectionContainers) {
             try {
                 let combinedData = [];
-                const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                for (const q of section.queries.slice(0, 4)) { // Ambil 4 keyword biar Sci-Fi rame
                     try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 15000);
-                        if (res.ok) {
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                        if (res && res.ok) {
                             const data = await res.json();
-                            if (Array.isArray(data)) return data;
+                            if (Array.isArray(data)) combinedData.push(...data);
                         }
                     } catch(e) {}
-                    return [];
-                });
-
-                const results = await Promise.all(fetchPromises);
-                results.forEach(data => combinedData.push(...data));
+                }
 
                 combinedData = removeDuplicates(combinedData, 'url');
                 if (combinedData.length > 0) {
                     div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                    hasData = true;
+                    hasAnyData = true;
                 } else {
                     div.remove(); 
                 }
             } catch(e) { div.remove(); }
-        });
+        }
 
-        setTimeout(() => {
-            if (!hasData && homeContainer.innerHTML.indexOf('Sedang memuat data') !== -1) {
-                homeContainer.innerHTML = `
-                    <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                        <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Terhubung ke Server</h2>
-                        <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server Vercel sedang sibuk atau mengalami Cold Start. Pastikan internetmu stabil.</p>
-                        <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                    </div>
-                `;
-            }
-        }, 16000); 
+        // Jika semua API beneran gagal/kosong dan layar mau nge-blank, tampilkan ini:
+        if (!hasAnyData) {
+            homeContainer.innerHTML = `
+                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                </div>
+            `;
+        }
 
     } catch (err) { 
-        console.error("Fatal Error", err);
+        console.error("Home loading failed total", err);
         loader(false); 
     } 
 }
@@ -887,4 +889,16 @@ function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap =>
 window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
-    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML =
+    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    const inputArea = document.getElementById('reply-input-area'); if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+};
+
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+
+window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
+function goHome() { history.back(); }
+function backToDetail() { history.back(); }
+
+function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
