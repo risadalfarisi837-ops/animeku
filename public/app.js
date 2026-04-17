@@ -665,24 +665,93 @@ async function handleSearch(query) {
     try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
+// ==== FUNGSI REPORT MODAL INJECTION & LOGIC ====
+function injectReportModal() {
+    if(document.getElementById('report-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'report-modal-injected';
+    div.innerHTML = `
+        <div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
+        <div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;">
+            <div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                </div>
+            </div>
+            <h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;">
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>
+                    Video Tidak Bisa Diputar
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Subtitle Rusak
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Anime Berbeda
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    DMCA (Email)
+                </label>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.openReportModal = function() {
+    injectReportModal();
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    overlay.style.display = 'block';
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
+};
+
+window.closeReportModal = function() {
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    if(!modal) return;
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+    }, 300);
+};
+
+window.submitReport = function() {
+    const selected = document.querySelector('input[name="reportReason"]:checked');
+    if(!selected) return;
+    let reason = selected.value;
+    let text = `Halo Admin, saya mau report episode error.\n\nLink: ${window.location.href}\nAlasan: *${reason}*`;
+    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text));
+    closeReportModal();
+};
+
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
-// ==== FUNGSI GANTI SERVER ====
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
-    
-    // MENGAMBIL RESOLUSI TEKS LAGI (Misal: 360p, 480p, dll)
     let qualMatch = serverName.match(/\d{3,4}p/i);
     let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
-    
     document.getElementById('current-quality-text').innerText = displayQuality; 
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
     btnElement.classList.add('active'); 
     window.closeServerModal(); 
 };
 
-// ==== FUNGSI DOWNLOAD (MEMBUKA LINK VIDEO DI TAB BARU) ====
 window.handleDownload = function() { 
     let iframe = document.getElementById('video-player');
     if(iframe && iframe.src) {
@@ -831,7 +900,6 @@ async function loadVideo(url) {
 
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
 
-        // MEMUNCULKAN KEMBALI TEKS RESOLUSI (Misal: 480p Quality)
         let initialServer = data.streams.length > 0 ? data.streams[0].server : '';
         let initQualMatch = initialServer.match(/\d{3,4}p/i);
         let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
@@ -853,7 +921,6 @@ async function loadVideo(url) {
             
             <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
                 <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
-                    
                     <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
                         <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
                         <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
@@ -866,7 +933,7 @@ async function loadVideo(url) {
                 
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                    <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                    <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
                 </div>
             </div>
 
@@ -968,5 +1035,11 @@ window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+function initApp() { 
+    updateDevUI(); 
+    injectReportModal(); 
+    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    switchTab('home'); 
+}
+
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
