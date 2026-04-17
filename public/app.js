@@ -17,72 +17,30 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// ==== INJEKSI CSS PREMIUM VIA JS (WARNA TEBAL & CERAH) ====
+// ==== INJEKSI CSS PREMIUM VIA JS ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style');
     style.id = 'premium-rank-styles';
     style.innerHTML = `
-        /* ANIMASI BINTANG KEDAP-KEDIP & SHIMMER (SANGAT RINGAN) */
         @keyframes twinkleOpacity { 0% { opacity: 0.2; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1.2); } }
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
-        /* MENCEGAH BINTANG TERPOTONG KOTAK */
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* ================= EMERALD ================= */
-        .badge-lvl-emerald, .rank-icon-emerald { 
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; 
-            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-        .badge-lvl-emerald::after, .rank-icon-emerald::after { 
-            content: '✨'; position: absolute; top: -6px; right: -6px; 
-            font-size: 12px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; 
-        }
+        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-emerald::after, .rank-icon-emerald::after { content: '✨'; position: absolute; top: -6px; right: -6px; font-size: 12px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; }
 
-        /* ================= DIAMOND ================= */
-        .badge-lvl-diamond, .rank-icon-diamond { 
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; 
-            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
+        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
-        /* ================= MASTER ================= */
-        .badge-lvl-master, .rank-icon-master { 
-            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
-            background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-        .badge-lvl-master::before, .rank-icon-master::before { 
-            content: '🌟'; position: absolute; bottom: -8px; left: -8px; 
-            font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; 
-        }
-        .badge-lvl-master::after, .rank-icon-master::after { 
-            content: '⭐'; position: absolute; top: -8px; right: -8px; 
-            font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; 
-        }
+        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-master::before, .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -8px; left: -8px; font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
+        .badge-lvl-master::after, .rank-icon-master::after { content: '⭐'; position: absolute; top: -8px; right: -8px; font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
 
-        /* ================= MYTHIC ================= */
-        .badge-lvl-mythic, .rank-icon-mythic { 
-            box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; 
-            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-        .badge-lvl-mythic::before, .rank-icon-mythic::before { 
-            content: '🌟'; position: absolute; bottom: -8px; left: -8px; 
-            font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; 
-        }
-        .badge-lvl-mythic::after, .rank-icon-mythic::after { 
-            content: '⭐'; position: absolute; top: -8px; right: -8px; 
-            font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; 
-        }
+        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-mythic::before, .rank-icon-mythic::before { content: '🌟'; position: absolute; bottom: -8px; left: -8px; font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
+        .badge-lvl-mythic::after, .rank-icon-mythic::after { content: '⭐'; position: absolute; top: -8px; right: -8px; font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
 
-        /* ================= GLOWING PADA FOTO PROFIL (AVATAR) ================= */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -187,7 +145,6 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
                 
-                // Tambahkan class CSS ke avatar sesuai Rank
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
@@ -585,7 +542,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BERANDA DENGAN SISTEM ANTREAN BIAR VERCEL GAK ERROR 429 ====
+// ==== FUNGSI LOADING BERANDA (SEMI-PARALEL: 3X LEBIH CEPAT TAPI AMAN DARI ERROR 429) ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -593,7 +550,6 @@ async function loadLatest() {
     let hasAnyData = false;
     
     try {
-        // 1. Load Slider
         try {
             let sliderData = []; 
             const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
@@ -606,7 +562,6 @@ async function loadLatest() {
             }
         } catch (e) {}
         
-        // 2. Load Riwayat
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -619,37 +574,45 @@ async function loadLatest() {
         
         loader(false); 
 
-        // Bikin kerangka container dulu biar rapi di layar
+        // Bikin kerangka container dulu biar rapi di layar, pakai desain spinner elegan
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center; color:#555; font-size:12px; border:1px dashed #222;">Sedang antre memuat data...</div></div>`;
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
             homeContainer.appendChild(div);
             sectionContainers.push({ section, div });
         }
 
-        // Fetch berurutan (Satu per satu) biar Vercel tidak nge-block (Error 429 Too Many Requests)
-        for (const { section, div } of sectionContainers) {
-            try {
-                let combinedData = [];
-                for (const q of section.queries.slice(0, 4)) { // Ambil 4 keyword biar Sci-Fi rame
-                    try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                        if (res && res.ok) {
-                            const data = await res.json();
-                            if (Array.isArray(data)) combinedData.push(...data);
-                        }
-                    } catch(e) {}
-                }
+        // Fungsi pemecah antrean jadi 3 tugas sekaligus biar cepat tapi server gak meledak
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
 
-                combinedData = removeDuplicates(combinedData, 'url');
-                if (combinedData.length > 0) {
-                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                    hasAnyData = true;
-                } else {
-                    div.remove(); 
-                }
-            } catch(e) { div.remove(); }
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    // Ambil 3 keyword agar anime melimpah
+                    const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
+                        try {
+                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) combinedData.push(...data);
+                            }
+                        } catch(e) {}
+                    });
+
+                    await Promise.all(fetchPromises);
+
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) {
+                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                        hasAnyData = true;
+                    } else {
+                        div.remove(); 
+                    }
+                } catch(e) { div.remove(); }
+            }));
         }
 
         // Jika semua API beneran gagal/kosong dan layar mau nge-blank, tampilkan ini:
