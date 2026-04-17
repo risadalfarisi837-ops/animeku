@@ -58,6 +58,16 @@
         .badge-score { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 10px; font-weight: bold; padding: 3px 4px; border-radius: 4px; z-index: 2; display: flex; align-items: center; gap: 2px; }
         .scroll-card-title { font-size: 13px; color: #fff; margin-top: 8px; line-height: 1.4; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
         
+        .genre-list-card { display: flex; gap: 12px; margin-bottom: 12px; background: #111; border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2e; padding: 10px; cursor: pointer; transition: 0.2s; }
+        .genre-list-card:active { transform: scale(0.98); }
+        .genre-img-box { width: 90px; flex-shrink: 0; position: relative; border-radius: 8px; overflow: hidden; background: #1a1a1a; aspect-ratio: 3/4; }
+        .genre-img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .genre-badge-new { position: absolute; top: 4px; left: 4px; background: #3b82f6; color: #fff; font-size: 9px; font-weight: 800; padding: 3px 5px; border-radius: 4px; z-index: 2; }
+        .genre-info { flex: 1; display: flex; flex-direction: column; overflow: hidden; justify-content: flex-start; }
+        .genre-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+        .genre-meta { font-size: 11px; color: #a1a1aa; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .genre-desc { font-size: 11px; color: #888; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+
         .recent-card { width: 140px; flex-shrink: 0; scroll-snap-align: start; display: flex; flex-direction: column; cursor: pointer; position: relative; }
         .recent-img-box { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #1a1a1a; }
         .recent-img-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -121,66 +131,6 @@
         .comment-filter-btn { background: transparent; border: 1px solid #333; color: #aaa; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .comment-filter-btn.active { background: #fff; color: #000; border-color: #fff; }
         
-        /* WARNA BADGE & EFEK ANIMASI KHUSUS 3 TERATAS */
-        .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
-        
-        .badge-lvl-stone { background: rgba(168, 162, 158, 0.15); color: #a8a29e; border: 1px solid rgba(168, 162, 158, 0.3); }
-        .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15); color: #d97706; border: 1px solid rgba(180, 83, 9, 0.3); }
-        .badge-lvl-silver { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid rgba(226, 232, 240, 0.3); }
-        .badge-lvl-gold { background: rgba(251, 191, 36, 0.15); color: #facc15; border: 1px solid rgba(251, 191, 36, 0.4); }
-        .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
-        
-        .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25); color: #22d3ee; border: 1px solid #06b6d4; animation: pulseGlowCyan 2s infinite alternate; }
-        .badge-lvl-master { background: rgba(236, 72, 153, 0.25); color: #f472b6; border: 1px solid #ec4899; animation: pulseGlowPink 1.5s infinite alternate; }
-        .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444); background-size: 200% 100%; color: #fff; border: none; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate; }
-        
-        @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
-        @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
-        @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
-        
-        .badge-member { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .badge-premium-anim { background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb); background-size: 200% 100%; color: #fff; border: none; animation: shimmerPremium 2.5s infinite linear; box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
-        .badge-dev-anim { background: linear-gradient(90deg, #dc2626, #7f1d1d, #dc2626); background-size: 200% 100%; color: #fff; border: 1px solid #fca5a5; animation: devPulse 2s infinite ease-in-out, shimmerPremium 3s infinite linear; box-shadow: 0 0 10px rgba(220, 38, 38, 0.8); text-shadow: 0 0 4px rgba(255,255,255,0.5); }
-
-        @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-        @keyframes devPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 16px rgba(239, 68, 68, 1); } }
-
-        /* PROFILE UI CSS (SUDAH DIKEMBALIKAN KE SINI SEMUA) */
-        .profile-header { text-align: center; padding: 10px 0 20px 0; }
-        .profile-avatar-container { position: relative; display: inline-block; }
-        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #1a1a1a; object-fit: cover; }
-        .profile-camera-icon { position: absolute; bottom: 0; right: 0; background: #3b82f6; padding: 6px; border-radius: 50%; color: white; border: 2px solid #050505; display: flex; align-items: center; justify-content: center; }
-        .profile-name { font-size: 22px; font-weight: 800; margin: 12px 0 8px 0; }
-        .profile-stats { display: flex; justify-content: space-around; padding: 0 10px 25px 10px; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; }
-        .stat-box { text-align: center; }
-        .stat-val { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-        .stat-lbl { font-size: 11px; color: #a1a1aa; line-height: 1.3; font-weight: 500; }
-        .profile-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; }
-        .ptab { padding: 12px 20px; color: #a1a1aa; font-weight: 800; font-size: 14px; cursor: pointer; position: relative; transition: 0.2s; }
-        .ptab.active { color: #fff; }
-        .ptab.active::after { content: ''; position: absolute; bottom: -1px; left: 20%; width: 60%; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
-        
-        .profile-list-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; padding: 0 15px; cursor: pointer; }
-        .pli-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; }
-        .pli-info { flex: 1; }
-        .pli-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-        .pli-ep { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; font-weight: 500; }
-        .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
-        .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
-        
-        .profile-comment-box { background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px; padding: 15px; margin: 0 15px 15px 15px; }
-        .profile-comment-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: #a1a1aa; border-bottom: 1px solid #333; padding-bottom: 8px;}
-        .profile-comment-anime { font-weight: 700; color: #3b82f6; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; max-width: 70%; cursor: pointer;}
-        .profile-comment-text { font-size: 13px; color: #fff; line-height: 1.5; font-style: italic; }
-
-        .level-rank-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; }
-        .level-rank-item:last-child { border-bottom: none; }
-        .rank-info { display: flex; align-items: center; gap: 15px; }
-        .rank-icon { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .rank-title { font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 2px; }
-        .rank-req { font-size: 11px; color: #888; font-weight: 500; }
-        .rank-status { font-size: 18px; }
-
         .sort-option { padding: 12px 15px; font-size: 13px; font-weight: 600; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #2c2c2e; transition: 0.2s; }
         .sort-option:last-child { border-bottom: none; }
         .sort-option:hover { background: #2c2c2e; color: #fff; }
@@ -205,15 +155,12 @@
 
     <div id="xp-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
         <div id="xp-modal-card" style="background: #111; border: 1px solid #222; border-radius: 20px; padding: 30px; width: 260px; text-align: center; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-            
             <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); border: 3px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
             </div>
-            
             <div id="xp-title-text" style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;">EXP Gained</div>
             <div id="xp-amount-text" style="font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 0; line-height: 1;">+2</div>
             <div style="font-size: 14px; color: #888; font-weight: 600; margin-bottom: 25px;">point</div>
-            
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
                 <div id="xp-level-text" style="font-size: 15px; font-weight: 800; color: #fff;">Level 1</div>
                 <div id="xp-progress-text" style="font-size: 13px; font-weight: 700; color: #a1a1aa;">0%</div>
@@ -238,7 +185,6 @@
             <div style="font-size: 13px; font-weight: 800; color: #a1a1aa;">Waktu: <span id="level-modal-total-time" style="color: #fff;">0j 0m</span></div>
         </div>
     </div>
-
 
     <div id="serverModalOverlay" class="modal-overlay" onclick="closeServerModal()"></div>
     <div id="serverModal" class="bottom-sheet">
@@ -276,6 +222,26 @@
         <div id="home-view"></div>
         <div id="search-view" class="hidden tab-content-container" style="width: 100%; overflow-x: hidden;"></div>
         
+        <div id="genre-view" class="hidden tab-content-container" style="width: 100%; overflow-x: hidden;">
+            <div style="position: sticky; top: 0; background: #050505; z-index: 100; padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="goHome()" style="background: transparent; border: none; color: #fff; padding: 0; cursor: pointer; display: flex;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                    <h2 style="font-size: 18px; margin: 0; font-weight: 800;"><span id="genre-title-text">Hasil Genre</span> <span id="genre-count-text" style="color: #a1a1aa; font-weight: 500; font-size: 16px;">(0)</span></h2>
+                </div>
+                <div style="position: relative;">
+                    <button onclick="toggleGenreSortMenu()" id="current-genre-sort-btn" style="background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 0;">Latest <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></button>
+                    <div id="genre-sort-dropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; background: #1c1c1e; border: 1px solid #333; border-radius: 12px; width: 140px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                        <div class="sort-option" onclick="applyGenreSort('latest', 'Latest')">Latest</div>
+                        <div class="sort-option" onclick="applyGenreSort('popular', 'Popular')">Popular</div>
+                        <div class="sort-option" onclick="applyGenreSort('rating', 'Rating')">Rating</div>
+                        <div class="sort-option" onclick="applyGenreSort('az', 'A-Z')">A-Z</div>
+                        <div class="sort-option" onclick="applyGenreSort('za', 'Z-A')">Z-A</div>
+                    </div>
+                </div>
+            </div>
+            <div id="genre-results-container" style="padding: 15px;"></div>
+        </div>
+
         <div id="recent-view" class="hidden tab-content-container">
             <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
                 <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Nonton</h1>
@@ -335,6 +301,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=31"></script>
+    <script src="app.js?v=32"></script>
 </body>
 </html>
