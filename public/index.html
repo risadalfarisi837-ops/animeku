@@ -58,7 +58,7 @@
         .badge-score { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.75); color: #fbbf24; font-size: 10px; font-weight: bold; padding: 3px 4px; border-radius: 4px; z-index: 2; display: flex; align-items: center; gap: 2px; }
         .scroll-card-title { font-size: 13px; color: #fff; margin-top: 8px; line-height: 1.4; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
         
-        /* CSS KHUSUS HALAMAN GENRE LIST (GAYA VERTICAL SEPERTI DI VIDEO) */
+        /* CSS KHUSUS HALAMAN GENRE LIST (VERTIKAL) */
         .genre-list-card { display: flex; gap: 12px; margin-bottom: 12px; background: #111; border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2e; padding: 10px; cursor: pointer; transition: 0.2s; }
         .genre-list-card:active { transform: scale(0.98); }
         .genre-img-box { width: 90px; flex-shrink: 0; position: relative; border-radius: 8px; overflow: hidden; background: #1a1a1a; aspect-ratio: 3/4; }
@@ -78,7 +78,7 @@
 
         .header-flex { display: flex; justify-content: space-between; align-items: center; padding: 15px 12px; width: 100%; }
         .header-flex h2 { font-size: 18px; margin: 0; font-weight: bold; }
-        .more-link { color: #3b82f6; font-size: 13px; text-decoration: none; font-weight: 500; cursor: pointer; }
+        .more-link { color: #3b82f6; font-size: 13px; text-decoration: none; font-weight: 700; cursor: pointer; }
 
         #recent-view.tab-content-container { padding-left: 0 !important; padding-right: 0 !important; }
         #recent-results-container { padding: 0 !important; margin: 0 !important; width: 100%; overflow-x: hidden; }
@@ -132,6 +132,65 @@
         .comment-filter-btn { background: transparent; border: 1px solid #333; color: #aaa; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .comment-filter-btn.active { background: #fff; color: #000; border-color: #fff; }
         
+        /* CSS LENGKAP BADGE & PROFIL (SUDAH DIPASTIKAN AMAN) */
+        .c-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; letter-spacing: 0.2px; }
+        
+        .badge-lvl-stone { background: rgba(168, 162, 158, 0.15) !important; color: #a8a29e !important; border: 1px solid rgba(168, 162, 158, 0.3) !important; }
+        .badge-lvl-bronze { background: rgba(180, 83, 9, 0.15) !important; color: #d97706 !important; border: 1px solid rgba(180, 83, 9, 0.3) !important; }
+        .badge-lvl-silver { background: rgba(226, 232, 240, 0.15) !important; color: #e2e8f0 !important; border: 1px solid rgba(226, 232, 240, 0.3) !important; }
+        .badge-lvl-gold { background: rgba(251, 191, 36, 0.15) !important; color: #facc15 !important; border: 1px solid rgba(251, 191, 36, 0.4) !important; }
+        .badge-lvl-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; }
+        
+        .badge-lvl-diamond { background: rgba(6, 182, 212, 0.25) !important; color: #22d3ee !important; border: 1px solid #06b6d4 !important; animation: pulseGlowCyan 2s infinite alternate !important; }
+        .badge-lvl-master { background: rgba(236, 72, 153, 0.25) !important; color: #f472b6 !important; border: 1px solid #ec4899 !important; animation: pulseGlowPink 1.5s infinite alternate !important; }
+        .badge-lvl-mythic { background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 2s infinite linear, mythicPulse 1s infinite alternate !important; }
+        
+        @keyframes pulseGlowCyan { 0% { box-shadow: 0 0 4px rgba(6,182,212,0.4); } 100% { box-shadow: 0 0 14px rgba(6,182,212,0.8); } }
+        @keyframes pulseGlowPink { 0% { box-shadow: 0 0 4px rgba(236,72,153,0.4); } 100% { box-shadow: 0 0 16px rgba(236,72,153,0.9); } }
+        @keyframes mythicPulse { 0% { transform: scale(1); box-shadow: 0 0 8px rgba(239,68,68,0.5); } 100% { transform: scale(1.05); box-shadow: 0 0 18px rgba(239,68,68,1); } }
+        
+        .badge-member { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-premium-anim { background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb); background-size: 200% 100%; color: #fff; border: none; animation: shimmerPremium 2.5s infinite linear; box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+        .badge-dev-anim { background: linear-gradient(90deg, #dc2626, #7f1d1d, #dc2626); background-size: 200% 100%; color: #fff; border: 1px solid #fca5a5; animation: devPulse 2s infinite ease-in-out, shimmerPremium 3s infinite linear; box-shadow: 0 0 10px rgba(220, 38, 38, 0.8); text-shadow: 0 0 4px rgba(255,255,255,0.5); }
+
+        @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        @keyframes devPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 16px rgba(239, 68, 68, 1); } }
+
+        .profile-header { text-align: center; padding: 10px 0 20px 0; }
+        .profile-avatar-container { position: relative; display: inline-block; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #1a1a1a; object-fit: cover; }
+        .profile-camera-icon { position: absolute; bottom: 0; right: 0; background: #3b82f6; padding: 6px; border-radius: 50%; color: white; border: 2px solid #050505; display: flex; align-items: center; justify-content: center; }
+        .profile-name { font-size: 22px; font-weight: 800; margin: 12px 0 8px 0; }
+        .profile-stats { display: flex; justify-content: space-around; padding: 0 10px 25px 10px; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .stat-lbl { font-size: 11px; color: #a1a1aa; line-height: 1.3; font-weight: 500; }
+        .profile-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .ptab { padding: 12px 20px; color: #a1a1aa; font-weight: 800; font-size: 14px; cursor: pointer; position: relative; transition: 0.2s; }
+        .ptab.active { color: #fff; }
+        .ptab.active::after { content: ''; position: absolute; bottom: -1px; left: 20%; width: 60%; height: 3px; background: #fff; border-radius: 3px 3px 0 0; }
+        
+        .profile-list-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; padding: 0 15px; cursor: pointer; }
+        .pli-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; }
+        .pli-info { flex: 1; }
+        .pli-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .pli-ep { font-size: 12px; color: #a1a1aa; margin-bottom: 8px; font-weight: 500; }
+        .pli-progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+        .pli-progress-fill { height: 100%; background: #ef4444; border-radius: 2px; }
+        
+        .profile-comment-box { background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px; padding: 15px; margin: 0 15px 15px 15px; }
+        .profile-comment-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: #a1a1aa; border-bottom: 1px solid #333; padding-bottom: 8px;}
+        .profile-comment-anime { font-weight: 700; color: #3b82f6; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; max-width: 70%; cursor: pointer;}
+        .profile-comment-text { font-size: 13px; color: #fff; line-height: 1.5; font-style: italic; }
+
+        .level-rank-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; }
+        .level-rank-item:last-child { border-bottom: none; }
+        .rank-info { display: flex; align-items: center; gap: 15px; }
+        .rank-icon { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .rank-title { font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 2px; }
+        .rank-req { font-size: 11px; color: #888; font-weight: 500; }
+        .rank-status { font-size: 18px; }
+
         .sort-option { padding: 12px 15px; font-size: 13px; font-weight: 600; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #2c2c2e; transition: 0.2s; }
         .sort-option:last-child { border-bottom: none; }
         .sort-option:hover { background: #2c2c2e; color: #fff; }
@@ -156,15 +215,12 @@
 
     <div id="xp-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
         <div id="xp-modal-card" style="background: #111; border: 1px solid #222; border-radius: 20px; padding: 30px; width: 260px; text-align: center; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-            
             <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); border: 3px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
             </div>
-            
             <div id="xp-title-text" style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;">EXP Gained</div>
             <div id="xp-amount-text" style="font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 0; line-height: 1;">+2</div>
             <div style="font-size: 14px; color: #888; font-weight: 600; margin-bottom: 25px;">point</div>
-            
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
                 <div id="xp-level-text" style="font-size: 15px; font-weight: 800; color: #fff;">Level 1</div>
                 <div id="xp-progress-text" style="font-size: 13px; font-weight: 700; color: #a1a1aa;">0%</div>
@@ -305,6 +361,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=27"></script>
 </body>
 </html>
