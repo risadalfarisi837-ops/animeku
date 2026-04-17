@@ -790,8 +790,11 @@ async function loadVideo(url) {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
         switchTab('watch'); addXP(20); 
         let displayTitle = window.currentAnimeMeta?.title || data.title;
-        let mockViews = `${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 999)} Views`;
-        let mockDate = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
+        
+        // FORMAT TEXT VIEWS DAN TANGGAL
+        let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`;
+        let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+        
         let currentEpNum = '1';
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) {
             let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url);
@@ -805,19 +808,12 @@ async function loadVideo(url) {
             url: window.currentAnimeMeta?.url || url
         };
 
-        // ==== SISTEM PROGRESS BAR SIMULASI ====
+        // PROGRESS BAR SIMULASI
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
-        
-        // Migrasi data lama dari watchedEps biar default 100% (Tamat)
         let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
         oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
-        
-        // Simulasi Penambahan Progress Nonton Tiap Di-klik:
-        // Klik 1: Baru nonton (0%)
-        // Klik 2: Setengah (50%)
-        // Klik 3: Tamat (100%)
         if (watchProgress[url] === undefined) {
-            watchProgress[url] = 0; // Baru buka
+            watchProgress[url] = 0; 
         } else if (watchProgress[url] < 100) {
             watchProgress[url] = Math.min(100, watchProgress[url] + 50);
         }
@@ -827,8 +823,32 @@ async function loadVideo(url) {
         
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
-            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
-            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 12px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
+            
+            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
+                <img src="${window.currentPlayingAnime.image}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
+                <div style="flex: 1;">
+                    <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
+                    <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                        Episode ${currentEpNum} • 
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> 
+                        ${mockViews} • ${mockDate}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
+                <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                    <button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                    <button class="action-btn" onclick="openServerModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button>
+                    <button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                    <button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                </div>
+            </div>
+
             <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
@@ -851,17 +871,13 @@ async function loadVideo(url) {
 
                     // LOGIKA VISUAL KOTAK EPISODE:
                     if (progress >= 100) {
-                        // 1. Sudah Tamat (100%) -> Biru Semua
                         c += " active"; 
-                        // Biar kotak episode yg lagi ditonton sekarang lebih kelihatan beda dari yg udah tamat lainnya
                         if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
                     } 
                     else if (progress > 0) {
-                        // 2. Nonton Setengah (Misal 50%) -> Gradient biru setengah, sisa abu-abu, pake border biru
                         inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
                     } 
                     else if (progress === 0 || isCurrent) {
-                        // 3. Baru Banget Mulai (0%) -> Cuman biru di samping-sampingnya (border)
                         c += " watched";
                     }
 
