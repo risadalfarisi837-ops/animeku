@@ -808,17 +808,18 @@ async function loadVideo(url) {
         // ==== SISTEM PROGRESS BAR SIMULASI ====
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
         
-        // Migrasi data lama dari watchedEps (kalau ada) jadi 100% full
+        // Migrasi data lama dari watchedEps biar default 100% (Tamat)
         let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
-        oldWatched.forEach(oldUrl => { if(!watchProgress[oldUrl]) watchProgress[oldUrl] = 100; });
+        oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
         
-        // Simulasi penambahan progress. 
-        // Kenapa simulasi? Karena player video pakai iFrame, website luar nggak bisa baca durasinya asli.
-        // Jadi kita setting aja, tiap di-klik dia nambah progress 40% biar kamu bisa lihat efeknya berjalan.
-        if (!watchProgress[url]) {
-            watchProgress[url] = 20; // Mulai dari 20%
+        // Simulasi Penambahan Progress Nonton Tiap Di-klik:
+        // Klik 1: Baru nonton (0%)
+        // Klik 2: Setengah (50%)
+        // Klik 3: Tamat (100%)
+        if (watchProgress[url] === undefined) {
+            watchProgress[url] = 0; // Baru buka
         } else if (watchProgress[url] < 100) {
-            watchProgress[url] = Math.min(100, watchProgress[url] + 40); // Nambah tiap diklik
+            watchProgress[url] = Math.min(100, watchProgress[url] + 50);
         }
         localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
 
@@ -848,24 +849,26 @@ async function loadVideo(url) {
                     let c = "ep-square";
                     let inlineStyle = "";
 
-                    if (isCurrent) {
-                        // Sedang ditonton (Active): Full Biru sesuai CSS
+                    // LOGIKA VISUAL KOTAK EPISODE:
+                    if (progress >= 100) {
+                        // 1. Sudah Tamat (100%) -> Biru Semua
                         c += " active"; 
-                    } else if (progress !== undefined) {
+                        // Biar kotak episode yg lagi ditonton sekarang lebih kelihatan beda dari yg udah tamat lainnya
+                        if(isCurrent) inlineStyle = `style="box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;"`; 
+                    } 
+                    else if (progress > 0) {
+                        // 2. Nonton Setengah (Misal 50%) -> Gradient biru setengah, sisa abu-abu, pake border biru
+                        inlineStyle = `style="background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;"`;
+                    } 
+                    else if (progress === 0 || isCurrent) {
+                        // 3. Baru Banget Mulai (0%) -> Cuman biru di samping-sampingnya (border)
                         c += " watched";
-                        // Punya progress bar: Kita isi warna dengan linear-gradient mengikuti persentase dari kiri
-                        if (progress < 100) {
-                            inlineStyle = `style="background: linear-gradient(to right, rgba(59, 130, 246, 0.45) ${progress}%, #1c1c1e ${progress}%); border-color: #3b82f6; color: #fff;"`;
-                        } else {
-                            // Kalau udah 100% full (Bisa dibedakan warnanya sedikit biar gak nabrak dengan yg sedang active)
-                            inlineStyle = `style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #3b82f6;"`;
-                        }
                     }
 
                     return `<div class="${c}" ${inlineStyle} onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square active">${currentEpNum}</div>`; 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
             } 
         }
         
