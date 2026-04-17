@@ -17,30 +17,49 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// ==== INJEKSI CSS PREMIUM VIA JS ====
+// ==== INJEKSI CSS PREMIUM VIA JS (TANPA BINTANG-BINTANG) ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style');
     style.id = 'premium-rank-styles';
     style.innerHTML = `
-        @keyframes twinkleOpacity { 0% { opacity: 0.2; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1.2); } }
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-emerald::after, .rank-icon-emerald::after { content: '✨'; position: absolute; top: -6px; right: -6px; font-size: 12px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; }
+        /* ================= EMERALD ================= */
+        .badge-lvl-emerald, .rank-icon-emerald { 
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; 
+            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
 
-        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        /* ================= DIAMOND ================= */
+        .badge-lvl-diamond, .rank-icon-diamond { 
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; 
+            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
 
-        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-master::before, .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -8px; left: -8px; font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
-        .badge-lvl-master::after, .rank-icon-master::after { content: '⭐'; position: absolute; top: -8px; right: -8px; font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
+        /* ================= MASTER ================= */
+        .badge-lvl-master, .rank-icon-master { 
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
+            background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
 
-        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        .badge-lvl-mythic::before, .rank-icon-mythic::before { content: '🌟'; position: absolute; bottom: -8px; left: -8px; font-size: 14px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
-        .badge-lvl-mythic::after, .rank-icon-mythic::after { content: '⭐'; position: absolute; top: -8px; right: -8px; font-size: 12px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
+        /* ================= MYTHIC ================= */
+        .badge-lvl-mythic, .rank-icon-mythic { 
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; 
+            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
 
+        /* ================= GLOWING PADA FOTO PROFIL (AVATAR) ================= */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -58,7 +77,12 @@ auth.onAuthStateChanged(user => {
     }
 });
 
+// ==== SISTEM LOGIN ANTI SPAM KLIK (Mencegah auth/cancelled-popup-request) ====
+let isLoggingIn = false;
 window.loginDenganGoogle = function() {
+    if (isLoggingIn) return; // Cegah dobel klik
+    isLoggingIn = true;
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
@@ -70,8 +94,13 @@ window.loginDenganGoogle = function() {
         });
         alert("Login Berhasil! Selamat datang, " + u.displayName);
         updateDevUI(); 
+        isLoggingIn = false;
     }).catch(err => {
-        alert("Gagal login: " + err.message);
+        // Jangan tampilkan alert jika user sendiri yang menutup tab atau kalau error tabrakan popup
+        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+            alert("Gagal login: " + err.message);
+        }
+        isLoggingIn = false;
     });
 };
 
@@ -542,7 +571,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BERANDA (SEMI-PARALEL: 3X LEBIH CEPAT TAPI AMAN DARI ERROR 429) ====
+// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -574,7 +603,7 @@ async function loadLatest() {
         
         loader(false); 
 
-        // Bikin kerangka container dulu biar rapi di layar, pakai desain spinner elegan
+        // Bikin kerangka container dulu biar rapi di layar
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
@@ -583,7 +612,7 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
-        // Fungsi pemecah antrean jadi 3 tugas sekaligus biar cepat tapi server gak meledak
+        // Pecah antrean per 3 kategori sekaligus biar cepat (semi-paralel)
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
         const batches = chunkArray(sectionContainers, 3);
 
@@ -591,8 +620,7 @@ async function loadLatest() {
             await Promise.all(batch.map(async ({ section, div }) => {
                 try {
                     let combinedData = [];
-                    // Ambil 3 keyword agar anime melimpah
-                    const fetchPromises = section.queries.slice(0, 3).map(async (q) => {
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
                         try {
                             const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
                             if (res && res.ok) {
@@ -615,7 +643,7 @@ async function loadLatest() {
             }));
         }
 
-        // Jika semua API beneran gagal/kosong dan layar mau nge-blank, tampilkan ini:
+        // Jika semua API beneran gagal
         if (!hasAnyData) {
             homeContainer.innerHTML = `
                 <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
