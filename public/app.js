@@ -27,15 +27,9 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* MATIKAN SEMUA ANIMASI BINTANG DAN GLOWING UNTUK EMERALD & MASTER */
-        .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
-        .rank-icon-emerald::after, .rank-icon-emerald::before { display: none !important; content: none !important; animation: none !important; }
-        
-        .rank-icon-master, .badge-lvl-master { animation: none !important; }
-        .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
-
-        /* DIAMOND & MYTHIC TETAP BERANIMASI (JIKA ADA) */
+        .badge-lvl-emerald, .rank-icon-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-master, .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
@@ -265,137 +259,7 @@ function updateDevUI() {
     }
 }
 
-// ==== FUNGSI UNTUK MEMBUKA PROFIL USER LAIN DARI KOMENTAR ====
-function injectUserProfileModal() {
-    if(document.getElementById('user-profile-modal-injected')) return;
-    const div = document.createElement('div');
-    div.id = 'user-profile-modal-injected';
-    div.innerHTML = `
-        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
-        <div id="userProfileModal" class="bottom-sheet" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
-            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
-                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-            </div>
-            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-
-window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') return;
-    injectUserProfileModal();
-    const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfileModal');
-    const content = document.getElementById('user-profile-content');
-    
-    overlay.style.display = 'block';
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.classList.add('show'); }, 10);
-    
-    content.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    
-    db.ref('users/' + uid).once('value').then(async snap => {
-        if(!snap.exists()) {
-            content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>';
-            return;
-        }
-        const data = snap.val();
-        const userName = data.nama || 'Wibu';
-        const userFoto = data.foto || 'https://placehold.co/100';
-        const role = data.role || 'Member';
-        const level = data.level || 1;
-        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        
-        let roleBadgeClass = 'badge-member'; let roleName = role;
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; }
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; }
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-
-        const rankInfo = getRankInfo(level);
-        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
-        
-        let userComments = [];
-        try {
-            const commentsSnap = await db.ref('comments').once('value');
-            commentsSnap.forEach(epSnap => {
-                epSnap.forEach(cSnap => {
-                    let c = cSnap.val();
-                    if(c.uid === uid) {
-                        userComments.push({ epID: epSnap.key, ...c });
-                    }
-                });
-            });
-        } catch(e) {}
-        
-        userComments.sort((a,b) => b.waktu - a.waktu);
-        let totalKomentar = userComments.length;
-        
-        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now());
-            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
-            let aImage = c.animeImage || 'https://placehold.co/100';
-            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            
-            return `
-                <div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();">
-                    <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
-                        <img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;">
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div>
-                            <div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div>
-                        </div>
-                    </div>
-                    <div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">
-                        ${c.teks}
-                    </div>
-                </div>
-            `;
-        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-
-        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
-
-        content.innerHTML = `
-            <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container">
-                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;">
-                </div>
-                <div class="profile-name" style="font-size:20px;">${userName}</div>
-                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
-                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
-                    <span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span>
-                    <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
-                </div>
-            </div>
-            <div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;">
-                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                <div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
-                <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-            </div>
-            
-            <div style="border-top: 1px solid #111; padding-top: 20px;">
-                <h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>
-                ${commentsHtml}
-            </div>
-        `;
-    });
-};
-
-window.closeUserProfileModal = function() {
-    const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfileModal');
-    if(modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-        }, 300);
-    }
-};
-
+// ==== FUNGSI BUKA LEVEL MODAL BESERTA PROGRESS BAR ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -407,7 +271,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
 
     let html = '';
-    RANK_TIERS.forEach(rank => {
+    RANK_TIERS.forEach((rank, idx) => {
         let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl);
         let isPassed = currentLvl > rank.maxLvl;
         
@@ -417,17 +281,45 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
+        // === TAMBAHAN PROGRESS BAR JIKA RANK SEDANG AKTIF ===
+        let progressHtml = '';
+        if (isCurrent && rank.maxLvl !== Infinity) {
+            let totalLvlInRank = rank.maxLvl - rank.minLvl + 1;
+            let earnedLvl = currentLvl - rank.minLvl;
+            let percent = Math.floor((earnedLvl / totalLvlInRank) * 100);
+            let nextRankName = RANK_TIERS[idx+1] ? RANK_TIERS[idx+1].name : 'Max';
+            let lvlLeft = rank.maxLvl - currentLvl + 1;
+            
+            let barColor = '#3b82f6';
+            if(rank.name === 'Stone') barColor = '#a8a29e';
+            if(rank.name === 'Bronze') barColor = '#d97706';
+            if(rank.name === 'Silver') barColor = '#e2e8f0';
+            if(rank.name === 'Gold') barColor = '#facc15';
+            if(rank.name === 'Emerald') barColor = '#10b981';
+            if(rank.name === 'Diamond') barColor = '#22d3ee';
+            if(rank.name === 'Master') barColor = '#ec4899';
+            
+            progressHtml = `
+                <div style="margin-top: 12px; padding-right: 15px;">
+                    <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="height: 100%; width: ${percent}%; background: ${barColor}; border-radius: 3px;"></div>
+                    </div>
+                    <div style="font-size: 11px; color: #a1a1aa; font-weight: 600;">${percent}% • ${lvlLeft} levels to ${nextRankName}</div>
+                </div>
+            `;
+        }
+
         html += `
             <div class="level-rank-item" style="${bgStyle}">
-                <div class="rank-info">
+                <div class="rank-info" style="flex:1;">
                     <div class="${iconClass}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
-                    <div>
+                    <div style="flex:1;">
                         <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
                         <div class="rank-req">${reqText}</div>
+                        ${progressHtml}
                     </div>
                 </div>
                 <div class="rank-status">${statusIcon}</div>
@@ -436,7 +328,6 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     });
 
     listContainer.innerHTML = html;
-
     modalOverlay.style.display = 'block';
     modal.style.display = 'flex';
     setTimeout(() => { modal.classList.add('show'); }, 10);
@@ -693,31 +584,17 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
-// ==== LOGIKA LIKE DAN DISLIKE ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
-    
     const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
 
     if (type === 'like') {
-        if (isActive) {
-            btn.style.backgroundColor = 'transparent';
-        } else {
-            btn.style.backgroundColor = '#3b82f6'; 
-            if(dislikeBtn) {
-                dislikeBtn.style.backgroundColor = 'transparent';
-            }
-        }
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.backgroundColor = 'transparent'; }
     } else {
-        if (isActive) {
-            btn.style.backgroundColor = 'transparent';
-        } else {
-            btn.style.backgroundColor = '#ef4444';
-            if(likeBtn) {
-                likeBtn.style.backgroundColor = 'transparent';
-            }
-        }
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) likeBtn.style.backgroundColor = 'transparent'; }
     }
 };
 
@@ -1170,6 +1047,333 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
+function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+
+function removeDuplicates(array, key) {
+    const seen = new Set();
+    return array.filter(item => {
+        if (!item || !item[key]) return false;
+        if (seen.has(item[key])) return false;
+        seen.add(item[key]);
+        return true;
+    });
+}
+
+function getEpBadge(anime) { 
+    if (!anime) return 'Anime'; 
+    let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
+    if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
+    let lowText = text.toLowerCase().trim();
+    if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
+    if (lowText.includes('movie')) return 'Movie';
+    if (lowText.includes('ongoin')) return 'Ongoing';
+    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
+    let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
+    if (epMatch) return `Episode ${epMatch[1]}`; 
+    let numMatch = text.match(/\d+/g);
+    if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`;
+    return text.length > 10 ? text.substring(0, 10) : text; 
+}
+
+function formatTimelineDate(timestamp) {
+    const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === today.toDateString()) return "Hari ini";
+    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function timeAgo(ms) {
+    const seconds = Math.floor((new Date() - ms) / 1000);
+    let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu";
+    interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu";
+    interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu";
+    interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu";
+    interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu";
+    return "Baru saja";
+}
+
+function addXP(amount) {
+    if(!currentUser) return; 
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val(); if(!d) return;
+        
+        let prevExp = d.exp || 0;
+        let prevLvl = Math.floor(prevExp / 200) + 1;
+        
+        let nExp = prevExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > prevLvl;
+        
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
+        
+        let currentLevelXp = nExp % 200;
+        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+
+        showXPModal(amount, nLvl, progressPercent, isLevelUp);
+    });
+}
+
+function showXPModal(addedAmount, level, progress, isLevelUp) {
+    const overlay = document.getElementById('xp-modal-overlay');
+    const card = document.getElementById('xp-modal-card');
+    const titleText = document.getElementById('xp-title-text');
+    const amountText = document.getElementById('xp-amount-text');
+    const levelText = document.getElementById('xp-level-text');
+    const progressText = document.getElementById('xp-progress-text');
+    const progressFill = document.getElementById('xp-progress-fill');
+
+    amountText.innerText = `+${addedAmount}`;
+    levelText.innerText = `Level ${level}`;
+    progressText.innerText = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
+    
+    if (isLevelUp) {
+        titleText.innerText = "LEVEL UP!";
+        titleText.style.color = "#3b82f6";
+    } else {
+        titleText.innerText = "EXP Gained";
+        titleText.style.color = "#fff";
+    }
+    
+    overlay.style.display = 'flex'; 
+    setTimeout(() => { 
+        overlay.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 10);
+    
+    setTimeout(() => { 
+        overlay.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
+    }, 2500);
+}
+
+function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
+async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
+async function getFavorites() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
+
+async function toggleFavorite(url, title, image, score, episode) {
+    try {
+        const database = await initDB(); const isFav = await checkFavorite(url);
+        const tx = database.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV);
+        const btn = document.getElementById('favBtn');
+        if (isFav) { 
+            store.delete(url); 
+            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; btn.style.color = '#fff'; }
+        } else { 
+            store.put({url, title, image, score, episode, timestamp: Date.now()}); 
+            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; btn.style.color = '#ef4444'; }
+        }
+    } catch(e) { console.error(e); }
+}
+async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
+
+// ==== LOGIKA LIKE DAN DISLIKE ====
+window.toggleLikeAction = function(btn, type) {
+    let likeBtn = document.getElementById('btn-like-action');
+    let dislikeBtn = document.getElementById('btn-dislike-action');
+    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
+
+    if (type === 'like') {
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.backgroundColor = 'transparent'; }
+    } else {
+        if (isActive) { btn.style.backgroundColor = 'transparent'; } 
+        else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) likeBtn.style.backgroundColor = 'transparent'; }
+    }
+};
+
+window.toggleSynopsis = function() {
+    const text = document.getElementById('detail-synopsis-text');
+    const btn = document.getElementById('read-more-btn');
+    if(text.classList.contains('expanded')) { text.classList.remove('expanded'); btn.innerHTML = 'Selengkapnya ▼'; } 
+    else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
+};
+
+const HOME_SECTIONS = [
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
+    { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] },
+    { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] },
+    { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
+    { title: "School Anime", queries: ["school", "classroom", "academy"] },
+    { title: "Movie Anime", queries: ["movie", "film"] }
+];
+
+let sliderInterval;
+const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
+const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
+
+function switchTab(tabName) {
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
+        let el = document.getElementById(v);
+        if(el) el.classList.add('hidden');
+    });
+    
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    let targetView = document.getElementById(tabName + '-view');
+    if(targetView) targetView.classList.remove('hidden');
+    
+    let targetNav = document.getElementById('tab-' + tabName);
+    if(targetNav) targetNav.classList.add('active');
+    
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
+    if (tabName === 'recent') loadRecentHistory();
+    if (tabName === 'favorite') loadFavorites();
+}
+
+function generateCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating;
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
+}
+
+function generateRecentCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
+}
+
+function generateFavCardHtml(anime) {
+    if (!anime) return '';
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || '?';
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
+}
+
+async function fetchTimeout(url, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
+}
+
+async function loadLatest() {
+    loader(true); 
+    const homeContainer = document.getElementById('home-view'); 
+    homeContainer.innerHTML = ''; 
+    let hasAnyData = false;
+    
+    try {
+        try {
+            let sliderData = []; 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
+            if (res && res.ok) {
+                sliderData = await res.json();
+                if (sliderData && sliderData.length > 0) { 
+                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
+                    hasAnyData = true;
+                } 
+            }
+        } catch (e) {}
+        
+        try {
+            const historyData = await getHistory();
+            if (historyData && historyData.length > 0) {
+                const histDiv = document.createElement('div');
+                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(histDiv);
+                hasAnyData = true;
+            }
+        } catch (e) {}
+        
+        loader(false); 
+
+        const sectionContainers = [];
+        for (const section of HOME_SECTIONS) {
+            const div = document.createElement('div');
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
+            homeContainer.appendChild(div);
+            sectionContainers.push({ section, div });
+        }
+
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
+
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                        try {
+                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) combinedData.push(...data);
+                            }
+                        } catch(e) {}
+                    });
+
+                    await Promise.all(fetchPromises);
+
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) {
+                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                        hasAnyData = true;
+                    } else {
+                        div.remove(); 
+                    }
+                } catch(e) { div.remove(); }
+            }));
+        }
+
+        if (!hasAnyData) {
+            homeContainer.innerHTML = `
+                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                </div>
+            `;
+        }
+
+    } catch (err) { 
+        console.error("Home loading failed total", err);
+        loader(false); 
+    } 
+}
+
+function renderHeroSlider(data, container) {
+    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
+    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
+    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
+    const slidesHtml = loopData.map((anime, index) => {
+        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
+    }).join('');
+    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
+    sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
+    const wrapper = document.getElementById('heroWrapper');
+    let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
+    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
+    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
+    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
+    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
+    startAutoSlide();
+}
+
+async function handleSearch(query) {
+    if (!query) { switchTab('home'); return; }
+    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
+    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
+}
+
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
@@ -1308,11 +1512,12 @@ async function loadVideo(url) {
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         
-        // RENDER KOTAK EPISODE HORIZONTAL DI HALAMAN NONTON
+        // RENDER KOTAK EPISODE HORIZONTAL SAJA (TANPA FITUR SORT/GRID DI SINI)
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
+                let displayEps = [...window.currentAnimeEpisodes].reverse();
+                watchEpListContainer.innerHTML = displayEps.map((ep, index) => { 
                     let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
                     let eNum = m ? m[1] : (index + 1); 
                     
@@ -1376,13 +1581,13 @@ window.postComment = function(epID) {
     }); 
 };
 
-// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL, JUGA OPEN LEVEL MODAL BILA LEVEL DIKLIK
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="if('${c.uid}' !== 'undefined') { event.stopPropagation(); openUserProfile('${c.uid}'); }" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="if('${c.uid}' !== 'undefined') { event.stopPropagation(); openUserProfile('${c.uid}'); }" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="event.stopPropagation(); openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" class="c-badge ${lvlClass}" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1413,6 +1618,20 @@ function injectUserProfileModal() {
     `;
     document.body.appendChild(div);
 }
+
+// LOGIKA TABS PROFIL USER LAIN
+window.switchUserProfileTab = function(tabName, element) {
+    document.querySelectorAll('.uptab').forEach(el => {
+        el.classList.remove('active');
+        el.style.color = '#a1a1aa';
+        el.style.borderBottom = 'none';
+    });
+    element.classList.add('active');
+    element.style.color = '#fff';
+    element.style.borderBottom = '2px solid #fff';
+    document.querySelectorAll('.uptab-content').forEach(el => el.style.display = 'none');
+    document.getElementById('uptab-' + tabName).style.display = 'block';
+};
 
 window.openUserProfile = function(uid) {
     if(!uid || uid === 'undefined') return;
@@ -1489,6 +1708,7 @@ window.openUserProfile = function(uid) {
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
 
         let totalMenit = level * 120 + Math.floor(Math.random() * 500);
+        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan diprivasi.</p>';
 
         content.innerHTML = `
             <div class="profile-header" style="margin-top:-10px;">
@@ -1498,7 +1718,7 @@ window.openUserProfile = function(uid) {
                 <div class="profile-name" style="font-size:20px;">${userName}</div>
                 <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
                     <span class="c-badge ${roleBadgeClass}">${roleName}</span>
-                    <span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, ${level*200}, ${Math.floor(totalMenit/60)})" style="cursor:pointer;">${rankInfo.icon} Lvl. ${level}</span>
                     <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                 </div>
             </div>
@@ -1508,10 +1728,15 @@ window.openUserProfile = function(uid) {
                 <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div>
             </div>
             
-            <div style="border-top: 1px solid #111; padding-top: 20px;">
-                <h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>
-                ${commentsHtml}
+            <div class="profile-tabs" style="display: flex; justify-content: space-around; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px; padding: 0 20px;">
+                <div class="uptab active" onclick="switchUserProfileTab('all', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #fff; border-bottom: 2px solid #fff; transition: 0.2s;">All</div>
+                <div class="uptab" onclick="switchUserProfileTab('comments', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #a1a1aa; transition: 0.2s;">Comments</div>
+                <div class="uptab" onclick="switchUserProfileTab('history', this)" style="padding: 10px 15px; font-size: 13px; font-weight: 800; cursor: pointer; color: #a1a1aa; transition: 0.2s;">History</div>
             </div>
+            
+            <div id="uptab-all" class="uptab-content">${commentsHtml}</div>
+            <div id="uptab-comments" class="uptab-content" style="display:none;">${commentsHtml}</div>
+            <div id="uptab-history" class="uptab-content" style="display:none;">${historyHtml}</div>
         `;
     });
 };
