@@ -77,10 +77,10 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// ==== SISTEM LOGIN ANTI SPAM KLIK (Mencegah auth/cancelled-popup-request) ====
+// ==== SISTEM LOGIN ANTI SPAM KLIK ====
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
-    if (isLoggingIn) return; // Cegah dobel klik
+    if (isLoggingIn) return; 
     isLoggingIn = true;
     
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -96,7 +96,6 @@ window.loginDenganGoogle = function() {
         updateDevUI(); 
         isLoggingIn = false;
     }).catch(err => {
-        // Jangan tampilkan alert jika user sendiri yang menutup tab atau kalau error tabrakan popup
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
             alert("Gagal login: " + err.message);
         }
@@ -173,7 +172,6 @@ function updateDevUI() {
 
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-                
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
@@ -481,15 +479,44 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
+// ==== UPDATE WARNA LIKES ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
     let dislikeBtn = document.getElementById('btn-dislike-action');
+    
+    // Mengecek apakah tombol sudah dalam keadaan aktif
+    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)';
+
     if (type === 'like') {
-        if (btn.style.color === 'rgb(59, 130, 246)' || btn.style.color === '#3b82f6') { btn.style.color = '#fff'; } 
-        else { btn.style.color = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.color = '#fff'; }
+        if (isActive) {
+            btn.style.backgroundColor = '#1c1c1e';
+            btn.style.borderColor = '#333';
+            btn.style.color = '#fff';
+        } else {
+            btn.style.backgroundColor = '#3b82f6'; 
+            btn.style.borderColor = '#3b82f6';
+            btn.style.color = '#fff';
+            if(dislikeBtn) {
+                dislikeBtn.style.backgroundColor = '#1c1c1e';
+                dislikeBtn.style.borderColor = '#333';
+                dislikeBtn.style.color = '#fff';
+            }
+        }
     } else {
-        if (btn.style.color === 'rgb(239, 68, 68)' || btn.style.color === '#ef4444') { btn.style.color = '#fff'; } 
-        else { btn.style.color = '#ef4444'; if(likeBtn) likeBtn.style.color = '#fff'; }
+        if (isActive) {
+            btn.style.backgroundColor = '#1c1c1e';
+            btn.style.borderColor = '#333';
+            btn.style.color = '#fff';
+        } else {
+            btn.style.backgroundColor = '#ef4444';
+            btn.style.borderColor = '#ef4444';
+            btn.style.color = '#fff';
+            if(likeBtn) {
+                likeBtn.style.backgroundColor = '#1c1c1e';
+                likeBtn.style.borderColor = '#333';
+                likeBtn.style.color = '#fff';
+            }
+        }
     }
 };
 
@@ -571,7 +598,6 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BATCH (SEMI PARALEL) BIAR NGEBUT TAPI AMAN ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -603,7 +629,6 @@ async function loadLatest() {
         
         loader(false); 
 
-        // Bikin kerangka container dulu biar rapi di layar
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) {
             const div = document.createElement('div');
@@ -612,7 +637,6 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
-        // Pecah antrean per 3 kategori sekaligus biar cepat (semi-paralel)
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
         const batches = chunkArray(sectionContainers, 3);
 
@@ -643,7 +667,6 @@ async function loadLatest() {
             }));
         }
 
-        // Jika semua API beneran gagal
         if (!hasAnyData) {
             homeContainer.innerHTML = `
                 <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
@@ -830,7 +853,24 @@ async function loadVideo(url) {
         `;
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
         const watchEpListContainer = document.getElementById('watch-episode-squares');
-        if (watchEpListContainer) { if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (index + 1); let c = (ep.url === url) ? "ep-square active" : (watchedEps.includes(ep.url) ? "ep-square watched" : "ep-square"); return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; }).join(''); } else { watchEpListContainer.innerHTML = `<div class="ep-square active">${currentEpNum}</div>`; } }
+        
+        // ==== LOGIKA EPS DIBALIK ====
+        if (watchEpListContainer) { 
+            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
+                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
+                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                    let eNum = m ? m[1] : (index + 1); 
+                    
+                    // Kalau sedang diputar (cuma garis luar), kalau udah ditonton (warna full active)
+                    let c = (ep.url === url) ? "ep-square watched" : (watchedEps.includes(ep.url) ? "ep-square active" : "ep-square"); 
+                    
+                    return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                }).join(''); 
+            } else { 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
+            } 
+        }
+        
         window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
     } catch (err) { console.error(err); } finally { loader(false); }
 }
