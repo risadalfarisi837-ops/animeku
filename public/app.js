@@ -17,7 +17,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// ==== INJEKSI CSS PREMIUM VIA JS (BIAR GAK REPOT EDIT HTML) ====
+// ==== INJEKSI CSS PREMIUM VIA JS ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) return;
     const style = document.createElement('style');
@@ -29,32 +29,74 @@ function injectPremiumStyles() {
             100% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* 1. EFEK BADGE PROFIL BAWAH NAMA */
+        /* 1. EFEK BADGE PROFIL (DI BAWAH NAMA) - SEKARANG SEMUA BERGRADIENT KAYA MYTHIC */
         .c-badge { position: relative; overflow: visible !important; } 
-        .badge-lvl-emerald { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4) !important; border: 1px solid rgba(16,185,129,0.5) !important; }
-        .badge-lvl-diamond { box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important; border: 1px solid rgba(6,182,212,0.5) !important; }
-        .badge-lvl-master { box-shadow: 0 0 12px rgba(250, 204, 21, 0.5) !important; border: 1px solid rgba(250,204,21,0.5) !important; }
+        
+        .badge-lvl-emerald { 
+            box-shadow: 0 0 8px rgba(147, 51, 234, 0.5) !important; 
+            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+        .badge-lvl-diamond { 
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important; 
+            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+        .badge-lvl-master { 
+            box-shadow: 0 0 12px rgba(250, 204, 21, 0.5) !important; 
+            background: linear-gradient(90deg, #e11d48, #facc15, #e11d48) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
         .badge-lvl-mythic { 
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important; 
             background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
             background-size: 200% 100% !important; color: #fff !important; border: none !important; 
             animation: shimmerPremium 3s infinite linear !important; 
         }
+
+        /* Bintang Badge Profil */
         .badge-lvl-emerald::after { content: '✨'; position: absolute; top: -6px; right: -6px; font-size: 10px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 2; }
         .badge-lvl-master::after, .badge-lvl-mythic::after { content: '⭐'; position: absolute; top: -6px; right: -6px; font-size: 10px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 2; }
         .badge-lvl-master::before, .badge-lvl-mythic::before { content: '🌟'; position: absolute; bottom: -4px; left: -6px; font-size: 11px; animation: twinkleOpacity 1.2s infinite alternate 0.3s; z-index: 2; }
 
-        /* 2. EFEK IKON RANK KOTAK (DI DALAM MODAL) */
+        /* 2. EFEK IKON RANK KOTAK (DI DALAM MODAL) - FULL GRADIENT! */
         .rank-icon { position: relative; overflow: visible !important; } 
-        .rank-icon-emerald { box-shadow: 0 0 12px rgba(147, 51, 234, 0.6) !important; border: 1px solid rgba(168, 85, 247, 0.5) !important; background: rgba(147, 51, 234, 0.15) !important; }
+        
+        .rank-icon-emerald { 
+            box-shadow: 0 0 12px rgba(147, 51, 234, 0.6) !important; 
+            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
         .rank-icon-emerald::after { content: '✨'; position: absolute; top: -8px; right: -8px; font-size: 14px; animation: twinkleOpacity 1.2s infinite alternate; z-index: 5; text-shadow: none; }
-        .rank-icon-diamond { box-shadow: 0 0 14px rgba(59, 130, 246, 0.7), inset 0 0 4px rgba(255,255,255,0.3) !important; border: 1px solid rgba(59, 130, 246, 0.6) !important; background: rgba(59, 130, 246, 0.15) !important; }
-        .rank-icon-master { box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; border: 1px solid rgba(250, 204, 21, 0.5) !important; }
+        
+        .rank-icon-diamond { 
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.7) !important; 
+            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
+        
+        .rank-icon-master { 
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
+            background: linear-gradient(90deg, #e11d48, #facc15, #e11d48) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
         .rank-icon-master::before { content: '🌟'; position: absolute; bottom: -10px; left: -10px; font-size: 15px; animation: twinkleOpacity 1.5s infinite alternate; z-index: 5; }
         .rank-icon-master::after { content: '⭐'; position: absolute; top: -10px; right: -8px; font-size: 13px; animation: twinkleOpacity 1.8s infinite alternate 0.3s; z-index: 5; }
-        .rank-icon-mythic { box-shadow: 0 0 18px rgba(239, 68, 68, 0.8) !important; }
+        
+        .rank-icon-mythic { 
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.8) !important; 
+            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
+            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
+            animation: shimmerPremium 3s infinite linear !important; 
+        }
 
-        /* 3. EFEK GLOWING PADA FOTO PROFIL (AVATAR) */
+        /* 3. GLOWING PADA FOTO PROFIL (AVATAR) */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -159,7 +201,7 @@ function updateDevUI() {
                 const rankInfo = getRankInfo(level);
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
                 
-                // Tambahkan class CSS ke avatar sesuai Rank (ini buat foto profil bercahaya)
+                // Tambahkan class CSS ke avatar sesuai Rank
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
@@ -557,7 +599,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-// ==== FUNGSI LOADING BERANDA YANG TIDAK NGE-BLANK ====
+// ==== FUNGSI LOADING BERANDA DENGAN PENAMBAHAN KEYWORD AGAR ANIME LEBIH BANYAK ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -565,19 +607,18 @@ async function loadLatest() {
     let hasData = false;
     
     try {
-        // 1. SLIDER
         try {
-            const res = await fetchTimeout(`${API_BASE}/latest`, 10000); 
+            let sliderData = []; 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
             if (res && res.ok) {
-                const data = await res.json();
-                if (data && data.length > 0) { 
-                    renderHeroSlider(data.slice(0, 20), homeContainer); 
+                sliderData = await res.json();
+                if (sliderData && sliderData.length > 0) { 
+                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
                     hasData = true;
                 } 
             }
         } catch (e) {}
         
-        // 2. HISTORY
         try {
             const historyData = await getHistory();
             if (historyData && historyData.length > 0) {
@@ -587,47 +628,56 @@ async function loadLatest() {
             }
         } catch (e) {}
         
-        // Matikan loader utama biar user bisa melihat layar, nggak freeze
         loader(false); 
 
-        // 3. KATEGORI (Dimuat BERURUTAN biar Vercel tidak keblokir/DDoS)
-        for (const section of HOME_SECTIONS) {
-            // Tampilkan placeholder loading per baris
+        const sectionContainers = HOME_SECTIONS.map(section => {
             const div = document.createElement('div');
             div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; align-items:center; justify-content:center; color:#555; font-size:12px; border:1px dashed #222;">Sedang memuat data...</div></div>`;
             homeContainer.appendChild(div);
-            
-            let combinedData = [];
-            for (const q of section.queries.slice(0, 2)) {
-                try {
-                    const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (Array.isArray(data)) combinedData.push(...data);
-                    }
-                } catch(e) {}
-            }
+            return { section, div };
+        });
 
-            combinedData = removeDuplicates(combinedData, 'url');
-            if (combinedData.length > 0) {
-                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                hasData = true;
-            } else {
-                div.remove(); // Hapus baris kalau API kosong
-            }
-        }
+        sectionContainers.forEach(async ({ section, div }) => {
+            try {
+                let combinedData = [];
+                // UPDATE: Menambah slice(0, 4) agar bagian SCI-FI (dll) yang keywornya banyak ikut tereksekusi
+                const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                    try {
+                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 15000);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (Array.isArray(data)) return data;
+                        }
+                    } catch(e) {}
+                    return [];
+                });
 
-        // Kalau benar-benar semua API gagal dipanggil
-        if (!hasData) {
-            homeContainer.innerHTML += `
-                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Terhubung ke Server</h2>
-                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server Vercel sedang sibuk atau mengalami Cold Start. Pastikan internetmu stabil.</p>
-                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                </div>
-            `;
-        }
+                const results = await Promise.all(fetchPromises);
+                results.forEach(data => combinedData.push(...data));
+
+                combinedData = removeDuplicates(combinedData, 'url');
+                if (combinedData.length > 0) {
+                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                    hasData = true;
+                } else {
+                    div.remove(); 
+                }
+            } catch(e) { div.remove(); }
+        });
+
+        // SAFETY NET JIKA VERCEL MASIH MATI SETELAH 16 DETIK
+        setTimeout(() => {
+            if (!hasData && homeContainer.innerHTML.indexOf('Sedang memuat data') !== -1) {
+                homeContainer.innerHTML = `
+                    <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Terhubung ke Server</h2>
+                        <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server Vercel sedang sibuk atau mengalami Cold Start. Pastikan internetmu stabil.</p>
+                        <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }, 16000); 
 
     } catch (err) { 
         console.error("Fatal Error", err);
