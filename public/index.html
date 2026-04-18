@@ -32,7 +32,7 @@
         .top-search-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; padding: 8px 15px; border-radius: 20px; }
         .top-search-bar input { background: transparent !important; border: none !important; color: #fff !important; width: 100%; margin-left: 8px; outline: none !important; font-size: 14px; font-family: 'Outfit', sans-serif; }
 
-        /* LOADER DITAMBAH TEKS MEMUAT */
+        /* LOADER DENGAN TEKS MEMUAT */
         #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(5px); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease; }
         #loading .spinner { width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
         .loading-text { color: #fff; font-weight: 700; font-size: 14px; margin-top: 15px; letter-spacing: 1px; animation: pulseText 1.5s infinite; }
@@ -289,7 +289,7 @@
         <div class="app-logo">
             <span class="blue">Anime</span><span class="white">ku</span>
         </div>
-        <div class="top-search-bar" id="searchBarWrapper" style="margin-right: 8px;">
+        <div class="top-search-bar" id="searchBarWrapper">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="searchInput" placeholder="Cari Anime..." onkeypress="if(event.key === 'Enter') handleSearch(this.value)">
         </div>
@@ -375,6 +375,6 @@
         </button>
     </nav>
     
-    <script src="app.js?v=104"></script>
+    <script src="app.js?v=105"></script>
 </body>
 </html>
