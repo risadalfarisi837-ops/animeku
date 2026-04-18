@@ -1588,39 +1588,63 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (ANTI BABLAS)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL FIX)
 // ==========================================
 window.allowExitApp = false;
-window.trapHasBeenSet = false;
+window.historyTrapSet = false;
 
+// Trik cerdas: Pasang jebakan '#trap' secara diam-diam saat layar pertama kali disentuh
+function setupHistoryTrap() {
+    if (!window.historyTrapSet) {
+        history.replaceState(null, '', '#trap');
+        history.pushState(null, '', '#home');
+        window.historyTrapSet = true;
+    }
+}
+
+// Deteksi sentuhan pertama (Syarat wajib agar Chrome tidak langsung nutup aplikasi)
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true });
+window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+
+// Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
-    const hash = window.location.hash;
+
+    let hash = window.location.hash;
     
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && hash !== '#watch') { p.src = ''; }
+    if (p && hash !== '#watch') { 
+        p.src = ''; 
+    }
 
-    // JEBAKAN KELUAR: Jika user swipe layar sampai mentok
+    // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        history.pushState({ page: 'home' }, '', '#home');
+        // Dorong kembali ke #home agar aplikasi tetap hidup
+        history.pushState(null, '', '#home');
         return;
     }
 
-    const page = (e.state && e.state.page) ? e.state.page : (hash.replace('#', '') || 'home'); 
-    if (page !== 'trap') switchTab(page); 
+    // Eksekusi navigasi secara normal berdasarkan URL hash
+    let page = hash.replace('#', '') || 'home'; 
+    switchTab(page); 
 });
 
-// KUNCI PERBAIKAN: Tombol panah tidak lagi pakai history.back()
+// ==== PERBAIKAN TOMBOL PANAH UI ====
 window.goHome = function() { 
-    history.pushState({ page: 'home' }, '', '#home');
-    switchTab('home');
+    // Menggunakan history.back() agar stack browser tidak berantakan
+    if (window.location.hash !== '#home') {
+        history.back(); 
+    }
 };
 
 window.backToDetail = function() { 
-    history.pushState({ page: 'detail' }, '', '#detail');
-    switchTab('detail');
+    if (window.location.hash === '#watch') {
+        history.back(); 
+    } else {
+        switchTab('detail');
+    }
 };
 
 window.injectExitModal = function() {
@@ -1668,22 +1692,15 @@ window.confirmExit = function() {
     setTimeout(() => { window.close(); }, 300);
 };
 
-function triggerHistoryTrap() {
-    if (!window.trapHasBeenSet) {
-        history.replaceState({ page: 'trap' }, '', '#trap');
-        history.pushState({ page: 'home' }, '', '#home');
-        window.trapHasBeenSet = true;
-    }
-}
-
-window.addEventListener('touchend', triggerHistoryTrap, { passive: true });
-window.addEventListener('click', triggerHistoryTrap, { passive: true });
-
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectExitModal();
-    if(window.location.hash === '') history.replaceState({ page: 'home' }, '', '#home');
+    injectExitModal(); 
+    
+    // Default URL awal
+    if(window.location.hash === '') {
+        history.replaceState(null, '', '#home');
+    }
     switchTab('home'); 
 }
 
