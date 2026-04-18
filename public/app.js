@@ -1171,7 +1171,13 @@ window.renderDetailEpisodeUI = function() {
 };
 
 async function loadDetail(url) {
-    history.pushState({page: 'detail'}, '', '#detail'); loader(true);
+    if(history.state && history.state.page === 'detail') {
+        history.replaceState({page: 'detail'}, '', '#detail');
+    } else {
+        history.pushState({page: 'detail'}, '', '#detail');
+    }
+    loader(true);
+
     try {
         const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
         
@@ -1226,7 +1232,13 @@ async function loadDetail(url) {
 window.currentCommentSort = 'top';
 
 async function loadVideo(url) {
-    history.pushState({page: 'watch'}, '', '#watch'); loader(true);
+    if (history.state && history.state.page === 'watch') {
+        history.replaceState({page: 'watch'}, '', '#watch');
+    } else {
+        history.pushState({page: 'watch'}, '', '#watch');
+    }
+    loader(true);
+    
     try {
         const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json();
         switchTab('watch'); addXP(20); 
@@ -1575,15 +1587,86 @@ window.closeUserProfileModal = function() {
     }
 };
 
-window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
+// ==== FITUR KONFIRMASI KELUAR & NAVIGASI ====
+function injectExitModal() {
+    if(document.getElementById('exitModalOverlay')) return;
+    const div = document.createElement('div');
+    div.innerHTML = `
+        <div id="exitModalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999999; backdrop-filter:blur(3px); justify-content:center; align-items:center;">
+            <div id="exitModalBox" style="background:#1c1c1e; width:300px; padding:25px; border-radius:24px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; transform: scale(0.9); transition: transform 0.2s, opacity 0.2s; opacity: 0;">
+                <div style="width:60px; height:60px; background:rgba(239, 68, 68, 0.1); border-radius:50%; display:flex; justify-content:center; align-items:center; margin:0 auto 15px auto;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </div>
+                <h3 style="color:#fff; margin:0 0 8px 0; font-size:18px; font-weight:900;">Keluar dari Animeku?</h3>
+                <p style="color:#a1a1aa; font-size:13px; margin:0 0 20px 0; line-height:1.5;">Yakin nih mau keluar? Jangan lupa balik lagi buat lanjutin tontonan kamu ya!</p>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Nggak Jadi</button>
+                    <button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);">Ya, Keluar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.showExitModal = function() {
+    injectExitModal();
+    const overlay = document.getElementById('exitModalOverlay');
+    const box = document.getElementById('exitModalBox');
+    overlay.style.display = 'flex';
+    setTimeout(() => { box.style.opacity = '1'; box.style.transform = 'scale(1)'; }, 10);
+};
+
+window.cancelExit = function() {
+    const overlay = document.getElementById('exitModalOverlay');
+    const box = document.getElementById('exitModalBox');
+    box.style.opacity = '0'; box.style.transform = 'scale(0.9)';
+    setTimeout(() => { overlay.style.display = 'none'; }, 200);
+    
+    // Dorong state kembali supaya tombol back bisa ditahan lagi
+    history.pushState({page: 'home'}, '', window.location.pathname);
+};
+
+window.confirmExit = function() {
+    // Biarkan aplikasi tertutup/keluar dari browser
+    history.back(); 
+};
+
+window.addEventListener('popstate', (e) => { 
+    const page = e.state ? e.state.page : null; 
+    
+    // Matikan video jika navigasi mundur/back
+    let p = document.getElementById('video-player'); 
+    if(p && page !== 'watch') p.src = ''; 
+
+    // Jika user berada di layer "trap" (mencoba keluar dari Home)
+    if (!page || page === 'trap') {
+        showExitModal();
+        return;
+    }
+
+    switchTab(page); 
+});
+
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    injectExitModal();
+    
+    // Sistem Penahan Layar (Trap)
+    // 1. Layer dasar (Kalau ini ke-back, modal keluar muncul)
+    history.replaceState({page: 'trap'}, '', window.location.pathname); 
+    // 2. Layer tempat user berpijak sekarang
+    history.pushState({page: 'home'}, '', window.location.pathname); 
+    
     switchTab('home'); 
 }
 
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+if (document.readyState === 'loading') { 
+    document.addEventListener('DOMContentLoaded', initApp); 
+} else { 
+    initApp(); 
+}
