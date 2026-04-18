@@ -1588,25 +1588,10 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (FINAL FIX)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL & AMAN)
 // ==========================================
 window.allowExitApp = false;
-window.historyTrapSet = false;
 
-// Trik cerdas: Pasang jebakan '#trap' secara diam-diam saat layar pertama kali disentuh
-function setupHistoryTrap() {
-    if (!window.historyTrapSet) {
-        history.replaceState(null, '', '#trap');
-        history.pushState(null, '', '#home');
-        window.historyTrapSet = true;
-    }
-}
-
-// Deteksi sentuhan pertama (Syarat wajib agar Chrome tidak langsung nutup aplikasi)
-window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true });
-window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
-
-// Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
@@ -1618,35 +1603,31 @@ window.addEventListener('popstate', (e) => {
         p.src = ''; 
     }
 
-    // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
+    // JEBAKAN KELUAR: Jika user swipe back sampai ke ujung (#trap atau URL kosong)
     if (hash === '#trap' || hash === '') {
         openExitModal();
         // Dorong kembali ke #home agar aplikasi tetap hidup
-        history.pushState(null, '', '#home');
+        history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    // Eksekusi navigasi secara normal berdasarkan URL hash
+    // Navigasi normal via swipe back
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-// ==== PERBAIKAN TOMBOL PANAH UI ====
+// ==== TOMBOL PANAH UI (WAJIB PUSHSTATE, HARAM PAKAI HISTORY.BACK) ====
 window.goHome = function() { 
-    // Menggunakan history.back() agar stack browser tidak berantakan
-    if (window.location.hash !== '#home') {
-        history.back(); 
-    }
+    history.pushState({ page: 'home' }, '', '#home');
+    switchTab('home');
 };
 
 window.backToDetail = function() { 
-    if (window.location.hash === '#watch') {
-        history.back(); 
-    } else {
-        switchTab('detail');
-    }
+    history.pushState({ page: 'detail' }, '', '#detail');
+    switchTab('detail');
 };
 
+// ==== MODAL KELUAR ====
 window.injectExitModal = function() {
     if(document.getElementById('exit-modal-injected')) return;
     const div = document.createElement('div');
@@ -1669,6 +1650,7 @@ window.injectExitModal = function() {
 };
 
 window.openExitModal = function() {
+    if (!document.getElementById('exitModalOverlay')) window.injectExitModal();
     document.getElementById('exitModalOverlay').style.display = 'block';
     document.getElementById('exitModal').style.display = 'block';
     setTimeout(() => {
@@ -1687,20 +1669,21 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.allowExitApp = true; 
+    window.allowExitApp = true; // Matikan jebakan agar bisa keluar
     window.history.go(-2); 
     setTimeout(() => { window.close(); }, 300);
 };
 
+// ==== INIT APP ====
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
     
-    // Default URL awal
-    if(window.location.hash === '') {
-        history.replaceState(null, '', '#home');
-    }
+    // Pasang jebakan history secara langsung sejak awal dimuat!
+    history.replaceState({ page: 'trap' }, '', '#trap');
+    history.pushState({ page: 'home' }, '', '#home');
+    
     switchTab('home'); 
 }
 
