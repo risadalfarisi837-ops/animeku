@@ -17,6 +17,47 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
+// ==== CUSTOM TOAST NOTIFICATION ====
+window.showToast = function(message, type = 'success') {
+    let container = document.getElementById('custom-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'custom-toast-container';
+        container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width: 90%; max-width: 350px;';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+    const iconSvg = type === 'success' 
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' 
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+    toast.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left: 4px solid ${bgColor}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);`;
+    
+    toast.innerHTML = `
+        <div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;">
+            ${iconSvg}
+        </div>
+        <div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    }, 10);
+
+    setTimeout(() => {
+        if(toast.parentNode) {
+            toast.style.transform = 'translateY(-30px)';
+            toast.style.opacity = '0';
+            setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300);
+        }
+    }, 3000);
+};
+
 // ==== INJEKSI CSS PREMIUM VIA JS ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
@@ -69,19 +110,22 @@ window.loginDenganGoogle = function() {
                 db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0 });
             }
         });
-        alert("Login Berhasil! Selamat datang, " + u.displayName);
+        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success');
         updateDevUI(); 
         isLoggingIn = false;
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-            alert("Gagal login: " + err.message);
+            window.showToast("Gagal login: " + err.message, 'error');
         }
         isLoggingIn = false;
     });
 };
 
 window.logoutAkun = function() {
-    auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
+    auth.signOut().then(() => { 
+        window.showToast("Berhasil keluar dari akun.", 'success'); 
+        setTimeout(() => { location.reload(); }, 1500); 
+    });
 };
 
 const RANK_TIERS = [
@@ -200,7 +244,7 @@ function updateDevUI() {
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
                             let aImage = c.animeImage || 'https://placehold.co/100';
                             let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `alert('Komentar ini ada di Episode ID: ${c.epID}')`;
+                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
 
                             return `
                                 <div style="margin-bottom: 25px; padding: 0 5px;">
@@ -987,7 +1031,6 @@ window.openServerModal = function() { show('serverModalOverlay'); show('serverMo
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
 window.changeServer = function(url, serverName, btnElement) { 
-    // Hapus iframe lama dan buat baru untuk mencegah penumpukan history
     const oldIframe = document.getElementById('video-player');
     if (oldIframe) {
         const newIframe = document.createElement('iframe');
@@ -1010,11 +1053,17 @@ window.handleDownload = function() {
     if(iframe && iframe.src) {
         window.open(iframe.src, '_blank');
     } else {
-        alert('Video tidak ditemukan atau server belum dimuat.'); 
+        window.showToast('Video tidak ditemukan atau server belum dimuat.', 'error');
     }
 };
 
-window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { alert('Tautan disalin: ' + window.location.href); } };
+window.handleShare = function() { 
+    if (navigator.share) { 
+        navigator.share({ title: document.title, url: window.location.href }); 
+    } else { 
+        window.showToast('Tautan disalin ke clipboard!', 'success');
+    } 
+};
 
 async function loadRecentHistory() {
     const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
@@ -1206,7 +1255,7 @@ async function loadDetail(url) {
                     <div style="background:#3b82f6; color:#fff; display:inline-block; margin-bottom:8px; padding:6px 12px; border-radius:6px; font-weight:bold; font-size:12px;">Episode ${newestEpNum}</div>
                     <h1 style="font-size:24px; line-height:1.2; font-weight:800; margin:0 0 8px 0; color:#fff;">${data.title}</h1>
                     <div style="font-size: 13px; color: #d1d5db; margin-bottom: 20px; display:flex; align-items:center; gap:8px; font-weight:500;"><span style="color:#fbbf24;">⭐ ${score}</span> • <span>${type}</span> • <span>${seasonInfo}</span></div>
-                    <div style="display:flex; gap:10px; width:100%;"><button style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="${newestEpUrl ? `loadVideo('${newestEpUrl}')` : `alert('Belum ada episode')`}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Tonton</button><button id="favBtn" onclick="toggleFavorite('${url}', '${data.title.replace(/'/g, "\\'")}', '${data.image}', '${score}', 'Eps ${newestEpNum}')" style="flex:1; background:#1c1c1e; color:${isFav ? '#ef4444' : '#fff'}; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:0.2s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> ${isFav ? 'Disubscribe' : 'Subscribe'}</button></div>
+                    <div style="display:flex; gap:10px; width:100%;"><button style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="${newestEpUrl ? `loadVideo('${newestEpUrl}')` : `window.showToast('Belum ada episode', 'error')`}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Tonton</button><button id="favBtn" onclick="toggleFavorite('${url}', '${data.title.replace(/'/g, "\\'")}', '${data.image}', '${score}', 'Eps ${newestEpNum}')" style="flex:1; background:#1c1c1e; color:${isFav ? '#ef4444' : '#fff'}; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:0.2s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> ${isFav ? 'Disubscribe' : 'Subscribe'}</button></div>
                 </div>
                 <div class="nav-back"><button onclick="goHome()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button></div>
             </div>
@@ -1593,7 +1642,6 @@ window.allowExit = false;
 window.allowExitApp = false;
 window.historyTrapSet = false;
 
-// Trik cerdas: Pasang jebakan '#trap' secara diam-diam saat layar pertama kali disentuh
 function setupHistoryTrap() {
     if (!window.historyTrapSet) {
         history.replaceState(null, '', '#trap');
@@ -1602,38 +1650,30 @@ function setupHistoryTrap() {
     }
 }
 
-// Deteksi sentuhan pertama (Syarat wajib agar Chrome tidak langsung nutup aplikasi)
 window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true });
 window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
 
-// Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
     let hash = window.location.hash;
     
-    // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
     if (p && hash !== '#watch') { 
         p.src = ''; 
     }
 
-    // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Dorong kembali ke #home agar aplikasi tetap hidup
         history.pushState(null, '', '#home');
         return;
     }
 
-    // Eksekusi navigasi secara normal berdasarkan URL hash
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-// ==== PERBAIKAN TOMBOL PANAH UI ====
 window.goHome = function() { 
-    // Menggunakan history.back() agar stack browser tidak berantakan
     if (window.location.hash !== '#home') {
         history.back(); 
     }
@@ -1695,7 +1735,6 @@ window.confirmExit = function() {
 
 // ==== FITUR NOTIFIKASI UPDATE ANIME ====
 function showUpdateNotification(updates) {
-    // Bikin container untuk notifikasi kalau belum ada
     if (!document.getElementById('in-app-notif-container')) {
         const container = document.createElement('div');
         container.id = 'in-app-notif-container';
@@ -1705,11 +1744,9 @@ function showUpdateNotification(updates) {
 
     const container = document.getElementById('in-app-notif-container');
 
-    // Munculkan notif satu-satu dengan delay biar rapi kalau ada banyak
     updates.forEach((update, idx) => {
         setTimeout(() => {
             const notif = document.createElement('div');
-            // pointer-events: auto supaya bisa diklik, sisanya styling ala UI kamu
             notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
             notif.innerHTML = `
                 <img src="${update.image}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;">
@@ -1723,7 +1760,6 @@ function showUpdateNotification(updates) {
                 </div>
             `;
 
-            // Kalau diklik, buka halaman detail animenya
             notif.onclick = () => {
                 notif.style.opacity = '0';
                 notif.style.transform = 'translateY(-20px) scale(0.95)';
@@ -1733,13 +1769,11 @@ function showUpdateNotification(updates) {
 
             container.appendChild(notif);
 
-            // Animasi masuk
             setTimeout(() => {
                 notif.style.transform = 'translateY(0) scale(1)';
                 notif.style.opacity = '1';
             }, 10);
 
-            // Hilang otomatis setelah 6 detik
             setTimeout(() => {
                 if(notif.parentNode) {
                     notif.style.opacity = '0';
@@ -1748,17 +1782,15 @@ function showUpdateNotification(updates) {
                 }
             }, 6000);
 
-        }, idx * 1200); // Jeda 1.2 detik per notifikasi
+        }, idx * 1200); 
     });
 }
 
 async function checkAnimeUpdates() {
     try {
         const favorites = await getFavorites();
-        // Kalau ga punya favorit, lewati
         if (!favorites || favorites.length === 0) return;
 
-        // Tarik data terbaru dari API
         const res = await fetchTimeout(`${API_BASE}/latest`, 10000);
         if (!res || !res.ok) return;
         const latestData = await res.json();
@@ -1767,10 +1799,8 @@ async function checkAnimeUpdates() {
         const database = await initDB();
 
         for (const latest of latestData) {
-            // Cek apakah anime yang rilis terbaru ada di list favorit user
             const fav = favorites.find(f => f.url === latest.url);
             if (fav) {
-                // Fungsi kecil untuk ekstrak murni angka dari string "Eps 12", "Episode 13", dll
                 const extractEpNum = (str) => {
                     if (!str) return 0;
                     let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
@@ -1780,10 +1810,9 @@ async function checkAnimeUpdates() {
                 };
 
                 let favEpNum = extractEpNum(fav.episode);
-                let latestEpStr = getEpBadge(latest); // Menggunakan fungsi getEpBadge bawaan kamu
+                let latestEpStr = getEpBadge(latest); 
                 let latestEpNum = extractEpNum(latestEpStr);
 
-                // Perbandingan: Jika episode API > episode di lokal Favorit
                 if (latestEpNum > favEpNum) {
                     updatedAnimes.push({
                         title: fav.title,
@@ -1792,14 +1821,12 @@ async function checkAnimeUpdates() {
                         image: fav.image
                     });
 
-                    // Langsung update database lokal supaya notifnya tidak looping berulang kali
                     fav.episode = `Eps ${latestEpNum}`;
                     database.transaction(STORE_FAV, 'readwrite').objectStore(STORE_FAV).put(fav);
                 }
             }
         }
 
-        // Tampilkan popup jika ada update!
         if (updatedAnimes.length > 0) {
             showUpdateNotification(updatedAnimes);
         }
@@ -1814,13 +1841,11 @@ function initApp() {
     injectReportModal(); 
     injectExitModal(); 
     
-    // Default URL awal
     if(window.location.hash === '') {
         history.replaceState(null, '', '#home');
     }
     switchTab('home'); 
     
-    // TAHAN 3 DETIK BIAR HALAMAN HOME MUNCUL DULU, BARU CEK UPDATE DI BACKGROUND
     setTimeout(() => {
         checkAnimeUpdates();
     }, 3000);
