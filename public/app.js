@@ -1591,20 +1591,17 @@ window.addEventListener('popstate', (e) => {
         p.src = ''; 
     }
 
-    // 2. JEBAKAN KELUAR (Menggunakan Hash)
-    // Jika URL mundur ke '#trap' atau kosong, munculkan modal
+    // 2. JEBAKAN KELUAR
     if (window.location.hash === '#trap' || window.location.hash === '') {
         openExitModal();
-        // Tolak aksi keluar, dorong kembali ke '#home'
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    // 3. Navigasi normal (Kembali ke halaman sebelumnya)
+    // 3. Navigasi Normal
     const state = e.state;
     const page = state ? state.page : (window.location.hash.replace('#', '') || 'home'); 
     
-    // Jangan lakukan switchTab jika halamannya adalah trap
     if (page !== 'exit-trap' && page !== 'trap') {
         switchTab(page); 
     }
@@ -1666,22 +1663,31 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    // Mundur 2 langkah di history (melewati #home dan #trap) untuk benar-benar menutup app
     window.history.go(-2); 
     setTimeout(() => { window.close(); }, 300);
 };
+
+// ==== TRIK BARU: PASANG JEBAKAN SAAT LAYAR DISENTUH ====
+let isTrapActive = false;
+function setupExitTrap() {
+    if (isTrapActive) return;
+    // Penuhi syarat browser: History hanya bisa dimodif setelah ada user interaction (klik/touch)
+    if (window.location.hash === '' || window.location.hash === '#home') {
+        history.replaceState({ page: 'exit-trap' }, '', '#trap');
+        history.pushState({ page: 'home' }, '', '#home');
+    }
+    isTrapActive = true;
+}
+
+// Pasang listener: Pas user nyentuh layar, langsung aktifin jebakan secara diam-diam!
+document.addEventListener('touchstart', setupExitTrap, { once: true, passive: true });
+document.addEventListener('click', setupExitTrap, { once: true, passive: true });
+document.addEventListener('scroll', setupExitTrap, { once: true, passive: true });
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
-    
-    // Setup History Navigasi & Exit Trap Menggunakan HASH
-    // Ini jauh lebih kuat menahan aksi 'swipe back' di WebView Google
-    if (window.location.hash !== '#home' && window.location.hash !== '#detail' && window.location.hash !== '#watch') {
-        history.replaceState({ page: 'exit-trap' }, '', '#trap');
-        history.pushState({ page: 'home' }, '', '#home');
-    }
     
     switchTab('home'); 
 }
