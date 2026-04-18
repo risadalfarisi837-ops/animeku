@@ -1391,6 +1391,11 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     
     const rankInfo = getRankInfo(level); 
     let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+
+    // Kalkulasi EXP dan Jam Nonton berdasarkan Level supaya menyesuaikan profil orangnya
+    // Karena logic level di web kamu 1 Lvl = 200 exp
+    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); 
+    const userJam = level * 2; // Asumsi per 1 level butuh 2 jam nonton
     
     let replyBtnHtml = ''; 
     if(!isReply && epID && parentID) { 
@@ -1405,7 +1410,7 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
                 <span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-                <span class="c-badge ${lvlClass}" onclick="alert('Informasi Level:\\nUser ini berada di Level ${level} (${rankInfo.name})')" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span>
+                <span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, ${userExp}, ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span>
                 <span class="c-badge ${roleBadgeClass}">${roleName}</span>
                 <span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span>
             </div>
