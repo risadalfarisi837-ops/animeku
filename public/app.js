@@ -24,13 +24,20 @@ function injectPremiumStyles() {
     style.id = 'premium-rank-styles';
     style.innerHTML = `
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
+
+        /* MATIKAN SEMUA ANIMASI BINTANG DAN GLOWING UNTUK EMERALD & MASTER */
         .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
         .rank-icon-emerald::after, .rank-icon-emerald::before { display: none !important; content: none !important; animation: none !important; }
+        
         .rank-icon-master, .badge-lvl-master { animation: none !important; }
         .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
+
+        /* DIAMOND & MYTHIC TETAP BERANIMASI (JIKA ADA) */
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -52,6 +59,7 @@ let isLoggingIn = false;
 window.loginDenganGoogle = function() {
     if (isLoggingIn) return; 
     isLoggingIn = true;
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
@@ -109,6 +117,7 @@ function updateDevUI() {
             </div>`;
     } else {
         container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div><p style="text-align:center; color:#888;">Menyiapkan Profil...</p>';
+        
         db.ref('users/' + currentUser.uid).on('value', async snap => {
             try {
                 let data = snap.val(); 
@@ -187,6 +196,7 @@ function updateDevUI() {
                             let d = new Date(c.waktu || Date.now());
                             let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
                             let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                            
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui';
                             let aImage = c.animeImage || 'https://placehold.co/100';
                             let aEp = c.animeEp || 'Episode ?';
@@ -560,6 +570,615 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
+function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+
+function removeDuplicates(array, key) {
+    const seen = new Set();
+    return array.filter(item => {
+        if (!item || !item[key]) return false;
+        if (seen.has(item[key])) return false;
+        seen.add(item[key]);
+        return true;
+    });
+}
+
+function getEpBadge(anime) { 
+    if (!anime) return 'Anime'; 
+    let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
+    if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
+    let lowText = text.toLowerCase().trim();
+    if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
+    if (lowText.includes('movie')) return 'Movie';
+    if (lowText.includes('ongoin')) return 'Ongoing';
+    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
+    let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
+    if (epMatch) return `Episode ${epMatch[1]}`; 
+    let numMatch = text.match(/\d+/g);
+    if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`;
+    return text.length > 10 ? text.substring(0, 10) : text; 
+}
+
+function formatTimelineDate(timestamp) {
+    const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === today.toDateString()) return "Hari ini";
+    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function timeAgo(ms) {
+    const seconds = Math.floor((new Date() - ms) / 1000);
+    let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu";
+    interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu";
+    interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu";
+    interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu";
+    interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu";
+    return "Baru saja";
+}
+
+function addXP(amount) {
+    if(!currentUser) return; 
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val(); if(!d) return;
+        
+        let prevExp = d.exp || 0;
+        let prevLvl = Math.floor(prevExp / 200) + 1;
+        
+        let nExp = prevExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > prevLvl;
+        
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
+        
+        let currentLevelXp = nExp % 200;
+        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+
+        showXPModal(amount, nLvl, progressPercent, isLevelUp);
+    });
+}
+
+function showXPModal(addedAmount, level, progress, isLevelUp) {
+    const overlay = document.getElementById('xp-modal-overlay');
+    const card = document.getElementById('xp-modal-card');
+    const titleText = document.getElementById('xp-title-text');
+    const amountText = document.getElementById('xp-amount-text');
+    const levelText = document.getElementById('xp-level-text');
+    const progressText = document.getElementById('xp-progress-text');
+    const progressFill = document.getElementById('xp-progress-fill');
+
+    amountText.innerText = `+${addedAmount}`;
+    levelText.innerText = `Level ${level}`;
+    progressText.innerText = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
+    
+    if (isLevelUp) {
+        titleText.innerText = "LEVEL UP!";
+        titleText.style.color = "#3b82f6";
+    } else {
+        titleText.innerText = "EXP Gained";
+        titleText.style.color = "#fff";
+    }
+    
+    overlay.style.display = 'flex'; 
+    setTimeout(() => { 
+        overlay.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 10);
+    
+    setTimeout(() => { 
+        overlay.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
+    }, 2500);
+}
+
+function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
+async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
+async function getFavorites() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
+
+async function toggleFavorite(url, title, image, score, episode) {
+    try {
+        const database = await initDB(); const isFav = await checkFavorite(url);
+        const tx = database.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV);
+        const btn = document.getElementById('favBtn');
+        if (isFav) { 
+            store.delete(url); 
+            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; btn.style.color = '#fff'; }
+        } else { 
+            store.put({url, title, image, score, episode, timestamp: Date.now()}); 
+            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; btn.style.color = '#ef4444'; }
+        }
+    } catch(e) { console.error(e); }
+}
+async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
+
+// ==== LOGIKA LIKE DAN DISLIKE ====
+window.toggleLikeAction = function(btn, type) {
+    let likeBtn = document.getElementById('btn-like-action');
+    let dislikeBtn = document.getElementById('btn-dislike-action');
+    
+    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
+
+    if (type === 'like') {
+        if (isActive) {
+            btn.style.backgroundColor = 'transparent';
+        } else {
+            btn.style.backgroundColor = '#3b82f6'; 
+            if(dislikeBtn) {
+                dislikeBtn.style.backgroundColor = 'transparent';
+            }
+        }
+    } else {
+        if (isActive) {
+            btn.style.backgroundColor = 'transparent';
+        } else {
+            btn.style.backgroundColor = '#ef4444';
+            if(likeBtn) {
+                likeBtn.style.backgroundColor = 'transparent';
+            }
+        }
+    }
+};
+
+window.toggleSynopsis = function() {
+    const text = document.getElementById('detail-synopsis-text');
+    const btn = document.getElementById('read-more-btn');
+    if(text.classList.contains('expanded')) { text.classList.remove('expanded'); btn.innerHTML = 'Selengkapnya ▼'; } 
+    else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
+};
+
+const HOME_SECTIONS = [
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
+    { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] },
+    { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] },
+    { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
+    { title: "School Anime", queries: ["school", "classroom", "academy"] },
+    { title: "Movie Anime", queries: ["movie", "film"] }
+];
+
+let sliderInterval;
+const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
+const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
+
+function switchTab(tabName) {
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
+        let el = document.getElementById(v);
+        if(el) el.classList.add('hidden');
+    });
+    
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    let targetView = document.getElementById(tabName + '-view');
+    if(targetView) targetView.classList.remove('hidden');
+    
+    let targetNav = document.getElementById('tab-' + tabName);
+    if(targetNav) targetNav.classList.add('active');
+    
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
+    if (tabName === 'recent') loadRecentHistory();
+    if (tabName === 'favorite') loadFavorites();
+}
+
+function generateCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating;
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
+}
+
+function generateRecentCardHtml(anime) {
+    let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
+}
+
+function generateFavCardHtml(anime) {
+    if (!anime) return '';
+    let epsBadge = getEpBadge(anime);
+    let scoreStr = anime.score || anime.skor || anime.rating || '?';
+    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
+    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
+}
+
+async function fetchTimeout(url, timeoutMs = 15000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return res;
+    } catch (e) {
+        clearTimeout(id);
+        throw e;
+    }
+}
+
+async function loadLatest() {
+    loader(true); 
+    const homeContainer = document.getElementById('home-view'); 
+    homeContainer.innerHTML = ''; 
+    let hasAnyData = false;
+    
+    try {
+        try {
+            let sliderData = []; 
+            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
+            if (res && res.ok) {
+                sliderData = await res.json();
+                if (sliderData && sliderData.length > 0) { 
+                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
+                    hasAnyData = true;
+                } 
+            }
+        } catch (e) {}
+        
+        try {
+            const historyData = await getHistory();
+            if (historyData && historyData.length > 0) {
+                const histDiv = document.createElement('div');
+                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+                homeContainer.appendChild(histDiv);
+                hasAnyData = true;
+            }
+        } catch (e) {}
+        
+        loader(false); 
+
+        const sectionContainers = [];
+        for (const section of HOME_SECTIONS) {
+            const div = document.createElement('div');
+            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
+            homeContainer.appendChild(div);
+            sectionContainers.push({ section, div });
+        }
+
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
+
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                        try {
+                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) combinedData.push(...data);
+                            }
+                        } catch(e) {}
+                    });
+
+                    await Promise.all(fetchPromises);
+
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) {
+                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                        hasAnyData = true;
+                    } else {
+                        div.remove(); 
+                    }
+                } catch(e) { div.remove(); }
+            }));
+        }
+
+        if (!hasAnyData) {
+            homeContainer.innerHTML = `
+                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+                </div>
+            `;
+        }
+
+    } catch (err) { 
+        console.error("Home loading failed total", err);
+        loader(false); 
+    } 
+}
+
+function renderHeroSlider(data, container) {
+    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
+    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
+    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
+    const slidesHtml = loopData.map((anime, index) => {
+        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
+    }).join('');
+    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
+    sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
+    const wrapper = document.getElementById('heroWrapper');
+    let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
+    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
+    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
+    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
+    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
+    startAutoSlide();
+}
+
+async function handleSearch(query) {
+    if (!query) { switchTab('home'); return; }
+    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
+    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
+}
+
+function injectReportModal() {
+    if(document.getElementById('report-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'report-modal-injected';
+    div.innerHTML = `
+        <div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
+        <div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;">
+            <div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                </div>
+            </div>
+            <h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;">
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>
+                    Video Tidak Bisa Diputar
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Subtitle Rusak
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Anime Berbeda
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    DMCA (Email)
+                </label>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.openReportModal = function() {
+    injectReportModal();
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    overlay.style.display = 'block';
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
+};
+
+window.closeReportModal = function() {
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    if(!modal) return;
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+    }, 300);
+};
+
+window.submitReport = function() {
+    const selected = document.querySelector('input[name="reportReason"]:checked');
+    if(!selected) return;
+    let reason = selected.value;
+    let text = `Halo Admin, saya mau report episode error.\n\nLink: ${window.location.href}\nAlasan: *${reason}*`;
+    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text));
+    closeReportModal();
+};
+
+window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
+window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
+
+window.changeServer = function(url, serverName, btnElement) { 
+    // Hapus iframe lama dan buat baru untuk mencegah penumpukan history
+    const oldIframe = document.getElementById('video-player');
+    if (oldIframe) {
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'video-player';
+        newIframe.setAttribute('allowfullscreen', 'true');
+        newIframe.src = url;
+        oldIframe.parentNode.replaceChild(newIframe, oldIframe);
+    }
+    
+    let qualMatch = serverName.match(/\d{3,4}p/i);
+    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
+    document.getElementById('current-quality-text').innerText = displayQuality; 
+    document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
+    btnElement.classList.add('active'); 
+    window.closeServerModal(); 
+};
+
+window.handleDownload = function() { 
+    let iframe = document.getElementById('video-player');
+    if(iframe && iframe.src) {
+        window.open(iframe.src, '_blank');
+    } else {
+        alert('Video tidak ditemukan atau server belum dimuat.'); 
+    }
+};
+
+window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { alert('Tautan disalin: ' + window.location.href); } };
+
+async function loadRecentHistory() {
+    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
+    try {
+        const historyData = await getHistory();
+        if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
+        const groupedData = {};
+        historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
+        let timelineHtml = '<div class="timeline-wrapper">';
+        for (const [dateLabel, animes] of Object.entries(groupedData)) {
+            timelineHtml += `<div class="timeline-group"><div class="timeline-date-badge">${dateLabel}</div><div class="timeline-items">`;
+            animes.forEach(anime => {
+                const dateObj = new Date(anime.timestamp); const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+                const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
+                const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
+                const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+                timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
+            });
+            timelineHtml += `</div></div>`;
+        }
+        container.innerHTML = timelineHtml + '</div>';
+    } catch(e) {
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat riwayat.</h2></div>`;
+    }
+}
+
+window.toggleSortMenu = function() { const menu = document.getElementById('sort-dropdown-menu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; };
+window.applyFavSort = function(type, label) { document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; document.getElementById('sort-dropdown-menu').style.display = 'none'; if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); } renderFavoritesList(); };
+
+function renderFavoritesList() { 
+    const container = document.getElementById('favorite-results-container'); 
+    try {
+        container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; 
+    } catch(e) { console.error("Error render:", e); }
+}
+
+async function loadFavorites() {
+    const container = document.getElementById('favorite-results-container'); 
+    container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
+    try {
+        window.currentFavData = await getFavorites(); 
+        const count = window.currentFavData ? window.currentFavData.length : 0;
+        const countTotal = document.getElementById('fav-total-count'); const countCompleted = document.getElementById('fav-completed-count');
+        if(countTotal) countTotal.innerText = count; if(countCompleted) countCompleted.innerText = count;
+        if (count === 0) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; return; }
+        renderFavoritesList();
+    } catch(e) {
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat Subscribe.</h2></div>`;
+    }
+}
+
+document.addEventListener('click', function(event) { 
+    const btn = document.getElementById('current-sort-btn'); 
+    const menu = document.getElementById('sort-dropdown-menu'); 
+    if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
+});
+
+window.epSortOrder = 'desc'; 
+window.epLayoutMode = 'list'; 
+
+window.toggleEpLayout = function() {
+    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
+    window.renderDetailEpisodeUI();
+};
+
+window.toggleEpSort = function() {
+    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
+    window.renderDetailEpisodeUI();
+};
+
+window.renderDetailEpisodeUI = function() {
+    let containerDetail = document.getElementById('episode-list-detail-container');
+    if(!containerDetail) return;
+    
+    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+    
+    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+
+    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+
+    let eps = [...(window.currentAnimeEpisodes || [])];
+    if (window.epSortOrder === 'desc') eps.reverse();
+
+    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+
+    let renderHtml = '';
+
+    if (window.epLayoutMode === 'grid') {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+            let c = "ep-square";
+            let inlineStyle = "width: 55px; height: 55px;"; 
+
+            if (progress >= 100) {
+                c += " active";
+                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
+            } else if (progress > 0) {
+                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+            } else if (progress === 0 || isCurrent) {
+                c += " watched";
+            } else if (watchedEps.includes(ep.url)) {
+                c += " active";
+            }
+
+            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+        
+    } else {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
+            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+            let eNum = m ? m[1] : realIndex;
+
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
+            let mockEpDate = `16 Apr 2026`;
+
+            let progress = watchProgress[ep.url];
+            let isCurrent = (ep.url === currentUrl);
+
+            let btnBg = 'rgba(255,255,255,0.1)';
+            let btnText = 'Buka';
+
+            if (progress >= 100 || watchedEps.includes(ep.url)) {
+                btnBg = '#3b82f6'; btnText = 'Ditonton';
+            } else if (progress > 0) {
+                btnBg = '#3b82f6'; btnText = 'Lanjut';
+            }
+
+            if (isCurrent) {
+                btnBg = '#ef4444'; btnText = 'Diputar';
+            }
+
+            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
+                <div>
+                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
+                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
+                    </div>
+                </div>
+                <div>
+                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
+                </div>
+            </div>`;
+        }).join('');
+        
+        containerDetail.style = "display: flex; flex-direction: column;"; 
+        containerDetail.className = ""; 
+        containerDetail.innerHTML = renderHtml; 
+    }
+};
+
 async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
@@ -771,6 +1390,7 @@ window.postComment = function(epID) {
     }); 
 };
 
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; 
     const level = c.level || 1; 
@@ -786,8 +1406,10 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const rankInfo = getRankInfo(level); 
     let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
 
+    // Kalkulasi EXP dan Jam Nonton berdasarkan Level supaya menyesuaikan profil orangnya
+    // Karena logic level di web kamu 1 Lvl = 200 exp
     const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); 
-    const userJam = level * 2;
+    const userJam = level * 2; // Asumsi per 1 level butuh 2 jam nonton
     
     let replyBtnHtml = ''; 
     if(!isReply && epID && parentID) { 
@@ -831,6 +1453,7 @@ window.openReplyModal = function(epID, parentID) {
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
 window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
 
+// ==== FUNGSI MELIHAT PROFIL USER LAIN ====
 function injectUserProfileModal() {
     if(document.getElementById('user-profile-modal-injected')) return;
     const div = document.createElement('div');
@@ -961,784 +1584,67 @@ window.closeUserProfileModal = function() {
     }
 };
 
-window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
-    const modalOverlay = document.getElementById('levelModalOverlay');
-    const modal = document.getElementById('levelModal');
-    const listContainer = document.getElementById('level-modal-list');
-    
-    const currRank = getRankInfo(currentLvl);
-    document.getElementById('level-modal-subtitle').innerText = `Level ${currentLvl} • ${currRank.name}`;
-    document.getElementById('level-modal-total-exp').innerText = currentExp.toLocaleString('id-ID');
-    document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
-
-    let html = '';
-    RANK_TIERS.forEach(rank => {
-        let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl);
-        let isPassed = currentLvl > rank.maxLvl;
-        
-        let statusIcon = '';
-        if (isCurrent) statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-        else if (isPassed) statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-        else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
-        
-        let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        
-        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
-        let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
-
-        html += `
-            <div class="level-rank-item" style="${bgStyle}">
-                <div class="rank-info">
-                    <div class="${iconClass}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
-                    <div>
-                        <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
-                        <div class="rank-req">${reqText}</div>
-                    </div>
-                </div>
-                <div class="rank-status">${statusIcon}</div>
-            </div>
-        `;
-    });
-
-    listContainer.innerHTML = html;
-
-    modalOverlay.style.display = 'block';
-    modal.style.display = 'flex';
-    setTimeout(() => { modal.classList.add('show'); }, 10);
-};
-
-window.closeLevelModal = function() {
-    const modal = document.getElementById('levelModal');
-    modal.classList.remove('show');
-    setTimeout(() => { document.getElementById('levelModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300);
-};
-
-window.switchProfileTab = function(tabName, element) {
-    document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
-    document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none');
-    document.getElementById('ptab-' + tabName).style.display = 'block';
-};
-
-const API_BASE = '/api'; 
-const DB_NAME = 'AnimekuDB';
-const STORE_HISTORY = 'history';
-const STORE_FAV = 'favorites';
-window.currentFavData = []; 
-window.currentPlayingAnime = null; 
-
-window.epSortOrder = 'desc'; 
-window.epLayoutMode = 'list'; 
-
-window.toggleEpLayout = function() {
-    window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid';
-    window.renderDetailEpisodeUI();
-};
-
-window.toggleEpSort = function() {
-    window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc';
-    window.renderDetailEpisodeUI();
-};
-
-window.renderDetailEpisodeUI = function() {
-    let containerDetail = document.getElementById('episode-list-detail-container');
-    if(!containerDetail) return;
-    
-    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
-    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
-    
-    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
-
-    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
-    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
-
-    let eps = [...(window.currentAnimeEpisodes || [])];
-    if (window.epSortOrder === 'desc') eps.reverse();
-
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
-    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
-
-    let renderHtml = '';
-
-    if (window.epLayoutMode === 'grid') {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-            let c = "ep-square";
-            let inlineStyle = "width: 55px; height: 55px;"; 
-
-            if (progress >= 100) {
-                c += " active";
-                if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`;
-            } else if (progress > 0) {
-                inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
-            } else if (progress === 0 || isCurrent) {
-                c += " watched";
-            } else if (watchedEps.includes(ep.url)) {
-                c += " active";
-            }
-
-            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-        
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1);
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
-            let eNum = m ? m[1] : realIndex;
-
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`;
-            let mockEpDate = `16 Apr 2026`;
-
-            let progress = watchProgress[ep.url];
-            let isCurrent = (ep.url === currentUrl);
-
-            let btnBg = 'rgba(255,255,255,0.1)';
-            let btnText = 'Buka';
-
-            if (progress >= 100 || watchedEps.includes(ep.url)) {
-                btnBg = '#3b82f6'; btnText = 'Ditonton';
-            } else if (progress > 0) {
-                btnBg = '#3b82f6'; btnText = 'Lanjut';
-            }
-
-            if (isCurrent) {
-                btnBg = '#ef4444'; btnText = 'Diputar';
-            }
-
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;">
-                <div>
-                    <div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div>
-                    <div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}
-                    </div>
-                </div>
-                <div>
-                    <button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button>
-                </div>
-            </div>`;
-        }).join('');
-        
-        containerDetail.style = "display: flex; flex-direction: column;"; 
-        containerDetail.className = ""; 
-        containerDetail.innerHTML = renderHtml; 
-    }
-};
-
-function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
-
-function removeDuplicates(array, key) {
-    const seen = new Set();
-    return array.filter(item => {
-        if (!item || !item[key]) return false;
-        if (seen.has(item[key])) return false;
-        seen.add(item[key]);
-        return true;
-    });
-}
-
-function getEpBadge(anime) { 
-    if (!anime) return 'Anime'; 
-    let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); 
-    if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
-    let lowText = text.toLowerCase().trim();
-    if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat';
-    if (lowText.includes('movie')) return 'Movie';
-    if (lowText.includes('ongoin')) return 'Ongoing';
-    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`;
-    let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); 
-    if (epMatch) return `Episode ${epMatch[1]}`; 
-    let numMatch = text.match(/\d+/g);
-    if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`;
-    return text.length > 10 ? text.substring(0, 10) : text; 
-}
-
-function formatTimelineDate(timestamp) {
-    const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-    if (date.toDateString() === today.toDateString()) return "Hari ini";
-    if (date.toDateString() === yesterday.toDateString()) return "Kemarin";
-    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-}
-
-function timeAgo(ms) {
-    const seconds = Math.floor((new Date() - ms) / 1000);
-    let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu";
-    interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu";
-    interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu";
-    interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu";
-    interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu";
-    return "Baru saja";
-}
-
-function addXP(amount) {
-    if(!currentUser) return; 
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); if(!d) return;
-        
-        let prevExp = d.exp || 0;
-        let prevLvl = Math.floor(prevExp / 200) + 1;
-        
-        let nExp = prevExp + amount; 
-        let nLvl = Math.floor(nExp / 200) + 1; 
-        let isLevelUp = nLvl > prevLvl;
-        
-        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        
-        let currentLevelXp = nExp % 200;
-        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
-
-        showXPModal(amount, nLvl, progressPercent, isLevelUp);
-    });
-}
-
-function showXPModal(addedAmount, level, progress, isLevelUp) {
-    const overlay = document.getElementById('xp-modal-overlay');
-    const card = document.getElementById('xp-modal-card');
-    const titleText = document.getElementById('xp-title-text');
-    const amountText = document.getElementById('xp-amount-text');
-    const levelText = document.getElementById('xp-level-text');
-    const progressText = document.getElementById('xp-progress-text');
-    const progressFill = document.getElementById('xp-progress-fill');
-
-    amountText.innerText = `+${addedAmount}`;
-    levelText.innerText = `Level ${level}`;
-    progressText.innerText = `${progress}%`;
-    progressFill.style.width = `${progress}%`;
-    
-    if (isLevelUp) {
-        titleText.innerText = "LEVEL UP!";
-        titleText.style.color = "#3b82f6";
-    } else {
-        titleText.innerText = "EXP Gained";
-        titleText.style.color = "#fff";
-    }
-    
-    overlay.style.display = 'flex'; 
-    setTimeout(() => { 
-        overlay.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-    }, 10);
-    
-    setTimeout(() => { 
-        overlay.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        setTimeout(() => { overlay.style.display = 'none'; }, 300); 
-    }, 2500);
-}
-
-function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
-async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
-async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
-async function getFavorites() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
-
-async function toggleFavorite(url, title, image, score, episode) {
-    try {
-        const database = await initDB(); const isFav = await checkFavorite(url);
-        const tx = database.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV);
-        const btn = document.getElementById('favBtn');
-        if (isFav) { 
-            store.delete(url); 
-            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; btn.style.color = '#fff'; }
-        } else { 
-            store.put({url, title, image, score, episode, timestamp: Date.now()}); 
-            if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; btn.style.color = '#ef4444'; }
-        }
-    } catch(e) { console.error(e); }
-}
-async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
-
-// ==== SISTEM NOTIFIKASI SUBSCRIBE UPDATE ====
-function extractEpNum(str) {
-    let match = String(str || '').match(/\d+/g);
-    return match ? parseInt(match[match.length - 1]) : 0;
-}
-
-window.showUpdateToast = function(updates) {
-    let container = document.getElementById('update-toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'update-toast-container';
-        container.style = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:400px; pointer-events:none;';
-        document.body.appendChild(container);
-    }
-
-    updates.forEach((update, idx) => {
-        setTimeout(() => {
-            let toast = document.createElement('div');
-            toast.style = 'background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer; pointer-events:auto;';
-            
-            toast.onclick = () => { 
-                loadDetail(update.url); 
-                toast.style.opacity = '0'; 
-                setTimeout(() => toast.remove(), 400); 
-            };
-            
-            toast.innerHTML = `
-                <img src="${update.image}" style="width:45px; height:45px; border-radius:10px; object-fit:cover;">
-                <div style="flex:1;">
-                    <div style="color:#3b82f6; font-size:11px; font-weight:800; margin-bottom:3px;">🎉 UPDATE SUBSCRIBE</div>
-                    <div style="color:#fff; font-size:13px; font-weight:700; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">${update.title}</div>
-                    <div style="color:#a1a1aa; font-size:12px; font-weight:500;">${update.ep} Baru Saja Rilis!</div>
-                </div>
-            `;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.transform = 'translateY(0)';
-                toast.style.opacity = '1';
-            }, 50);
-
-            setTimeout(() => {
-                toast.style.transform = 'translateY(-30px)';
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 400);
-            }, 6000);
-            
-        }, idx * 1000); 
-    });
-};
-
-window.checkSubscribedUpdates = async function(latestAnimeList) {
-    if (!latestAnimeList || latestAnimeList.length === 0) return;
-    try {
-        const favs = await getFavorites();
-        if (!favs || favs.length === 0) return;
-
-        let updatesFound = [];
-        const database = await initDB();
-        const tx = database.transaction(STORE_FAV, 'readwrite');
-        const store = tx.objectStore(STORE_FAV);
-
-        for (let fav of favs) {
-            let match = latestAnimeList.find(a => a.url === fav.url || a.title === fav.title);
-            if (match) {
-                let favEp = extractEpNum(fav.episode);
-                let latestEpStr = getEpBadge(match);
-                let latestEp = extractEpNum(latestEpStr);
-
-                if (latestEp > favEp) {
-                    updatesFound.push({ title: match.title, ep: latestEpStr, url: match.url, image: match.image });
-                    fav.episode = latestEpStr;
-                    fav.timestamp = Date.now();
-                    store.put(fav);
-                }
-            }
-        }
-
-        if (updatesFound.length > 0) {
-            showUpdateToast(updatesFound);
-        }
-    } catch(e) { console.error("Gagal cek update subscribe:", e); }
-};
-
-window.toggleLikeAction = function(btn, type) {
-    let likeBtn = document.getElementById('btn-like-action');
-    let dislikeBtn = document.getElementById('btn-dislike-action');
-    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
-
-    if (type === 'like') {
-        if (isActive) { btn.style.backgroundColor = 'transparent'; } else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) dislikeBtn.style.backgroundColor = 'transparent'; }
-    } else {
-        if (isActive) { btn.style.backgroundColor = 'transparent'; } else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) likeBtn.style.backgroundColor = 'transparent'; }
-    }
-};
-
-window.toggleSynopsis = function() {
-    const text = document.getElementById('detail-synopsis-text');
-    const btn = document.getElementById('read-more-btn');
-    if(text.classList.contains('expanded')) { text.classList.remove('expanded'); btn.innerHTML = 'Selengkapnya ▼'; } 
-    else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; }
-};
-
-const HOME_SECTIONS = [
-    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] },
-    { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
-    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] },
-    { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
-    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] },
-    { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
-    { title: "School Anime", queries: ["school", "classroom", "academy"] },
-    { title: "Movie Anime", queries: ["movie", "film"] }
-];
-
-let sliderInterval;
-const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
-const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
-const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
-
-function switchTab(tabName) {
-    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view'].forEach(v => {
-        let el = document.getElementById(v);
-        if(el) el.classList.add('hidden');
-    });
-    
-    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
-    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    
-    let targetView = document.getElementById(tabName + '-view');
-    if(targetView) targetView.classList.remove('hidden');
-    
-    let targetNav = document.getElementById('tab-' + tabName);
-    if(targetNav) targetNav.classList.add('active');
-    
-    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
-    if (tabName === 'recent') loadRecentHistory();
-    if (tabName === 'favorite') loadFavorites();
-}
-
-function generateCardHtml(anime) {
-    let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating;
-    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`;
-}
-
-function generateRecentCardHtml(anime) {
-    let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`;
-}
-
-function generateFavCardHtml(anime) {
-    if (!anime) return '';
-    let epsBadge = getEpBadge(anime);
-    let scoreStr = anime.score || anime.skor || anime.rating || '?';
-    let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
-    const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'";
-    return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${anime.image}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`;
-}
-
-async function fetchTimeout(url, timeoutMs = 15000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(id);
-        return res;
-    } catch (e) {
-        clearTimeout(id);
-        throw e;
-    }
-}
-
-async function loadLatest() {
-    loader(true); 
-    const homeContainer = document.getElementById('home-view'); 
-    homeContainer.innerHTML = ''; 
-    let hasAnyData = false;
-    
-    try {
-        try {
-            let sliderData = []; 
-            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
-            if (res && res.ok) {
-                sliderData = await res.json();
-                if (sliderData && sliderData.length > 0) { 
-                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
-                    hasAnyData = true;
-                    // Notifikasi Subscribe
-                    checkSubscribedUpdates(sliderData); 
-                } 
-            }
-        } catch (e) {} 
-        
-        try {
-            const historyData = await getHistory();
-            if (historyData && historyData.length > 0) {
-                const histDiv = document.createElement('div');
-                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(histDiv);
-                hasAnyData = true;
-            }
-        } catch (e) {}
-        
-        loader(false); 
-
-        const sectionContainers = [];
-        for (const section of HOME_SECTIONS) {
-            const div = document.createElement('div');
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
-            homeContainer.appendChild(div);
-            sectionContainers.push({ section, div });
-        }
-
-        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
-        const batches = chunkArray(sectionContainers, 3);
-
-        for (const batch of batches) {
-            await Promise.all(batch.map(async ({ section, div }) => {
-                try {
-                    let combinedData = [];
-                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
-                        try {
-                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                            if (res && res.ok) {
-                                const data = await res.json();
-                                if (Array.isArray(data)) combinedData.push(...data);
-                            }
-                        } catch(e) {}
-                    });
-
-                    await Promise.all(fetchPromises);
-
-                    combinedData = removeDuplicates(combinedData, 'url');
-                    if (combinedData.length > 0) {
-                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                        hasAnyData = true;
-                    } else {
-                        div.remove(); 
-                    }
-                } catch(e) { div.remove(); }
-            }));
-        }
-
-        if (!hasAnyData) {
-            homeContainer.innerHTML = `
-                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
-                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
-                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                </div>
-            `;
-        }
-
-    } catch (err) { 
-        console.error("Home loading failed total", err);
-        loader(false); 
-    } 
-}
-
-function renderHeroSlider(data, container) {
-    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
-    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
-    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
-    const slidesHtml = loopData.map((anime, index) => {
-        return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`;
-    }).join('');
-    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`;
-    sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
-    const wrapper = document.getElementById('heroWrapper');
-    let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
-    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
-    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
-    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
-    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
-    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
-    startAutoSlide();
-}
-
-async function handleSearch(query) {
-    if (!query) { switchTab('home'); return; }
-    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
-}
-
-function injectReportModal() {
-    if(document.getElementById('report-modal-injected')) return;
-    const div = document.createElement('div');
-    div.id = 'report-modal-injected';
-    div.innerHTML = `
-        <div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
-        <div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;">
-            <div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                <div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                </div>
-            </div>
-            <h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3>
-            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;">
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>
-                    Video Tidak Bisa Diputar
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    Subtitle Rusak
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    Anime Berbeda
-                </label>
-                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
-                    <input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">
-                    DMCA (Email)
-                </label>
-            </div>
-            <div style="display:flex; gap:12px;">
-                <button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
-                <button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-
-window.openReportModal = function() {
-    injectReportModal();
-    const overlay = document.getElementById('reportModalOverlay');
-    const modal = document.getElementById('reportModal');
-    overlay.style.display = 'block';
-    modal.style.display = 'block';
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        modal.style.transform = 'translate(-50%, -50%) scale(1)';
-    }, 10);
-};
-
-window.closeReportModal = function() {
-    const overlay = document.getElementById('reportModalOverlay');
-    const modal = document.getElementById('reportModal');
-    if(!modal) return;
-    modal.style.opacity = '0';
-    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        modal.style.display = 'none';
-    }, 300);
-};
-
-window.submitReport = function() {
-    const selected = document.querySelector('input[name="reportReason"]:checked');
-    if(!selected) return;
-    let reason = selected.value;
-    let text = `Halo Admin, saya mau report episode error.\n\nLink: ${window.location.href}\nAlasan: *${reason}*`;
-    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text));
-    closeReportModal();
-};
-
-window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
-window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
-
-window.changeServer = function(url, serverName, btnElement) { 
-    const oldIframe = document.getElementById('video-player');
-    if (oldIframe) {
-        const newIframe = document.createElement('iframe');
-        newIframe.id = 'video-player';
-        newIframe.setAttribute('allowfullscreen', 'true');
-        newIframe.src = url;
-        oldIframe.parentNode.replaceChild(newIframe, oldIframe);
-    }
-    
-    let qualMatch = serverName.match(/\d{3,4}p/i);
-    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
-    document.getElementById('current-quality-text').innerText = displayQuality; 
-    document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
-    btnElement.classList.add('active'); 
-    window.closeServerModal(); 
-};
-
-window.handleDownload = function() { 
-    let iframe = document.getElementById('video-player');
-    if(iframe && iframe.src) {
-        window.open(iframe.src, '_blank');
-    } else {
-        alert('Video tidak ditemukan atau server belum dimuat.'); 
-    }
-};
-
-window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { alert('Tautan disalin: ' + window.location.href); } };
-
-async function loadRecentHistory() {
-    const container = document.getElementById('recent-results-container'); container.innerHTML = '<div class="spinner" style="margin: 50px auto;"></div>';
-    try {
-        const historyData = await getHistory();
-        if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; return; }
-        const groupedData = {};
-        historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
-        let timelineHtml = '<div class="timeline-wrapper">';
-        for (const [dateLabel, animes] of Object.entries(groupedData)) {
-            timelineHtml += `<div class="timeline-group"><div class="timeline-date-badge">${dateLabel}</div><div class="timeline-items">`;
-            animes.forEach(anime => {
-                const dateObj = new Date(anime.timestamp); const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
-                const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
-                const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
-                const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
-                timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${anime.image}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
-            });
-            timelineHtml += `</div></div>`;
-        }
-        container.innerHTML = timelineHtml + '</div>';
-    } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat riwayat.</h2></div>`;
-    }
-}
-
-window.toggleSortMenu = function() { const menu = document.getElementById('sort-dropdown-menu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; };
-window.applyFavSort = function(type, label) { document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; document.getElementById('sort-dropdown-menu').style.display = 'none'; if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); } renderFavoritesList(); };
-
-function renderFavoritesList() { 
-    const container = document.getElementById('favorite-results-container'); 
-    try {
-        container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; 
-    } catch(e) { console.error("Error render:", e); }
-}
-
-async function loadFavorites() {
-    const container = document.getElementById('favorite-results-container'); 
-    container.innerHTML = '<div class="spinner" style="margin: 40px auto;"></div>';
-    try {
-        window.currentFavData = await getFavorites(); 
-        const count = window.currentFavData ? window.currentFavData.length : 0;
-        const countTotal = document.getElementById('fav-total-count'); const countCompleted = document.getElementById('fav-completed-count');
-        if(countTotal) countTotal.innerText = count; if(countCompleted) countCompleted.innerText = count;
-        if (count === 0) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; return; }
-        renderFavoritesList();
-    } catch(e) {
-        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat Subscribe.</h2></div>`;
-    }
-}
-
-document.addEventListener('click', function(event) { 
-    const btn = document.getElementById('current-sort-btn'); 
-    const menu = document.getElementById('sort-dropdown-menu'); 
-    if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } 
-});
+// Flag untuk mengizinkan aplikasi benar-benar keluar
+window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (AMAN)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL FIX)
 // ==========================================
 window.allowExitApp = false;
+window.historyTrapSet = false;
 
+// Trik cerdas: Pasang jebakan '#trap' secara diam-diam saat layar pertama kali disentuh
+function setupHistoryTrap() {
+    if (!window.historyTrapSet) {
+        history.replaceState(null, '', '#trap');
+        history.pushState(null, '', '#home');
+        window.historyTrapSet = true;
+    }
+}
+
+// Deteksi sentuhan pertama (Syarat wajib agar Chrome tidak langsung nutup aplikasi)
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true });
+window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+
+// Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
     let hash = window.location.hash;
     
+    // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
     if (p && hash !== '#watch') { 
         p.src = ''; 
     }
 
+    // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
     if (hash === '#trap' || hash === '') {
         openExitModal();
+        // Dorong kembali ke #home agar aplikasi tetap hidup
         history.pushState(null, '', '#home');
         return;
     }
 
+    // Eksekusi navigasi secara normal berdasarkan URL hash
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
+// ==== PERBAIKAN TOMBOL PANAH UI ====
 window.goHome = function() { 
-    history.pushState(null, '', '#home');
-    switchTab('home');
+    // Menggunakan history.back() agar stack browser tidak berantakan
+    if (window.location.hash !== '#home') {
+        history.back(); 
+    }
 };
 
 window.backToDetail = function() { 
-    history.pushState(null, '', '#detail');
-    switchTab('detail');
+    if (window.location.hash === '#watch') {
+        history.back(); 
+    } else {
+        switchTab('detail');
+    }
 };
 
 window.injectExitModal = function() {
@@ -1763,7 +1669,6 @@ window.injectExitModal = function() {
 };
 
 window.openExitModal = function() {
-    if (!document.getElementById('exitModalOverlay')) window.injectExitModal();
     document.getElementById('exitModalOverlay').style.display = 'block';
     document.getElementById('exitModal').style.display = 'block';
     setTimeout(() => {
@@ -1790,11 +1695,12 @@ window.confirmExit = function() {
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    window.injectExitModal(); 
+    injectExitModal(); 
     
-    history.replaceState(null, '', '#trap');
-    history.pushState(null, '', '#home');
-    
+    // Default URL awal
+    if(window.location.hash === '') {
+        history.replaceState(null, '', '#home');
+    }
     switchTab('home'); 
 }
 
