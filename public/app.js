@@ -693,6 +693,95 @@ async function toggleFavorite(url, title, image, score, episode) {
 }
 async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
+// ==== SISTEM NOTIFIKASI SUBSCRIBE UPDATE ====
+function extractEpNum(str) {
+    let match = String(str || '').match(/\d+/g);
+    return match ? parseInt(match[match.length - 1]) : 0;
+}
+
+window.showUpdateToast = function(updates) {
+    let container = document.getElementById('update-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'update-toast-container';
+        container.style = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:400px; pointer-events:none;';
+        document.body.appendChild(container);
+    }
+
+    updates.forEach((update, idx) => {
+        setTimeout(() => {
+            let toast = document.createElement('div');
+            toast.style = 'background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer; pointer-events:auto;';
+            
+            toast.onclick = () => { 
+                loadDetail(update.url); 
+                toast.style.opacity = '0'; 
+                setTimeout(() => toast.remove(), 400); 
+            };
+            
+            toast.innerHTML = `
+                <img src="${update.image}" style="width:45px; height:45px; border-radius:10px; object-fit:cover;">
+                <div style="flex:1;">
+                    <div style="color:#3b82f6; font-size:11px; font-weight:800; margin-bottom:3px;">🎉 UPDATE SUBSCRIBE</div>
+                    <div style="color:#fff; font-size:13px; font-weight:700; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">${update.title}</div>
+                    <div style="color:#a1a1aa; font-size:12px; font-weight:500;">${update.ep} Baru Saja Rilis!</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+            }, 50);
+
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-30px)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 6000);
+            
+        }, idx * 1000); 
+    });
+};
+
+window.checkSubscribedUpdates = async function(latestAnimeList) {
+    if (!latestAnimeList || latestAnimeList.length === 0) return;
+    try {
+        const favs = await getFavorites();
+        if (!favs || favs.length === 0) return;
+
+        let updatesFound = [];
+        const database = await initDB();
+        const tx = database.transaction(STORE_FAV, 'readwrite');
+        const store = tx.objectStore(STORE_FAV);
+
+        for (let fav of favs) {
+            // Cek apakah anime yang disubscribe ada di daftar update terbaru
+            let match = latestAnimeList.find(a => a.url === fav.url || a.title === fav.title);
+            if (match) {
+                let favEp = extractEpNum(fav.episode);
+                let latestEpStr = getEpBadge(match);
+                let latestEp = extractEpNum(latestEpStr);
+
+                // Jika episode di server lebih tinggi dari episode yang disubscribe user
+                if (latestEp > favEp) {
+                    updatesFound.push({ title: match.title, ep: latestEpStr, url: match.url, image: match.image });
+                    
+                    // Update database lokal agar tidak dispam notif terus
+                    fav.episode = latestEpStr;
+                    fav.timestamp = Date.now();
+                    store.put(fav);
+                }
+            }
+        }
+
+        if (updatesFound.length > 0) {
+            showUpdateToast(updatesFound);
+        }
+    } catch(e) { console.error("Gagal cek update subscribe:", e); }
+};
+
 // ==== LOGIKA LIKE DAN DISLIKE ====
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action');
@@ -808,14 +897,20 @@ async function loadLatest() {
     try {
         try {
             let sliderData = []; 
-            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
-            if (res && res.ok) {
-                sliderData = await res.json();
-                if (sliderData && sliderData.length > 0) { 
-                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
-                    hasAnyData = true;
-                } 
-            }
+                            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
+        if (res && res.ok) {
+            sliderData = await res.json();
+            if (sliderData && sliderData.length > 0) { 
+                renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
+                hasAnyData = true;
+                checkSubscribedUpdates(sliderData); 
+            } 
+        }
+
+        // --- langsung lanjut ke kode berikutnya di bawah sini, ngga ada sisaan kurung tutup aneh ---
+        try {
+            const historyData = await getHistory();
+            // ... (dan seterusnya) ...
         } catch (e) {}
         
         try {
@@ -1588,11 +1683,25 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (FINAL ANTI BABLAS)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL FIX)
 // ==========================================
 window.allowExitApp = false;
+window.historyTrapSet = false;
 
-// 1. Pantau setiap kali user melakukan System Back (Swipe)
+// Trik cerdas: Pasang jebakan '#trap' secara diam-diam saat layar pertama kali disentuh
+function setupHistoryTrap() {
+    if (!window.historyTrapSet) {
+        history.replaceState(null, '', '#trap');
+        history.pushState(null, '', '#home');
+        window.historyTrapSet = true;
+    }
+}
+
+// Deteksi sentuhan pertama (Syarat wajib agar Chrome tidak langsung nutup aplikasi)
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true });
+window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+
+// Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
@@ -1607,30 +1716,32 @@ window.addEventListener('popstate', (e) => {
     // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Dorong kembali ke #home agar aplikasi tetap hidup (tidak nutup)
+        // Dorong kembali ke #home agar aplikasi tetap hidup
         history.pushState(null, '', '#home');
         return;
     }
 
-    // Eksekusi navigasi secara normal berdasarkan URL hash untuk swipe
+    // Eksekusi navigasi secara normal berdasarkan URL hash
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-// ==== 2. PERBAIKAN TOMBOL PANAH UI (JANGAN PAKAI HISTORY.BACK) ====
-// Menggunakan pushState akan membuat seolah-olah kita maju ke halaman Home/Detail
-// Ini mencegah Chrome kebingungan dan menendangmu keluar
+// ==== PERBAIKAN TOMBOL PANAH UI ====
 window.goHome = function() { 
-    history.pushState({ page: 'home' }, '', '#home');
-    switchTab('home');
+    // Menggunakan history.back() agar stack browser tidak berantakan
+    if (window.location.hash !== '#home') {
+        history.back(); 
+    }
 };
 
 window.backToDetail = function() { 
-    history.pushState({ page: 'detail' }, '', '#detail');
-    switchTab('detail');
+    if (window.location.hash === '#watch') {
+        history.back(); 
+    } else {
+        switchTab('detail');
+    }
 };
 
-// ==== 3. MODAL KELUAR ====
 window.injectExitModal = function() {
     if(document.getElementById('exit-modal-injected')) return;
     const div = document.createElement('div');
@@ -1672,22 +1783,19 @@ window.cancelExit = function() {
 
 window.confirmExit = function() {
     window.allowExitApp = true; 
-    window.history.go(-2); // Melewati history palsu agar benar-benar keluar
+    window.history.go(-2); 
     setTimeout(() => { window.close(); }, 300);
 };
 
-// ==== 4. INISIALISASI APLIKASI ====
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
     
-    // Trik: Pasang jebakan history sejak detik pertama web dimuat
-    // Ganti URL dasar menjadi #trap
-    history.replaceState({ page: 'trap' }, '', '#trap');
-    // Dorong maju ke #home
-    history.pushState({ page: 'home' }, '', '#home');
-    
+    // Default URL awal
+    if(window.location.hash === '') {
+        history.replaceState(null, '', '#home');
+    }
     switchTab('home'); 
 }
 
