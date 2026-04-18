@@ -1376,13 +1376,46 @@ window.postComment = function(epID) {
     }); 
 };
 
-// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
+// ==========================================
+// MENGHAPUS FUNGSI KLIK PADA FOTO DAN NAMA
+// MENAMBAHKAN FUNGSI KLIK PADA BADGE LEVEL
+// ==========================================
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
-    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
-    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span onclick="if('${c.uid}' !== 'undefined') openUserProfile('${c.uid}')" style="cursor: pointer; font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    const role = c.role || 'Member'; 
+    const level = c.level || 1; 
+    const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; 
+    const timeStr = timeAgo(c.waktu || Date.now());
+    
+    let roleBadgeClass = 'badge-member'; 
+    let roleName = role; 
+    if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
+    else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+    else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+    
+    const rankInfo = getRankInfo(level); 
+    let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+    
+    let replyBtnHtml = ''; 
+    if(!isReply && epID && parentID) { 
+        replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+    }
+    
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">
+        <img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;">
+        <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span>
+                <span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
+                <span class="c-badge ${lvlClass}" onclick="alert('Informasi Level:\\nUser ini berada di Level ${level} (${rankInfo.name})')" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span>
+                <span class="c-badge ${roleBadgeClass}">${roleName}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span>
+            </div>
+            <div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>
+            ${replyBtnHtml}
+        </div>
+    </div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1518,25 +1551,4 @@ window.openUserProfile = function(uid) {
 
 window.closeUserProfileModal = function() {
     const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfileModal');
-    if(modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-        }, 300);
-    }
-};
-
-window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
-function goHome() { history.back(); }
-function backToDetail() { history.back(); }
-
-function initApp() { 
-    updateDevUI(); 
-    injectReportModal(); 
-    history.replaceState({page: 'home'}, '', window.location.pathname); 
-    switchTab('home'); 
-}
-
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+    const modal = document.getElementById('userProfile
