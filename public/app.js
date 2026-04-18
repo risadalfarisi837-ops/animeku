@@ -11,32 +11,22 @@ const firebaseConfig = {
   appId: "1:583107813249:web:4a2ebe047393f4f744d280",
   measurementId: "G-3E8VRPRM0F"
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-let currentUser = null;
+const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
 
-// ==== CUSTOM TOAST NOTIFICATION ====
-window.showToast = function(message, type = 'success') {
-    let container = document.getElementById('custom-toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'custom-toast-container';
-        container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width: 90%; max-width: 350px;';
-        document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    const bgColor = type === 'success' ? '#10b981' : '#ef4444';
-    const iconSvg = type === 'success' ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-    toast.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left: 4px solid ${bgColor}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);`;
-    toast.innerHTML = `<div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;">${iconSvg}</div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; }, 10);
-    setTimeout(() => { if(toast.parentNode) { toast.style.transform = 'translateY(-30px)'; toast.style.opacity = '0'; setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300); } }, 3000);
+// ==== CUSTOM TOAST ====
+window.showToast = function(msg, type = 'success') {
+    let c = document.getElementById('custom-toast-container');
+    if (!c) { c = document.createElement('div'); c.id = 'custom-toast-container'; c.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width:90%; max-width:350px;'; document.body.appendChild(c); }
+    const t = document.createElement('div'); const bg = type === 'success' ? '#10b981' : '#ef4444';
+    const icon = type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
+    t.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left:4px solid ${bg}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s ease;`;
+    t.innerHTML = `<div style="background:${bg}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 10px ${bg}80;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">${icon}</svg></div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${msg}</div>`;
+    c.appendChild(t); setTimeout(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; }, 10);
+    setTimeout(() => { if(t.parentNode) { t.style.transform = 'translateY(-30px)'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); } }, 3000);
 };
 
-// ==== INJEKSI CSS PREMIUM VIA JS ====
+// ==== PREMIUM STYLES ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style'); style.id = 'premium-rank-styles';
@@ -60,14 +50,12 @@ injectPremiumStyles();
 
 auth.onAuthStateChanged(user => {
     currentUser = user; updateDevUI();
-    if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) { console.error(e); } }
+    if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) {} }
 });
 
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
-    if (isLoggingIn) return; isLoggingIn = true;
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
+    if (isLoggingIn) return; isLoggingIn = true; const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
         db.ref('users/' + u.uid).once('value').then(snap => { if(!snap.exists()){ db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0 }); } });
@@ -77,7 +65,6 @@ window.loginDenganGoogle = function() {
         isLoggingIn = false;
     });
 };
-
 window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
 
 const RANK_TIERS = [
@@ -88,6 +75,7 @@ const RANK_TIERS = [
 ];
 function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
 
+// ==== DEV UI ====
 function updateDevUI() {
     const container = document.getElementById('auth-check-container'); if(!container) return;
     if(!currentUser) {
@@ -172,7 +160,6 @@ window.openUserProfile = function(uid) {
         content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
     });
 };
-
 window.closeUserProfileModal = function() { const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } };
 
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
@@ -248,16 +235,28 @@ function getEpBadge(anime) {
 function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
 
+// ==== LOGIKA EXP DIKEMBALIKAN KE ASLI ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
-        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
+        
+        let prevExp = d.exp || 0; 
+        let prevLvl = Math.floor(prevExp / 200) + 1; 
+        
+        // DIBIARKAN AGAR BISA JEBOL / BUG E+21 SESUAI PERMINTAAN
+        let nExp = prevExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > prevLvl;
+        
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        
+        let currentLevelXp = nExp % 200; 
+        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
+
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -475,8 +474,8 @@ async function loadVideo(url) {
         }
         
         window.currentEpID = episodeID; 
-        try { renderCommentInput(episodeID); } catch(e) { console.error("Komentar Input Error:", e); }
-        try { listenToComments(episodeID); } catch(e) { console.error("Komentar Fetch Error:", e); }
+        try { renderCommentInput(episodeID); } catch(e) { console.error(e); }
+        try { listenToComments(episodeID); } catch(e) { console.error(e); }
         
     } catch (err) { console.error(err); document.getElementById('watch-view').innerHTML = `<div style="text-align:center; padding:50px; color:#ef4444;">Gagal memuat video. Server API sibuk.</div>`; } finally { loader(false); }
 }
@@ -612,6 +611,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
 };
 
 window.closeLevelModal = function() { const modal = document.getElementById('levelModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('levelModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+
 window.switchProfileTab = function(tabName, element) { document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active')); element.classList.add('active'); document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none'); document.getElementById('ptab-' + tabName).style.display = 'block'; };
 
 const API_BASE = '/api'; 
@@ -658,17 +658,7 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
-function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
-function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
-function getEpBadge(anime) { 
-    if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
-    let lowText = text.toLowerCase().trim(); if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat'; if (lowText.includes('movie')) return 'Movie'; if (lowText.includes('ongoin')) return 'Ongoing';
-    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); if (epMatch) return `Episode ${epMatch[1]}`; let numMatch = text.match(/\d+/g); if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`; return text.length > 10 ? text.substring(0, 10) : text; 
-}
-function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
-function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
-
-// ==== SISTEM NAVIGASI (EXIT MODAL) ====
+// ==== SISTEM NAVIGASI & EXIT MODAL ====
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
 window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
@@ -693,7 +683,6 @@ window.openExitModal = function() { document.getElementById('exitModalOverlay').
 window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
 window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
 
-
 // ==========================================
 // FITUR JADWAL RILIS ANIME
 // ==========================================
@@ -714,8 +703,7 @@ function injectScheduleStyles() {
         .sched-card:hover { background: #111; }
         .sched-time { font-size: 16px; font-weight: 900; color: #fff; width: 50px; text-align: center; flex-shrink: 0; }
         
-        /* FOTO KEMBALI JADI POSTER BERDIRI (PORTRAIT) */
-        .sched-img { width: 70px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
+        .sched-img { width: 75px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
         
         .sched-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
         .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -765,10 +753,7 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container'); 
-    
-    if (!window.cachedScheduleData) {
-        loader(true);
-    }
+    if (!window.cachedScheduleData) { loader(true); }
 
     try {
         let data;
@@ -792,7 +777,6 @@ async function loadJadwalData(dayIndex) {
             let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
             let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
             
-            // GAMBAR PAKE getHighRes (Kalau API animeku pake poster, bakal jadi bagus!)
             html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
         });
         if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
@@ -802,41 +786,7 @@ async function loadJadwalData(dayIndex) {
     loader(false);
 }
 
-// ==== FITUR NOTIFIKASI UPDATE ANIME ====
-function showUpdateNotification(updates) {
-    if (!document.getElementById('in-app-notif-container')) { const container = document.createElement('div'); container.id = 'in-app-notif-container'; container.style.cssText = 'position:fixed; top:15px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:350px; pointer-events:none;'; document.body.appendChild(container); }
-    const container = document.getElementById('in-app-notif-container');
-    updates.forEach((update, idx) => {
-        setTimeout(() => {
-            const notif = document.createElement('div');
-            notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
-            notif.innerHTML = `<img src="${getHighRes(update.image)}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;"><div style="flex:1; min-width:0;"><div style="color:#3b82f6; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Update Rilis!</div><div style="color:#fff; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${update.title}</div><div style="color:#a1a1aa; font-size:12px; font-weight:500;">Episode ${update.newEp} sudah tersedia.</div></div><div style="background:rgba(59,130,246,0.15); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></div>`;
-            notif.onclick = () => { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => notif.remove(), 300); loadDetail(update.url); };
-            container.appendChild(notif);
-            setTimeout(() => { notif.style.transform = 'translateY(0) scale(1)'; notif.style.opacity = '1'; }, 10);
-            setTimeout(() => { if(notif.parentNode) { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => { if(notif.parentNode) notif.remove(); }, 300); } }, 6000);
-        }, idx * 1200); 
-    });
-}
-
-async function checkAnimeUpdates() {
-    try {
-        const favorites = await getFavorites(); if (!favorites || favorites.length === 0) return;
-        const res = await fetchTimeout(`${API_BASE}/latest`, 10000); if (!res || !res.ok) return; const latestData = await res.json();
-        let updatedAnimes = []; const database = await initDB();
-        for (const latest of latestData) {
-            const fav = favorites.find(f => f.url === latest.url);
-            if (fav) {
-                const extractEpNum = (str) => { if (!str) return 0; let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); if (m) return parseFloat(m[1]); let nums = String(str).match(/\d+/g); return nums ? parseFloat(nums[nums.length - 1]) : 0; };
-                let favEpNum = extractEpNum(fav.episode); let latestEpNum = extractEpNum(getEpBadge(latest));
-                if (latestEpNum > favEpNum) { updatedAnimes.push({ title: fav.title, newEp: latestEpNum, url: fav.url, image: fav.image }); fav.episode = `Eps ${latestEpNum}`; database.transaction(STORE_FAV, 'readwrite').objectStore(STORE_FAV).put(fav); }
-            }
-        }
-        if (updatedAnimes.length > 0) showUpdateNotification(updatedAnimes);
-    } catch (e) { console.log("Update check failed:", e); }
-}
-
-// ==== FUNGSI SWITCH TAB FINAL ====
+// ==== SWITCH TAB FINAL ====
 function switchTab(tabName) {
     ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => {
         let el = document.getElementById(v);
@@ -860,14 +810,9 @@ function switchTab(tabName) {
 }
 
 function initApp() { 
-    updateDevUI(); 
-    injectReportModal(); 
-    injectExitModal(); 
-    
+    updateDevUI(); injectReportModal(); injectExitModal(); 
     if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
     switchTab('home'); 
-    
-    setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
