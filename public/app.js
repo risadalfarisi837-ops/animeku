@@ -265,6 +265,7 @@ function updateDevUI() {
     }
 }
 
+// ==== FUNGSI BUKA LEVEL MODAL BESERTA PROGRESS BAR ====
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     const modalOverlay = document.getElementById('levelModalOverlay');
     const modal = document.getElementById('levelModal');
@@ -276,7 +277,7 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
 
     let html = '';
-    RANK_TIERS.forEach(rank => {
+    RANK_TIERS.forEach((rank, idx) => {
         let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl);
         let isPassed = currentLvl > rank.maxLvl;
         
@@ -286,17 +287,45 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
         else statusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
         
         let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        
         let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
         let iconClass = `rank-icon rank-icon-${rank.name.toLowerCase()}`;
 
+        // PROGRESS BAR JIKA RANK SEDANG AKTIF
+        let progressHtml = '';
+        if (isCurrent && rank.maxLvl !== Infinity) {
+            let totalLvlInRank = rank.maxLvl - rank.minLvl + 1;
+            let earnedLvl = currentLvl - rank.minLvl;
+            let percent = Math.floor((earnedLvl / totalLvlInRank) * 100);
+            let nextRankName = RANK_TIERS[idx+1] ? RANK_TIERS[idx+1].name : 'Max';
+            let lvlLeft = rank.maxLvl - currentLvl + 1;
+            
+            let barColor = '#3b82f6';
+            if(rank.name === 'Stone') barColor = '#a8a29e';
+            if(rank.name === 'Bronze') barColor = '#d97706';
+            if(rank.name === 'Silver') barColor = '#e2e8f0';
+            if(rank.name === 'Gold') barColor = '#facc15';
+            if(rank.name === 'Emerald') barColor = '#10b981';
+            if(rank.name === 'Diamond') barColor = '#22d3ee';
+            if(rank.name === 'Master') barColor = '#ec4899';
+            
+            progressHtml = `
+                <div style="margin-top: 12px; padding-right: 15px;">
+                    <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="height: 100%; width: ${percent}%; background: ${barColor}; border-radius: 3px;"></div>
+                    </div>
+                    <div style="font-size: 11px; color: #a1a1aa; font-weight: 600;">${percent}% • ${lvlLeft} levels to ${nextRankName}</div>
+                </div>
+            `;
+        }
+
         html += `
             <div class="level-rank-item" style="${bgStyle}">
-                <div class="rank-info">
+                <div class="rank-info" style="flex:1;">
                     <div class="${iconClass}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div>
-                    <div>
+                    <div style="flex:1;">
                         <div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div>
                         <div class="rank-req">${reqText}</div>
+                        ${progressHtml}
                     </div>
                 </div>
                 <div class="rank-status">${statusIcon}</div>
@@ -305,7 +334,6 @@ window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
     });
 
     listContainer.innerHTML = html;
-
     modalOverlay.style.display = 'block';
     modal.style.display = 'flex';
     setTimeout(() => { modal.classList.add('show'); }, 10);
@@ -521,7 +549,7 @@ function switchTab(tabName) {
     let targetNav = document.getElementById('tab-' + tabName);
     if(targetNav) targetNav.classList.add('active');
     
-    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatestSafe();
     if (tabName === 'recent') loadRecentHistory();
     if (tabName === 'favorite') loadFavorites();
 }
@@ -560,90 +588,81 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
-async function loadLatest() {
+// ==== FUNGSI LOADING BARU YANG AMAN (ANTI LIMIT SERVER/BLANK SCREEN) ====
+async function loadLatestSafe() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
     homeContainer.innerHTML = ''; 
     let hasAnyData = false;
     
+    const topContentDiv = document.createElement('div');
+    homeContainer.appendChild(topContentDiv);
+
+    const sectionDivs = [];
+    for (const section of HOME_SECTIONS) {
+        const div = document.createElement('div');
+        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat...</div></div>`;
+        homeContainer.appendChild(div);
+        sectionDivs.push({ section, div });
+    }
+
+    loader(false); 
+
     try {
-        try {
-            let sliderData = []; 
-            const res = await fetchTimeout(`${API_BASE}/latest`, 15000); 
-            if (res && res.ok) {
-                sliderData = await res.json();
-                if (sliderData && sliderData.length > 0) { 
-                    renderHeroSlider(sliderData.slice(0, 20), homeContainer); 
-                    hasAnyData = true;
-                } 
-            }
-        } catch (e) {}
-        
-        try {
-            const historyData = await getHistory();
-            if (historyData && historyData.length > 0) {
-                const histDiv = document.createElement('div');
-                histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
-                homeContainer.appendChild(histDiv);
+        const resSlider = await fetchTimeout(`${API_BASE}/latest`, 8000); 
+        if (resSlider && resSlider.ok) {
+            let sliderData = await resSlider.json();
+            if (sliderData && sliderData.length > 0) { 
+                renderHeroSlider(sliderData.slice(0, 15), topContentDiv); 
                 hasAnyData = true;
+            } 
+        }
+    } catch (e) { console.log("Slider error", e); }
+    
+    try {
+        const historyData = await getHistory();
+        if (historyData && historyData.length > 0) {
+            const histDiv = document.createElement('div');
+            histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`;
+            topContentDiv.appendChild(histDiv);
+            hasAnyData = true;
+        }
+    } catch (e) {}
+
+    // Load Berurutan
+    for (const { section, div } of sectionDivs) {
+        try {
+            let combinedData = [];
+            let q = section.queries[0]; 
+            
+            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 8000);
+            if (res && res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) combinedData.push(...data);
             }
-        } catch (e) {}
-        
-        loader(false); 
 
-        const sectionContainers = [];
-        for (const section of HOME_SECTIONS) {
-            const div = document.createElement('div');
-            div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`;
-            homeContainer.appendChild(div);
-            sectionContainers.push({ section, div });
+            combinedData = removeDuplicates(combinedData, 'url');
+            if (combinedData.length > 0) {
+                div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 12).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                hasAnyData = true;
+            } else {
+                div.remove(); 
+            }
+        } catch(e) { 
+            div.remove(); 
         }
+    }
 
-        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
-        const batches = chunkArray(sectionContainers, 3);
-
-        for (const batch of batches) {
-            await Promise.all(batch.map(async ({ section, div }) => {
-                try {
-                    let combinedData = [];
-                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
-                        try {
-                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                            if (res && res.ok) {
-                                const data = await res.json();
-                                if (Array.isArray(data)) combinedData.push(...data);
-                            }
-                        } catch(e) {}
-                    });
-
-                    await Promise.all(fetchPromises);
-
-                    combinedData = removeDuplicates(combinedData, 'url');
-                    if (combinedData.length > 0) {
-                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                        hasAnyData = true;
-                    } else {
-                        div.remove(); 
-                    }
-                } catch(e) { div.remove(); }
-            }));
-        }
-
-        if (!hasAnyData) {
-            homeContainer.innerHTML = `
-                <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
-                    <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
-                    <button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
-                </div>
-            `;
-        }
-
-    } catch (err) { 
-        console.error("Home loading failed total", err);
-        loader(false); 
-    } 
+    if (!hasAnyData) {
+        homeContainer.innerHTML = `
+            <div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2>
+                <p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p>
+                <button onclick="loadLatestSafe()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button>
+            </div>
+        `;
+    }
 }
 
 function renderHeroSlider(data, container) {
@@ -891,34 +910,95 @@ async function loadVideo(url) {
             url: window.currentAnimeMeta?.url || url
         };
 
-        let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || [];
-        if (!watchedEps.includes(url)) { watchedEps.push(url); localStorage.setItem('watchedEps', JSON.stringify(watchedEps)); }
-        
+        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+        let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || [];
+        oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
+        if (watchProgress[url] === undefined) {
+            watchProgress[url] = 0; 
+        } else if (watchProgress[url] < 100) {
+            watchProgress[url] = Math.min(100, watchProgress[url] + 50);
+        }
+        localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
+
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
-        
+
+        let initialServer = data.streams.length > 0 ? data.streams[0].server : '';
+        let initQualMatch = initialServer.match(/\d{3,4}p/i);
+        let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
-            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
-            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 12px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
-            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+            
+            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
+                <img src="${window.currentPlayingAnime.image}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
+                <div style="flex: 1;">
+                    <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
+                    <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                        Episode ${currentEpNum} • 
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> 
+                        ${mockViews} • ${mockDate}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
+                <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
+                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
+                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                    </div>
+
+                    <button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
+                    
+                    <button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                </div>
+                
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                    <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                </div>
+            </div>
+
+            <div style="padding: 20px 12px 10px 12px;">
+                <h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2>
+                <div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
+            </div>
+
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
         `;
-        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
-        const watchEpListContainer = document.getElementById('watch-episode-squares');
         
+        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
+        
+        const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
+                let displayEps = [...window.currentAnimeEpisodes].reverse();
+                watchEpListContainer.innerHTML = displayEps.map((ep, index) => { 
                     let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
                     let eNum = m ? m[1] : (index + 1); 
                     
-                    let c = (ep.url === url) ? "ep-square watched" : (watchedEps.includes(ep.url) ? "ep-square active" : "ep-square"); 
+                    let progress = watchProgress[ep.url];
+                    let isCurrent = (ep.url === url);
                     
-                    return `<div class="${c}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                    let c = "ep-square";
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
+
+                    if (progress >= 100) {
+                        c += " active"; 
+                        if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; 
+                    } 
+                    else if (progress > 0) {
+                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+                    } 
+                    else if (progress === 0 || isCurrent) {
+                        c += " watched";
+                    }
+
+                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
             } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched">${currentEpNum}</div>`; 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; 
             } 
         }
         
@@ -964,6 +1044,8 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    
+    // Fitur klik profil orang lain SUDAH DIHAPUS. Kalau ngeklik level, akan buka level modal.
     return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span onclick="openLevelModal(${level}, ${level * 200}, ${Math.floor(level * 1.5)})" style="cursor:pointer;" class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
