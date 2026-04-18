@@ -1588,7 +1588,7 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (FINAL FIX)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL & AMAN)
 // ==========================================
 window.allowExitApp = false;
 
@@ -1603,27 +1603,29 @@ window.addEventListener('popstate', (e) => {
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika user swipe back sampai mentok (#trap atau kosong)
+    // JEBAKAN KELUAR: Jika user swipe back sampai ke ujung (#trap atau URL kosong)
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Dorong kembali ke #home agar aplikasi tetap hidup dan tidak keluar
-        history.pushState(null, '', '#home');
+        // Dorong kembali ke #home agar aplikasi tetap hidup
+        history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    // Navigasi normal via swipe back HP
+    // Navigasi normal via swipe back
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-// ==== TOMBOL PANAH UI (DILARANG PAKAI history.back) ====
+// ==== TOMBOL PANAH UI (WAJIB PUSHSTATE, HARAM PAKAI HISTORY.BACK) ====
 window.goHome = function() { 
-    history.pushState(null, '', '#home');
+    // Gak pakai history.back() lagi, paksa ganti tampilan langsung ke Home!
+    history.pushState({ page: 'home' }, '', '#home');
     switchTab('home');
 };
 
 window.backToDetail = function() { 
-    history.pushState(null, '', '#detail');
+    // Gak pakai history.back() lagi, paksa ganti tampilan langsung ke Detail!
+    history.pushState({ page: 'detail' }, '', '#detail');
     switchTab('detail');
 };
 
@@ -1669,7 +1671,7 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.allowExitApp = true; // Matikan jebakan agar bisa keluar beneran
+    window.allowExitApp = true; // Matikan jebakan agar bisa keluar
     window.history.go(-2); 
     setTimeout(() => { window.close(); }, 300);
 };
@@ -1680,10 +1682,9 @@ function initApp() {
     injectReportModal(); 
     injectExitModal(); 
     
-    // PENTING: Ganti history awal jadi jebakan (#trap), lalu buka #home
-    // Ini bikin aplikasi punya "bemper" biar tombol back bawaan HP nyangkut di modal
-    history.replaceState(null, '', '#trap');
-    history.pushState(null, '', '#home');
+    // Pasang jebakan history secara langsung sejak awal dimuat!
+    history.replaceState({ page: 'trap' }, '', '#trap');
+    history.pushState({ page: 'home' }, '', '#home');
     
     switchTab('home'); 
 }
