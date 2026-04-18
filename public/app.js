@@ -1376,10 +1376,7 @@ window.postComment = function(epID) {
     }); 
 };
 
-// ==========================================
-// MENGHAPUS FUNGSI KLIK PADA FOTO DAN NAMA
-// MENAMBAHKAN FUNGSI KLIK PADA BADGE LEVEL
-// ==========================================
+// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; 
     const level = c.level || 1; 
@@ -1551,4 +1548,25 @@ window.openUserProfile = function(uid) {
 
 window.closeUserProfileModal = function() {
     const overlay = document.getElementById('userProfileOverlay');
-    const modal = document.getElementById('userProfile
+    const modal = document.getElementById('userProfileModal');
+    if(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
+
+window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
+function goHome() { history.back(); }
+function backToDetail() { history.back(); }
+
+function initApp() { 
+    updateDevUI(); 
+    injectReportModal(); 
+    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    switchTab('home'); 
+}
+
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
