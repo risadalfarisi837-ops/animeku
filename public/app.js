@@ -987,7 +987,16 @@ window.openServerModal = function() { show('serverModalOverlay'); show('serverMo
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
 window.changeServer = function(url, serverName, btnElement) { 
-    document.getElementById('video-player').src = url; 
+    // Hapus iframe lama dan buat baru untuk mencegah penumpukan history
+    const oldIframe = document.getElementById('video-player');
+    if (oldIframe) {
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'video-player';
+        newIframe.setAttribute('allowfullscreen', 'true');
+        newIframe.src = url;
+        oldIframe.parentNode.replaceChild(newIframe, oldIframe);
+    }
+    
     let qualMatch = serverName.match(/\d{3,4}p/i);
     let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
     document.getElementById('current-quality-text').innerText = displayQuality; 
@@ -1575,15 +1584,99 @@ window.closeUserProfileModal = function() {
     }
 };
 
-window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page : 'home'; switchTab(page); if (page === 'home' || page === 'detail') { let p = document.getElementById('video-player'); if(p) p.src = ''; } });
-function goHome() { history.back(); }
-function backToDetail() { history.back(); }
+window.addEventListener('popstate', (e) => { 
+    const state = e.state;
+    
+    // Matikan video jika user kembali dari halaman nonton
+    let p = document.getElementById('video-player'); 
+    if(p && (!state || state.page !== 'watch')) { 
+        p.src = ''; 
+    }
+
+    // Jika masuk ke state jebakan 'exit-trap' (tombol back di menu utama)
+    if (!state || state.page === 'exit-trap') {
+        openExitModal();
+        // Mendorong halaman home kembali ke history agar aplikasi tidak langsung tertutup
+        history.pushState({ page: 'home' }, '', '#home');
+        return;
+    }
+
+    const page = state.page || 'home'; 
+    switchTab(page); 
+});
+
+window.goHome = function() { 
+    // Mencegah error jika history bermasalah
+    if (window.history.state && window.history.state.page !== 'home') {
+        history.back(); 
+    } else {
+        switchTab('home');
+    }
+};
+
+window.backToDetail = function() { 
+    if (window.history.state && window.history.state.page !== 'detail') {
+        history.back(); 
+    } else {
+        switchTab('detail');
+    }
+};
+
+window.injectExitModal = function() {
+    if(document.getElementById('exit-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'exit-modal-injected';
+    div.innerHTML = `
+        <div id="exitModalOverlay" class="modal-overlay" onclick="cancelExit()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+        <div id="exitModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;">
+            <div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </div>
+            <h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Yakin ingin keluar?</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin menutup aplikasi Animeku?</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Tidak</button>
+                <button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openExitModal = function() {
+    document.getElementById('exitModalOverlay').style.display = 'block';
+    document.getElementById('exitModal').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('exitModal').style.opacity = '1';
+        document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
+};
+
+window.cancelExit = function() {
+    document.getElementById('exitModal').style.opacity = '0';
+    document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => {
+        document.getElementById('exitModalOverlay').style.display = 'none';
+        document.getElementById('exitModal').style.display = 'none';
+    }, 300);
+};
+
+window.confirmExit = function() {
+    window.history.go(-2); 
+    setTimeout(() => { window.close(); }, 200);
+};
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    injectExitModal(); // Tambahkan modal exit ke DOM
+    
+    // Setup History Navigasi & Exit Trap
+    history.replaceState({ page: 'exit-trap' }, '', window.location.pathname);
+    history.pushState({ page: 'home' }, '', '#home');
+    
     switchTab('home'); 
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+
