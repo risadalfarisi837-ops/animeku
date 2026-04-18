@@ -26,17 +26,12 @@ window.showToast = function(message, type = 'success') {
         container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width: 90%; max-width: 350px;';
         document.body.appendChild(container);
     }
-
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? '#10b981' : '#ef4444';
-    const iconSvg = type === 'success' 
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' 
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
+    const iconSvg = type === 'success' ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
     toast.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left: 4px solid ${bgColor}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);`;
     toast.innerHTML = `<div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;">${iconSvg}</div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>`;
     container.appendChild(toast);
-
     setTimeout(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; }, 10);
     setTimeout(() => { if(toast.parentNode) { toast.style.transform = 'translateY(-30px)'; toast.style.opacity = '0'; setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300); } }, 3000);
 };
@@ -44,8 +39,7 @@ window.showToast = function(message, type = 'success') {
 // ==== INJEKSI CSS PREMIUM VIA JS ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
-    const style = document.createElement('style');
-    style.id = 'premium-rank-styles';
+    const style = document.createElement('style'); style.id = 'premium-rank-styles';
     style.innerHTML = `
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
@@ -65,11 +59,8 @@ function injectPremiumStyles() {
 injectPremiumStyles();
 
 auth.onAuthStateChanged(user => {
-    currentUser = user;
-    updateDevUI();
-    if(document.getElementById('custom-comment-area')) { 
-        try { renderCommentInput(window.currentEpID); } catch(e) { console.error(e); } 
-    }
+    currentUser = user; updateDevUI();
+    if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) { console.error(e); } }
 });
 
 let isLoggingIn = false;
@@ -80,8 +71,7 @@ window.loginDenganGoogle = function() {
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
         db.ref('users/' + u.uid).once('value').then(snap => { if(!snap.exists()){ db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0 }); } });
-        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success');
-        updateDevUI(); isLoggingIn = false;
+        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { window.showToast("Gagal login: " + err.message, 'error'); }
         isLoggingIn = false;
@@ -91,33 +81,17 @@ window.loginDenganGoogle = function() {
 window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
 
 const RANK_TIERS = [
-    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
-    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
-    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" },
-    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
-    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
-    { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
-    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" }, { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" }, { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" }, { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" }, { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
 ];
 function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
 
 function updateDevUI() {
-    const container = document.getElementById('auth-check-container');
-    if(!container) return;
-
+    const container = document.getElementById('auth-check-container'); if(!container) return;
     if(!currentUser) {
-        container.innerHTML = `
-            <div style="text-align:center; padding: 40px 20px;">
-                <div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-                <h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2>
-                <p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p>
-                <button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google
-                </button>
-            </div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 40px 20px;"><div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2><p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p><button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google</button></div>`;
     } else {
         container.innerHTML = '<div style="height:50px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:25px; height:25px;"></div></div>';
         db.ref('users/' + currentUser.uid).on('value', async snap => {
@@ -126,19 +100,14 @@ function updateDevUI() {
                 if(!data) { data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 }; await db.ref('users/' + currentUser.uid).set(data); }
                 let historyData = []; try { historyData = await getHistory(); } catch(e) {}
                 const totalMenit = (historyData.length || 0) * 24; const jamNonton = Math.floor(totalMenit / 60); const joinMonths = Math.max(1, new Date().getMonth() + 1);
-                
-                const role = data.role || 'Member'; 
-                const level = data.level || 1; 
-                const exp = data.exp || 0; 
+                const role = data.role || 'Member'; const level = data.level || 1; const exp = data.exp || 0; 
                 const userName = data.nama || 'User Animeku'; const userFoto = data.foto || 'https://placehold.co/100'; const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
-                
                 let roleBadgeClass = 'badge-member'; let roleName = role;
                 if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
                 const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
-                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24)));
-                    let randProgress = Math.floor(Math.random() * 80 + 20);
+                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); let randProgress = Math.floor(Math.random() * 80 + 20);
                     return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
@@ -279,28 +248,16 @@ function getEpBadge(anime) {
 function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
 
-// ==== LOGIKA EXP DIKEMBALIKAN KE ASLI ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
-        
-        let prevExp = d.exp || 0; 
-        let prevLvl = Math.floor(prevExp / 200) + 1; 
-        
-        // DIBIARKAN AGAR BISA JEBOL / BUG E+21 SESUAI PERMINTAAN
-        let nExp = prevExp + amount; 
-        let nLvl = Math.floor(nExp / 200) + 1; 
-        let isLevelUp = nLvl > prevLvl;
-        
+        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        
-        let currentLevelXp = nExp % 200; 
-        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
-
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -341,21 +298,13 @@ const HOME_SECTIONS = [
 let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
-
-// MENGEMBALIKAN FUNGSI LOADER (DENGAN TEKS MEMUAT)
-function loader(state) { 
-    const el = document.getElementById('loading'); 
-    if(el) { state ? el.classList.remove('hidden') : el.classList.add('hidden'); } 
-};
+function loader(state) { const el = document.getElementById('loading'); if(el) { state ? el.classList.remove('hidden') : el.classList.add('hidden'); } };
 
 function generateCardHtml(anime) { let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`; }
 function generateRecentCardHtml(anime) { let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'"; return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`; }
 function generateFavCardHtml(anime) { if (!anime) return ''; let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating || '?'; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`; }
 
-async function fetchTimeout(url, timeoutMs = 15000) {
-    const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs);
-    try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; }
-}
+async function fetchTimeout(url, timeoutMs = 15000) { const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs); try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; } }
 
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; let hasAnyData = false;
@@ -487,6 +436,8 @@ async function loadDetail(url) {
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
+window.currentCommentSort = 'top';
+
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
@@ -567,51 +518,29 @@ window.postComment = function(epID) {
     }); 
 };
 
-// MENAMBAHKAN ONCLICK KE FOTO DAN NAMA UNTUK MELIHAT PROFIL
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
-    const role = c.role || 'Member'; 
-    const level = c.level || 1; 
-    const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; 
-    const timeStr = timeAgo(c.waktu || Date.now());
-    
-    let roleBadgeClass = 'badge-member'; 
-    let roleName = role; 
-    if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-    else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-    else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-    
-    const rankInfo = getRankInfo(level); 
-    let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-
-    // Kalkulasi EXP dan Jam Nonton berdasarkan Level supaya menyesuaikan profil orangnya
-    // Karena logic level di web kamu 1 Lvl = 200 exp
-    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); 
-    const userJam = level * 2; // Asumsi per 1 level butuh 2 jam nonton
-    
-    let replyBtnHtml = ''; 
-    if(!isReply && epID && parentID) { 
-        replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
-    }
-    
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">
-        <img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;">
-        <div style="flex: 1; min-width: 0;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.nama}</span>
-                <span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-                <span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span>
-                <span class="c-badge ${roleBadgeClass}">${roleName}</span>
-                <span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span>
-            </div>
-            <div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>
-            ${replyBtnHtml}
-        </div>
-    </div>`;
+    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
+    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
+    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
 }
 
-function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
+function listenToComments(epID) { 
+    db.ref('comments/' + epID).on('value', snap => { 
+        const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); 
+        if(!snap.exists()) { 
+            if(countEl) countEl.innerText = "0 Comments"; 
+            if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; 
+            return; 
+        } 
+        let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); 
+        if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } 
+        if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } 
+        if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); 
+    }); 
+}
 
 window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
@@ -729,4 +658,216 @@ window.renderDetailEpisodeUI = function() {
     }
 };
 
-function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e)
+function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
+function getEpBadge(anime) { 
+    if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
+    let lowText = text.toLowerCase().trim(); if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat'; if (lowText.includes('movie')) return 'Movie'; if (lowText.includes('ongoin')) return 'Ongoing';
+    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`; let epMatch = text.match(/(?:episode|eps|ep)\s*(\d+(\.\d+)?)/i); if (epMatch) return `Episode ${epMatch[1]}`; let numMatch = text.match(/\d+/g); if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`; return text.length > 10 ? text.substring(0, 10) : text; 
+}
+function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
+function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
+
+// ==== SISTEM NAVIGASI (EXIT MODAL) ====
+window.allowExitApp = false; window.historyTrapSet = false;
+function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+
+window.addEventListener('popstate', (e) => { 
+    if (window.allowExitApp) return; let hash = window.location.hash;
+    let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
+    if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
+    let page = hash.replace('#', '') || 'home'; switchTab(page); 
+});
+
+window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
+window.backToDetail = function() { if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); } };
+
+window.injectExitModal = function() {
+    if(document.getElementById('exit-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'exit-modal-injected';
+    div.innerHTML = `<div id="exitModalOverlay" class="modal-overlay" onclick="cancelExit()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div><div id="exitModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;"><div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div><h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Yakin ingin keluar?</h3><p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin menutup aplikasi Animeku?</p><div style="display:flex; gap:10px;"><button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Tidak</button><button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button></div></div>`;
+    document.body.appendChild(div);
+};
+window.openExitModal = function() { document.getElementById('exitModalOverlay').style.display = 'block'; document.getElementById('exitModal').style.display = 'block'; setTimeout(() => { document.getElementById('exitModal').style.opacity = '1'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(1)'; }, 10); };
+window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
+window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
+
+
+// ==========================================
+// FITUR JADWAL RILIS ANIME
+// ==========================================
+window.cachedScheduleData = null; 
+
+function injectScheduleStyles() {
+    if(document.getElementById('schedule-styles')) return;
+    const style = document.createElement('style'); style.id = 'schedule-styles';
+    style.innerHTML = `
+        .sched-day-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 15px 20px; background: #050505; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; z-index: 10; }
+        .sched-day-scroll::-webkit-scrollbar { display: none; }
+        .sched-day-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #666; font-weight: 700; cursor: pointer; min-width: 40px; transition: 0.2s; }
+        .sched-day-item .s-name { font-size: 12px; }
+        .sched-day-item .s-date { font-size: 16px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .sched-day-item.active { color: #3b82f6; }
+        .sched-day-item.active .s-date { background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+        .sched-card { display: flex; gap: 12px; padding: 15px 20px; border-bottom: 1px solid #111; cursor: pointer; transition: 0.2s; background: #050505; align-items: center; }
+        .sched-card:hover { background: #111; }
+        .sched-time { font-size: 16px; font-weight: 900; color: #fff; width: 50px; text-align: center; flex-shrink: 0; }
+        
+        /* FOTO KEMBALI JADI POSTER BERDIRI (PORTRAIT) */
+        .sched-img { width: 70px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
+        
+        .sched-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sched-ep { font-size: 12px; color: #d1d5db; margin-bottom: 6px; font-weight: 600; }
+        .sched-stats { font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 6px; }
+        .sched-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .status-wait { color: #a1a1aa; } .status-wait::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #555; border-radius: 50%; }
+        .status-done { color: #10b981; } .status-done::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 5px #10b981; }
+        .sched-float-nav { display: flex; justify-content: space-between; padding: 15px 20px; background: linear-gradient(transparent, #050505 40%); position: fixed; bottom: 60px; width: 100%; max-width: 500px; box-sizing: border-box; pointer-events: none; z-index: 10; }
+        .sched-btn { pointer-events: auto; background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    `;
+    document.head.appendChild(style);
+}
+
+window.currentJadwalDay = new Date().getDay(); 
+const NAMA_HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const NAMA_HARI_FULL = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+window.initJadwal = async function() {
+    injectScheduleStyles();
+    if (document.getElementById('sched-list-container').innerHTML === '') {
+        renderJadwalDays(window.currentJadwalDay);
+        await loadJadwalData(window.currentJadwalDay);
+    }
+};
+
+window.changeJadwalDay = function(direction) {
+    let newDay = window.currentJadwalDay + direction;
+    if(newDay > 6) newDay = 0; if(newDay < 0) newDay = 6; window.currentJadwalDay = newDay;
+    renderJadwalDays(newDay); loadJadwalData(newDay);
+};
+
+window.setJadwalDay = function(dayIndex) { window.currentJadwalDay = dayIndex; renderJadwalDays(dayIndex); loadJadwalData(dayIndex); };
+
+function renderJadwalDays(activeDay) {
+    const container = document.getElementById('sched-days-container'); const today = new Date(); const currentDayOfWeek = today.getDay(); 
+    let html = '';
+    for(let i = 0; i < 7; i++) {
+        let diff = i - currentDayOfWeek; let dateOfThisDay = new Date(today); dateOfThisDay.setDate(today.getDate() + diff); let tgl = dateOfThisDay.getDate();
+        let isActive = (i === activeDay) ? 'active' : '';
+        html += `<div class="sched-day-item ${isActive}" onclick="setJadwalDay(${i})"><div class="s-name">${NAMA_HARI[i]}</div><div class="s-date">${tgl}</div></div>`;
+    }
+    container.innerHTML = html;
+    let prevDay = activeDay - 1; if(prevDay < 0) prevDay = 6; let nextDay = activeDay + 1; if(nextDay > 6) nextDay = 0;
+    document.getElementById('sched-text-prev').innerText = NAMA_HARI_FULL[prevDay]; document.getElementById('sched-text-next').innerText = NAMA_HARI_FULL[nextDay];
+}
+
+async function loadJadwalData(dayIndex) {
+    const container = document.getElementById('sched-list-container'); 
+    
+    if (!window.cachedScheduleData) {
+        loader(true);
+    }
+
+    try {
+        let data;
+        if (window.cachedScheduleData) {
+            data = window.cachedScheduleData;
+        } else {
+            const res = await fetchTimeout(`${API_BASE}/latest`, 10000); 
+            data = await res.json(); 
+            if(!data || data.length === 0) throw new Error("No data");
+            window.cachedScheduleData = data; 
+        }
+
+        let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
+        let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
+        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
+        todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
+
+        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
+        todaysAnime.forEach((anime, idx) => {
+            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
+            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
+            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
+            
+            // GAMBAR PAKE getHighRes (Kalau API animeku pake poster, bakal jadi bagus!)
+            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
+        });
+        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
+        container.innerHTML = html;
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
+    
+    loader(false);
+}
+
+// ==== FITUR NOTIFIKASI UPDATE ANIME ====
+function showUpdateNotification(updates) {
+    if (!document.getElementById('in-app-notif-container')) { const container = document.createElement('div'); container.id = 'in-app-notif-container'; container.style.cssText = 'position:fixed; top:15px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:350px; pointer-events:none;'; document.body.appendChild(container); }
+    const container = document.getElementById('in-app-notif-container');
+    updates.forEach((update, idx) => {
+        setTimeout(() => {
+            const notif = document.createElement('div');
+            notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
+            notif.innerHTML = `<img src="${getHighRes(update.image)}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;"><div style="flex:1; min-width:0;"><div style="color:#3b82f6; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Update Rilis!</div><div style="color:#fff; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${update.title}</div><div style="color:#a1a1aa; font-size:12px; font-weight:500;">Episode ${update.newEp} sudah tersedia.</div></div><div style="background:rgba(59,130,246,0.15); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></div>`;
+            notif.onclick = () => { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => notif.remove(), 300); loadDetail(update.url); };
+            container.appendChild(notif);
+            setTimeout(() => { notif.style.transform = 'translateY(0) scale(1)'; notif.style.opacity = '1'; }, 10);
+            setTimeout(() => { if(notif.parentNode) { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => { if(notif.parentNode) notif.remove(); }, 300); } }, 6000);
+        }, idx * 1200); 
+    });
+}
+
+async function checkAnimeUpdates() {
+    try {
+        const favorites = await getFavorites(); if (!favorites || favorites.length === 0) return;
+        const res = await fetchTimeout(`${API_BASE}/latest`, 10000); if (!res || !res.ok) return; const latestData = await res.json();
+        let updatedAnimes = []; const database = await initDB();
+        for (const latest of latestData) {
+            const fav = favorites.find(f => f.url === latest.url);
+            if (fav) {
+                const extractEpNum = (str) => { if (!str) return 0; let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); if (m) return parseFloat(m[1]); let nums = String(str).match(/\d+/g); return nums ? parseFloat(nums[nums.length - 1]) : 0; };
+                let favEpNum = extractEpNum(fav.episode); let latestEpNum = extractEpNum(getEpBadge(latest));
+                if (latestEpNum > favEpNum) { updatedAnimes.push({ title: fav.title, newEp: latestEpNum, url: fav.url, image: fav.image }); fav.episode = `Eps ${latestEpNum}`; database.transaction(STORE_FAV, 'readwrite').objectStore(STORE_FAV).put(fav); }
+            }
+        }
+        if (updatedAnimes.length > 0) showUpdateNotification(updatedAnimes);
+    } catch (e) { console.log("Update check failed:", e); }
+}
+
+// ==== FUNGSI SWITCH TAB FINAL ====
+function switchTab(tabName) {
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => {
+        let el = document.getElementById(v);
+        if(el) el.classList.add('hidden');
+    });
+    
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    let targetView = document.getElementById(tabName + '-view');
+    if(targetView) targetView.classList.remove('hidden');
+    
+    let targetNav = document.getElementById('tab-' + tabName);
+    if(targetNav) targetNav.classList.add('active');
+    
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
+    if (tabName === 'recent') loadRecentHistory();
+    if (tabName === 'favorite') loadFavorites();
+    if (tabName === 'jadwal') initJadwal();
+}
+
+function initApp() { 
+    updateDevUI(); 
+    injectReportModal(); 
+    injectExitModal(); 
+    
+    if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
+    switchTab('home'); 
+    
+    setTimeout(() => { checkAnimeUpdates(); }, 3000);
+}
+
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
