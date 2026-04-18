@@ -1584,31 +1584,36 @@ window.closeUserProfileModal = function() {
     }
 };
 
+// Flag untuk mengizinkan aplikasi benar-benar keluar
+window.allowExit = false;
+
 window.addEventListener('popstate', (e) => { 
-    // 1. Matikan video jika user kembali dari halaman nonton
+    // Jika user sudah klik "Ya, Keluar", biarkan browser melakukan navigasi mundur
+    if (window.allowExit) return; 
+
+    const state = e.state;
+
+    // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && window.location.hash !== '#watch') { 
+    if (p && (!state || state.page !== 'watch')) { 
         p.src = ''; 
     }
 
-    // 2. JEBAKAN KELUAR
-    if (window.location.hash === '#trap' || window.location.hash === '') {
+    // JEBAKAN KELUAR: Jika user kembali ke state 'base' (halaman paling awal)
+    if (!state || state.page === 'base') {
         openExitModal();
+        // Majukan lagi history ke 'home' supaya aplikasi tertahan dan tidak keluar
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    // 3. Navigasi Normal
-    const state = e.state;
-    const page = state ? state.page : (window.location.hash.replace('#', '') || 'home'); 
-    
-    if (page !== 'exit-trap' && page !== 'trap') {
-        switchTab(page); 
-    }
+    // Navigasi normal untuk tab lain (Detail / Watch)
+    const page = state.page || 'home'; 
+    switchTab(page); 
 });
 
 window.goHome = function() { 
-    if (window.location.hash === '#detail' || window.location.hash === '#watch') {
+    if (window.history.state && (window.history.state.page === 'detail' || window.history.state.page === 'watch')) {
         history.back(); 
     } else {
         switchTab('home');
@@ -1616,7 +1621,7 @@ window.goHome = function() {
 };
 
 window.backToDetail = function() { 
-    if (window.location.hash === '#watch') {
+    if (window.history.state && window.history.state.page === 'watch') {
         history.back(); 
     } else {
         switchTab('detail');
@@ -1663,31 +1668,36 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.history.go(-2); 
-    setTimeout(() => { window.close(); }, 300);
+    window.allowExit = true; // Nyalakan bypass supaya tidak dicegat lagi
+    window.history.go(-2);   // Mundur 2 langkah (melewati Home dan Base) langsung ke Google Search
+    setTimeout(() => { window.close(); }, 300); 
 };
 
-// ==== TRIK BARU: PASANG JEBAKAN SAAT LAYAR DISENTUH ====
-let isTrapActive = false;
-function setupExitTrap() {
-    if (isTrapActive) return;
-    // Penuhi syarat browser: History hanya bisa dimodif setelah ada user interaction (klik/touch)
-    if (window.location.hash === '' || window.location.hash === '#home') {
-        history.replaceState({ page: 'exit-trap' }, '', '#trap');
-        history.pushState({ page: 'home' }, '', '#home');
+// ==== TRIK ULTIMATE: PUSH STATE BERBASIS INTERAKSI ====
+let trapSet = false;
+function setupUltimateTrap() {
+    if (!trapSet) {
+        // Cek apakah user masih ada di halaman Base (belum klik Anime apapun)
+        if (window.history.state && window.history.state.page === 'base') {
+            // Pasang history palsu bernama 'home'
+            history.pushState({ page: 'home' }, '', '#home');
+        }
+        trapSet = true;
     }
-    isTrapActive = true;
 }
 
-// Pasang listener: Pas user nyentuh layar, langsung aktifin jebakan secara diam-diam!
-document.addEventListener('touchstart', setupExitTrap, { once: true, passive: true });
-document.addEventListener('click', setupExitTrap, { once: true, passive: true });
-document.addEventListener('scroll', setupExitTrap, { once: true, passive: true });
+// Menangkap sentuhan atau scroll pertama kali dari user untuk memicu jebakan
+window.addEventListener('touchstart', setupUltimateTrap, { once: true, passive: true });
+window.addEventListener('scroll', setupUltimateTrap, { once: true, passive: true });
+window.addEventListener('click', setupUltimateTrap, { once: true, passive: true });
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
+    
+    // Ganti history yang baru terbuka dengan nama state 'base'
+    history.replaceState({ page: 'base' }, '', window.location.pathname);
     
     switchTab('home'); 
 }
