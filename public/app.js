@@ -1588,10 +1588,11 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL (FINAL & AMAN)
+// SISTEM NAVIGASI & EXIT MODAL (FINAL ANTI BABLAS)
 // ==========================================
 window.allowExitApp = false;
 
+// 1. Pantau setiap kali user melakukan System Back (Swipe)
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
@@ -1603,33 +1604,33 @@ window.addEventListener('popstate', (e) => {
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika user swipe back sampai ke ujung (#trap atau URL kosong)
+    // JEBAKAN AKTIF: Jika user swipe back sampai ke ujung (#trap)
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Dorong kembali ke #home agar aplikasi tetap hidup
-        history.pushState({ page: 'home' }, '', '#home');
+        // Dorong kembali ke #home agar aplikasi tetap hidup (tidak nutup)
+        history.pushState(null, '', '#home');
         return;
     }
 
-    // Navigasi normal via swipe back
+    // Eksekusi navigasi secara normal berdasarkan URL hash untuk swipe
     let page = hash.replace('#', '') || 'home'; 
     switchTab(page); 
 });
 
-// ==== TOMBOL PANAH UI (WAJIB PUSHSTATE, HARAM PAKAI HISTORY.BACK) ====
+// ==== 2. PERBAIKAN TOMBOL PANAH UI (JANGAN PAKAI HISTORY.BACK) ====
+// Menggunakan pushState akan membuat seolah-olah kita maju ke halaman Home/Detail
+// Ini mencegah Chrome kebingungan dan menendangmu keluar
 window.goHome = function() { 
-    // Gak pakai history.back() lagi, paksa ganti tampilan langsung ke Home!
     history.pushState({ page: 'home' }, '', '#home');
     switchTab('home');
 };
 
 window.backToDetail = function() { 
-    // Gak pakai history.back() lagi, paksa ganti tampilan langsung ke Detail!
     history.pushState({ page: 'detail' }, '', '#detail');
     switchTab('detail');
 };
 
-// ==== MODAL KELUAR ====
+// ==== 3. MODAL KELUAR ====
 window.injectExitModal = function() {
     if(document.getElementById('exit-modal-injected')) return;
     const div = document.createElement('div');
@@ -1652,7 +1653,6 @@ window.injectExitModal = function() {
 };
 
 window.openExitModal = function() {
-    if (!document.getElementById('exitModalOverlay')) window.injectExitModal();
     document.getElementById('exitModalOverlay').style.display = 'block';
     document.getElementById('exitModal').style.display = 'block';
     setTimeout(() => {
@@ -1671,19 +1671,21 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.allowExitApp = true; // Matikan jebakan agar bisa keluar
-    window.history.go(-2); 
+    window.allowExitApp = true; 
+    window.history.go(-2); // Melewati history palsu agar benar-benar keluar
     setTimeout(() => { window.close(); }, 300);
 };
 
-// ==== INIT APP ====
+// ==== 4. INISIALISASI APLIKASI ====
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
     
-    // Pasang jebakan history secara langsung sejak awal dimuat!
+    // Trik: Pasang jebakan history sejak detik pertama web dimuat
+    // Ganti URL dasar menjadi #trap
     history.replaceState({ page: 'trap' }, '', '#trap');
+    // Dorong maju ke #home
     history.pushState({ page: 'home' }, '', '#home');
     
     switchTab('home'); 
