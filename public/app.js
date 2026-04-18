@@ -27,43 +27,17 @@ function injectPremiumStyles() {
 
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
 
-        /* MATIKAN BINTANG UNTUK EMERALD & MASTER */
+        /* MATIKAN SEMUA BINTANG DAN ANIMASI UNTUK EMERALD & MASTER */
+        .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
         .rank-icon-emerald::after, .rank-icon-emerald::before, .badge-lvl-emerald::after, .badge-lvl-emerald::before { display: none !important; content: none !important; animation: none !important; }
+        
+        .rank-icon-master, .badge-lvl-master { animation: none !important; }
         .rank-icon-master::before, .rank-icon-master::after, .badge-lvl-master::before, .badge-lvl-master::after { display: none !important; content: none !important; animation: none !important; }
 
-        /* ================= EMERALD ================= */
-        .badge-lvl-emerald, .rank-icon-emerald { 
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important; 
-            background: linear-gradient(90deg, #9333ea, #10b981, #9333ea) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
+        /* DIAMOND & MYTHIC TETAP BERANIMASI */
+        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
 
-        /* ================= DIAMOND ================= */
-        .badge-lvl-diamond, .rank-icon-diamond { 
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; 
-            background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= MASTER ================= */
-        .badge-lvl-master, .rank-icon-master { 
-            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6) !important; 
-            background: linear-gradient(90deg, #e11d48, #f59e0b, #e11d48) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= MYTHIC ================= */
-        .badge-lvl-mythic, .rank-icon-mythic { 
-            box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; 
-            background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; 
-            background-size: 200% 100% !important; color: #fff !important; border: none !important; 
-            animation: shimmerPremium 3s infinite linear !important; 
-        }
-
-        /* ================= GLOWING PADA FOTO PROFIL (AVATAR) ================= */
         .avatar-rank-emerald { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16,185,129,0.5) !important; }
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
@@ -81,7 +55,6 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// ==== SISTEM LOGIN ANTI SPAM KLIK ====
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
     if (isLoggingIn) return; 
@@ -111,7 +84,6 @@ window.logoutAkun = function() {
     auth.signOut().then(() => { alert("Berhasil keluar dari akun."); location.reload(); });
 };
 
-// ==== SISTEM RANKING LEVEL ====
 const RANK_TIERS = [
     { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
     { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
@@ -127,7 +99,6 @@ function getRankInfo(level) {
     return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0];
 }
 
-// ==== MEMUAT PROFIL USER ====
 function updateDevUI() {
     const container = document.getElementById('auth-check-container');
     if(!container) return;
@@ -575,6 +546,7 @@ async function fetchTimeout(url, timeoutMs = 15000) {
     }
 }
 
+// ==== FUNGSI LOADING CEPAT YANG BIKIN NORMAL ====
 async function loadLatest() {
     loader(true); 
     const homeContainer = document.getElementById('home-view'); 
@@ -614,29 +586,34 @@ async function loadLatest() {
             sectionContainers.push({ section, div });
         }
 
-        for (const { section, div } of sectionContainers) {
-            try {
-                let combinedData = [];
-                const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
-                    try {
-                        const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
-                        if (res && res.ok) {
-                            const data = await res.json();
-                            if (Array.isArray(data)) combinedData.push(...data);
-                        }
-                    } catch(e) {}
-                });
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
 
-                await Promise.all(fetchPromises);
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => {
+                        try {
+                            const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000);
+                            if (res && res.ok) {
+                                const data = await res.json();
+                                if (Array.isArray(data)) combinedData.push(...data);
+                            }
+                        } catch(e) {}
+                    });
 
-                combinedData = removeDuplicates(combinedData, 'url');
-                if (combinedData.length > 0) {
-                    div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
-                    hasAnyData = true;
-                } else {
-                    div.remove(); 
-                }
-            } catch(e) { div.remove(); }
+                    await Promise.all(fetchPromises);
+
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) {
+                        div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`;
+                        hasAnyData = true;
+                    } else {
+                        div.remove(); 
+                    }
+                } catch(e) { div.remove(); }
+            }));
         }
 
         if (!hasAnyData) {
@@ -681,12 +658,87 @@ async function handleSearch(query) {
     try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
 }
 
+function injectReportModal() {
+    if(document.getElementById('report-modal-injected')) return;
+    const div = document.createElement('div');
+    div.id = 'report-modal-injected';
+    div.innerHTML = `
+        <div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div>
+        <div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;">
+            <div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                </div>
+            </div>
+            <h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;">
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>
+                    Video Tidak Bisa Diputar
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Subtitle Rusak
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    Anime Berbeda
+                </label>
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;">
+                    <input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">
+                    DMCA (Email)
+                </label>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+}
+
+window.openReportModal = function() {
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    if(!overlay || !modal) return;
+    overlay.style.display = 'block';
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
+};
+
+window.closeReportModal = function() {
+    const overlay = document.getElementById('reportModalOverlay');
+    const modal = document.getElementById('reportModal');
+    if(!modal) return;
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+    }, 300);
+};
+
+window.submitReport = function() {
+    const selected = document.querySelector('input[name="reportReason"]:checked');
+    if(!selected) return;
+    let reason = selected.value;
+    let text = `Halo Admin, saya mau report episode error.\n\nLink: ${window.location.href}\nAlasan: *${reason}*`;
+    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text));
+    closeReportModal();
+};
+
 window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
 window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
 
 window.changeServer = function(url, serverName, btnElement) { 
     document.getElementById('video-player').src = url; 
-    document.getElementById('current-quality-text').innerText = serverName; 
+    let qualMatch = serverName.match(/\d{3,4}p/i);
+    let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
+    document.getElementById('current-quality-text').innerText = displayQuality; 
     document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); 
     btnElement.classList.add('active'); 
     window.closeServerModal(); 
@@ -834,7 +886,7 @@ async function loadVideo(url) {
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
             <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #111;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">Episode ${currentEpNum} • ${mockViews} • ${mockDate}</div></div></div>
-            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 12px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="window.open('https://wa.me/6281315059849?text=Halo%20Admin,%20saya%20mau%20report%20video%20error%20di%20link%20berikut:%20' + encodeURIComponent(window.location.href))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
+            <div class="hide-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 15px 12px; border-bottom: 1px solid #111; align-items: center;"><button class="action-btn" id="btn-like-action" onclick="toggleLikeAction(this, 'like')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button class="action-btn" id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button><button class="action-btn" onclick="openServerModal()" style="border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> <span id="current-quality-text">${data.streams.length > 0 ? data.streams[0].server : 'Quality'}</span></button><button class="action-btn" onclick="handleDownload()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button><button class="action-btn" onclick="handleShare()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div>
             <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div>
             <div style="padding-bottom: 60px;"></div>
@@ -918,5 +970,11 @@ window.addEventListener('popstate', (e) => { const page = e.state ? e.state.page
 function goHome() { history.back(); }
 function backToDetail() { history.back(); }
 
-function initApp() { updateDevUI(); history.replaceState({page: 'home'}, '', window.location.pathname); switchTab('home'); }
+function initApp() { 
+    updateDevUI(); 
+    injectReportModal(); 
+    history.replaceState({page: 'home'}, '', window.location.pathname); 
+    switchTab('home'); 
+}
+
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
