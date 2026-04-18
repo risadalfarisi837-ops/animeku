@@ -1588,50 +1588,42 @@ window.closeUserProfileModal = function() {
 window.allowExit = false;
 
 // ==========================================
-// SISTEM NAVIGASI & EXIT MODAL 
+// SISTEM NAVIGASI & EXIT MODAL (ANTI BABLAS)
 // ==========================================
 window.allowExitApp = false;
-window.trapHasBeenSet = false;
 
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
+    const hash = window.location.hash;
+    
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && window.location.hash !== '#watch') { 
+    if (p && hash !== '#watch') { 
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika history mundur ke halaman tanpa hash (akar)
-    if (window.location.hash === '' || window.location.hash === '#trap') {
+    // JEBAKAN KELUAR: Jika user swipe back sampai ke #trap
+    if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Paksa masuk ke home lagi biar nggak keluar
+        // Dorong lagi ke #home agar aplikasi tidak tertutup
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    const state = e.state;
-    const page = state && state.page ? state.page : (window.location.hash.replace('#', '') || 'home'); 
-    
-    if (page !== 'trap' && page !== 'exit-trap') {
-        switchTab(page); 
-    }
+    const page = (e.state && e.state.page) ? e.state.page : (hash.replace('#', '') || 'home'); 
+    switchTab(page); 
 });
 
+// KUNCI PERBAIKAN: Jangan pakai history.back() di tombol UI agar Chrome tidak error
 window.goHome = function() { 
-    if (window.location.hash === '#detail' || window.location.hash === '#watch') {
-        history.back(); 
-    } else {
-        switchTab('home');
-    }
+    history.pushState({ page: 'home' }, '', '#home');
+    switchTab('home');
 };
 
 window.backToDetail = function() { 
-    if (window.location.hash === '#watch') {
-        history.back(); 
-    } else {
-        switchTab('detail');
-    }
+    history.pushState({ page: 'detail' }, '', '#detail');
+    switchTab('detail');
 };
 
 window.injectExitModal = function() {
@@ -1679,28 +1671,15 @@ window.confirmExit = function() {
     setTimeout(() => { window.close(); }, 300);
 };
 
-// Fungsi memicu jebakan SETELAH ADA TAP/KLIK/AKHIR SENTUHAN
-function setHistoryTrap() {
-    if (!window.trapHasBeenSet) {
-        history.replaceState({ page: 'trap' }, '', '#trap');
-        history.pushState({ page: 'home' }, '', '#home');
-        window.trapHasBeenSet = true;
-    }
-}
-
-// Gunakan 'touchend' (saat jari diangkat) dan 'click' agar diakui Chrome
-window.addEventListener('touchend', setHistoryTrap, { passive: true });
-window.addEventListener('click', setHistoryTrap, { passive: true });
-
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
     
-    // Default fallback
-    if(window.location.hash === '') {
-        history.replaceState({ page: 'home' }, '', '#home');
-    }
+    // Setup awal yang langsung bikin URL punya History Stack ganda
+    history.replaceState({ page: 'trap' }, '', '#trap');
+    history.pushState({ page: 'home' }, '', '#home');
+    
     switchTab('home'); 
 }
 
