@@ -11,41 +11,30 @@ const firebaseConfig = {
   appId: "1:583107813249:web:4a2ebe047393f4f744d280",
   measurementId: "G-3E8VRPRM0F"
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-let currentUser = null;
+const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
 
 // ==== CUSTOM TOAST NOTIFICATION ====
 window.showToast = function(message, type = 'success') {
     let container = document.getElementById('custom-toast-container');
     if (!container) {
-        container = document.createElement('div');
-        container.id = 'custom-toast-container';
+        container = document.createElement('div'); container.id = 'custom-toast-container';
         container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width: 90%; max-width: 350px;';
         document.body.appendChild(container);
     }
-
-    const toast = document.createElement('div');
-    const bgColor = type === 'success' ? '#10b981' : '#ef4444';
-    const iconSvg = type === 'success' 
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' 
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
+    const toast = document.createElement('div'); const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+    const iconSvg = type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
     toast.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left: 4px solid ${bgColor}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);`;
-    toast.innerHTML = `<div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;">${iconSvg}</div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>`;
+    toast.innerHTML = `<div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">${iconSvg}</svg></div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>`;
     container.appendChild(toast);
-
     setTimeout(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; }, 10);
     setTimeout(() => { if(toast.parentNode) { toast.style.transform = 'translateY(-30px)'; toast.style.opacity = '0'; setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300); } }, 3000);
 };
 
-// ==== INJEKSI CSS PREMIUM VIA JS ====
+// ==== INJEKSI CSS PREMIUM ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
-    const style = document.createElement('style');
-    style.id = 'premium-rank-styles';
+    const style = document.createElement('style'); style.id = 'premium-rank-styles';
     style.innerHTML = `
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
@@ -65,57 +54,36 @@ function injectPremiumStyles() {
 injectPremiumStyles();
 
 auth.onAuthStateChanged(user => {
-    currentUser = user;
-    updateDevUI();
+    currentUser = user; updateDevUI();
     if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) {} }
 });
 
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
-    if (isLoggingIn) return; isLoggingIn = true;
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
+    if (isLoggingIn) return; isLoggingIn = true; const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
         db.ref('users/' + u.uid).once('value').then(snap => { if(!snap.exists()){ db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0 }); } });
-        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success');
-        updateDevUI(); isLoggingIn = false;
+        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { window.showToast("Gagal login: " + err.message, 'error'); }
         isLoggingIn = false;
     });
 };
-
 window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
 
 const RANK_TIERS = [
-    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" },
-    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
-    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" },
-    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
-    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" },
-    { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
-    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" },
-    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "rgba(168, 162, 158, 0.15)", icon: "🌑" }, { name: "Bronze", minLvl: 50, maxLvl: 149, color: "rgba(180, 83, 9, 0.15)", icon: "🥉" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "rgba(226, 232, 240, 0.15)", icon: "🥈" }, { name: "Gold", minLvl: 500, maxLvl: 2499, color: "rgba(251, 191, 36, 0.15)", icon: "🥇" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "rgba(16, 185, 129, 0.15)", icon: "🔮" }, { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "rgba(6, 182, 212, 0.25)", icon: "💎" },
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "rgba(236, 72, 153, 0.25)", icon: "👑" }, { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "linear-gradient(90deg, #ef4444, #eab308)", icon: "🌟" }
 ];
 function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
 
 function updateDevUI() {
-    const container = document.getElementById('auth-check-container');
-    if(!container) return;
-
+    const container = document.getElementById('auth-check-container'); if(!container) return;
     if(!currentUser) {
-        container.innerHTML = `
-            <div style="text-align:center; padding: 40px 20px;">
-                <div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-                <h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2>
-                <p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p>
-                <button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google
-                </button>
-            </div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 40px 20px;"><div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2><p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p><button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google</button></div>`;
     } else {
         container.innerHTML = '<div style="height:50px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:25px; height:25px;"></div></div>';
         db.ref('users/' + currentUser.uid).on('value', async snap => {
@@ -124,19 +92,14 @@ function updateDevUI() {
                 if(!data) { data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0 }; await db.ref('users/' + currentUser.uid).set(data); }
                 let historyData = []; try { historyData = await getHistory(); } catch(e) {}
                 const totalMenit = (historyData.length || 0) * 24; const jamNonton = Math.floor(totalMenit / 60); const joinMonths = Math.max(1, new Date().getMonth() + 1);
-                
-                const role = data.role || 'Member'; 
-                const level = data.level || 1; 
-                const exp = data.exp || 0; 
+                const role = data.role || 'Member'; const level = data.level || 1; const exp = data.exp || 0; 
                 const userName = data.nama || 'User Animeku'; const userFoto = data.foto || 'https://placehold.co/100'; const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
-                
                 let roleBadgeClass = 'badge-member'; let roleName = role;
                 if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
                 const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
-                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24)));
-                    let randProgress = Math.floor(Math.random() * 80 + 20);
+                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); let randProgress = Math.floor(Math.random() * 80 + 20);
                     return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
@@ -201,7 +164,6 @@ window.openUserProfile = function(uid) {
         content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
     });
 };
-
 window.closeUserProfileModal = function() { const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } };
 
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
@@ -282,21 +244,13 @@ function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
-        
-        let prevExp = d.exp || 0; 
-        let prevLvl = Math.floor(prevExp / 200) + 1; 
-        let nExp = prevExp + amount; 
-        let nLvl = Math.floor(nExp / 200) + 1; 
-        let isLevelUp = nLvl > prevLvl;
-        
+        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
+        let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
         db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        
-        let currentLevelXp = nExp % 200; 
-        let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
-
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -337,24 +291,20 @@ const HOME_SECTIONS = [
 let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
-const loader = (state) => { const el = document.getElementById('loading'); if(el) state ? el.classList.remove('hidden') : el.classList.add('hidden'); };
+function loader(state) { const el = document.getElementById('loading'); if(el) { state ? el.classList.remove('hidden') : el.classList.add('hidden'); } };
 
 function generateCardHtml(anime) { let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`; }
 function generateRecentCardHtml(anime) { let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'"; return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`; }
 function generateFavCardHtml(anime) { if (!anime) return ''; let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating || '?'; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`; }
 
-async function fetchTimeout(url, timeoutMs = 15000) {
-    const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs);
-    try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; }
-}
+async function fetchTimeout(url, timeoutMs = 15000) { const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs); try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; } }
 
 async function loadLatest() {
     loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; let hasAnyData = false;
-    
     try {
         try { let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 15000); if (res && res.ok) { sliderData = await res.json(); if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); hasAnyData = true; } } } catch (e) {}
         try { const historyData = await getHistory(); if (historyData && historyData.length > 0) { const histDiv = document.createElement('div'); histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`; homeContainer.appendChild(histDiv); hasAnyData = true; } } catch (e) {}
-        loader(false); 
+        
         const sectionContainers = [];
         for (const section of HOME_SECTIONS) { const div = document.createElement('div'); div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`; homeContainer.appendChild(div); sectionContainers.push({ section, div }); }
         const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
@@ -371,7 +321,7 @@ async function loadLatest() {
             }));
         }
         if (!hasAnyData) { homeContainer.innerHTML = `<div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2><p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p><button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button></div>`; }
-    } catch (err) { console.error("Home loading failed total", err); loader(false); } 
+    } catch (err) { console.error("Home loading failed total", err); } finally { loader(false); }
 }
 
 function renderHeroSlider(data, container) {
@@ -480,6 +430,8 @@ async function loadDetail(url) {
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
+window.currentCommentSort = 'top';
+
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); loader(true);
     try {
@@ -499,7 +451,7 @@ async function loadVideo(url) {
             <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;"><img src="${getHighRes(window.currentPlayingAnime.image)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div></div></div>
             <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;"><div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;"><div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;"><button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button></div><button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button><button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div></div>
             <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
-            <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"></div></div><div style="padding-bottom: 60px;"></div>
+            <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
         `;
         
         if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
@@ -520,14 +472,88 @@ async function loadVideo(url) {
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
-// ==== SISTEM NAVIGASI (EXIT MODAL) ====
+window.setCommentFilter = function(sortType, btnElement) { document.querySelectorAll('.comment-filter-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); window.currentCommentSort = sortType; if (window.currentEpID) listenToComments(window.currentEpID); };
+
+function renderCommentInput(epID) {
+    const container = document.getElementById('custom-comment-area'); if(!container) return; 
+    if(!currentUser) { 
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div style="flex: 1; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 10px 16px; border-radius: 24px; color: #888; font-size: 13px; cursor: pointer;" onclick="switchTab('developer')">Login untuk menambahkan komentar...</div></div>`; 
+    } 
+    else { 
+        const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+    }
+}
+
+window.postComment = function(epID) { 
+    const input = document.getElementById('main-comment-input'); const text = input.value; if(!text.trim() || !currentUser) return; 
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now(), animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui', animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '' }); 
+        input.value = ''; addXP(10); 
+    }); 
+};
+
+function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
+    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
+    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
+    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+}
+
+function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
+
+window.openReplyModal = function(epID, parentID) {
+    document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
+    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
+    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    const inputArea = document.getElementById('reply-input-area'); 
+    if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } 
+    else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+};
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+
+function injectUserProfileModal() {
+    if(document.getElementById('user-profile-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'user-profile-modal-injected';
+    div.innerHTML = `<div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div><div id="userProfileModal" class="bottom-sheet" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;"><div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;"><button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div></div>`;
+    document.body.appendChild(div);
+}
+
+window.openUserProfile = function(uid) {
+    if(!uid || uid === 'undefined') return; injectUserProfileModal();
+    const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); const content = document.getElementById('user-profile-content');
+    overlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10); content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
+    
+    db.ref('users/' + uid).once('value').then(async snap => {
+        if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
+        const data = snap.val(); const userName = data.nama || 'Wibu'; const userFoto = data.foto || 'https://placehold.co/100'; const role = data.role || 'Member'; const level = data.level || 1; const shortUid = "#" + uid.substring(0, 6).toUpperCase();
+        let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+        const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        
+        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
+        userComments.sort((a,b) => b.waktu - a.waktu); let totalKomentar = userComments.length;
+        
+        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
+            let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
+            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
+        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
+
+        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
+        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
+    });
+};
+window.closeUserProfileModal = function() { const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } };
+
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
 window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
-
 window.addEventListener('popstate', (e) => { 
-    if (window.allowExitApp) return; let hash = window.location.hash;
-    let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
+    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
     if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
     let page = hash.replace('#', '') || 'home'; switchTab(page); 
 });
@@ -545,9 +571,8 @@ window.openExitModal = function() { document.getElementById('exitModalOverlay').
 window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
 window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
 
-
 // ==========================================
-// FITUR JADWAL RILIS ANIME (CACHE SYSTEM + FOTO LANDSCAPE)
+// FITUR JADWAL RILIS ANIME
 // ==========================================
 window.cachedScheduleData = null; 
 
@@ -565,12 +590,9 @@ function injectScheduleStyles() {
         .sched-card { display: flex; gap: 12px; padding: 15px 20px; border-bottom: 1px solid #111; cursor: pointer; transition: 0.2s; background: #050505; align-items: center; }
         .sched-card:hover { background: #111; }
         .sched-time { font-size: 16px; font-weight: 900; color: #fff; width: 50px; text-align: center; flex-shrink: 0; }
-        
-        /* FIX: GAMBAR DIUBAH JADI LANDSCAPE BIAR GAK GEPENG */
-        .sched-img { width: 100px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
-        
+        .sched-img { width: 75px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
         .sched-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-        .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .sched-ep { font-size: 12px; color: #d1d5db; margin-bottom: 6px; font-weight: 600; }
         .sched-stats { font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 6px; }
         .sched-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
@@ -589,17 +611,11 @@ const NAMA_HARI_FULL = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', '
 window.initJadwal = async function() {
     injectScheduleStyles();
     if (document.getElementById('sched-list-container').innerHTML === '') {
-        renderJadwalDays(window.currentJadwalDay);
-        await loadJadwalData(window.currentJadwalDay);
+        renderJadwalDays(window.currentJadwalDay); await loadJadwalData(window.currentJadwalDay);
     }
 };
 
-window.changeJadwalDay = function(direction) {
-    let newDay = window.currentJadwalDay + direction;
-    if(newDay > 6) newDay = 0; if(newDay < 0) newDay = 6; window.currentJadwalDay = newDay;
-    renderJadwalDays(newDay); loadJadwalData(newDay);
-};
-
+window.changeJadwalDay = function(direction) { let newDay = window.currentJadwalDay + direction; if(newDay > 6) newDay = 0; if(newDay < 0) newDay = 6; window.currentJadwalDay = newDay; renderJadwalDays(newDay); loadJadwalData(newDay); };
 window.setJadwalDay = function(dayIndex) { window.currentJadwalDay = dayIndex; renderJadwalDays(dayIndex); loadJadwalData(dayIndex); };
 
 function renderJadwalDays(activeDay) {
@@ -617,22 +633,12 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container'); 
-    
-    // Loader instant hilang kalau data udah di-cache
-    if (!window.cachedScheduleData) {
-        loader(true);
-    }
+    if (!window.cachedScheduleData) { loader(true); }
 
     try {
         let data;
-        if (window.cachedScheduleData) {
-            data = window.cachedScheduleData;
-        } else {
-            const res = await fetchTimeout(`${API_BASE}/latest`, 10000); 
-            data = await res.json(); 
-            if(!data || data.length === 0) throw new Error("No data");
-            window.cachedScheduleData = data; 
-        }
+        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
+        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
 
         let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
         let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
@@ -644,18 +650,14 @@ async function loadJadwalData(dayIndex) {
             let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
             let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
             let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
-            
-            // GARIS MERAH UDAH DIHAPUS BERSESUAIAN DENGAN REQUEST
-            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/60x85/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
+            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
         });
         if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
         container.innerHTML = html;
     } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
-    
     loader(false);
 }
 
-// ==== FITUR NOTIFIKASI UPDATE ANIME ====
 function showUpdateNotification(updates) {
     if (!document.getElementById('in-app-notif-container')) { const container = document.createElement('div'); container.id = 'in-app-notif-container'; container.style.cssText = 'position:fixed; top:15px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:350px; pointer-events:none;'; document.body.appendChild(container); }
     const container = document.getElementById('in-app-notif-container');
@@ -665,8 +667,7 @@ function showUpdateNotification(updates) {
             notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
             notif.innerHTML = `<img src="${getHighRes(update.image)}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;"><div style="flex:1; min-width:0;"><div style="color:#3b82f6; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Update Rilis!</div><div style="color:#fff; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${update.title}</div><div style="color:#a1a1aa; font-size:12px; font-weight:500;">Episode ${update.newEp} sudah tersedia.</div></div><div style="background:rgba(59,130,246,0.15); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></div>`;
             notif.onclick = () => { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => notif.remove(), 300); loadDetail(update.url); };
-            container.appendChild(notif);
-            setTimeout(() => { notif.style.transform = 'translateY(0) scale(1)'; notif.style.opacity = '1'; }, 10);
+            container.appendChild(notif); setTimeout(() => { notif.style.transform = 'translateY(0) scale(1)'; notif.style.opacity = '1'; }, 10);
             setTimeout(() => { if(notif.parentNode) { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => { if(notif.parentNode) notif.remove(); }, 300); } }, 6000);
         }, idx * 1200); 
     });
@@ -686,26 +687,16 @@ async function checkAnimeUpdates() {
             }
         }
         if (updatedAnimes.length > 0) showUpdateNotification(updatedAnimes);
-    } catch (e) { console.log("Update check failed:", e); }
+    } catch (e) {}
 }
 
-
-// ==== FUNGSI SWITCH TAB FINAL ====
 function switchTab(tabName) {
-    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => {
-        let el = document.getElementById(v);
-        if(el) el.classList.add('hidden');
-    });
-    
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => { let el = document.getElementById(v); if(el) el.classList.add('hidden'); });
     document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
     document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    
-    let targetView = document.getElementById(tabName + '-view');
-    if(targetView) targetView.classList.remove('hidden');
-    
-    let targetNav = document.getElementById('tab-' + tabName);
-    if(targetNav) targetNav.classList.add('active');
+    let targetView = document.getElementById(tabName + '-view'); if(targetView) targetView.classList.remove('hidden');
+    let targetNav = document.getElementById('tab-' + tabName); if(targetNav) targetNav.classList.add('active');
     
     if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
     if (tabName === 'recent') loadRecentHistory();
@@ -714,14 +705,11 @@ function switchTab(tabName) {
 }
 
 function initApp() { 
-    updateDevUI(); 
-    injectReportModal(); 
-    injectExitModal(); 
-    
+    updateDevUI(); injectReportModal(); injectExitModal(); 
     if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
     switchTab('home'); 
-    
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+// ==== AKHIR DARI FILE APP.JS ====
