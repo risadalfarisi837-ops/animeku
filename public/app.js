@@ -1597,27 +1597,30 @@ window.addEventListener('popstate', (e) => {
     if (window.allowExitApp) return;
 
     const state = e.state;
+    const hash = window.location.hash;
     
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && (!state || state.page !== 'watch')) { 
+    if (p && hash !== '#watch') { 
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika user mundur ke state 'base' (akar sejarah tab)
-    if (!state || state.page === 'base') {
+    // JEBAKAN KELUAR: Jika user mundur ke '#trap' atau URL kosong
+    if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Kembalikan ke depan agar tidak benar-benar keluar
-        history.pushState({ page: 'home' }, '', window.location.pathname);
+        // Dorong lagi ke '#home' agar aplikasi tidak benar-benar tertutup
+        history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    const page = state ? state.page : 'home'; 
-    switchTab(page); 
+    const page = state && state.page ? state.page : (hash.replace('#', '') || 'home'); 
+    if (page !== 'trap' && page !== 'exit-trap') {
+        switchTab(page); 
+    }
 });
 
 window.goHome = function() { 
-    if (window.history.state && (window.history.state.page === 'detail' || window.history.state.page === 'watch')) {
+    if (window.location.hash === '#detail' || window.location.hash === '#watch') {
         history.back(); 
     } else {
         switchTab('home');
@@ -1625,7 +1628,7 @@ window.goHome = function() {
 };
 
 window.backToDetail = function() { 
-    if (window.history.state && window.history.state.page === 'watch') {
+    if (window.location.hash === '#watch') {
         history.back(); 
     } else {
         switchTab('detail');
@@ -1673,14 +1676,14 @@ window.cancelExit = function() {
 
 window.confirmExit = function() {
     window.allowExitApp = true; // Matikan jebakan agar bisa keluar beneran
-    window.history.go(-2); 
+    window.history.go(-2); // Melewati #home dan #trap
     setTimeout(() => { window.close(); }, 300);
 };
 
-// Fungsi memicu jebakan HANYA setelah ada interaksi (syarat Google Chrome)
+// Fungsi memicu jebakan menggunakan HASH URL
 function triggerHistoryTrap() {
     if (!window.trapHasBeenSet) {
-        history.pushState({ page: 'home' }, '', window.location.pathname);
+        history.pushState({ page: 'home' }, '', '#home');
         window.trapHasBeenSet = true;
     }
 }
@@ -1693,10 +1696,10 @@ window.addEventListener('click', triggerHistoryTrap, { passive: true });
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectExitModal(); // Wajib memanggil fungsi pembuat modal
+    injectExitModal(); 
     
-    // Set halaman paling dasar sebagai 'base'
-    history.replaceState({ page: 'base' }, '', window.location.pathname);
+    // Paksa URL memiliki '#trap' saat awal kali web dimuat
+    history.replaceState({ page: 'trap' }, '', '#trap');
     
     switchTab('home'); 
 }
