@@ -1591,31 +1591,28 @@ window.allowExit = false;
 // SISTEM NAVIGASI & EXIT MODAL (ANTI BABLAS)
 // ==========================================
 window.allowExitApp = false;
+window.trapHasBeenSet = false;
 
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
-
     const hash = window.location.hash;
     
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && hash !== '#watch') { 
-        p.src = ''; 
-    }
+    if (p && hash !== '#watch') { p.src = ''; }
 
-    // JEBAKAN KELUAR: Jika user swipe back sampai ke #trap
+    // JEBAKAN KELUAR: Jika user swipe layar sampai mentok
     if (hash === '#trap' || hash === '') {
         openExitModal();
-        // Dorong lagi ke #home agar aplikasi tidak tertutup
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
     const page = (e.state && e.state.page) ? e.state.page : (hash.replace('#', '') || 'home'); 
-    switchTab(page); 
+    if (page !== 'trap') switchTab(page); 
 });
 
-// KUNCI PERBAIKAN: Jangan pakai history.back() di tombol UI agar Chrome tidak error
+// KUNCI PERBAIKAN: Tombol panah tidak lagi pakai history.back()
 window.goHome = function() { 
     history.pushState({ page: 'home' }, '', '#home');
     switchTab('home');
@@ -1671,15 +1668,22 @@ window.confirmExit = function() {
     setTimeout(() => { window.close(); }, 300);
 };
 
+function triggerHistoryTrap() {
+    if (!window.trapHasBeenSet) {
+        history.replaceState({ page: 'trap' }, '', '#trap');
+        history.pushState({ page: 'home' }, '', '#home');
+        window.trapHasBeenSet = true;
+    }
+}
+
+window.addEventListener('touchend', triggerHistoryTrap, { passive: true });
+window.addEventListener('click', triggerHistoryTrap, { passive: true });
+
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectExitModal(); 
-    
-    // Setup awal yang langsung bikin URL punya History Stack ganda
-    history.replaceState({ page: 'trap' }, '', '#trap');
-    history.pushState({ page: 'home' }, '', '#home');
-    
+    injectExitModal();
+    if(window.location.hash === '') history.replaceState({ page: 'home' }, '', '#home');
     switchTab('home'); 
 }
 
