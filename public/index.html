@@ -345,6 +345,20 @@
         <div id="home-view"></div>
         <div id="search-view" class="hidden tab-content-container" style="width: 100%; overflow-x: hidden;"></div>
         
+        <div id="jadwal-view" class="hidden tab-content-container">
+            <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a;">
+                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Jadwal Rilis Anime</h1>
+            </div>
+            
+            <div id="sched-days-container" class="sched-day-scroll hide-scrollbar"></div>
+            <div id="sched-list-container" style="flex:1; overflow-y:auto; padding-bottom:20px; position:relative;"></div>
+            
+            <div class="sched-float-nav">
+                <button id="sched-btn-prev" class="sched-btn" onclick="changeJadwalDay(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 18l-6-6 6-6"/></svg> <span id="sched-text-prev">Kemarin</span></button>
+                <button id="sched-btn-next" class="sched-btn" onclick="changeJadwalDay(1)"><span id="sched-text-next">Besok</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+        </div>
+
         <div id="recent-view" class="hidden tab-content-container">
             <div style="text-align: center; padding-top: 15px; padding-bottom: 15px; border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
                 <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #fff;">Riwayat Nonton</h1>
@@ -393,7 +407,7 @@
         <button class="nav-item active" onclick="switchTab('home')" id="tab-home" style="flex:1;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span>
         </button>
-        <button class="nav-item" onclick="openJadwal()" id="tab-jadwal" style="flex:1;">
+        <button class="nav-item" onclick="switchTab('jadwal')" id="tab-jadwal" style="flex:1;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Jadwal</span>
         </button>
         <button class="nav-item" onclick="switchTab('recent')" id="tab-recent" style="flex:1;">
