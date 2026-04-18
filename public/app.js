@@ -1585,29 +1585,33 @@ window.closeUserProfileModal = function() {
 };
 
 window.addEventListener('popstate', (e) => { 
-    const state = e.state;
-    
-    // Matikan video jika user kembali dari halaman nonton
+    // 1. Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if(p && (!state || state.page !== 'watch')) { 
+    if (p && window.location.hash !== '#watch') { 
         p.src = ''; 
     }
 
-    // Jika masuk ke state jebakan 'exit-trap' (tombol back di menu utama)
-    if (!state || state.page === 'exit-trap') {
+    // 2. JEBAKAN KELUAR (Menggunakan Hash)
+    // Jika URL mundur ke '#trap' atau kosong, munculkan modal
+    if (window.location.hash === '#trap' || window.location.hash === '') {
         openExitModal();
-        // Mendorong halaman home kembali ke history agar aplikasi tidak langsung tertutup
+        // Tolak aksi keluar, dorong kembali ke '#home'
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    const page = state.page || 'home'; 
-    switchTab(page); 
+    // 3. Navigasi normal (Kembali ke halaman sebelumnya)
+    const state = e.state;
+    const page = state ? state.page : (window.location.hash.replace('#', '') || 'home'); 
+    
+    // Jangan lakukan switchTab jika halamannya adalah trap
+    if (page !== 'exit-trap' && page !== 'trap') {
+        switchTab(page); 
+    }
 });
 
 window.goHome = function() { 
-    // Mencegah error jika history bermasalah
-    if (window.history.state && window.history.state.page !== 'home') {
+    if (window.location.hash === '#detail' || window.location.hash === '#watch') {
         history.back(); 
     } else {
         switchTab('home');
@@ -1615,7 +1619,7 @@ window.goHome = function() {
 };
 
 window.backToDetail = function() { 
-    if (window.history.state && window.history.state.page !== 'detail') {
+    if (window.location.hash === '#watch') {
         history.back(); 
     } else {
         switchTab('detail');
@@ -1662,21 +1666,24 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
+    // Mundur 2 langkah di history (melewati #home dan #trap) untuk benar-benar menutup app
     window.history.go(-2); 
-    setTimeout(() => { window.close(); }, 200);
+    setTimeout(() => { window.close(); }, 300);
 };
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectExitModal(); // Tambahkan modal exit ke DOM
+    injectExitModal(); 
     
-    // Setup History Navigasi & Exit Trap
-    history.replaceState({ page: 'exit-trap' }, '', window.location.pathname);
-    history.pushState({ page: 'home' }, '', '#home');
+    // Setup History Navigasi & Exit Trap Menggunakan HASH
+    // Ini jauh lebih kuat menahan aksi 'swipe back' di WebView Google
+    if (window.location.hash !== '#home' && window.location.hash !== '#detail' && window.location.hash !== '#watch') {
+        history.replaceState({ page: 'exit-trap' }, '', '#trap');
+        history.pushState({ page: 'home' }, '', '#home');
+    }
     
     switchTab('home'); 
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
-
