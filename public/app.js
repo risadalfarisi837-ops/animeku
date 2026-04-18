@@ -1596,24 +1596,23 @@ window.trapHasBeenSet = false;
 window.addEventListener('popstate', (e) => { 
     if (window.allowExitApp) return;
 
-    const state = e.state;
-    const hash = window.location.hash;
-    
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
-    if (p && hash !== '#watch') { 
+    if (p && window.location.hash !== '#watch') { 
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika user mundur ke '#trap' atau URL kosong
-    if (hash === '#trap' || hash === '') {
+    // JEBAKAN KELUAR: Jika history mundur ke halaman tanpa hash (akar)
+    if (window.location.hash === '' || window.location.hash === '#trap') {
         openExitModal();
-        // Dorong lagi ke '#home' agar aplikasi tidak benar-benar tertutup
+        // Paksa masuk ke home lagi biar nggak keluar
         history.pushState({ page: 'home' }, '', '#home');
         return;
     }
 
-    const page = state && state.page ? state.page : (hash.replace('#', '') || 'home'); 
+    const state = e.state;
+    const page = state && state.page ? state.page : (window.location.hash.replace('#', '') || 'home'); 
+    
     if (page !== 'trap' && page !== 'exit-trap') {
         switchTab(page); 
     }
@@ -1675,32 +1674,33 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.allowExitApp = true; // Matikan jebakan agar bisa keluar beneran
-    window.history.go(-2); // Melewati #home dan #trap
+    window.allowExitApp = true; 
+    window.history.go(-2); 
     setTimeout(() => { window.close(); }, 300);
 };
 
-// Fungsi memicu jebakan menggunakan HASH URL
-function triggerHistoryTrap() {
+// Fungsi memicu jebakan SETELAH ADA TAP/KLIK/AKHIR SENTUHAN
+function setHistoryTrap() {
     if (!window.trapHasBeenSet) {
+        history.replaceState({ page: 'trap' }, '', '#trap');
         history.pushState({ page: 'home' }, '', '#home');
         window.trapHasBeenSet = true;
     }
 }
 
-// Pasang sensor sentuh, scroll, dan klik
-window.addEventListener('touchstart', triggerHistoryTrap, { passive: true });
-window.addEventListener('scroll', triggerHistoryTrap, { passive: true });
-window.addEventListener('click', triggerHistoryTrap, { passive: true });
+// Gunakan 'touchend' (saat jari diangkat) dan 'click' agar diakui Chrome
+window.addEventListener('touchend', setHistoryTrap, { passive: true });
+window.addEventListener('click', setHistoryTrap, { passive: true });
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
     injectExitModal(); 
     
-    // Paksa URL memiliki '#trap' saat awal kali web dimuat
-    history.replaceState({ page: 'trap' }, '', '#trap');
-    
+    // Default fallback
+    if(window.location.hash === '') {
+        history.replaceState({ page: 'home' }, '', '#home');
+    }
     switchTab('home'); 
 }
 
