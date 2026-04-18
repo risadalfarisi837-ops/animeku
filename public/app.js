@@ -1692,6 +1692,123 @@ window.confirmExit = function() {
     setTimeout(() => { window.close(); }, 300);
 };
 
+
+// ==== FITUR NOTIFIKASI UPDATE ANIME ====
+function showUpdateNotification(updates) {
+    // Bikin container untuk notifikasi kalau belum ada
+    if (!document.getElementById('in-app-notif-container')) {
+        const container = document.createElement('div');
+        container.id = 'in-app-notif-container';
+        container.style.cssText = 'position:fixed; top:15px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:350px; pointer-events:none;';
+        document.body.appendChild(container);
+    }
+
+    const container = document.getElementById('in-app-notif-container');
+
+    // Munculkan notif satu-satu dengan delay biar rapi kalau ada banyak
+    updates.forEach((update, idx) => {
+        setTimeout(() => {
+            const notif = document.createElement('div');
+            // pointer-events: auto supaya bisa diklik, sisanya styling ala UI kamu
+            notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
+            notif.innerHTML = `
+                <img src="${update.image}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;">
+                <div style="flex:1; min-width:0;">
+                    <div style="color:#3b82f6; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Update Rilis!</div>
+                    <div style="color:#fff; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${update.title}</div>
+                    <div style="color:#a1a1aa; font-size:12px; font-weight:500;">Episode ${update.newEp} sudah tersedia.</div>
+                </div>
+                <div style="background:rgba(59,130,246,0.15); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            `;
+
+            // Kalau diklik, buka halaman detail animenya
+            notif.onclick = () => {
+                notif.style.opacity = '0';
+                notif.style.transform = 'translateY(-20px) scale(0.95)';
+                setTimeout(() => notif.remove(), 300);
+                loadDetail(update.url);
+            };
+
+            container.appendChild(notif);
+
+            // Animasi masuk
+            setTimeout(() => {
+                notif.style.transform = 'translateY(0) scale(1)';
+                notif.style.opacity = '1';
+            }, 10);
+
+            // Hilang otomatis setelah 6 detik
+            setTimeout(() => {
+                if(notif.parentNode) {
+                    notif.style.opacity = '0';
+                    notif.style.transform = 'translateY(-20px) scale(0.95)';
+                    setTimeout(() => { if(notif.parentNode) notif.remove(); }, 300);
+                }
+            }, 6000);
+
+        }, idx * 1200); // Jeda 1.2 detik per notifikasi
+    });
+}
+
+async function checkAnimeUpdates() {
+    try {
+        const favorites = await getFavorites();
+        // Kalau ga punya favorit, lewati
+        if (!favorites || favorites.length === 0) return;
+
+        // Tarik data terbaru dari API
+        const res = await fetchTimeout(`${API_BASE}/latest`, 10000);
+        if (!res || !res.ok) return;
+        const latestData = await res.json();
+
+        let updatedAnimes = [];
+        const database = await initDB();
+
+        for (const latest of latestData) {
+            // Cek apakah anime yang rilis terbaru ada di list favorit user
+            const fav = favorites.find(f => f.url === latest.url);
+            if (fav) {
+                // Fungsi kecil untuk ekstrak murni angka dari string "Eps 12", "Episode 13", dll
+                const extractEpNum = (str) => {
+                    if (!str) return 0;
+                    let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                    if (m) return parseFloat(m[1]);
+                    let nums = String(str).match(/\d+/g);
+                    return nums ? parseFloat(nums[nums.length - 1]) : 0;
+                };
+
+                let favEpNum = extractEpNum(fav.episode);
+                let latestEpStr = getEpBadge(latest); // Menggunakan fungsi getEpBadge bawaan kamu
+                let latestEpNum = extractEpNum(latestEpStr);
+
+                // Perbandingan: Jika episode API > episode di lokal Favorit
+                if (latestEpNum > favEpNum) {
+                    updatedAnimes.push({
+                        title: fav.title,
+                        newEp: latestEpNum,
+                        url: fav.url,
+                        image: fav.image
+                    });
+
+                    // Langsung update database lokal supaya notifnya tidak looping berulang kali
+                    fav.episode = `Eps ${latestEpNum}`;
+                    database.transaction(STORE_FAV, 'readwrite').objectStore(STORE_FAV).put(fav);
+                }
+            }
+        }
+
+        // Tampilkan popup jika ada update!
+        if (updatedAnimes.length > 0) {
+            showUpdateNotification(updatedAnimes);
+        }
+    } catch (e) {
+        console.log("Background update check failed:", e);
+    }
+}
+
+
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
@@ -1702,6 +1819,11 @@ function initApp() {
         history.replaceState(null, '', '#home');
     }
     switchTab('home'); 
+    
+    // TAHAN 3 DETIK BIAR HALAMAN HOME MUNCUL DULU, BARU CEK UPDATE DI BACKGROUND
+    setTimeout(() => {
+        checkAnimeUpdates();
+    }, 3000);
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
