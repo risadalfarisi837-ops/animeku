@@ -1587,28 +1587,32 @@ window.closeUserProfileModal = function() {
 // Flag untuk mengizinkan aplikasi benar-benar keluar
 window.allowExit = false;
 
+// ==========================================
+// SISTEM NAVIGASI & EXIT MODAL 
+// ==========================================
+window.allowExitApp = false;
+window.trapHasBeenSet = false;
+
 window.addEventListener('popstate', (e) => { 
-    // Jika user sudah klik "Ya, Keluar", biarkan browser melakukan navigasi mundur
-    if (window.allowExit) return; 
+    if (window.allowExitApp) return;
 
     const state = e.state;
-
+    
     // Matikan video jika user kembali dari halaman nonton
     let p = document.getElementById('video-player'); 
     if (p && (!state || state.page !== 'watch')) { 
         p.src = ''; 
     }
 
-    // JEBAKAN KELUAR: Jika user kembali ke state 'base' (halaman paling awal)
+    // JEBAKAN KELUAR: Jika user mundur ke state 'base' (akar sejarah tab)
     if (!state || state.page === 'base') {
         openExitModal();
-        // Majukan lagi history ke 'home' supaya aplikasi tertahan dan tidak keluar
-        history.pushState({ page: 'home' }, '', '#home');
+        // Kembalikan ke depan agar tidak benar-benar keluar
+        history.pushState({ page: 'home' }, '', window.location.pathname);
         return;
     }
 
-    // Navigasi normal untuk tab lain (Detail / Watch)
-    const page = state.page || 'home'; 
+    const page = state ? state.page : 'home'; 
     switchTab(page); 
 });
 
@@ -1668,35 +1672,30 @@ window.cancelExit = function() {
 };
 
 window.confirmExit = function() {
-    window.allowExit = true; // Nyalakan bypass supaya tidak dicegat lagi
-    window.history.go(-2);   // Mundur 2 langkah (melewati Home dan Base) langsung ke Google Search
-    setTimeout(() => { window.close(); }, 300); 
+    window.allowExitApp = true; // Matikan jebakan agar bisa keluar beneran
+    window.history.go(-2); 
+    setTimeout(() => { window.close(); }, 300);
 };
 
-// ==== TRIK ULTIMATE: PUSH STATE BERBASIS INTERAKSI ====
-let trapSet = false;
-function setupUltimateTrap() {
-    if (!trapSet) {
-        // Cek apakah user masih ada di halaman Base (belum klik Anime apapun)
-        if (window.history.state && window.history.state.page === 'base') {
-            // Pasang history palsu bernama 'home'
-            history.pushState({ page: 'home' }, '', '#home');
-        }
-        trapSet = true;
+// Fungsi memicu jebakan HANYA setelah ada interaksi (syarat Google Chrome)
+function triggerHistoryTrap() {
+    if (!window.trapHasBeenSet) {
+        history.pushState({ page: 'home' }, '', window.location.pathname);
+        window.trapHasBeenSet = true;
     }
 }
 
-// Menangkap sentuhan atau scroll pertama kali dari user untuk memicu jebakan
-window.addEventListener('touchstart', setupUltimateTrap, { once: true, passive: true });
-window.addEventListener('scroll', setupUltimateTrap, { once: true, passive: true });
-window.addEventListener('click', setupUltimateTrap, { once: true, passive: true });
+// Pasang sensor sentuh, scroll, dan klik
+window.addEventListener('touchstart', triggerHistoryTrap, { passive: true });
+window.addEventListener('scroll', triggerHistoryTrap, { passive: true });
+window.addEventListener('click', triggerHistoryTrap, { passive: true });
 
 function initApp() { 
     updateDevUI(); 
     injectReportModal(); 
-    injectExitModal(); 
+    injectExitModal(); // Wajib memanggil fungsi pembuat modal
     
-    // Ganti history yang baru terbuka dengan nama state 'base'
+    // Set halaman paling dasar sebagai 'base'
     history.replaceState({ page: 'base' }, '', window.location.pathname);
     
     switchTab('home'); 
