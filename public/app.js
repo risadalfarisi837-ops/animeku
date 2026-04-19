@@ -300,9 +300,15 @@ function generateFavCardHtml(anime) { if (!anime) return ''; let epsBadge = getE
 async function fetchTimeout(url, timeoutMs = 15000) { const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs); try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; } }
 
 async function loadLatest() {
-    loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; let hasAnyData = false;
+    loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = '';
     try {
-        try { let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 15000); if (res && res.ok) { sliderData = await res.json(); if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); hasAnyData = true; } } } catch (e) {}
+        // AMBIL DATA TERBARU SEKALIGUS UNTUK JADWAL
+        const res = await fetch(`${API_BASE}/search?q=a`); // Mencari huruf 'a' untuk memancing data masal
+        const data = await res.json();
+        if (data && data.length > 0) {
+            window.cachedScheduleData = data; // Mengisi tabungan jadwal otomatis
+            renderHeroSlider(data.slice(0, 10), homeContainer);
+        }
         try { const historyData = await getHistory(); if (historyData && historyData.length > 0) { const histDiv = document.createElement('div'); histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`; homeContainer.appendChild(histDiv); hasAnyData = true; } } catch (e) {}
         
         const sectionContainers = [];
