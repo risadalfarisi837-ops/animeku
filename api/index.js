@@ -2,169 +2,121 @@ const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
-// Domain terbaru dan Proxy untuk menembus blokir Vercel
+// --- KONEKSI GUDANG MONGODB ---
+const MONGO_URI = "mongodb+srv://Risyadh:risadalfaris1837@animeku.stmxguy.mongodb.net/?appName=Animeku";
+mongoose.connect(MONGO_URI).then(() => console.log("Gudang Animeku Terhubung! 🚀")).catch(err => console.log("Gagal connect gudang:", err));
+
+// --- SKEMA DATA (Struktur lemari di gudang) ---
+const AnimeSchema = new mongoose.Schema({
+    title: { type: String, unique: true },
+    image: String,
+    url: String,
+    type: String,
+    score: String,
+    lastUpdate: { type: Date, default: Date.now }
+});
+const Anime = mongoose.model('Anime', AnimeSchema);
+
+// --- KONFIGURASI SUMBER ---
 const BASE_URL = 'https://v2.samehadaku.how';
 const PROXY = 'https://cors.caliph.my.id/';
+const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)','Referer': BASE_URL };
 
-const headers = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-  'Accept-Language': 'en-US,en;q=0.9',
-  'Referer': BASE_URL
-};
-
-// --- FUNGSI SCRAPER DENGAN PROXY ---
-
-async function animeterbaru(page = 1) {
-  try {
-    const res = await axios.get(`${PROXY}${BASE_URL}/anime-terbaru/page/${page}/`, { headers });
-    const $ = cheerio.load(res.data);
-    const data = [];
-    $('.post-show ul li').each((_, e) => {
-      const a = $(e).find('.dtla h2 a');
-      if (a.length > 0) {
-        data.push({
-          title: a.text().trim(),
-          url: a.attr('href'),
-          image: $(e).find('.thumb img').attr('src'),
-          episode: $(e).find('.dtla span:contains("Episode")').text().replace('Episode', '').trim(),
+// --- ENGINE CERDAS: AMBIL & SIMPAN ---
+async function fetchAndSave(query) {
+    try {
+        const res = await axios.get(`${PROXY}${BASE_URL}/?s=${encodeURIComponent(query)}`, { headers });
+        const $ = cheerio.load(res.data);
+        const results = [];
+        
+        $('.animpost').each((_, e) => {
+            const item = {
+                title: $(e).find('.data .title h2').text().trim(),
+                image: $(e).find('.content-thumb img').attr('src'),
+                type: $(e).find('.type').text().trim(),
+                score: $(e).find('.score').text().trim() || '8.00',
+                url: $(e).find('a').attr('href')
+            };
+            results.push(item);
+            // Simpan ke database tanpa nunggu (Background task)
+            Anime.findOneAndUpdate({ title: item.title }, item, { upsert: true }).catch(() => {});
         });
-      }
-    });
-    return data;
-  } catch (e) { throw new Error("Gagal mengambil data terbaru via Proxy"); }
+        return results;
+    } catch (e) { return []; }
 }
 
-async function search(query) {
-  try {
-    const res = await axios.get(`${PROXY}${BASE_URL}/?s=${encodeURIComponent(query)}`, { headers });
-    const $ = cheerio.load(res.data);
-    const data = [];
-    $('.animpost').each((_, e) => {
-      data.push({
-        title: $(e).find('.data .title h2').text().trim(),
-        image: $(e).find('.content-thumb img').attr('src'),
-        type: $(e).find('.type').text().trim(),
-        score: $(e).find('.score').text().trim(),
-        url: $(e).find('a').attr('href')
-      });
-    });
-    return data;
-  } catch (e) { throw new Error("Pencarian gagal via Proxy"); }
-}
-
-async function detail(link) {
-  try {
-    const targetUrl = link.startsWith('http') ? link : `${BASE_URL}${link}`;
-    const res = await axios.get(`${PROXY}${targetUrl}`, { headers });
-    const $ = cheerio.load(res.data);
-
-    const episodes = [];
-    $('.lstepsiode ul li').each((_, e) => {
-      episodes.push({
-        title: $(e).find('.epsleft .lchx a').text().trim(),
-        url: $(e).find('.epsleft .lchx a').attr('href'),
-        date: $(e).find('.epsleft .date').text().trim()
-      });
-    });
-
-    const info = {};
-    $('.anim-senct .right-senc .spe span').each((_, e) => {
-      const t = $(e).text();
-      if (t.includes(':')) {
-        const [k, v] = t.split(':');
-        info[k.trim().toLowerCase().replace(/\s+/g, '_')] = v.trim();
-      }
-    });
-
-    return {
-      title: $('title').text().replace(' - Samehadaku', '').trim(),
-      image: $('meta[property="og:image"]').attr('content'),
-      description: $('.entry-content').text().trim() || $('meta[name="description"]').attr('content'),
-      episodes,
-      info
-    };
-  } catch (e) { throw new Error("Gagal mengambil detail anime"); }
-}
-
-async function download(link) {
-  try {
-    const targetUrl = link.startsWith('http') ? link : `${BASE_URL}${link}`;
-    const res = await axios.get(`${PROXY}${targetUrl}`, { headers });
-    const cookies = res.headers['set-cookie']?.map(v => v.split(';')[0]).join('; ') || '';
-    const $ = cheerio.load(res.data);
-    const data = [];
-
-    for (const li of $('div#server > ul > li').toArray()) {
-      const div = $(li).find('div');
-      const post = div.attr('data-post');
-      const nume = div.attr('data-nume');
-      const type = div.attr('data-type');
-      const name = $(li).find('span').text().trim();
-      if (!post) continue;
-
-      const body = new URLSearchParams({ action: 'player_ajax', post, nume, type }).toString();
-      
-      try {
-        const r = await axios.post(`${PROXY}${BASE_URL}/wp-admin/admin-ajax.php`, body, {
-          headers: {
-            ...headers,
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': cookies,
-            'Referer': targetUrl
-          }
-        });
-        const $$ = cheerio.load(r.data);
-        const iframe = $$('iframe').attr('src');
-        if (iframe) data.push({ server: name, url: iframe });
-      } catch (e) {
-        console.log("Error fetching server:", name);
-      }
-    }
-
-    return {
-      title: $('h1[itemprop="name"]').text().trim(),
-      streams: data
-    };
-  } catch (e) { throw new Error("Gagal mengambil link tonton"); }
-}
-
-// --- ROUTES API ---
-
-app.get('/api/latest', async (req, res) => {
-  try {
-    const data = await animeterbaru(req.query.page || 1);
-    res.json(data);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+// ==========================================
+// ROUTES API (DENGAN KEKUATAN DATABASE)
+// ==========================================
 
 app.get('/api/search', async (req, res) => {
-  try {
-    const data = await search(req.query.q);
-    res.json(data);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    const q = req.query.q;
+    try {
+        // 1. Cek dulu di gudang sendiri (Super Cepat!)
+        const localData = await Anime.find({ title: new RegExp(q, 'i') }).limit(20);
+        
+        if (localData.length > 0) {
+            res.json(localData);
+            // Tetap update data di background biar selalu fresh
+            fetchAndSave(q);
+        } else {
+            // 2. Kalau gudang kosong, baru scrape web luar
+            const freshData = await fetchAndSave(q);
+            res.json(freshData);
+        }
+    } catch (e) { res.status(500).json([]); }
 });
 
+app.get('/api/latest', async (req, res) => {
+    try {
+        // Ambil data terbaru yang pernah tersimpan di gudang
+        const data = await Anime.find().sort({ lastUpdate: -1 }).limit(20);
+        if (data.length > 0) return res.json(data);
+        
+        // Kalau bener-bener baru/kosong, ambil dari halaman depan
+        const resWeb = await axios.get(`${PROXY}${BASE_URL}/anime-terbaru/`, { headers });
+        const $ = cheerio.load(resWeb.data);
+        const latest = [];
+        $('.post-show ul li').each((_, e) => {
+            const a = $(e).find('.dtla h2 a');
+            latest.push({ title: a.text().trim(), url: a.attr('href'), image: $(e).find('.thumb img').attr('src'), episode: 'New' });
+        });
+        res.json(latest);
+    } catch (e) { res.json([]); }
+});
+
+// Route detail & watch tetap seperti biasa (Direct Scrape karena link video sering berubah)
 app.get('/api/detail', async (req, res) => {
-  try {
-    const data = await detail(req.query.url);
-    res.json(data);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try {
+        const resWeb = await axios.get(`${PROXY}${req.query.url}`, { headers });
+        const $ = cheerio.load(resWeb.data);
+        const episodes = [];
+        $('.lstepsiode ul li').each((_, e) => { episodes.push({ title: $(e).find('.epsleft .lchx a').text().trim(), url: $(e).find('.epsleft .lchx a').attr('href') }); });
+        res.json({ title: $('title').text().trim(), image: $('meta[property="og:image"]').attr('content'), episodes });
+    } catch (e) { res.status(500).send(); }
 });
 
 app.get('/api/watch', async (req, res) => {
-  try {
-    const data = await download(req.query.url);
-    res.json(data);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    try {
+        const resWeb = await axios.get(`${PROXY}${req.query.url}`, { headers });
+        const $ = cheerio.load(resWeb.data);
+        const data = [];
+        // Script ambil link server Samehadaku (simpel)
+        for (const li of $('div#server > ul > li').toArray()) {
+            const div = $(li).find('div');
+            const body = new URLSearchParams({ action: 'player_ajax', post: div.attr('data-post'), nume: div.attr('data-nume'), type: div.attr('data-type') });
+            const r = await axios.post(`${PROXY}${BASE_URL}/wp-admin/admin-ajax.php`, body.toString(), { headers: { ...headers, 'Content-Type': 'application/x-www-form-urlencoded'} });
+            const iframe = cheerio.load(r.data)('iframe').attr('src');
+            if (iframe) data.push({ server: $(li).find('span').text().trim(), url: iframe });
+        }
+        res.json({ streams: data });
+    } catch (e) { res.status(500).send(); }
 });
 
-// Jalankan Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-module.exports = app;
+app.listen(3000, () => console.log("Server Pro Animeku Aktif!"));
