@@ -342,7 +342,42 @@ function renderHeroSlider(data, container) {
 async function handleSearch(query) {
     if (!query) { switchTab('home'); return; }
     switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
+    try { 
+        // Membersihkan query pencarian biar lebih akurat di server lokal
+        let cleanQuery = query.split(':')[0]; // Kalau judulnya kepanjangan, ambil depannya aja
+        
+        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(cleanQuery || query)}`); 
+        const data = await res.json(); 
+        
+        let resultHtml = '';
+        
+        // Cek jika hasil pencarian ada datanya
+        if (data && data.length > 0) {
+            resultHtml = `<div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
+        } else {
+            // --- TAMPILAN JIKA ANIME TIDAK DITEMUKAN / BELUM ADA SUB INDO ---
+            resultHtml = `
+            <div style="text-align:center; padding: 80px 20px; display:flex; flex-direction:column; align-items:center;">
+                <div style="width: 70px; height: 70px; background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <h3 style="color:#fff; margin: 0 0 10px 0; font-size:18px; font-weight:800;">Tidak Ditemukan</h3>
+                <p style="color:#888; font-size:13px; line-height:1.6; margin: 0;">Anime <strong>"${query}"</strong> mungkin belum diterjemahkan ke Sub Indo atau menggunakan judul Jepang yang berbeda di web sumber.</p>
+            </div>`;
+        }
+        
+        document.getElementById('search-view').innerHTML = `
+            <div class="header-flex" style="padding-top:20px;">
+                <h2>Pencarian: "${query}"</h2>
+            </div>
+            ${resultHtml}
+        `; 
+    } catch (err) { 
+        document.getElementById('search-view').innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat hasil pencarian.</div>`;
+    } finally { loader(false); }
 }
 
 function injectReportModal() {
@@ -673,11 +708,22 @@ async function loadJadwalData(dayIndex) {
 
         if(!data || data.length === 0) throw new Error("No data");
 
+        // --- FILTER ANTI-DUPLIKAT ---
+        let uniqueData = [];
+        let seenTitles = new Set();
+        data.forEach(anime => {
+            if (!seenTitles.has(anime.title)) {
+                seenTitles.add(anime.title);
+                uniqueData.push(anime);
+            }
+        });
+
         let html = ''; 
         let currentHour = new Date().getHours(); 
         let isToday = dayIndex === new Date().getDay();
 
-        data.forEach(anime => {
+        // Gunakan uniqueData (data yang sudah bersih dari duplikat)
+        uniqueData.forEach(anime => {
             let title = anime.title;
             let imageUrl = anime.images.jpg.large_image_url || anime.images.jpg.image_url;
             let score = anime.score ? anime.score.toFixed(2) : 'N/A';
