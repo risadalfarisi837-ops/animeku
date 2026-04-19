@@ -135,7 +135,6 @@ async function scraperOtakudesu() {
         });
       });
       return {
-        // Scraper lebih cerdas untuk mengambil judul
         title: $('.infozingle p:contains("Judul") span').text().trim() || $('.fotoanime img').attr('alt') || $('.jdlrx h1').text().trim(),
         image: $('.fotoanime img').attr('src'),
         description: $('.sinopc').text().trim(),
@@ -147,8 +146,32 @@ async function scraperOtakudesu() {
       const res = await axios.get(`${PROXY}${url}`, { headers });
       const $ = cheerio.load(res.data);
       const data = [];
+      
+      // 1. Ambil video utama (jika langsung nampil di iframe depan)
+      const defaultIframe = $('.responsive-embed iframe').attr('src');
+      if (defaultIframe) {
+          data.push({ server: 'Server Utama', url: defaultIframe });
+      }
+
+      // 2. Pecahkan sandi Base64 dari tombol-tombol Mirror (Doranime, dll)
       $('.mirrorstream ul li').each((_, e) => {
-        data.push({ server: $(e).find('a').text().trim(), url: 'https://otakudesu.cloud/wp-admin/admin-ajax.php' });
+        const serverName = $(e).find('a').text().trim();
+        const rawContent = $(e).find('a').attr('data-content'); // Mengandung sandi rahasia
+        
+        if (rawContent) {
+            try {
+                // Decode sandi Base64 jadi kode HTML biasa
+                const decodedHtml = Buffer.from(rawContent, 'base64').toString('utf-8');
+                const $$ = cheerio.load(decodedHtml);
+                const iframeSrc = $$('iframe').attr('src');
+                
+                if (iframeSrc) {
+                    data.push({ server: serverName, url: iframeSrc });
+                }
+            } catch (err) {
+                console.log("Gagal memecahkan sandi server: ", serverName);
+            }
+        }
       });
       return { title: $('.venutama h1').text().trim(), streams: data };
     }
