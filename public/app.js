@@ -556,10 +556,11 @@ window.addEventListener('popstate', (e) => {
     if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
     if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
     let page = hash.replace('#', '') || 'home'; switchTab(page); 
+    if (page === 'detail') { window.currentPlayingAnime = null; window.renderDetailEpisodeUI(); }
 });
 
 window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
-window.backToDetail = function() { if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); } };
+window.backToDetail = function() { if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); window.currentPlayingAnime = null; window.renderDetailEpisodeUI(); } };
 
 window.injectExitModal = function() {
     if(document.getElementById('exit-modal-injected')) return;
