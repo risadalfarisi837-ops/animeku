@@ -135,7 +135,8 @@ async function scraperOtakudesu() {
         });
       });
       return {
-        title: $('.jdlinfo h1').text().trim(),
+        // Scraper lebih cerdas untuk mengambil judul
+        title: $('.infozingle p:contains("Judul") span').text().trim() || $('.fotoanime img').attr('alt') || $('.jdlrx h1').text().trim(),
         image: $('.fotoanime img').attr('src'),
         description: $('.sinopc').text().trim(),
         episodes,
@@ -146,10 +147,7 @@ async function scraperOtakudesu() {
       const res = await axios.get(`${PROXY}${url}`, { headers });
       const $ = cheerio.load(res.data);
       const data = [];
-      // Otakudesu biasanya pakai Iframe langsung di dalam Mirror
       $('.mirrorstream ul li').each((_, e) => {
-        const rawData = $(e).find('a').attr('data-content'); 
-        // Note: Otakudesu sering kali butuh decode base64 atau ajax tambahan untuk link video
         data.push({ server: $(e).find('a').text().trim(), url: 'https://otakudesu.cloud/wp-admin/admin-ajax.php' });
       });
       return { title: $('.venutama h1').text().trim(), streams: data };
