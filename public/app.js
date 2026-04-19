@@ -342,7 +342,46 @@ function renderHeroSlider(data, container) {
 async function handleSearch(query) {
     if (!query) { switchTab('home'); return; }
     switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
-    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
+    try { 
+        // Bersihkan embel-embel judul
+        let cleanQuery = query.split(':')[0].replace(/Season \d+/ig, '').replace(/Part \d+/ig, '').trim();
+        
+        let res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(cleanQuery)}`); 
+        let data = await res.json(); 
+        
+        // FITUR PENCARIAN PINTAR: Coba cari pakai 2 kata pertama jika pencarian gagal
+        if ((!data || data.length === 0) && cleanQuery.split(' ').length > 2) {
+            let shortQuery = cleanQuery.split(' ').slice(0, 2).join(' ');
+            res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(shortQuery)}`);
+            data = await res.json();
+        }
+
+        let resultHtml = '';
+        if (data && data.length > 0) {
+            resultHtml = `<div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`;
+        } else {
+            resultHtml = `
+            <div style="text-align:center; padding: 80px 20px; display:flex; flex-direction:column; align-items:center;">
+                <div style="width: 70px; height: 70px; background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <h3 style="color:#fff; margin: 0 0 10px 0; font-size:18px; font-weight:800;">Belum Tersedia</h3>
+                <p style="color:#888; font-size:13px; line-height:1.6; margin: 0;">Anime <strong>"${query}"</strong> belum tersedia Sub Indo-nya atau belum dirilis oleh pihak web.</p>
+            </div>`;
+        }
+        
+        document.getElementById('search-view').innerHTML = `
+            <div class="header-flex" style="padding-top:20px;">
+                <h2>Pencarian: "${query}"</h2>
+            </div>
+            ${resultHtml}
+        `; 
+    } catch (err) { 
+        document.getElementById('search-view').innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat hasil pencarian.</div>`;
+    } finally { loader(false); }
 }
 
 function injectReportModal() {
@@ -633,28 +672,78 @@ function renderJadwalDays(activeDay) {
 
 async function loadJadwalData(dayIndex) {
     const container = document.getElementById('sched-list-container'); 
-    if (!window.cachedScheduleData) { loader(true); }
+    if (!window.jikanScheduleCache) window.jikanScheduleCache = {};
+    if (!window.jikanScheduleCache[dayIndex]) loader(true);
 
     try {
+        const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const queryDay = daysMap[dayIndex];
+
         let data;
-        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
-        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
+        if (window.jikanScheduleCache[dayIndex]) { 
+            data = window.jikanScheduleCache[dayIndex]; 
+        } else { 
+            const res = await fetchTimeout(`https://api.jikan.moe/v4/schedules?filter=${queryDay}`, 15000); 
+            const json = await res.json(); 
+            data = json.data; 
+            window.jikanScheduleCache[dayIndex] = data; 
+        }
 
-        let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
-        let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
-        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
-        todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
+        if(!data || data.length === 0) throw new Error("No data");
 
-        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
-        todaysAnime.forEach((anime, idx) => {
-            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
-            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
-            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
-            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
+        // --- FILTER ANTI-DUPLIKAT ---
+        let uniqueData = [];
+        let seenTitles = new Set();
+        data.forEach(anime => {
+            if (!seenTitles.has(anime.title)) {
+                seenTitles.add(anime.title);
+                uniqueData.push(anime);
+            }
         });
-        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
+
+        let html = ''; 
+        let currentHour = new Date().getHours(); 
+        let isToday = dayIndex === new Date().getDay();
+
+        uniqueData.forEach(anime => {
+            let title = anime.title;
+            // Mengambil gambar poster portrait resmi
+            let imageUrl = anime.images.jpg.large_image_url || anime.images.jpg.image_url;
+            let score = anime.score ? anime.score.toFixed(2) : 'N/A';
+            
+            let time = '??:??';
+            let broadcastHour = 24;
+            if (anime.broadcast && anime.broadcast.time) {
+                let jstHour = parseInt(anime.broadcast.time.split(':')[0]);
+                let jstMin = anime.broadcast.time.split(':')[1];
+                let wibHour = jstHour - 2;
+                if (wibHour < 0) wibHour += 24; 
+                time = `${String(wibHour).padStart(2, '0')}:${jstMin}`;
+                broadcastHour = wibHour;
+            }
+
+            let isReleased = isToday ? (broadcastHour <= currentHour) : (dayIndex < new Date().getDay());
+            let statusText = isReleased ? `<span class="status-done">Sudah Rilis</span>` : `<span class="status-wait">Menunggu Rilis</span>`;
+
+            html += `
+            <div class="sched-card" data-title="${title.replace(/"/g, '&quot;')}" onclick="handleSearch(this.dataset.title)">
+                <div class="sched-time">${time}</div>
+                <img src="${imageUrl}" class="sched-img" style="border-radius: 8px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onerror="this.src='https://placehold.co/75x100/1a1a1a/3b82f6?text=Anime'">
+                <div class="sched-info">
+                    <div class="sched-title">${title}</div>
+                    <div class="sched-ep">Anime Ongoing</div>
+                    <div class="sched-stats">
+                        <span style="color:#fbbf24;">⭐ ${score}</span>
+                    </div>
+                    <div class="sched-status">${statusText}</div>
+                </div>
+            </div>`;
+        });
+        
         container.innerHTML = html;
-    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
+    } catch(e) { 
+        container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal dari server global. Coba lagi nanti.</div>`; 
+    }
     loader(false);
 }
 
