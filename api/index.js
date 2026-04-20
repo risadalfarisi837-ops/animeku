@@ -8,14 +8,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- KABEL KE GUDANG MONGODB ---
+// --- KABEL KE GUDANG MONGODB (ANTI-TIMEOUT VERCEL) ---
 const MONGO_URI = "mongodb+srv://Risyadh:risadalfaris1837@animeku.stmxguy.mongodb.net/?appName=Animeku";
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("Gudang Animeku Terhubung! 🚀"))
-    .catch(err => console.log("Gagal connect gudang:", err.message));
+mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log("Gudang Terhubung! 🚀"))
+    .catch(err => console.log("Gagal connect:", err.message));
 
-// --- SKEMA DATA ---
 const AnimeSchema = new mongoose.Schema({
     title: { type: String, unique: true },
     image: String,
@@ -30,7 +29,6 @@ const BASE_URL = 'https://v2.samehadaku.how';
 const PROXY = 'https://cors.caliph.my.id/';
 const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)','Referer': BASE_URL };
 
-// --- ENGINE CERDAS: AMBIL & SIMPAN ---
 async function fetchAndSave(query) {
     try {
         const res = await axios.get(`${PROXY}${BASE_URL}/?s=${encodeURIComponent(query)}`, { headers });
@@ -48,31 +46,21 @@ async function fetchAndSave(query) {
             Anime.findOneAndUpdate({ title: item.title }, item, { upsert: true }).catch(() => {});
         });
         return results;
-    } catch (e) { 
-        console.log("Error Scraping:", e.message);
-        return []; 
-    }
+    } catch (e) { return []; }
 }
 
-// --- ROUTES API ---
 app.get('/api/search', async (req, res) => {
     const q = req.query.q;
-    console.log("Menerima pencarian:", q);
     try {
         const localData = await Anime.find({ title: new RegExp(q, 'i') }).limit(20);
         if (localData.length > 0) {
-            console.log("Data ketemu di database! ⚡");
             res.json(localData);
-            fetchAndSave(q); // Update diam-diam
+            fetchAndSave(q); 
         } else {
-            console.log("Database kosong, menyedot dari web luar...");
             const freshData = await fetchAndSave(q);
             res.json(freshData);
         }
-    } catch (e) { 
-        console.error("Error API Search:", e.message);
-        res.status(500).json([]); 
-    }
+    } catch (e) { res.status(500).json([]); }
 });
 
 app.get('/api/latest', async (req, res) => {
