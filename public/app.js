@@ -152,15 +152,6 @@ window.openUserProfile = function(uid) {
     const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); const content = document.getElementById('user-profile-content');
     overlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10); content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
     
-    // --- FITUR BARU: DAPAT RANDOM EXP SAAT CEK PROFIL ---
-    if (currentUser && currentUser.uid !== uid) {
-        let randomXP = Math.floor(Math.random() * 8) + 3; 
-        addXP(randomXP);
-        let xpOverlay = document.getElementById('xp-modal-overlay');
-        if (xpOverlay) xpOverlay.style.zIndex = '9999999'; 
-    }
-    // -----------------------------------------------------
-
     db.ref('users/' + uid).once('value').then(async snap => {
         if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
         const data = snap.val(); const userName = data.nama || 'Wibu'; const userFoto = data.foto || 'https://placehold.co/100'; const role = data.role || 'Member'; const level = data.level || 1; const shortUid = "#" + uid.substring(0, 6).toUpperCase();
