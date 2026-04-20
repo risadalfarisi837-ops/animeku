@@ -117,4 +117,4 @@ app.get('/api/watch', async (req, res) => {
     } catch (e) { res.status(500).send(); }
 });
 
-app.listen(3000, () => console.log("Server Pro Animeku Aktif di Port 3000"));
+module.exports = app;
