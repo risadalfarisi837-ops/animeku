@@ -463,6 +463,20 @@ async function loadVideo(url) {
         let currentEpNum = '1';
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); } }
         window.currentPlayingAnime = { title: window.currentAnimeMeta?.title || displayTitle, image: window.currentAnimeMeta?.image || 'https://placehold.co/100', ep: 'Episode ' + currentEpNum, url: window.currentAnimeMeta?.url || url };
+        // --- KODE NOTIFIKASI MEDIA ---
+        if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: displayTitle, // Nampilin judul anime
+        artist: 'Animeku • Episode ' + currentEpNum, // Nampilin teks episode
+        artwork: [
+            // Ini akan mencoba nampilin poster animenya
+            { src: getHighRes(window.currentPlayingAnime.image), sizes: '512x512', type: 'image/jpeg' },
+            // Ini logo fallback kamu kalau poster gagal dimuat
+            { src: 'https://i.ibb.co/FLrNJL3Z/525058.jpg', sizes: '512x512', type: 'image/jpeg' }
+        ]
+    });
+}
+// ------------------------------
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
         window.renderDetailEpisodeUI();
 
