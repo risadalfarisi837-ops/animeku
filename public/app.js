@@ -486,13 +486,14 @@ async function loadVideo(url) {
     
     let data;
     // 1. Cek apakah episode ini sudah pernah dimuat sebelumnya
-    if (window.apiCache['watch_' + url]) {
+    if (window.apiCache && window.apiCache['watch_' + url]) {
         data = window.apiCache['watch_' + url]; 
     } else {
         loader(true); 
         try {
             const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
             data = await res.json();
+            window.apiCache = window.apiCache || {};
             window.apiCache['watch_' + url] = data; 
         } catch (err) {
             console.error(err);
@@ -539,7 +540,7 @@ async function loadVideo(url) {
 
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
         
-        // --- ANTI CRASH: CEK DATA STREAMS ---
+        // Pastikan 'streams' punya fallback kalau datanya kosong
         let streams = data.streams || [];
         let initialServer = streams.length > 0 ? streams[0].server : ''; 
         let initQualMatch = initialServer.match(/\d{3,4}p/i); 
