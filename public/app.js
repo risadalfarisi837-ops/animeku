@@ -432,10 +432,32 @@ async function loadDetail(url) {
 
 window.currentCommentSort = 'top';
 
+window.apiCache = window.apiCache || {}; // Variabel penampung cache
+
 async function loadVideo(url) {
-    history.pushState({page: 'watch'}, '', '#watch'); loader(true);
+    history.pushState({page: 'watch'}, '', '#watch'); 
+    
+    let data;
+    // 1. Cek apakah episode ini sudah pernah dimuat sebelumnya
+    if (window.apiCache['watch_' + url]) {
+        data = window.apiCache['watch_' + url]; // Ambil dari cache (Instan)
+    } else {
+        loader(true); // Nyalakan loading cuma kalau data belum ada
+        try {
+            const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
+            data = await res.json();
+            window.apiCache['watch_' + url] = data; // Simpan datanya ke cache
+        } catch (err) {
+            console.error(err);
+            loader(false);
+            window.showToast('Gagal memuat video, periksa koneksi internet.', 'error');
+            return;
+        }
+    }
+    loader(false); // Matikan loading
+    
     try {
-        const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); const data = await res.json(); switchTab('watch'); addXP(20); 
+        switchTab('watch'); addXP(20); 
         let displayTitle = window.currentAnimeMeta?.title || data.title;
         let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`; let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
         let currentEpNum = '1';
