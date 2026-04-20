@@ -152,14 +152,22 @@ window.openUserProfile = function(uid) {
     const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); const content = document.getElementById('user-profile-content');
     overlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10); content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
     
+    // --- FITUR BARU: DAPAT RANDOM EXP SAAT CEK PROFIL ---
+    if (currentUser && currentUser.uid !== uid) {
+        let randomXP = Math.floor(Math.random() * 8) + 3; 
+        addXP(randomXP);
+        let xpOverlay = document.getElementById('xp-modal-overlay');
+        if (xpOverlay) xpOverlay.style.zIndex = '9999999'; 
+    }
+    // -----------------------------------------------------
+
     db.ref('users/' + uid).once('value').then(async snap => {
         if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
         const data = snap.val(); const userName = data.nama || 'Wibu'; const userFoto = data.foto || 'https://placehold.co/100'; const role = data.role || 'Member'; const level = data.level || 1; const shortUid = "#" + uid.substring(0, 6).toUpperCase();
         let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
         const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
         
-        let userComments = [];
-        try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
+        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
         userComments.sort((a,b) => b.waktu - a.waktu); let totalKomentar = userComments.length;
         
         let commentsHtml = userComments.length > 0 ? userComments.map(c => {
@@ -168,13 +176,14 @@ window.openUserProfile = function(uid) {
             return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
 
-                        let userExp = data.exp || 0;
+        let userExp = data.exp || 0;
         let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
         let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
 
         content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
     });
 };
+
 window.closeUserProfileModal = function() { const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } };
 
 window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
@@ -576,31 +585,6 @@ function injectUserProfileModal() {
     document.body.appendChild(div);
 }
 
-window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') return; injectUserProfileModal();
-    const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); const content = document.getElementById('user-profile-content');
-    overlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10); content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
-    
-    db.ref('users/' + uid).once('value').then(async snap => {
-        if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
-        const data = snap.val(); const userName = data.nama || 'Wibu'; const userFoto = data.foto || 'https://placehold.co/100'; const role = data.role || 'Member'; const level = data.level || 1; const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-        const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
-        
-        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
-        userComments.sort((a,b) => b.waktu - a.waktu); let totalKomentar = userComments.length;
-        
-        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
-        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-
-        let totalMenit = level * 120 + Math.floor(Math.random() * 500);
-        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${totalKomentar}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
-    });
-};
-window.closeUserProfileModal = function() { const overlay = document.getElementById('userProfileOverlay'); const modal = document.getElementById('userProfileModal'); if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } };
 
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
