@@ -434,7 +434,8 @@ async function loadRecentHistory() {
                 const dateObj = new Date(anime.timestamp); const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
                 const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
                 const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
-                timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" onerror="this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
+                const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+                timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
             });
             timelineHtml += `</div></div>`;
         }
@@ -513,13 +514,19 @@ async function loadVideo(url) {
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
             let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); 
             if(foundEp) { 
-                let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-                currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); 
+                let epTitleStr = String(foundEp.title || '');
+                let epMatch = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                currentEpNum = epMatch ? epMatch[1] : (epTitleStr.match(/\d+/g) ? epTitleStr.match(/\d+/g).pop() : "1"); 
             } 
         }
-        window.currentPlayingAnime = { title: window.currentAnimeMeta?.title || displayTitle, image: window.currentAnimeMeta?.image || 'https://placehold.co/100', ep: 'Episode ' + currentEpNum, url: window.currentAnimeMeta?.url || url };
+        window.currentPlayingAnime = { 
+            title: displayTitle, 
+            image: window.currentAnimeMeta?.image || 'https://placehold.co/100', 
+            ep: 'Episode ' + currentEpNum, 
+            url: url 
+        };
         
-        try { document.getElementById('silent-audio').play(); } catch (err) {}
+        try { document.getElementById('silent-audio')?.play(); } catch (err) {}
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -535,22 +542,25 @@ async function loadVideo(url) {
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; 
         let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; 
         oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); 
-        watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
+        watchProgress[url] = 100; 
+        localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
         window.renderDetailEpisodeUI();
 
-        let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
+        let episodeID = String(url).replace(/[^a-zA-Z0-9]/g, '_'); 
         
-        // Pastikan 'streams' punya fallback kalau datanya kosong
-        let streams = data.streams || [];
-        let initialServer = streams.length > 0 ? streams[0].server : ''; 
+        let streams = data?.streams || (Array.isArray(data) ? data : []);
+        let initialServer = streams.length > 0 ? String(streams[0].server || streams[0].name || 'Default') : 'Server'; 
         let initQualMatch = initialServer.match(/\d{3,4}p/i); 
         let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+        let iframeSrc = streams.length > 0 ? (streams[0].url || streams[0].link || '') : '';
 
         document.getElementById('watch-view').innerHTML = `
             <div class="video-container-fixed">
-                <button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                ${streams.length > 0 
-                    ? `<iframe id="video-player" src="${streams[0].url}" allowfullscreen></iframe>`
+                <button class="watch-back-btn" onclick="backToDetail()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                ${iframeSrc 
+                    ? `<iframe id="video-player" src="${iframeSrc}" allowfullscreen></iframe>`
                     : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ef4444; font-weight:bold; font-size:14px; background:#111;">Server Video Sedang Error / Kosong</div>`
                 }
             </div>
@@ -579,29 +589,55 @@ async function loadVideo(url) {
             <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
         `;
         
-        if (streams.length > 0) { 
-            document.getElementById('modal-server-list').innerHTML = streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); 
-        } else {
-            document.getElementById('modal-server-list').innerHTML = '<p style="text-align:center; color:#888;">Server tidak tersedia.</p>';
-            window.showToast('Gagal memuat server video dari API.', 'error');
+        let modalServerContainer = document.getElementById('modal-server-list');
+        if (modalServerContainer) {
+            if (streams.length > 0) { 
+                modalServerContainer.innerHTML = streams.map((stream, idx) => { 
+                    let srvName = stream.server || stream.name || `Server ${idx+1}`;
+                    let srvUrl = stream.url || stream.link || '';
+                    let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; 
+                    return `<button class="${isActive}" onclick="changeServer('${srvUrl}', '${srvName}', this)"><span>${srvName}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; 
+                }).join(''); 
+            } else {
+                modalServerContainer.innerHTML = '<p style="text-align:center; color:#888;">Server tidak tersedia.</p>';
+            }
         }
         
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
                 watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
-                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (index + 1); 
-                    let progress = watchProgress[ep.url]; let isCurrent = (ep.url === url); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
-                    if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; }
+                    let epTitleStr = String(ep.title || '1');
+                    let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                    let eNum = m ? m[1] : (index + 1); 
+                    let progress = watchProgress[ep.url]; 
+                    let isCurrent = (ep.url === url); 
+                    let c = "ep-square"; 
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
+                    if (progress >= 100) { 
+                        c += " active"; 
+                        if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; 
+                    } else if (progress > 0) { 
+                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; 
+                    } else if (progress === 0 || isCurrent) { 
+                        c += " watched"; 
+                    }
                     return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
                 }).join(''); 
-            } else { watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; } 
+            } else { 
+                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; 
+            } 
         }
         
-        window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
+        window.currentEpID = episodeID; 
+        renderCommentInput(episodeID); 
+        listenToComments(episodeID);
     } catch (err) { 
-        console.error(err); 
-    } finally { loader(false); }
+        console.error("Render Watch View Error:", err); 
+        document.getElementById('watch-view').innerHTML = `<div style="text-align:center; padding:50px; color:#ef4444;">Terjadi kesalahan saat merender halaman video.</div><button onclick="backToDetail()" style="margin:0 auto; display:block; padding:10px 20px; background:#333; color:#fff; border:none; border-radius:10px;">Kembali</button>`;
+    } finally { 
+        loader(false); 
+    }
 }
 
 // ==== UTILS & APP INIT ====
