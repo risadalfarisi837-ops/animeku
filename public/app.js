@@ -269,36 +269,51 @@ window.toggleEpLayout = function() { window.epLayoutMode = window.epLayoutMode =
 window.toggleEpSort = function() { window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc'; window.renderDetailEpisodeUI(); };
 
 window.renderDetailEpisodeUI = function() {
-    let containerDetail = document.getElementById('episode-list-detail-container'); if(!containerDetail) return;
-    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
-    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
-    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
-    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
-    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+    try {
+        let containerDetail = document.getElementById('episode-list-detail-container'); if(!containerDetail) return;
+        let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+        let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+        let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+        document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+        document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
 
-    let eps = [...(window.currentAnimeEpisodes || [])]; if (window.epSortOrder === 'desc') eps.reverse();
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
-    let renderHtml = '';
+        let eps = [];
+        if (window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes)) { eps = [...window.currentAnimeEpisodes]; }
+        if (window.epSortOrder === 'desc') eps.reverse();
 
-    if (window.epLayoutMode === 'grid') {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
-            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
-            if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
-            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-        }).join('');
-        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.innerHTML = renderHtml; 
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
-            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
-            if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
-            if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
-        }).join('');
-        containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.innerHTML = renderHtml; 
-    }
+        let watchedEps = []; let watchProgress = {};
+        try { watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; } catch(e){}
+        try { watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; } catch(e){}
+
+        let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+        let renderHtml = '';
+
+        if (window.epLayoutMode === 'grid') {
+            renderHtml = eps.map((ep, index) => {
+                let epTitleStr = String(ep.title || '1');
+                let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); 
+                let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+                let progress = watchProgress[ep.url] || 0; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
+                if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
+                return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+            }).join('');
+            containerDetail.style.display = "flex"; containerDetail.style.gap = "10px"; containerDetail.style.flexWrap = "wrap"; containerDetail.style.paddingBottom = "10px"; containerDetail.style.flexDirection = "row";
+            containerDetail.innerHTML = renderHtml; 
+        } else {
+            renderHtml = eps.map((ep, index) => {
+                let epTitleStr = String(ep.title || '1');
+                let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); 
+                let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+                let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
+                let progress = watchProgress[ep.url] || 0; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
+                if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
+                if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
+                return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
+            }).join('');
+            containerDetail.style.display = "flex"; containerDetail.style.flexDirection = "column"; containerDetail.style.gap = "0"; containerDetail.style.flexWrap = "nowrap";
+            containerDetail.innerHTML = renderHtml; 
+        }
+    } catch(e) { console.error("Render Episode List Error:", e); }
 };
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
@@ -483,19 +498,18 @@ async function loadDetail(url) {
 }
 
 async function loadVideo(url) {
-    history.pushState({page: 'watch'}, '', '#watch'); 
-    
-    let data;
-    // 1. Cek apakah episode ini sudah pernah dimuat sebelumnya
+    history.pushState({page: 'watch'}, '', '#watch');
+
+    let data = {};
     if (window.apiCache && window.apiCache['watch_' + url]) {
-        data = window.apiCache['watch_' + url]; 
+        data = window.apiCache['watch_' + url];
     } else {
-        loader(true); 
+        loader(true);
         try {
-            const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
+            const res = await fetch(API_BASE + '/watch?url=' + encodeURIComponent(url));
             data = await res.json();
-            window.apiCache = window.apiCache || {};
-            window.apiCache['watch_' + url] = data; 
+            if (!window.apiCache) window.apiCache = {};
+            window.apiCache['watch_' + url] = data;
         } catch (err) {
             console.error(err);
             loader(false);
@@ -503,140 +517,197 @@ async function loadVideo(url) {
             return;
         }
     }
-    loader(false); 
-    
+    loader(false);
+
     try {
-        switchTab('watch'); addXP(20); 
-        let displayTitle = window.currentAnimeMeta?.title || data.title || 'Judul Tidak Diketahui';
-        let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`; 
-        let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+        switchTab('watch');
+        addXP(20);
+
+        let displayTitle = 'Judul Tidak Diketahui';
+        if (window.currentAnimeMeta && window.currentAnimeMeta.title) displayTitle = window.currentAnimeMeta.title;
+        else if (data && data.title) displayTitle = data.title;
+
         let currentEpNum = '1';
-        if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-            let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); 
-            if(foundEp) { 
-                let epTitleStr = String(foundEp.title || '');
-                let epMatch = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-                currentEpNum = epMatch ? epMatch[1] : (epTitleStr.match(/\d+/g) ? epTitleStr.match(/\d+/g).pop() : "1"); 
-            } 
+        if(window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes) && window.currentAnimeEpisodes.length > 0) {
+            let foundEp = window.currentAnimeEpisodes.find(ep => ep && ep.url === url);
+            if(foundEp && foundEp.title) {
+                let epTitleStr = String(foundEp.title);
+                let epMatch = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                if (epMatch) {
+                    currentEpNum = epMatch[1];
+                } else {
+                    let nums = epTitleStr.match(/\d+/g);
+                    if (nums && nums.length > 0) {
+                        currentEpNum = nums[nums.length - 1];
+                    }
+                }
+            }
         }
-        window.currentPlayingAnime = { 
-            title: displayTitle, 
-            image: window.currentAnimeMeta?.image || 'https://placehold.co/100', 
-            ep: 'Episode ' + currentEpNum, 
-            url: url 
+
+        let animeImage = 'https://placehold.co/100';
+        if (window.currentAnimeMeta && window.currentAnimeMeta.image) animeImage = window.currentAnimeMeta.image;
+
+        let currentUrl = url;
+        if (window.currentAnimeMeta && window.currentAnimeMeta.url) currentUrl = window.currentAnimeMeta.url;
+
+        window.currentPlayingAnime = {
+            title: displayTitle,
+            image: animeImage,
+            ep: 'Episode ' + currentEpNum,
+            url: currentUrl
         };
-        
-        try { document.getElementById('silent-audio')?.play(); } catch (err) {}
+
+        try {
+            let audio = document.getElementById('silent-audio');
+            if (audio) audio.play().catch(()=>{});
+        } catch (err) {}
 
         if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: displayTitle, 
-                artist: 'Animeku • Episode ' + currentEpNum, 
-                artwork: [
-                    { src: getHighRes(window.currentPlayingAnime.image), sizes: '512x512', type: 'image/jpeg' },
-                    { src: './animeku.jpg', sizes: '512x512', type: 'image/jpeg' } 
-                ]
-            });
+            try {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: displayTitle,
+                    artist: 'Animeku • Episode ' + currentEpNum,
+                    artwork: [
+                        { src: getHighRes(animeImage), sizes: '512x512', type: 'image/jpeg' },
+                        { src: './animeku.jpg', sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
+            } catch(e) {}
         }
 
-        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; 
-        let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; 
-        oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); 
-        watchProgress[url] = 100; 
+        let watchProgress = {};
+        let oldWatched = [];
+        try { watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; } catch(e){}
+        try { oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; } catch(e){}
+
+        if (Array.isArray(oldWatched)) {
+            oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
+        }
+        watchProgress[url] = 100;
         localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
-        window.renderDetailEpisodeUI();
 
-        let episodeID = String(url).replace(/[^a-zA-Z0-9]/g, '_'); 
-        
-        let streams = data?.streams || (Array.isArray(data) ? data : []);
-        let initialServer = streams.length > 0 ? String(streams[0].server || streams[0].name || 'Default') : 'Server'; 
-        let initQualMatch = initialServer.match(/\d{3,4}p/i); 
+        try { window.renderDetailEpisodeUI(); } catch(e) { console.error(e); }
+
+        let episodeID = String(url).replace(/[^a-zA-Z0-9]/g, '_');
+
+        let streams = [];
+        if (data && Array.isArray(data.streams)) streams = data.streams;
+        else if (data && Array.isArray(data.stream)) streams = data.stream;
+        else if (Array.isArray(data)) streams = data;
+
+        let initialServer = 'Server';
+        let iframeSrc = '';
+        if (streams.length > 0 && streams[0]) {
+            initialServer = String(streams[0].server || streams[0].name || 'Default');
+            iframeSrc = streams[0].url || streams[0].link || '';
+        }
+
+        let initQualMatch = initialServer.match(/\d{3,4}p/i);
         let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
-        let iframeSrc = streams.length > 0 ? (streams[0].url || streams[0].link || '') : '';
 
-        document.getElementById('watch-view').innerHTML = `
-            <div class="video-container-fixed">
-                <button class="watch-back-btn" onclick="backToDetail()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                </button>
-                ${iframeSrc 
-                    ? `<iframe id="video-player" src="${iframeSrc}" allowfullscreen></iframe>`
-                    : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ef4444; font-weight:bold; font-size:14px; background:#111;">Server Video Sedang Error / Kosong</div>`
-                }
-            </div>
-            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
-                <img src="${getHighRes(window.currentPlayingAnime.image)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
-                <div style="flex: 1;">
-                    <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
-                    <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div>
+        let mockViews = Math.floor(Math.random() * 900 + 100) + '.' + Math.floor(Math.random() * 900 + 100) + ' Views';
+        let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+
+        let watchView = document.getElementById('watch-view');
+        if (watchView) {
+            watchView.innerHTML = `
+                <div class="video-container-fixed">
+                    <button class="watch-back-btn" onclick="backToDetail()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    ${iframeSrc
+                        ? `<iframe id="video-player" src="${iframeSrc}" allowfullscreen></iframe>`
+                        : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ef4444; font-weight:bold; font-size:14px; background:#111;">Server Video Sedang Error / Kosong</div>`
+                    }
                 </div>
-            </div>
-            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
-                <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
-                    <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
-                        <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
-                        <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
+                    <img src="${getHighRes(animeImage)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
+                        <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div>
                     </div>
-                    <button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
-                    <button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
-                    <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
+                    <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
+                        <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
+                            <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                            <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                        </div>
+                        <button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
+                        <button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                        <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                    </div>
                 </div>
-            </div>
-            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
-            <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
-        `;
-        
+                <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+                <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
+            `;
+        }
+
         let modalServerContainer = document.getElementById('modal-server-list');
         if (modalServerContainer) {
-            if (streams.length > 0) { 
-                modalServerContainer.innerHTML = streams.map((stream, idx) => { 
+            if (streams.length > 0) {
+                modalServerContainer.innerHTML = streams.map((stream, idx) => {
                     let srvName = stream.server || stream.name || `Server ${idx+1}`;
                     let srvUrl = stream.url || stream.link || '';
-                    let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; 
-                    return `<button class="${isActive}" onclick="changeServer('${srvUrl}', '${srvName}', this)"><span>${srvName}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; 
-                }).join(''); 
+                    let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
+                    return `<button class="${isActive}" onclick="changeServer('${srvUrl}', '${srvName}', this)"><span>${srvName}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
+                }).join('');
             } else {
                 modalServerContainer.innerHTML = '<p style="text-align:center; color:#888;">Server tidak tersedia.</p>';
             }
         }
-        
-        const watchEpListContainer = document.getElementById('watch-episode-squares');
-        if (watchEpListContainer) { 
-            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
+
+        let watchEpListContainer = document.getElementById('watch-episode-squares');
+        if (watchEpListContainer) {
+            if (window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes) && window.currentAnimeEpisodes.length > 0) {
+                let epHtml = '';
+                let reversedEps = [...window.currentAnimeEpisodes].reverse();
+                reversedEps.forEach((ep, index) => {
                     let epTitleStr = String(ep.title || '1');
-                    let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
-                    let eNum = m ? m[1] : (index + 1); 
-                    let progress = watchProgress[ep.url]; 
-                    let isCurrent = (ep.url === url); 
-                    let c = "ep-square"; 
-                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
-                    if (progress >= 100) { 
-                        c += " active"; 
-                        if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; 
-                    } else if (progress > 0) { 
-                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; 
-                    } else if (progress === 0 || isCurrent) { 
-                        c += " watched"; 
+                    let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                    let eNum = m ? m[1] : (index + 1);
+                    let progress = watchProgress[ep.url] || 0;
+                    let isCurrent = (ep.url === url);
+                    let c = "ep-square";
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px; flex-shrink: 0;";
+
+                    if (progress >= 100) {
+                        c += " active";
+                        if(isCurrent) inlineStyle += " box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;";
+                    } else if (progress > 0) {
+                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+                    } else if (progress === 0 || isCurrent) {
+                        c += " watched";
                     }
-                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
-                }).join(''); 
-            } else { 
-                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; 
-            } 
+                    epHtml += `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+                });
+                watchEpListContainer.innerHTML = epHtml;
+            } else {
+                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px; flex-shrink: 0;">${currentEpNum}</div>`;
+            }
         }
-        
-        window.currentEpID = episodeID; 
-        renderCommentInput(episodeID); 
+
+        window.currentEpID = episodeID;
+        renderCommentInput(episodeID);
         listenToComments(episodeID);
-    } catch (err) { 
-        console.error("Render Watch View Error:", err); 
-        document.getElementById('watch-view').innerHTML = `<div style="text-align:center; padding:50px; color:#ef4444;">Terjadi kesalahan saat merender halaman video.</div><button onclick="backToDetail()" style="margin:0 auto; display:block; padding:10px 20px; background:#333; color:#fff; border:none; border-radius:10px;">Kembali</button>`;
-    } finally { 
-        loader(false); 
+
+    } catch (err) {
+        console.error("Render Watch View Fatal Error:", err);
+        let errView = document.getElementById('watch-view');
+        if(errView) {
+            errView.innerHTML = `
+            <div style="text-align:center; padding:100px 20px; color:#ef4444;">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:20px;">
+                    <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <h3 style="margin-bottom: 10px;">Terjadi Kesalahan (Crash JS)</h3>
+                <p style="color:#888; font-size:12px; margin-bottom: 30px;">${err.message}</p>
+                <button onclick="backToDetail()" style="padding:12px 24px; background:#333; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Kembali ke Detail</button>
+            </div>`;
+        }
     }
 }
 
