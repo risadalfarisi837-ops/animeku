@@ -14,7 +14,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
 
-// ==== CUSTOM TOAST NOTIFICATION ====
 window.showToast = function(message, type = 'success') {
     let container = document.getElementById('custom-toast-container');
     if (!container) {
@@ -31,7 +30,6 @@ window.showToast = function(message, type = 'success') {
     setTimeout(() => { if(toast.parentNode) { toast.style.transform = 'translateY(-30px)'; toast.style.opacity = '0'; setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300); } }, 3000);
 };
 
-// ==== INJEKSI CSS PREMIUM ====
 function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style'); style.id = 'premium-rank-styles';
@@ -48,6 +46,8 @@ function injectPremiumStyles() {
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
         .avatar-rank-mythic { border-color: #ef4444 !important; box-shadow: 0 0 20px rgba(239,68,68,0.6) !important; }
+        .ptab-modal-content { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     `;
     document.head.appendChild(style);
 }
@@ -63,7 +63,7 @@ window.loginDenganGoogle = function() {
     if (isLoggingIn) return; isLoggingIn = true; const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
-        db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0, joined: Date.now() });
+        db.ref('users/' + u.uid).once('value').then(snap => { if(!snap.exists()){ db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0, joined: Date.now() }); } });
         window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { window.showToast("Gagal login: " + err.message, 'error'); }
@@ -92,21 +92,15 @@ function updateDevUI() {
                 if(!data) { data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0, joined: Date.now() }; await db.ref('users/' + currentUser.uid).set(data); }
                 let historyData = []; try { historyData = await getHistory(); } catch(e) {}
                 
-                const role = data.role || 'Member'; 
-                const level = data.level || 1; 
-                const exp = data.exp || 0; 
-                const creationDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date();
+                const role = data.role || 'Member'; const level = data.level || 1; const exp = data.exp || 0; 
+                const creationDate = data.joined ? new Date(data.joined) : (currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date());
                 const diffMonths = (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth());
-                const joinMonths = Math.max(1, diffMonths);
+                const joinMonths = Math.max(1, diffMonths + 1);
 
-                let totalMenit = Math.floor(exp * 1.2);
-                if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
+                let totalMenit = Math.floor(exp * 1.2); if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
                 const jamNonton = Math.floor(totalMenit / 60);
                 
-                const userName = data.nama || 'User Animeku'; 
-                const userFoto = data.foto || 'https://placehold.co/100'; 
-                const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
-                
+                const userName = data.nama || 'User Animeku'; const userFoto = data.foto || 'https://placehold.co/100'; const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
                 let roleBadgeClass = 'badge-member'; let roleName = role;
                 if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
                 const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
@@ -116,18 +110,16 @@ function updateDevUI() {
                     return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                let userCommentsHtml = '<div style="height:30px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:20px; height:20px;"></div></div>'; let totalKomentar = 0;
+                let userCommentsHtml = '<div style="height:30px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:20px; height:20px;"></div></div>';
                 db.ref('comments').once('value').then(commentsSnap => {
                     let allUserComments = [];
                     commentsSnap.forEach(epSnap => { epSnap.forEach(commentSnap => { let cData = commentSnap.val(); if(cData.uid === currentUser.uid) { allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData }); } }); });
-                    totalKomentar = allUserComments.length; document.getElementById('stat-komentar-val').innerText = totalKomentar;
+                    document.getElementById('stat-komentar-val').innerText = allUserComments.length;
                     if(allUserComments.length === 0) { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Kamu belum pernah berkomentar.</p>'; } else {
                         allUserComments.sort((a, b) => b.waktu - a.waktu);
                         let commentsHtml = allUserComments.map(c => {
                             let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-                            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let aEp = c.animeEp || 'Episode ?';
-                            let actionUrl = c.url ? `loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
-                            return `<div style="margin-bottom: 25px; padding: 0 5px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Reply</div></div>`;
+                            return `<div style="margin-bottom: 25px; padding: 0 5px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="loadDetail('${c.url}')"><div style="position:relative; flex-shrink:0;"><img src="${c.animeImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${c.animeTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${c.animeEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div></div>`;
                         }).join('');
                         document.getElementById('ptab-comments').innerHTML = commentsHtml;
                     }
@@ -140,12 +132,14 @@ function updateDevUI() {
                     <div id="ptab-all" class="ptab-content">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
                     <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                 `;
-            } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
+            } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
         });
     }
 }
 
-// ==== FUNGSI UNTUK PROFIL ORANG LAIN ====
+// ==========================================
+// 2. MODAL PROFIL USER LAIN
+// ==========================================
 function injectUserProfileModal() {
     if(document.getElementById('user-profile-modal-injected')) return;
     const div = document.createElement('div'); div.id = 'user-profile-modal-injected';
@@ -168,10 +162,8 @@ window.openUserProfile = function(uid) {
     const modal = document.getElementById('userProfileModal'); 
     const content = document.getElementById('user-profile-content');
     
-    overlay.style.display = 'block'; 
-    modal.style.display = 'flex'; 
+    overlay.style.display = 'block'; modal.style.display = 'flex'; 
     setTimeout(() => { modal.classList.add('show'); }, 10); 
-    
     content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
     
     db.ref('users/' + uid).once('value').then(async snap => {
@@ -180,57 +172,89 @@ window.openUserProfile = function(uid) {
         let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
         const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
         
-        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
+        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ ...c }); } }); }); } catch(e) {}
         userComments.sort((a,b) => b.waktu - a.waktu); 
         
         let commentsHtml = userComments.length > 0 ? userComments.map(c => {
             let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
+            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="loadDetail('${c.url}'); closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${c.animeImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.animeTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
 
         let userExp = data.exp || 0;
         let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
-        let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
+        let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30)) + 1) : 1;
 
-        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px;">
+                <div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}">${roleName}</span>
+                    <span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            <div class="profile-tabs" style="margin-bottom: 10px;">
+                <div class="ptab active" onclick="switchUserModalTab('all', this)">All</div>
+                <div class="ptab" onclick="switchUserModalTab('comments', this)">Comments</div>
+                <div class="ptab" onclick="switchUserModalTab('history', this)">History</div>
+            </div>
+            <div id="umodal-all" class="ptab-modal-content" style="padding-top: 10px;">${commentsHtml}</div>
+            <div id="umodal-comments" class="ptab-modal-content" style="display:none; padding-top: 10px;">${commentsHtml}</div>
+            <div id="umodal-history" class="ptab-modal-content" style="display:none; padding: 40px 20px; text-align: center; color: #666; font-size: 13px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" style="margin-bottom:10px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <br>Riwayat tontonan bersifat privat.
+            </div>
+        `;
     });
+};
+
+window.switchUserModalTab = function(tabName, element) { 
+    const modal = document.getElementById('userProfileModal');
+    modal.querySelectorAll('.ptab').forEach(el => el.classList.remove('active')); 
+    element.classList.add('active'); 
+    modal.querySelectorAll('.ptab-modal-content').forEach(el => el.style.display = 'none'); 
+    document.getElementById('umodal-' + tabName).style.display = 'block'; 
 };
 
 window.closeUserProfileModal = function() { 
-    const modal = document.getElementById('userProfileModal'); 
-    const overlay = document.getElementById('userProfileOverlay');
-    if(modal) { 
-        modal.classList.remove('show'); 
-        setTimeout(() => { 
-            overlay.style.display = 'none'; 
-            modal.style.display = 'none'; 
-        }, 300); 
-    } 
+    const modal = document.getElementById('userProfileModal'); const overlay = document.getElementById('userProfileOverlay');
+    if(modal) { modal.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } 
 };
 
 // ==========================================
-// MODAL & UI LAINNYA
+// 3. LOGIKA KOMENTAR
 // ==========================================
-window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
-    const modalOverlay = document.getElementById('levelModalOverlay'); const modal = document.getElementById('levelModal'); const listContainer = document.getElementById('level-modal-list');
-    const currRank = getRankInfo(currentLvl); document.getElementById('level-modal-subtitle').innerText = `Level ${currentLvl} • ${currRank.name}`; 
-    document.getElementById('level-modal-total-exp').innerText = typeof currentExp === 'number' ? currentExp.toLocaleString('id-ID') : currentExp; 
-    document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
-    let html = '';
-    RANK_TIERS.forEach(rank => {
-        let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl); let isPassed = currentLvl > rank.maxLvl;
-        let statusIcon = isCurrent ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : (isPassed ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>');
-        let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
-        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
-        html += `<div class="level-rank-item" style="${bgStyle}"><div class="rank-info"><div class="rank-icon rank-icon-${rank.name.toLowerCase()}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div><div><div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div><div class="rank-req">${reqText}</div></div></div><div class="rank-status">${statusIcon}</div></div>`;
-    });
-    listContainer.innerHTML = html; modalOverlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10);
+function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
+    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
+    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
+    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" onclick="openUserProfile('${c.uid}')" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px; cursor: pointer;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+}
+
+function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
+
+window.openReplyModal = function(epID, parentID) {
+    document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
+    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
+    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    const inputArea = document.getElementById('reply-input-area'); 
+    if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } 
+    else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
 
-window.closeLevelModal = function() { const modal = document.getElementById('levelModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('levelModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.switchProfileTab = function(tabName, element) { document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active')); element.classList.add('active'); document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none'); document.getElementById('ptab-' + tabName).style.display = 'block'; };
-
+// ==========================================
+// 4. DATABASE, UTILS, DLL
+// ==========================================
 const API_BASE = '/api'; 
 const DB_NAME = 'AnimekuDB';
 const STORE_HISTORY = 'history';
@@ -243,36 +267,51 @@ window.toggleEpLayout = function() { window.epLayoutMode = window.epLayoutMode =
 window.toggleEpSort = function() { window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc'; window.renderDetailEpisodeUI(); };
 
 window.renderDetailEpisodeUI = function() {
-    let containerDetail = document.getElementById('episode-list-detail-container'); if(!containerDetail) return;
-    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
-    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
-    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
-    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
-    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+    try {
+        let containerDetail = document.getElementById('episode-list-detail-container'); if(!containerDetail) return;
+        let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+        let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+        let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+        document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+        document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
 
-    let eps = [...(window.currentAnimeEpisodes || [])]; if (window.epSortOrder === 'desc') eps.reverse();
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
-    let renderHtml = '';
+        let eps = [];
+        if (window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes)) { eps = [...window.currentAnimeEpisodes]; }
+        if (window.epSortOrder === 'desc') eps.reverse();
 
-    if (window.epLayoutMode === 'grid') {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
-            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
-            if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
-            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
-        }).join('');
-        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.innerHTML = renderHtml; 
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
-            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
-            if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
-            if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
-        }).join('');
-        containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.innerHTML = renderHtml; 
-    }
+        let watchedEps = []; let watchProgress = {};
+        try { watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; } catch(e){}
+        try { watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; } catch(e){}
+
+        let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+        let renderHtml = '';
+
+        if (window.epLayoutMode === 'grid') {
+            renderHtml = eps.map((ep, index) => {
+                let epTitleStr = String(ep.title || '1');
+                let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); 
+                let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+                let progress = watchProgress[ep.url] || 0; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
+                if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
+                return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+            }).join('');
+            containerDetail.style.display = "flex"; containerDetail.style.gap = "10px"; containerDetail.style.flexWrap = "wrap"; containerDetail.style.paddingBottom = "10px"; containerDetail.style.flexDirection = "row";
+            containerDetail.innerHTML = renderHtml; 
+        } else {
+            renderHtml = eps.map((ep, index) => {
+                let epTitleStr = String(ep.title || '1');
+                let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); 
+                let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+                let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
+                let progress = watchProgress[ep.url] || 0; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
+                if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
+                if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
+                return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
+            }).join('');
+            containerDetail.style.display = "flex"; containerDetail.style.flexDirection = "column"; containerDetail.style.gap = "0"; containerDetail.style.flexWrap = "nowrap";
+            containerDetail.innerHTML = renderHtml; 
+        }
+    } catch(e) { console.error("Render Episode List Error:", e); }
 };
 
 function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
@@ -284,26 +323,6 @@ function getEpBadge(anime) {
 }
 function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
-
-// ==== LOGIKA EXP DIKEMBALIKAN KE ASLI ====
-function addXP(amount) {
-    if(!currentUser) return; 
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); if(!d) return;
-        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
-        let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
-        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
-        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
-        showXPModal(amount, nLvl, progressPercent, isLevelUp);
-    });
-}
-function showXPModal(addedAmount, level, progress, isLevelUp) {
-    const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
-    amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
-    if (isLevelUp) { titleText.innerText = "LEVEL UP!"; titleText.style.color = "#3b82f6"; } else { titleText.innerText = "EXP Gained"; titleText.style.color = "#fff"; }
-    overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 10);
-    setTimeout(() => { overlay.style.opacity = '0'; card.style.transform = 'translateY(20px)'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }, 2500);
-}
 
 function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
 async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
@@ -326,6 +345,26 @@ window.toggleLikeAction = function(btn, type) {
     else { if (isActive) { btn.style.backgroundColor = 'transparent'; } else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) { likeBtn.style.backgroundColor = 'transparent'; } } }
 };
 window.toggleSynopsis = function() { const text = document.getElementById('detail-synopsis-text'); const btn = document.getElementById('read-more-btn'); if(text.classList.contains('expanded')) { text.classList.remove('expanded'); btn.innerHTML = 'Selengkapnya ▼'; } else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; } };
+
+// ==== FUNGSI EXP ====
+function addXP(amount) {
+    if(!currentUser) return; 
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val(); if(!d) return;
+        let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
+        let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
+        let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
+        showXPModal(amount, nLvl, progressPercent, isLevelUp);
+    });
+}
+function showXPModal(addedAmount, level, progress, isLevelUp) {
+    const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
+    amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
+    if (isLevelUp) { titleText.innerText = "LEVEL UP!"; titleText.style.color = "#3b82f6"; } else { titleText.innerText = "EXP Gained"; titleText.style.color = "#fff"; }
+    overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 10);
+    setTimeout(() => { overlay.style.opacity = '0'; card.style.transform = 'translateY(20px)'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }, 2500);
+}
 
 const HOME_SECTIONS = [
     { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] }, { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
@@ -476,23 +515,19 @@ async function loadDetail(url) {
     } catch (err) { console.error(err); } finally { loader(false); }
 }
 
-window.currentCommentSort = 'top';
-
-window.apiCache = window.apiCache || {}; // Variabel penampung cache
-
 async function loadVideo(url) {
-    history.pushState({page: 'watch'}, '', '#watch'); 
-    
-    let data;
-    // 1. Cek apakah episode ini sudah pernah dimuat sebelumnya
-    if (window.apiCache['watch_' + url]) {
-        data = window.apiCache['watch_' + url]; // Ambil dari cache (Instan)
+    history.pushState({page: 'watch'}, '', '#watch');
+
+    let data = {};
+    if (window.apiCache && window.apiCache['watch_' + url]) {
+        data = window.apiCache['watch_' + url];
     } else {
-        loader(true); // Nyalakan loading cuma kalau data belum ada
+        loader(true);
         try {
-            const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
+            const res = await fetch(API_BASE + '/watch?url=' + encodeURIComponent(url));
             data = await res.json();
-            window.apiCache['watch_' + url] = data; // Simpan datanya ke cache
+            if (!window.apiCache) window.apiCache = {};
+            window.apiCache['watch_' + url] = data;
         } catch (err) {
             console.error(err);
             loader(false);
@@ -500,273 +535,232 @@ async function loadVideo(url) {
             return;
         }
     }
-    loader(false); // Matikan loading
-    
+    loader(false);
+
     try {
-        switchTab('watch'); addXP(20); 
-        let displayTitle = window.currentAnimeMeta?.title || data.title;
-        let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`; let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+        switchTab('watch');
+        addXP(20);
+
+        let displayTitle = 'Judul Tidak Diketahui';
+        if (window.currentAnimeMeta && window.currentAnimeMeta.title) displayTitle = window.currentAnimeMeta.title;
+        else if (data && data.title) displayTitle = data.title;
+
         let currentEpNum = '1';
-        if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); } }
-         window.currentPlayingAnime = { title: window.currentAnimeMeta?.title || displayTitle, image: window.currentAnimeMeta?.image || 'https://placehold.co/100', ep: 'Episode ' + currentEpNum, url: window.currentAnimeMeta?.url || url };
-        
-        // --- TRIK MEMAKSA CHROME BACA NOTIFIKASI ---
+        if(window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes) && window.currentAnimeEpisodes.length > 0) {
+            let foundEp = window.currentAnimeEpisodes.find(ep => ep && ep.url === url);
+            if(foundEp && foundEp.title) {
+                let epTitleStr = String(foundEp.title);
+                let epMatch = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                if (epMatch) {
+                    currentEpNum = epMatch[1];
+                } else {
+                    let nums = epTitleStr.match(/\d+/g);
+                    if (nums && nums.length > 0) {
+                        currentEpNum = nums[nums.length - 1];
+                    }
+                }
+            }
+        }
+
+        let animeImage = 'https://placehold.co/100';
+        if (window.currentAnimeMeta && window.currentAnimeMeta.image) animeImage = window.currentAnimeMeta.image;
+
+        let currentUrl = url;
+        if (window.currentAnimeMeta && window.currentAnimeMeta.url) currentUrl = window.currentAnimeMeta.url;
+
+        window.currentPlayingAnime = {
+            title: displayTitle,
+            image: animeImage,
+            ep: 'Episode ' + currentEpNum,
+            url: currentUrl
+        };
+
         try {
-            document.getElementById('silent-audio').play();
+            let audio = document.getElementById('silent-audio');
+            if (audio) audio.play().catch(()=>{});
         } catch (err) {}
 
-        // --- KODE NOTIFIKASI MEDIA ---
         if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: displayTitle, 
-                artist: 'Animeku • Episode ' + currentEpNum, 
-                artwork: [
-                    { src: getHighRes(window.currentPlayingAnime.image), sizes: '512x512', type: 'image/jpeg' },
-                    { src: './animeku.jpg', sizes: '512x512', type: 'image/jpeg' } 
-                ]
-            });
+            try {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: displayTitle,
+                    artist: 'Animeku • Episode ' + currentEpNum,
+                    artwork: [
+                        { src: getHighRes(animeImage), sizes: '512x512', type: 'image/jpeg' },
+                        { src: './animeku.jpg', sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
+            } catch(e) {}
         }
-        // ------------------------------
-// ------------------------------
-        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
-        window.renderDetailEpisodeUI();
 
-        let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
-        let initialServer = data.streams.length > 0 ? data.streams[0].server : ''; let initQualMatch = initialServer.match(/\d{3,4}p/i); let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+        let watchProgress = {};
+        let oldWatched = [];
+        try { watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; } catch(e){}
+        try { oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; } catch(e){}
 
-        document.getElementById('watch-view').innerHTML = `
-            <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
-            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;"><img src="${getHighRes(window.currentPlayingAnime.image)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div></div></div>
-            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;"><div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;"><div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;"><button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button></div><button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button><button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div></div>
-            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
-            <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
-        `;
-        
-        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
-        
-        const watchEpListContainer = document.getElementById('watch-episode-squares');
-        if (watchEpListContainer) { 
-            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
-                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (index + 1); 
-                    let progress = watchProgress[ep.url]; let isCurrent = (ep.url === url); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
-                    if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; }
-                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
-                }).join(''); 
-            } else { watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; } 
+        if (Array.isArray(oldWatched)) {
+            oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; });
         }
-        
-        window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
-    } catch (err) { console.error(err); } finally { loader(false); }
-}
+        watchProgress[url] = 100;
+        localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
 
-window.setCommentFilter = function(sortType, btnElement) { document.querySelectorAll('.comment-filter-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); window.currentCommentSort = sortType; if (window.currentEpID) listenToComments(window.currentEpID); };
+        try { window.renderDetailEpisodeUI(); } catch(e) { console.error(e); }
 
-function renderCommentInput(epID) {
-    const container = document.getElementById('custom-comment-area'); if(!container) return; 
-    if(!currentUser) { 
-        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div style="flex: 1; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 10px 16px; border-radius: 24px; color: #888; font-size: 13px; cursor: pointer;" onclick="switchTab('developer')">Login untuk menambahkan komentar...</div></div>`; 
-    } 
-    else { 
-        const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
-        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        let episodeID = String(url).replace(/[^a-zA-Z0-9]/g, '_');
+
+        let streams = [];
+        if (data && Array.isArray(data.streams)) streams = data.streams;
+        else if (data && Array.isArray(data.stream)) streams = data.stream;
+        else if (Array.isArray(data)) streams = data;
+
+        let initialServer = 'Server';
+        let iframeSrc = '';
+        if (streams.length > 0 && streams[0]) {
+            initialServer = String(streams[0].server || streams[0].name || 'Default');
+            iframeSrc = streams[0].url || streams[0].link || '';
+        }
+
+        let initQualMatch = initialServer.match(/\d{3,4}p/i);
+        let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+
+        let mockViews = Math.floor(Math.random() * 900 + 100) + '.' + Math.floor(Math.random() * 900 + 100) + ' Views';
+        let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+
+        let watchView = document.getElementById('watch-view');
+        if (watchView) {
+            watchView.innerHTML = `
+                <div class="video-container-fixed">
+                    <button class="watch-back-btn" onclick="backToDetail()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    ${iframeSrc
+                        ? `<iframe id="video-player" src="${iframeSrc}" allowfullscreen></iframe>`
+                        : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ef4444; font-weight:bold; font-size:14px; background:#111;">Server Video Sedang Error / Kosong</div>`
+                    }
+                </div>
+                <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;">
+                    <img src="${getHighRes(animeImage)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;">
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2>
+                        <div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div>
+                    </div>
+                </div>
+                <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;">
+                    <div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;">
+                        <div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;">
+                            <button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button>
+                            <button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button>
+                        </div>
+                        <button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button>
+                        <button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                        <button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button>
+                    </div>
+                </div>
+                <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+                <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
+            `;
+        }
+
+        let modalServerContainer = document.getElementById('modal-server-list');
+        if (modalServerContainer) {
+            if (streams.length > 0) {
+                modalServerContainer.innerHTML = streams.map((stream, idx) => {
+                    let srvName = stream.server || stream.name || `Server ${idx+1}`;
+                    let srvUrl = stream.url || stream.link || '';
+                    let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn";
+                    return `<button class="${isActive}" onclick="changeServer('${srvUrl}', '${srvName}', this)"><span>${srvName}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`;
+                }).join('');
+            } else {
+                modalServerContainer.innerHTML = '<p style="text-align:center; color:#888;">Server tidak tersedia.</p>';
+            }
+        }
+
+        let watchEpListContainer = document.getElementById('watch-episode-squares');
+        if (watchEpListContainer) {
+            if (window.currentAnimeEpisodes && Array.isArray(window.currentAnimeEpisodes) && window.currentAnimeEpisodes.length > 0) {
+                let epHtml = '';
+                let reversedEps = [...window.currentAnimeEpisodes].reverse();
+                reversedEps.forEach((ep, index) => {
+                    let epTitleStr = String(ep.title || '1');
+                    let m = epTitleStr.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                    let eNum = m ? m[1] : (index + 1);
+                    let progress = watchProgress[ep.url] || 0;
+                    let isCurrent = (ep.url === url);
+                    let c = "ep-square";
+                    let inlineStyle = "width: 55px; height: 55px; font-size: 16px; flex-shrink: 0;";
+
+                    if (progress >= 100) {
+                        c += " active";
+                        if(isCurrent) inlineStyle += " box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;";
+                    } else if (progress > 0) {
+                        inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`;
+                    } else if (progress === 0 || isCurrent) {
+                        c += " watched";
+                    }
+                    epHtml += `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+                });
+                watchEpListContainer.innerHTML = epHtml;
+            } else {
+                watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px; flex-shrink: 0;">${currentEpNum}</div>`;
+            }
+        }
+
+        window.currentEpID = episodeID;
+        renderCommentInput(episodeID);
+        listenToComments(episodeID);
+
+    } catch (err) {
+        console.error("Render Watch View Fatal Error:", err);
+        let errView = document.getElementById('watch-view');
+        if(errView) {
+            errView.innerHTML = `
+            <div style="text-align:center; padding:100px 20px; color:#ef4444;">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:20px;">
+                    <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <h3 style="margin-bottom: 10px;">Terjadi Kesalahan (Crash JS)</h3>
+                <p style="color:#888; font-size:12px; margin-bottom: 30px;">${err.message}</p>
+                <button onclick="backToDetail()" style="padding:12px 24px; background:#333; color:#fff; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Kembali ke Detail</button>
+            </div>`;
+        }
     }
 }
 
-window.postComment = function(epID) { 
-    const input = document.getElementById('main-comment-input'); const text = input.value; if(!text.trim() || !currentUser) return; 
-    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
-        const u = snap.val(); 
-        db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now(), animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui', animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '' }); 
-        input.value = ''; addXP(10); 
-    }); 
-};
-
-function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
-    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
-    let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
-    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
-    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};"><img src="${c.foto}" style="width: ${isReply ? '28px' : '36px'}; height: ${isReply ? '28px' : '36px'}; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 4px;"><div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
-}
-
-function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
-
-window.openReplyModal = function(epID, parentID) {
-    document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
-    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
-    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
-    const inputArea = document.getElementById('reply-input-area'); 
-    if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } 
-    else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
-};
-window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
-
-function injectUserProfileModal() {
-    if(document.getElementById('user-profile-modal-injected')) return;
-    const div = document.createElement('div'); div.id = 'user-profile-modal-injected';
-    div.innerHTML = `
-        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()"></div>
-        <div id="userProfileModal" class="bottom-sheet" style="display:none; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
-            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
-                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
-        </div>`;
-    document.body.appendChild(div);
-}
-
-window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') return; injectUserProfileModal();
-    const overlay = document.getElementById('userProfileOverlay'); 
-    const modal = document.getElementById('userProfileModal'); 
-    const content = document.getElementById('user-profile-content');
-    
-    // 1. Tampilkan dulu container-nya
-    overlay.style.display = 'block'; 
-    modal.style.display = 'flex'; 
-    
-    // 2. Beri jeda 10ms baru kasih class 'show' biar animasinya jalan
-    setTimeout(() => { modal.classList.add('show'); }, 10); 
-    
-    content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
-    
-    db.ref('users/' + uid).once('value').then(async snap => {
-        if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
-        const data = snap.val(); 
-        const userName = data.nama || 'Wibu'; 
-        const userFoto = data.foto || 'https://placehold.co/100'; 
-        const role = data.role || 'Member'; 
-        const level = data.level || 1; 
-        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        
-        let roleBadgeClass = 'badge-member'; 
-        let roleName = role; 
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-        
-        const rankInfo = getRankInfo(level); 
-        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
-        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
-        
-        let userComments = []; 
-        try { 
-            const commentsSnap = await db.ref('comments').once('value'); 
-            commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); 
-        } catch(e) {}
-        userComments.sort((a,b) => b.waktu - a.waktu); 
-        
-        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now()); 
-            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
-            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; 
-            let aImage = c.animeImage || 'https://placehold.co/100'; 
-            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
-        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-
-        let userExp = data.exp || 0;
-        let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
-        let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
-
-        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
-    });
-};
-
-window.closeUserProfileModal = function() { 
-    const modal = document.getElementById('userProfileModal'); 
-    const overlay = document.getElementById('userProfileOverlay');
-    if(modal) { 
-        modal.classList.remove('show'); 
-        setTimeout(() => { 
-            overlay.style.display = 'none'; 
-            modal.style.display = 'none'; 
-        }, 300); 
-    } 
-};
-
-
+// ==== UTILS & APP INIT ====
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
 window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
 window.addEventListener('popstate', (e) => { 
-    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
+    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') p.src = '';
     if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
     let page = hash.replace('#', '') || 'home'; switchTab(page); 
 });
 
-window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
-window.backToDetail = function() { 
-    window.currentPlayingAnime = null; // Menghapus status "Diputar"
-    window.renderDetailEpisodeUI();    // Re-render list episode agar jadi "Ditonton" / "Lanjut"
-    
-    if (window.location.hash === '#watch') { 
-        history.back(); 
-    } else { 
-        switchTab('detail'); 
-    } 
-};
+window.goHome = function() { if (window.location.hash !== '#home') history.back(); };
+window.backToDetail = function() { window.currentPlayingAnime = null; window.renderDetailEpisodeUI(); if (window.location.hash === '#watch') history.back(); else switchTab('detail'); };
 
 window.injectExitModal = function() {
     if(document.getElementById('exit-modal-injected')) return;
     const div = document.createElement('div'); div.id = 'exit-modal-injected';
-    div.innerHTML = `<div id="exitModalOverlay" class="modal-overlay" onclick="cancelExit()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div><div id="exitModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;"><div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div><h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Yakin ingin keluar?</h3><p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin menutup aplikasi Animeku?</p><div style="display:flex; gap:10px;"><button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Tidak</button><button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button></div></div>`;
+    div.innerHTML = `<div id="exitModalOverlay" class="modal-overlay" onclick="cancelExit()"></div><div id="exitModal" class="exit-modal-custom" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px; transition:0.3s; opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); text-align: center;"><h3 style="color:#fff; margin-bottom:10px; font-size:18px; font-weight:900;">Yakin ingin keluar?</h3><div style="display:flex; gap:10px;"><button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; cursor:pointer;">Tidak</button><button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; cursor:pointer;">Keluar</button></div></div>`;
     document.body.appendChild(div);
 };
 window.openExitModal = function() { document.getElementById('exitModalOverlay').style.display = 'block'; document.getElementById('exitModal').style.display = 'block'; setTimeout(() => { document.getElementById('exitModal').style.opacity = '1'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(1)'; }, 10); };
 window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
-window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
+window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => window.close(), 300); };
 
 // ==========================================
 // FITUR JADWAL RILIS ANIME
 // ==========================================
 window.cachedScheduleData = null; 
-
-function injectScheduleStyles() {
-    if(document.getElementById('schedule-styles')) return;
-    const style = document.createElement('style'); style.id = 'schedule-styles';
-    style.innerHTML = `
-        .sched-day-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 15px 20px; background: #050505; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; z-index: 10; }
-        .sched-day-scroll::-webkit-scrollbar { display: none; }
-        .sched-day-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #666; font-weight: 700; cursor: pointer; min-width: 40px; transition: 0.2s; }
-        .sched-day-item .s-name { font-size: 12px; }
-        .sched-day-item .s-date { font-size: 16px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .sched-day-item.active { color: #3b82f6; }
-        .sched-day-item.active .s-date { background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
-        .sched-card { display: flex; gap: 12px; padding: 15px 20px; border-bottom: 1px solid #111; cursor: pointer; transition: 0.2s; background: #050505; align-items: center; }
-        .sched-card:hover { background: #111; }
-        .sched-time { font-size: 16px; font-weight: 900; color: #fff; width: 50px; text-align: center; flex-shrink: 0; }
-        .sched-img { width: 75px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
-        .sched-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-        .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .sched-ep { font-size: 12px; color: #d1d5db; margin-bottom: 6px; font-weight: 600; }
-        .sched-stats { font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 6px; }
-        .sched-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .status-wait { color: #a1a1aa; } .status-wait::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #555; border-radius: 50%; }
-        .status-done { color: #10b981; } .status-done::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 5px #10b981; }
-        .sched-float-nav { display: flex; justify-content: space-between; padding: 15px 20px; background: linear-gradient(transparent, #050505 40%); position: fixed; bottom: 60px; width: 100%; max-width: 500px; box-sizing: border-box; pointer-events: none; z-index: 10; }
-        .sched-btn { pointer-events: auto; background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    `;
-    document.head.appendChild(style);
-}
-
 window.currentJadwalDay = new Date().getDay(); 
 const NAMA_HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const NAMA_HARI_FULL = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-window.initJadwal = async function() {
-    injectScheduleStyles();
-    if (document.getElementById('sched-list-container').innerHTML === '') {
-        renderJadwalDays(window.currentJadwalDay); await loadJadwalData(window.currentJadwalDay);
-    }
-};
-
+window.initJadwal = async function() { injectScheduleStyles(); if (document.getElementById('sched-list-container').innerHTML === '') { renderJadwalDays(window.currentJadwalDay); await loadJadwalData(window.currentJadwalDay); } };
 window.changeJadwalDay = function(direction) { let newDay = window.currentJadwalDay + direction; if(newDay > 6) newDay = 0; if(newDay < 0) newDay = 6; window.currentJadwalDay = newDay; renderJadwalDays(newDay); loadJadwalData(newDay); };
 window.setJadwalDay = function(dayIndex) { window.currentJadwalDay = dayIndex; renderJadwalDays(dayIndex); loadJadwalData(dayIndex); };
 
@@ -774,9 +768,8 @@ function renderJadwalDays(activeDay) {
     const container = document.getElementById('sched-days-container'); const today = new Date(); const currentDayOfWeek = today.getDay(); 
     let html = '';
     for(let i = 0; i < 7; i++) {
-        let diff = i - currentDayOfWeek; let dateOfThisDay = new Date(today); dateOfThisDay.setDate(today.getDate() + diff); let tgl = dateOfThisDay.getDate();
-        let isActive = (i === activeDay) ? 'active' : '';
-        html += `<div class="sched-day-item ${isActive}" onclick="setJadwalDay(${i})"><div class="s-name">${NAMA_HARI[i]}</div><div class="s-date">${tgl}</div></div>`;
+        let diff = i - currentDayOfWeek; let dateOfThisDay = new Date(today); dateOfThisDay.setDate(today.getDate() + diff); 
+        html += `<div class="sched-day-item ${i === activeDay ? 'active' : ''}" onclick="setJadwalDay(${i})"><div class="s-name">${NAMA_HARI[i]}</div><div class="s-date">${dateOfThisDay.getDate()}</div></div>`;
     }
     container.innerHTML = html;
     let prevDay = activeDay - 1; if(prevDay < 0) prevDay = 6; let nextDay = activeDay + 1; if(nextDay > 6) nextDay = 0;
@@ -784,29 +777,16 @@ function renderJadwalDays(activeDay) {
 }
 
 async function loadJadwalData(dayIndex) {
-    const container = document.getElementById('sched-list-container'); 
-    if (!window.cachedScheduleData) { loader(true); }
-
+    const container = document.getElementById('sched-list-container'); if (!window.cachedScheduleData) loader(true);
     try {
-        let data;
-        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
-        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
-
+        let data; if (window.cachedScheduleData) data = window.cachedScheduleData; else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); window.cachedScheduleData = data; }
         let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
         let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
-        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
+        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); anime.releaseTime = `${String(jam).padStart(2, '0')}:00`; anime.releaseHour = jam; });
         todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
-
-        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
-        todaysAnime.forEach((anime, idx) => {
-            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
-            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
-            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
-            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
-        });
-        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
-        container.innerHTML = html;
-    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
+        let html = todaysAnime.map(anime => `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='./animeku.jpg'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${getEpBadge(anime)}</div><div class="sched-status"><span class="${anime.releaseHour <= new Date().getHours() ? 'status-done' : 'status-wait'}">${anime.releaseHour <= new Date().getHours() ? 'Sudah Update Rilis' : 'Menunggu Update'}</span></div></div></div>`).join('');
+        container.innerHTML = html || `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`;
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal.</div>`; }
     loader(false);
 }
 
@@ -843,12 +823,12 @@ async function checkAnimeUpdates() {
 }
 
 function switchTab(tabName) {
-    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => { let el = document.getElementById(v); if(el) el.classList.add('hidden'); });
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => { if(document.getElementById(v)) document.getElementById(v).classList.add('hidden'); });
     document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
     document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    let targetView = document.getElementById(tabName + '-view'); if(targetView) targetView.classList.remove('hidden');
-    let targetNav = document.getElementById('tab-' + tabName); if(targetNav) targetNav.classList.add('active');
+    if(document.getElementById(tabName + '-view')) document.getElementById(tabName + '-view').classList.remove('hidden');
+    if(document.getElementById('tab-' + tabName)) document.getElementById('tab-' + tabName).classList.add('active');
     
     if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
     if (tabName === 'recent') loadRecentHistory();
@@ -858,10 +838,8 @@ function switchTab(tabName) {
 
 function initApp() { 
     updateDevUI(); injectReportModal(); injectExitModal(); 
-    if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
+    if(window.location.hash === '') history.replaceState(null, '', '#home');
     switchTab('home'); 
-    setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
-
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp); else initApp();
 // ==== AKHIR DARI FILE APP.JS ====
