@@ -8,12 +8,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- KABEL KE GUDANG MONGODB (ANTI-TIMEOUT VERCEL) ---
-const MONGO_URI = "mongodb+srv://Risyadh:risadalfaris1837@animeku.stmxguy.mongodb.net/?appName=Animeku";
+const MONGO_URI = "mongodb+srv://Risyadh:risadalfaris1837@animeku.stmxguy.mongodb.net/animekuDB?retryWrites=true&w=majority";
 
-mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("Gudang Terhubung! 🚀"))
-    .catch(err => console.log("Gagal connect:", err.message));
+// --- SISTEM KONEKSI KHUSUS VERCEL (SERVERLESS) ---
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 3000 });
+        isConnected = true;
+        console.log("MongoDB Connected");
+    } catch (error) {
+        console.log("MongoDB Error:", error.message);
+    }
+};
 
 const AnimeSchema = new mongoose.Schema({
     title: { type: String, unique: true },
@@ -23,7 +31,8 @@ const AnimeSchema = new mongoose.Schema({
     score: String,
     lastUpdate: { type: Date, default: Date.now }
 });
-const Anime = mongoose.model('Anime', AnimeSchema);
+// Cegah Vercel bikin model berulang-ulang
+const Anime = mongoose.models.Anime || mongoose.model('Anime', AnimeSchema);
 
 const BASE_URL = 'https://v2.samehadaku.how';
 const PROXY = 'https://cors.caliph.my.id/';
@@ -43,31 +52,40 @@ async function fetchAndSave(query) {
                 url: $(e).find('a').attr('href')
             };
             results.push(item);
-            Anime.findOneAndUpdate({ title: item.title }, item, { upsert: true }).catch(() => {});
+            // Simpan ke DB hanya jika koneksi aman
+            if (isConnected) {
+                Anime.findOneAndUpdate({ title: item.title }, item, { upsert: true }).catch(() => {});
+            }
         });
         return results;
     } catch (e) { return []; }
 }
 
 app.get('/api/search', async (req, res) => {
+    await connectDB(); // Panggil database hanya saat ada pencarian
     const q = req.query.q;
     try {
-        const localData = await Anime.find({ title: new RegExp(q, 'i') }).limit(20);
-        if (localData.length > 0) {
-            res.json(localData);
-            fetchAndSave(q); 
-        } else {
-            const freshData = await fetchAndSave(q);
-            res.json(freshData);
+        if (isConnected) {
+            const localData = await Anime.find({ title: new RegExp(q, 'i') }).limit(20);
+            if (localData.length > 0) {
+                res.json(localData);
+                fetchAndSave(q); // Update diam-diam
+                return;
+            }
         }
+        // Kalau DB kosong/error, langsung ambil dari web luar
+        const freshData = await fetchAndSave(q);
+        res.json(freshData);
     } catch (e) { res.status(500).json([]); }
 });
 
 app.get('/api/latest', async (req, res) => {
+    await connectDB();
     try {
-        const data = await Anime.find().sort({ lastUpdate: -1 }).limit(20);
-        if (data.length > 0) return res.json(data);
-        
+        if (isConnected) {
+            const data = await Anime.find().sort({ lastUpdate: -1 }).limit(20);
+            if (data.length > 0) return res.json(data);
+        }
         const resWeb = await axios.get(`${PROXY}${BASE_URL}/anime-terbaru/`, { headers });
         const $ = cheerio.load(resWeb.data);
         const latest = [];
