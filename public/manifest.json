@@ -1,6 +1,6 @@
 {
-  "name": "Risyadh Anime",
-  "short_name": "Risyadh Anime",
+  "name": "Animeku",
+  "short_name": "Animeku",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050505",
@@ -9,13 +9,13 @@
   "scope": "./",
   "icons": [
     {
-      "src": "https://i.ibb.co/FLrNJL3Z/525058.jpg",
+      "src": "./animeku.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://i.ibb.co/FLrNJL3Z/525058.jpg",
+      "src": "./animeku.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
