@@ -48,6 +48,53 @@ function injectPremiumStyles() {
         .avatar-rank-diamond { border-color: #06b6d4 !important; box-shadow: 0 0 15px rgba(6,182,212,0.5) !important; }
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
         .avatar-rank-mythic { border-color: #ef4444 !important; box-shadow: 0 0 20px rgba(239,68,68,0.6) !important; }
+
+        /* EFEK AVATAR DECORATION ALA DISCORD */
+        .avatar-deco-overlay {
+            position: absolute;
+            top: -15%; left: -15%;
+            width: 130%; height: 130%;
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* WARNA MERAH UNTUK DEVELOPER */
+        .deco-dev {
+            border: 3px dashed rgba(239, 68, 68, 0.7);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.5);
+            animation: spinDeco 6s linear infinite;
+        }
+        .deco-dev::before {
+            content: ''; position: absolute;
+            top: -6px; left: -6px; right: -6px; bottom: -6px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #ef4444;
+            border-bottom-color: #b91c1c;
+            animation: spinDecoReverse 3s linear infinite;
+        }
+
+        /* WARNA BIRU UNTUK WIBU PREMIUM */
+        .deco-premium {
+            border: 3px dashed rgba(59, 130, 246, 0.7);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.5);
+            animation: spinDeco 6s linear infinite;
+        }
+        .deco-premium::before {
+            content: ''; position: absolute;
+            top: -6px; left: -6px; right: -6px; bottom: -6px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #3b82f6;
+            border-bottom-color: #1d4ed8;
+            animation: spinDecoReverse 3s linear infinite;
+        }
+        
+        @keyframes spinDeco { 100% { transform: rotate(360deg); } }
+        @keyframes spinDecoReverse { 100% { transform: rotate(-360deg); } }
     `;
     document.head.appendChild(style);
 }
@@ -108,7 +155,18 @@ function updateDevUI() {
                 const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
                 
                 let roleBadgeClass = 'badge-member'; let roleName = role;
-                if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+                let decoHtml = '';
+                
+                if(role === 'Developer') { 
+                    roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; 
+                    decoHtml = '<div class="avatar-deco-overlay deco-dev"></div>';
+                } else if(role === 'Wibu Premium' || level >= 50) { 
+                    roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; 
+                    decoHtml = '<div class="avatar-deco-overlay deco-premium"></div>';
+                } else if(role === 'Member') { 
+                    roleName = 'Wibu Biasa'; 
+                }
+                
                 const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
@@ -134,7 +192,7 @@ function updateDevUI() {
                 }).catch(() => { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#ef4444; font-size:13px; margin-top:30px;">Gagal memuat riwayat komentar.</p>'; });
 
                 container.innerHTML = `
-                    <div class="profile-header"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}"><div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div></div><div class="profile-name">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})"><span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span><span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div>
+                    <div class="profile-header"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}">${decoHtml}<div class="profile-camera-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div></div><div class="profile-name">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})"><span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span><span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div>
                     <div class="profile-stats"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div>
                     <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
                     <div id="ptab-all" class="ptab-content">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
@@ -192,9 +250,19 @@ window.openUserProfile = function(uid) {
         
         let roleBadgeClass = 'badge-member'; 
         let roleName = role; 
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+        let decoHtml = '';
+
+        if(role === 'Developer') { 
+            roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; 
+            decoHtml = '<div class="avatar-deco-overlay deco-dev"></div>';
+        } 
+        else if(role === 'Wibu Premium' || level >= 50) { 
+            roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; 
+            decoHtml = '<div class="avatar-deco-overlay deco-premium"></div>';
+        } 
+        else if(role === 'Member') { 
+            roleName = 'Wibu Biasa'; 
+        }
         
         const rankInfo = getRankInfo(level); 
         let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
@@ -228,7 +296,10 @@ window.openUserProfile = function(uid) {
 
         content.innerHTML = `
             <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div>
+                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block;">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%;">
+                    ${decoHtml}
+                </div>
                 <div class="profile-name" style="font-size:20px;">${userName}</div>
                 <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
                     <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
@@ -786,9 +857,19 @@ window.openUserProfile = function(uid) {
         
         let roleBadgeClass = 'badge-member'; 
         let roleName = role; 
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+        let decoHtml = '';
+
+        if(role === 'Developer') { 
+            roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; 
+            decoHtml = '<div class="avatar-deco-overlay deco-dev"></div>';
+        } 
+        else if(role === 'Wibu Premium' || level >= 50) { 
+            roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; 
+            decoHtml = '<div class="avatar-deco-overlay deco-premium"></div>';
+        } 
+        else if(role === 'Member') { 
+            roleName = 'Wibu Biasa'; 
+        }
         
         const rankInfo = getRankInfo(level); 
         let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
@@ -801,7 +882,6 @@ window.openUserProfile = function(uid) {
         } catch(e) {}
         userComments.sort((a,b) => b.waktu - a.waktu); 
         
-        // --- BAGIAN INI YANG DISAMAKAN DENGAN PROFIL SENDIRI ---
         let commentsHtml = userComments.length > 0 ? userComments.map(c => {
             let d = new Date(c.waktu || Date.now()); 
             let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
@@ -810,12 +890,10 @@ window.openUserProfile = function(uid) {
             let aImage = c.animeImage || 'https://placehold.co/100'; 
             let aEp = c.animeEp || 'Episode ?';
             
-            // Tambahkan closeUserProfileModal() agar modal menutup saat berpindah ke detail anime
             let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
             
             return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-        // -------------------------------------------------------
 
         let userExp = data.exp || 0;
         let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
@@ -825,7 +903,10 @@ window.openUserProfile = function(uid) {
 
         content.innerHTML = `
             <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div>
+                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block;">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%;">
+                    ${decoHtml}
+                </div>
                 <div class="profile-name" style="font-size:20px;">${userName}</div>
                 <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
                     <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
