@@ -574,11 +574,50 @@ function renderCommentInput(epID) {
 }
 
 window.postComment = function(epID) { 
-    const input = document.getElementById('main-comment-input'); const text = input.value; if(!text.trim() || !currentUser) return; 
+    const input = document.getElementById('main-comment-input'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
     db.ref('users/' + currentUser.uid).once('value').then(snap => { 
         const u = snap.val(); 
-        db.ref('comments/' + epID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now(), animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui', animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '' }); 
-        input.value = ''; addXP(10); 
+        
+        // Cek apakah user termasuk Wibu Premium (Role khusus atau Level 50+)
+        const role = u.role || 'Member';
+        const level = u.level || 1;
+        const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
+
+        // Fungsi untuk push data komen ke database
+        const saveComment = () => {
+            db.ref('comments/' + epID).push().set({ 
+                uid: currentUser.uid, 
+                nama: u.nama, 
+                foto: u.foto, 
+                role: u.role || 'Member', 
+                level: u.level || 1, 
+                teks: text, 
+                waktu: Date.now(), 
+                animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui', 
+                animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', 
+                animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', 
+                url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '' 
+            }); 
+            input.value = ''; 
+            addXP(10);
+        };
+
+        if (isPremium) {
+            // Wibu Premium / Dev bebas spam komen
+            saveComment();
+        } else {
+            // User biasa, cek database apakah udah pernah komen di eps ini
+            db.ref('comments/' + epID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(cSnap => {
+                if (cSnap.exists()) {
+                    window.showToast('Limit tercapai! Wibu Biasa hanya bisa komen 1x per episode.', 'error');
+                } else {
+                    saveComment();
+                }
+            });
+        }
     }); 
 };
 
@@ -602,7 +641,46 @@ window.openReplyModal = function(epID, parentID) {
     else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
 };
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
-window.postReply = function(parentID) { const input = document.getElementById('reply-input-text'); const text = input.value; if(!text.trim() || !currentUser) return; db.ref('users/' + currentUser.uid).once('value').then(snap => { const u = snap.val(); db.ref('replies/' + parentID).push().set({ uid: currentUser.uid, nama: u.nama, foto: u.foto, role: u.role || 'Member', level: u.level || 1, teks: text, waktu: Date.now() }); input.value = ''; addXP(5); }); };
+window.postReply = function(parentID) { 
+    const input = document.getElementById('reply-input-text'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        
+        const role = u.role || 'Member';
+        const level = u.level || 1;
+        const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
+
+        const saveReply = () => {
+            db.ref('replies/' + parentID).push().set({ 
+                uid: currentUser.uid, 
+                nama: u.nama, 
+                foto: u.foto, 
+                role: u.role || 'Member', 
+                level: u.level || 1, 
+                teks: text, 
+                waktu: Date.now() 
+            }); 
+            input.value = ''; 
+            addXP(5); 
+        };
+
+        if (isPremium) {
+            saveReply();
+        } else {
+            // Cek apakah user biasa udah pernah reply di thread komentar ini
+            db.ref('replies/' + parentID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(rSnap => {
+                if (rSnap.exists()) {
+                    window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error');
+                } else {
+                    saveReply();
+                }
+            });
+        }
+    }); 
+};
 
 function injectUserProfileModal() {
     if(document.getElementById('user-profile-modal-injected')) return;
