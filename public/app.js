@@ -1276,9 +1276,9 @@ window.topUpKoin = function() {
 
 window.BORDER_CATALOG = {
     'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
-    'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0b90c10398862ccdf7e8c3e8cd8b8ec4.png?size=240&passthrough=true' },
-    'fire_ring': { nama: 'Fire Ring', harga: 750, url: 'https://cdn.discordapp.com/avatar-decoration-presets/a_56b26bd172ea2fb25de3613014ea40a4.png?size=240&passthrough=true' },
-    'sakura': { nama: 'Sakura Fall', harga: 800, url: 'https://cdn.discordapp.com/avatar-decoration-presets/a_2cf4e14f6b645d94ad5fde806085a1ad.png?size=240&passthrough=true' }
+    'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
+    'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
+    'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' }
 };
 
 window.openBorderShop = function() {
