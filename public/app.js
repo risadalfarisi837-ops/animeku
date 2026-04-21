@@ -157,9 +157,8 @@ function updateDevUI() {
                 let activeBorderId = data.activeBorder || '';
                 let decoUrl = activeBorderId && BORDER_CATALOG[activeBorderId] ? BORDER_CATALOG[activeBorderId].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
-                
-                let userKoin = data.koin || 0; 
 
+                // Koin teks tidak di-render di profil lagi agar bersih
                 container.innerHTML = `
                     <div class="profile-header" style="padding-top: 40px;">
                         <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer;" title="Pencet untuk buka Border Shop">
@@ -173,12 +172,8 @@ function updateDevUI() {
                             <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                         </div>
                     </div>
-                    
-                    <div style="text-align:center; color:#facc15; font-size:16px; font-weight:900; margin-bottom:20px; display:flex; justify-content:center; align-items:center; gap:6px;">
-                        💰 ${userKoin} Koin
-                    </div>
 
-                    <div class="profile-stats">
+                    <div class="profile-stats" style="margin-top:20px;">
                         <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
                         <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
                         <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
@@ -394,22 +389,20 @@ function getEpBadge(anime) {
 function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
 
-// ==== LOGIKA EXP & KOIN ====
+// ==== LOGIKA EXP (TANPA NAMBAH KOIN OTOMATIS) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val(); if(!d) return;
         let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
         let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
-        
-        // Dapat Koin tiap dapat EXP
-        let nKoin = (d.koin || 0) + (amount * 2);
 
-        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl, koin: nKoin });
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
         let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
+
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -1117,6 +1110,12 @@ function initApp() {
 // ==========================================
 // FITUR BORDER SHOP & KOIN (SISTEM KOSMETIK)
 // ==========================================
+window.topUpKoin = function() {
+    if(!currentUser) return;
+    let text = `Halo Admin, saya mau Top Up Koin Animeku.%0A%0AUID Saya: ${currentUser.uid}%0ANama: ${currentUser.displayName}`;
+    window.open('https://wa.me/6281315059849?text=' + text);
+};
+
 const BORDER_CATALOG = {
     'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
     'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0b90c10398862ccdf7e8c3e8cd8b8ec4.png?size=240&passthrough=true' },
@@ -1132,8 +1131,11 @@ function injectBorderShopModal() {
         <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #1a1a1a;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
                 <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
-                <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
-                    💰 <span id="user-coin-balance">0</span> Koin
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
+                        💰 <span id="user-coin-balance">0</span> Koin
+                    </div>
+                    <button onclick="topUpKoin()" style="background:#10b981; color:#fff; border:none; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">Top Up</button>
                 </div>
             </div>
             
@@ -1180,88 +1182,4 @@ window.openBorderShop = function() {
             
             let btnStr = '';
             if(isActive) { btnStr = `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>`; }
-            else if(isOwned) { btnStr = `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>`; }
-            else { btnStr = `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`; }
-
-            shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};">
-                <div style="width:50px; height:50px; position:relative; flex-shrink:0;">
-                    <img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
-                    <div style="position:absolute; top:50%; left:50%; width:125%; height:125%; transform:translate(-50%, -48%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div>
-                </div>
-                <div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div>
-                <div>${btnStr}</div>
-            </div>`;
-        }
-        document.getElementById('view-shop').innerHTML = shopHtml;
-
-        // Render Inventory for Gifting
-        let giftHtml = '';
-        let hasItems = false;
-        for(let key in owned) {
-            if(!BORDER_CATALOG[key]) continue;
-            hasItems = true;
-            let item = BORDER_CATALOG[key];
-            giftHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
-                <div style="color:#fff; font-size:13px; font-weight:700;">${item.nama}</div>
-                <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Kirim Gift</button>
-            </div>`;
-        }
-        if(!hasItems) giftHtml = '<div style="text-align:center; color:#555; font-size:12px; padding:20px;">Kamu belum punya border untuk dikirim.</div>';
-        document.getElementById('gift-inventory-list').innerHTML = giftHtml;
-    });
-};
-
-window.closeBorderShop = function() {
-    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
-    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
-    db.ref('users/' + currentUser.uid).off(); // matikan listener biar ga berat
-};
-
-window.switchBorderTab = function(tab) {
-    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
-    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
-    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
-};
-
-window.buyBorder = function(borderId, harga) {
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); let koin = d.koin || 0;
-        if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
-        if(d.ownedBorders && d.ownedBorders[borderId]) return window.showToast('Sudah punya!', 'error');
-        
-        db.ref('users/' + currentUser.uid).update({ koin: koin - harga });
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil membeli border!', 'success');
-    });
-};
-
-window.equipBorder = function(borderId) {
-    db.ref('users/' + currentUser.uid).update({ activeBorder: borderId }).then(() => {
-        window.showToast(borderId ? 'Border dipakai!' : 'Border dilepas!', 'success');
-    });
-};
-
-window.giftBorder = function(borderId) {
-    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
-    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
-
-    // Karena kita nyari berdasarkan 6 huruf pertama UID, harus nge-loop database
-    db.ref('users').once('value').then(snap => {
-        let targetFullUid = null;
-        snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) { targetFullUid = child.key; } });
-        
-        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
-        if(targetFullUid === currentUser.uid) return window.showToast('Tidak bisa kirim ke diri sendiri!', 'error');
-
-        // Pindahkan kepemilikan
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).remove();
-        if (snap.val()[currentUser.uid].activeBorder === borderId) db.ref('users/' + currentUser.uid).update({ activeBorder: '' });
-        
-        db.ref('users/' + targetFullUid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil kirim gift ke #' + targetUidShort, 'success');
-    });
-};
-
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
-// ==== AKHIR DARI FILE APP.JS ====
+            else if(isOwned) { btnStr = `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6
