@@ -52,8 +52,8 @@ function injectPremiumStyles() {
         /* EFEK AVATAR DECORATION 100% DISCORD (PAKAI GAMBAR APNG/GIF) */
         .avatar-deco-overlay {
             position: absolute;
-            top: -20%; left: -20%; /* Disesuaikan biar ukurannya pas lebih besar dari avatar */
-            width: 140%; height: 140%;
+            top: -12%; left: -12%; /* <-- Disesuaikan biar pas nempel di pinggir foto */
+            width: 124%; height: 124%; /* <-- Ukuran diperketat biar nggak terlalu melayang */
             pointer-events: none;
             z-index: 10;
             background-size: contain;
