@@ -162,6 +162,13 @@ function injectUserProfileModal() {
     document.body.appendChild(div);
 }
 
+window.switchProfileModalTab = function(tabName, element) { 
+    document.querySelectorAll('#userProfileModal .ptab').forEach(el => el.classList.remove('active')); 
+    element.classList.add('active'); 
+    document.querySelectorAll('.modal-ptab-content').forEach(el => el.style.display = 'none'); 
+    document.getElementById('modal-ptab-' + tabName).style.display = 'block'; 
+};
+
 window.openUserProfile = function(uid) {
     if(!uid || uid === 'undefined') return; injectUserProfileModal();
     const overlay = document.getElementById('userProfileOverlay'); 
@@ -176,24 +183,73 @@ window.openUserProfile = function(uid) {
     
     db.ref('users/' + uid).once('value').then(async snap => {
         if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
-        const data = snap.val(); const userName = data.nama || 'Wibu'; const userFoto = data.foto || 'https://placehold.co/100'; const role = data.role || 'Member'; const level = data.level || 1; const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        let roleBadgeClass = 'badge-member'; let roleName = role; if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-        const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        const data = snap.val(); 
+        const userName = data.nama || 'Wibu'; 
+        const userFoto = data.foto || 'https://placehold.co/100'; 
+        const role = data.role || 'Member'; 
+        const level = data.level || 1; 
+        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
         
-        let userComments = []; try { const commentsSnap = await db.ref('comments').once('value'); commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); } catch(e) {}
+        let roleBadgeClass = 'badge-member'; 
+        let roleName = role; 
+        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
+        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+        
+        const rankInfo = getRankInfo(level); 
+        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
+        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        
+        let userComments = []; 
+        try { 
+            const commentsSnap = await db.ref('comments').once('value'); 
+            commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); 
+        } catch(e) {}
         userComments.sort((a,b) => b.waktu - a.waktu); 
         
         let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
+            let d = new Date(c.waktu || Date.now()); 
+            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
+            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; 
+            let aImage = c.animeImage || 'https://placehold.co/100'; 
+            let aEp = c.animeEp || 'Episode ?';
+            
+            let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
+            
+            return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
 
         let userExp = data.exp || 0;
         let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
         let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
+        
+        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan bersifat privat.</p>';
 
-        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px;">
+                <div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                    <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 5px; padding: 0 10px 25px 10px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            <div class="profile-tabs" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
+                <div class="ptab active" onclick="switchProfileModalTab('all', this)">All</div>
+                <div class="ptab" onclick="switchProfileModalTab('comments', this)">Comments</div>
+                <div class="ptab" onclick="switchProfileModalTab('history', this)">History</div>
+            </div>
+            <div id="modal-ptab-all" class="modal-ptab-content" style="padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-comments" class="modal-ptab-content" style="display:none; padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-history" class="modal-ptab-content" style="display:none; padding: 0 15px;">${historyHtml}</div>
+        `;
     });
 };
 
@@ -700,17 +756,21 @@ function injectUserProfileModal() {
     document.body.appendChild(div);
 }
 
+window.switchProfileModalTab = function(tabName, element) { 
+    document.querySelectorAll('#userProfileModal .ptab').forEach(el => el.classList.remove('active')); 
+    element.classList.add('active'); 
+    document.querySelectorAll('.modal-ptab-content').forEach(el => el.style.display = 'none'); 
+    document.getElementById('modal-ptab-' + tabName).style.display = 'block'; 
+};
+
 window.openUserProfile = function(uid) {
     if(!uid || uid === 'undefined') return; injectUserProfileModal();
     const overlay = document.getElementById('userProfileOverlay'); 
     const modal = document.getElementById('userProfileModal'); 
     const content = document.getElementById('user-profile-content');
     
-    // 1. Tampilkan dulu container-nya
     overlay.style.display = 'block'; 
     modal.style.display = 'flex'; 
-    
-    // 2. Beri jeda 10ms baru kasih class 'show' biar animasinya jalan
     setTimeout(() => { modal.classList.add('show'); }, 10); 
     
     content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
@@ -741,21 +801,52 @@ window.openUserProfile = function(uid) {
         } catch(e) {}
         userComments.sort((a,b) => b.waktu - a.waktu); 
         
+        // --- BAGIAN INI YANG DISAMAKAN DENGAN PROFIL SENDIRI ---
         let commentsHtml = userComments.length > 0 ? userComments.map(c => {
             let d = new Date(c.waktu || Date.now()); 
             let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
             let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
             let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; 
             let aImage = c.animeImage || 'https://placehold.co/100'; 
-            let actionUrl = c.url ? `loadDetail('${c.url}')` : ``;
-            return `<div style="margin-bottom: 20px; padding: 0 20px; cursor: pointer;" onclick="${actionUrl}; closeUserProfileModal();"><div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;"><img src="${aImage}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;"><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 13px; color: #3b82f6; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${aTitle}</div><div style="font-size: 11px; color: #a1a1aa; font-weight: 500;">${exactDateStr}</div></div></div><div style="font-size: 13px; color: #d1d5db; line-height: 1.5; background: #111; padding: 12px; border-radius: 8px; border: 1px solid #1a1a1a;">${c.teks}</div></div>`;
+            let aEp = c.animeEp || 'Episode ?';
+            
+            // Tambahkan closeUserProfileModal() agar modal menutup saat berpindah ke detail anime
+            let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
+            
+            return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
+        // -------------------------------------------------------
 
         let userExp = data.exp || 0;
         let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
         let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
+        
+        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan bersifat privat.</p>';
 
-        content.innerHTML = `<div class="profile-header" style="margin-top:-10px;"><div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div><div class="profile-name" style="font-size:20px;">${userName}</div><div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;"><span class="c-badge ${roleBadgeClass}">${roleName}</span><span class="c-badge ${lvlClass}">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span></div></div><div class="profile-stats" style="border-bottom:none; margin-bottom:15px; padding: 0 20px;"><div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div><div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div><div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div></div><div style="border-top: 1px solid #111; padding-top: 20px;"><h3 style="font-size:16px; font-weight:800; margin: 0 20px 15px 20px;">Riwayat Komentar</h3>${commentsHtml}</div>`;
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px;">
+                <div class="profile-avatar-container"><img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:90px; height:90px;"></div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                    <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 5px; padding: 0 10px 25px 10px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            <div class="profile-tabs" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
+                <div class="ptab active" onclick="switchProfileModalTab('all', this)">All</div>
+                <div class="ptab" onclick="switchProfileModalTab('comments', this)">Comments</div>
+                <div class="ptab" onclick="switchProfileModalTab('history', this)">History</div>
+            </div>
+            <div id="modal-ptab-all" class="modal-ptab-content" style="padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-comments" class="modal-ptab-content" style="display:none; padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-history" class="modal-ptab-content" style="display:none; padding: 0 15px;">${historyHtml}</div>
+        `;
     });
 };
 
