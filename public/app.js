@@ -49,55 +49,31 @@ function injectPremiumStyles() {
         .avatar-rank-master { border-color: #facc15 !important; box-shadow: 0 0 15px rgba(250,204,21,0.5) !important; }
         .avatar-rank-mythic { border-color: #ef4444 !important; box-shadow: 0 0 20px rgba(239,68,68,0.6) !important; }
 
-        /* EFEK AVATAR DECORATION ALA DISCORD */
+        /* EFEK AVATAR DECORATION 100% DISCORD (PAKAI GAMBAR APNG/GIF) */
         .avatar-deco-overlay {
             position: absolute;
-            top: -15%; left: -15%;
-            width: 130%; height: 130%;
+            top: -20%; left: -20%; /* Disesuaikan biar ukurannya pas lebih besar dari avatar */
+            width: 140%; height: 140%;
             pointer-events: none;
             z-index: 10;
-            border-radius: 50%;
-            background-size: cover;
+            background-size: contain;
             background-position: center;
+            background-repeat: no-repeat;
         }
         
-        /* WARNA MERAH UNTUK DEVELOPER */
+        /* WARNA MERAH UNTUK DEVELOPER (Pakai link animasi Hallucination dari kamu) */
         .deco-dev {
-            border: 3px dashed rgba(239, 68, 68, 0.7);
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.5);
-            animation: spinDeco 6s linear infinite;
-        }
-        .deco-dev::before {
-            content: ''; position: absolute;
-            top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: #ef4444;
-            border-bottom-color: #b91c1c;
-            animation: spinDecoReverse 3s linear infinite;
+            background-image: url('https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated'); 
         }
 
         /* WARNA BIRU UNTUK WIBU PREMIUM */
         .deco-premium {
-            border: 3px dashed rgba(59, 130, 246, 0.7);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.5);
-            animation: spinDeco 6s linear infinite;
+            background-image: url('https://cdn.discordapp.com/avatar-decoration-presets/a_0b90c10398862ccdf7e8c3e8cd8b8ec4.png?size=240&passthrough=true');
         }
-        .deco-premium::before {
-            content: ''; position: absolute;
-            top: -6px; left: -6px; right: -6px; bottom: -6px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: #3b82f6;
-            border-bottom-color: #1d4ed8;
-            animation: spinDecoReverse 3s linear infinite;
-        }
-        
-        @keyframes spinDeco { 100% { transform: rotate(360deg); } }
-        @keyframes spinDecoReverse { 100% { transform: rotate(-360deg); } }
     `;
     document.head.appendChild(style);
 }
+
 injectPremiumStyles();
 
 auth.onAuthStateChanged(user => {
