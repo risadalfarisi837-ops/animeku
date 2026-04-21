@@ -56,9 +56,9 @@ function injectPremiumStyles() {
             position: absolute;
             top: 50%; 
             left: 50%; 
-            width: 125%; 
-            height: 125%; 
-            transform: translate(-50%, -48%);
+            width: 118%; 
+            height: 118%; 
+            transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: 10;
             background-size: contain;
@@ -81,8 +81,14 @@ window.loginDenganGoogle = function() {
     if (isLoggingIn) return; isLoggingIn = true; const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
-        db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0, joined: Date.now() });
-        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
+        db.ref('users/' + u.uid).once('value').then(snap => {
+            if (!snap.exists()) {
+                db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0, joined: Date.now() });
+            } else {
+                db.ref('users/' + u.uid).update({ nama: u.displayName, foto: u.photoURL });
+            }
+            window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
+        });
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { window.showToast("Gagal login: " + err.message, 'error'); }
         isLoggingIn = false;
@@ -155,13 +161,16 @@ function updateDevUI() {
                 }).catch(() => { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#ef4444; font-size:13px; margin-top:30px;">Gagal memuat riwayat komentar.</p>'; });
 
                 let activeBorderId = data.activeBorder || '';
-                let decoUrl = activeBorderId && BORDER_CATALOG[activeBorderId] ? BORDER_CATALOG[activeBorderId].url : '';
+                let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
                 
                 let userKoin = data.koin || 0; 
 
                 container.innerHTML = `
-                    <div class="profile-header" style="padding-top: 40px;">
+                    <div class="profile-header" style="padding-top: 40px; position: relative;">
+                        <div style="position: absolute; top: 15px; right: 15px; color: #facc15; font-size: 13px; font-weight: 900; background: rgba(250, 204, 21, 0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(250, 204, 21, 0.3);">
+                            ${userKoin} Koin
+                        </div>
                         <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer;" title="Pencet untuk buka Border Shop">
                             <img src="${userFoto}" class="profile-avatar ${avatarClass}">
                             ${decoHtml}
@@ -172,10 +181,6 @@ function updateDevUI() {
                             <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
                             <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
                         </div>
-                    </div>
-                    
-                    <div style="text-align:center; color:#facc15; font-size:16px; font-weight:900; margin-bottom:20px; display:flex; justify-content:center; align-items:center; gap:6px;">
-                        💰 ${userKoin} Koin
                     </div>
 
                     <div class="profile-stats">
@@ -243,7 +248,7 @@ window.openUserProfile = function(uid) {
         else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
         let activeBorderId = data.activeBorder || '';
-        let decoUrl = activeBorderId && BORDER_CATALOG[activeBorderId] ? BORDER_CATALOG[activeBorderId].url : '';
+        let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
         let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
         
         const rankInfo = getRankInfo(level); 
@@ -591,21 +596,20 @@ async function loadDetail(url) {
 
 window.currentCommentSort = 'top';
 
-window.apiCache = window.apiCache || {}; // Variabel penampung cache
+window.apiCache = window.apiCache || {}; 
 
 async function loadVideo(url) {
     history.pushState({page: 'watch'}, '', '#watch'); 
     
     let data;
-    // 1. Cek apakah episode ini sudah pernah dimuat sebelumnya
     if (window.apiCache['watch_' + url]) {
-        data = window.apiCache['watch_' + url]; // Ambil dari cache (Instan)
+        data = window.apiCache['watch_' + url]; 
     } else {
-        loader(true); // Nyalakan loading cuma kalau data belum ada
+        loader(true); 
         try {
             const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
             data = await res.json();
-            window.apiCache['watch_' + url] = data; // Simpan datanya ke cache
+            window.apiCache['watch_' + url] = data; 
         } catch (err) {
             console.error(err);
             loader(false);
@@ -613,7 +617,7 @@ async function loadVideo(url) {
             return;
         }
     }
-    loader(false); // Matikan loading
+    loader(false); 
     
     try {
         switchTab('watch'); addXP(20); 
@@ -623,12 +627,10 @@ async function loadVideo(url) {
         if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); } }
          window.currentPlayingAnime = { title: window.currentAnimeMeta?.title || displayTitle, image: window.currentAnimeMeta?.image || 'https://placehold.co/100', ep: 'Episode ' + currentEpNum, url: window.currentAnimeMeta?.url || url };
         
-        // --- TRIK MEMAKSA CHROME BACA NOTIFIKASI ---
         try {
             document.getElementById('silent-audio').play();
         } catch (err) {}
 
-        // --- KODE NOTIFIKASI MEDIA ---
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: displayTitle, 
@@ -639,8 +641,7 @@ async function loadVideo(url) {
                 ]
             });
         }
-        // ------------------------------
-// ------------------------------
+        
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
         window.renderDetailEpisodeUI();
 
@@ -694,12 +695,10 @@ window.postComment = function(epID) {
     db.ref('users/' + currentUser.uid).once('value').then(snap => { 
         const u = snap.val(); 
         
-        // Cek apakah user termasuk Wibu Premium (Role khusus atau Level 50+)
         const role = u.role || 'Member';
         const level = u.level || 1;
         const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
 
-        // Fungsi untuk push data komen ke database
         const saveComment = () => {
             db.ref('comments/' + epID).push().set({ 
                 uid: currentUser.uid, 
@@ -720,10 +719,8 @@ window.postComment = function(epID) {
         };
 
         if (isPremium) {
-            // Wibu Premium / Dev bebas spam komen
             saveComment();
         } else {
-            // User biasa, cek database apakah udah pernah komen di eps ini
             db.ref('comments/' + epID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(cSnap => {
                 if (cSnap.exists()) {
                     window.showToast('Limit tercapai! Wibu Biasa hanya bisa komen 1x per episode.', 'error');
@@ -738,7 +735,6 @@ window.postComment = function(epID) {
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     
-    // Setup Badge dan Deco Discord
     let roleBadgeClass = 'badge-member'; let roleName = role; let decoHtml = '';
     if(role === 'Developer') { 
         roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; 
@@ -748,14 +744,13 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
         roleName = 'Wibu Biasa'; 
     }
 
-    let decoUrl = c.activeBorder && typeof BORDER_CATALOG !== 'undefined' && BORDER_CATALOG[c.activeBorder] ? BORDER_CATALOG[c.activeBorder].url : '';
+    let decoUrl = c.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[c.activeBorder] ? window.BORDER_CATALOG[c.activeBorder].url : '';
     decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
     
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
     let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
     
-    // Bungkus foto profil di dalam container yang ada posisinya (relative) supaya efek Discord-nya nempel sempurna
     let avatarSize = isReply ? '28px' : '36px';
     let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="openUserProfile('${c.uid}')">
         <img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
@@ -796,7 +791,8 @@ window.postReply = function(parentID) {
                 role: u.role || 'Member', 
                 level: u.level || 1, 
                 teks: text, 
-                waktu: Date.now() 
+                waktu: Date.now(),
+                activeBorder: u.activeBorder || ''
             }); 
             input.value = ''; 
             addXP(5); 
@@ -805,7 +801,6 @@ window.postReply = function(parentID) {
         if (isPremium) {
             saveReply();
         } else {
-            // Cek apakah user biasa udah pernah reply di thread komentar ini
             db.ref('replies/' + parentID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(rSnap => {
                 if (rSnap.exists()) {
                     window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error');
@@ -816,132 +811,6 @@ window.postReply = function(parentID) {
         }
     }); 
 };
-
-function injectUserProfileModal() {
-    if(document.getElementById('user-profile-modal-injected')) return;
-    const div = document.createElement('div'); div.id = 'user-profile-modal-injected';
-    div.innerHTML = `
-        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()"></div>
-        <div id="userProfileModal" class="bottom-sheet" style="display:none; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
-            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
-                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
-        </div>`;
-    document.body.appendChild(div);
-}
-
-window.switchProfileModalTab = function(tabName, element) { 
-    document.querySelectorAll('#userProfileModal .ptab').forEach(el => el.classList.remove('active')); 
-    element.classList.add('active'); 
-    document.querySelectorAll('.modal-ptab-content').forEach(el => el.style.display = 'none'); 
-    document.getElementById('modal-ptab-' + tabName).style.display = 'block'; 
-};
-
-window.openUserProfile = function(uid) {
-    if(!uid || uid === 'undefined') return; injectUserProfileModal();
-    const overlay = document.getElementById('userProfileOverlay'); 
-    const modal = document.getElementById('userProfileModal'); 
-    const content = document.getElementById('user-profile-content');
-    
-    overlay.style.display = 'block'; 
-    modal.style.display = 'flex'; 
-    setTimeout(() => { modal.classList.add('show'); }, 10); 
-    
-    content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
-    
-    db.ref('users/' + uid).once('value').then(async snap => {
-        if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
-        const data = snap.val(); 
-        const userName = data.nama || 'Wibu'; 
-        const userFoto = data.foto || 'https://placehold.co/100'; 
-        const role = data.role || 'Member'; 
-        const level = data.level || 1; 
-        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
-        
-        let roleBadgeClass = 'badge-member'; let roleName = role; 
-        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
-        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
-        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
-
-        let activeBorderId = data.activeBorder || '';
-        let decoUrl = activeBorderId && BORDER_CATALOG[activeBorderId] ? BORDER_CATALOG[activeBorderId].url : '';
-        let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
-        
-        const rankInfo = getRankInfo(level); 
-        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
-        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
-        
-        let userComments = []; 
-        try { 
-            const commentsSnap = await db.ref('comments').once('value'); 
-            commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); 
-        } catch(e) {}
-        userComments.sort((a,b) => b.waktu - a.waktu); 
-        
-        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
-            let d = new Date(c.waktu || Date.now()); 
-            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
-            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; 
-            let aImage = c.animeImage || 'https://placehold.co/100'; 
-            let aEp = c.animeEp || 'Episode ?';
-            
-            let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
-            
-            return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
-        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
-
-        let userExp = data.exp || 0;
-        let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
-        let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
-        
-        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan bersifat privat.</p>';
-
-        content.innerHTML = `
-            <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block;">
-                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%;">
-                    ${decoHtml}
-                </div>
-                <div class="profile-name" style="font-size:20px;">${userName}</div>
-                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
-                    <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                    <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
-                    <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
-                </div>
-            </div>
-            <div class="profile-stats" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 5px; padding: 0 10px 25px 10px;">
-                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                <div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
-                <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
-            </div>
-            <div class="profile-tabs" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
-                <div class="ptab active" onclick="switchProfileModalTab('all', this)">All</div>
-                <div class="ptab" onclick="switchProfileModalTab('comments', this)">Comments</div>
-                <div class="ptab" onclick="switchProfileModalTab('history', this)">History</div>
-            </div>
-            <div id="modal-ptab-all" class="modal-ptab-content" style="padding: 0 15px;">${commentsHtml}</div>
-            <div id="modal-ptab-comments" class="modal-ptab-content" style="display:none; padding: 0 15px;">${commentsHtml}</div>
-            <div id="modal-ptab-history" class="modal-ptab-content" style="display:none; padding: 0 15px;">${historyHtml}</div>
-        `;
-    });
-};
-
-window.closeUserProfileModal = function() { 
-    const modal = document.getElementById('userProfileModal'); 
-    const overlay = document.getElementById('userProfileOverlay');
-    if(modal) { 
-        modal.classList.remove('show'); 
-        setTimeout(() => { 
-            overlay.style.display = 'none'; 
-            modal.style.display = 'none'; 
-        }, 300); 
-    } 
-};
-
 
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
@@ -954,8 +823,8 @@ window.addEventListener('popstate', (e) => {
 
 window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
 window.backToDetail = function() { 
-    window.currentPlayingAnime = null; // Menghapus status "Diputar"
-    window.renderDetailEpisodeUI();    // Re-render list episode agar jadi "Ditonton" / "Lanjut"
+    window.currentPlayingAnime = null; 
+    window.renderDetailEpisodeUI();    
     
     if (window.location.hash === '#watch') { 
         history.back(); 
@@ -1115,157 +984,6 @@ function initApp() {
 }
 
 // ==========================================
-// FITUR BORDER SHOP & KOIN (SISTEM KOSMETIK)
-// ==========================================
-const BORDER_CATALOG = {
-    'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
-    'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
-    'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
-    'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' }
-};
-
-function injectBorderShopModal() {
-    if(document.getElementById('border-shop-modal')) return;
-    const div = document.createElement('div');
-    div.innerHTML = `
-        <div id="borderShopOverlay" class="modal-overlay" onclick="closeBorderShop()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
-        <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #1a1a1a;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
-                <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
-                <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
-                    💰 <span id="user-coin-balance">0</span> Koin
-                </div>
-            </div>
-            
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Shop</button>
-                <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Gift</button>
-            </div>
-
-            <div id="view-shop" style="max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
-
-            <div id="view-gift" style="display:none;">
-                <p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih border dari inventory kamu dan masukkan UID teman untuk mengirim gift.</p>
-                <input type="text" id="gift-uid-input" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box;">
-                <div id="gift-inventory-list" style="max-height: 250px; overflow-y: auto;" class="hide-scrollbar"></div>
-            </div>
-
-            <button onclick="closeBorderShop()" style="width:100%; background:#1c1c1e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; margin-top:15px; cursor:pointer;">Tutup</button>
-        </div>
-    `;
-    document.body.appendChild(div);
-}
-
-window.openBorderShop = function() {
-    if(!currentUser) return window.showToast('Login dulu untuk buka fitur Koin & Border!', 'error');
-    injectBorderShopModal();
-    const overlay = document.getElementById('borderShopOverlay'); const modal = document.getElementById('borderShopModal');
-    overlay.style.display = 'block'; modal.style.display = 'block';
-    setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
-    
-    // Tarik data user
-    db.ref('users/' + currentUser.uid).on('value', snap => {
-        let d = snap.val(); if(!d) return;
-        let koin = d.koin || 0;
-        let owned = d.ownedBorders || {};
-        let active = d.activeBorder || '';
-        document.getElementById('user-coin-balance').innerText = koin;
-        
-        // Render Shop
-        let shopHtml = '';
-        for(let key in BORDER_CATALOG) {
-            let item = BORDER_CATALOG[key];
-            let isOwned = owned[key];
-            let isActive = active === key;
-            
-            let btnStr = '';
-            if(isActive) { btnStr = `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>`; }
-            else if(isOwned) { btnStr = `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>`; }
-            else { btnStr = `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`; }
-
-            shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};">
-                <div style="width:50px; height:50px; position:relative; flex-shrink:0;">
-                    <img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
-                    <div style="position:absolute; top:50%; left:50%; width:125%; height:125%; transform:translate(-50%, -48%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div>
-                </div>
-                <div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div>
-                <div>${btnStr}</div>
-            </div>`;
-        }
-        document.getElementById('view-shop').innerHTML = shopHtml;
-
-        // Render Inventory for Gifting
-        let giftHtml = '';
-        let hasItems = false;
-        for(let key in owned) {
-            if(!BORDER_CATALOG[key]) continue;
-            hasItems = true;
-            let item = BORDER_CATALOG[key];
-            giftHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
-                <div style="color:#fff; font-size:13px; font-weight:700;">${item.nama}</div>
-                <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Kirim Gift</button>
-            </div>`;
-        }
-        if(!hasItems) giftHtml = '<div style="text-align:center; color:#555; font-size:12px; padding:20px;">Kamu belum punya border untuk dikirim.</div>';
-        document.getElementById('gift-inventory-list').innerHTML = giftHtml;
-    });
-};
-
-window.closeBorderShop = function() {
-    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
-    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
-    db.ref('users/' + currentUser.uid).off(); // matikan listener biar ga berat
-};
-
-window.switchBorderTab = function(tab) {
-    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
-    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
-    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
-};
-
-window.buyBorder = function(borderId, harga) {
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); let koin = d.koin || 0;
-        if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
-        if(d.ownedBorders && d.ownedBorders[borderId]) return window.showToast('Sudah punya!', 'error');
-        
-        db.ref('users/' + currentUser.uid).update({ koin: koin - harga });
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil membeli border!', 'success');
-    });
-};
-
-window.equipBorder = function(borderId) {
-    db.ref('users/' + currentUser.uid).update({ activeBorder: borderId }).then(() => {
-        window.showToast(borderId ? 'Border dipakai!' : 'Border dilepas!', 'success');
-    });
-};
-
-window.giftBorder = function(borderId) {
-    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
-    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
-
-    // Karena kita nyari berdasarkan 6 huruf pertama UID, harus nge-loop database
-    db.ref('users').once('value').then(snap => {
-        let targetFullUid = null;
-        snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) { targetFullUid = child.key; } });
-        
-        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
-        if(targetFullUid === currentUser.uid) return window.showToast('Tidak bisa kirim ke diri sendiri!', 'error');
-
-        // Pindahkan kepemilikan
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).remove();
-        if (snap.val()[currentUser.uid].activeBorder === borderId) db.ref('users/' + currentUser.uid).update({ activeBorder: '' });
-        
-        db.ref('users/' + targetFullUid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil kirim gift ke #' + targetUidShort, 'success');
-    });
-};
-
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
-
-// ==========================================
 // FITUR BORDER SHOP & KOIN
 // ==========================================
 window.topUpKoin = function() {
@@ -1295,7 +1013,7 @@ window.openBorderShop = function() {
                         <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
                             💰 <span id="user-coin-balance">0</span>
                         </div>
-                        <button onclick="topUpKoin()" style="background:#10b981; color:#fff; border:none; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">Top Up</button>
+                        <button onclick="topUpKoin()" style="background:#10b981; color:#fff; border:none; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer;">Top Up Aja</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -1383,5 +1101,5 @@ window.giftBorder = function(borderId) {
     });
 };
 
-
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
 // ==== AKHIR DARI FILE APP.JS ====
