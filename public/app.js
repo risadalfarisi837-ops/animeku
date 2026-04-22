@@ -1177,7 +1177,16 @@ window.COSMETIC_CATALOG = {
     commentplates: {
         'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
         'toxic_green': { nama: 'Toxic Slime', harga: 1200, style: 'background: linear-gradient(90deg, rgba(6,78,59,0.3), transparent); border-left: 3px solid #10b981;' },
-        'sakura_fall': { nama: 'Sakura Fall', harga: 2500, style: 'background-image: url("https://i.gifer.com/Xqgq.gif"); background-size: cover; background-position: center; border-left: 3px solid #fbcfe8;' }
+        'frame_kristal': { 
+            nama: 'Crystal Frame', 
+            harga: 2000, 
+            style: 'background: url("https://i.ibb.co/pjtqCsnq/527167.jpg") center/100% 100% no-repeat !important; padding: 25px !important; border: none !important;' 
+        },
+        'frame_dark': { 
+            nama: 'Dark Magic', 
+            harga: 2000, 
+            style: 'background: url("https://i.ibb.co/4nk496CB/527165.jpg") center/100% 100% no-repeat !important; padding: 25px !important; border: none !important;' 
+        }
     }
 };
 
