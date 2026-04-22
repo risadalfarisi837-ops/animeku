@@ -22,12 +22,12 @@ window.BORDER_CATALOG = {
     'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
     'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
     'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' },
-    'black-mana': { nama: 'Black Mana', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1379220459026911342/animated' },
-    'the-haxcore': { nama: 'The Hacxcore', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165171294268/animated' },
-    'fishbones': { nama: 'FISHBONES!', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
-    'hologram-dragon': { nama: 'Hologram Dragon', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
-    'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
-    'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
+    'black-mana': { nama: 'Black Mana', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1379220459026911342/animated' },
+    'the-haxcore': { nama: 'The Hacxcore', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165171294268/animated' },
+    'fishbones': { nama: 'FISHBONES!', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
+    'hologram-dragon': { nama: 'Hologram Dragon', harga: 3000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
+    'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
+    'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
 };
 
 // ==== CUSTOM TOAST NOTIFICATION ====
@@ -1186,11 +1186,11 @@ window.openBorderShop = function() {
         document.getElementById('gift-inventory-list').innerHTML = giftHtml;
 
         const topupPackages = [
-            { koin: 100, harga: "Rp 5.000" },
-            { koin: 500, harga: "Rp 20.000" },
-            { koin: 1000, harga: "Rp 35.000" },
-            { koin: 5000, harga: "Rp 150.000" },
-            { koin: 10000, harga: "Rp 250.000" }
+            { koin: 100, harga: "Rp 1.000" },
+            { koin: 500, harga: "Rp 5.000" },
+            { koin: 1000, harga: "Rp 10.000" },
+            { koin: 5000, harga: "Rp 50.000" },
+            { koin: 10000, harga: "Rp 100.000" }
         ];
         let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
         topupPackages.forEach(p => {
