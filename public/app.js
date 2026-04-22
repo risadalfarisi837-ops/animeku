@@ -1082,4 +1082,171 @@ function initApp() {
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
 
+// ==========================================
+// FITUR BORDER SHOP, GIFT & TOP UP KOIN
+// ==========================================
+window.beliKoinWa = function(koin, harga) {
+    if(!currentUser) return;
+    let text = `Halo Admin, saya mau Top Up Koin Animeku.%0A%0AUID Saya: ${currentUser.uid}%0ANama: ${currentUser.displayName}%0APaket: ${koin} Koin seharga ${harga}`;
+    window.open('https://wa.me/6281315059849?text=' + text);
+};
+
+window.openBorderShop = function() {
+    if(!currentUser) return window.showToast('Login dulu untuk buka fitur Koin & Border!', 'error');
+    
+    if(!document.getElementById('borderShopModal')) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <div id="borderShopOverlay" class="modal-overlay" onclick="closeBorderShop()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+            <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #1a1a1a;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
+                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
+                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
+                        <span id="user-coin-balance">0</span> Koin
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Shop</button>
+                    <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Gift</button>
+                    <button id="tab-topup" onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Top Up</button>
+                </div>
+
+                <div id="view-shop" style="max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
+                
+                <div id="view-gift" style="display:none;">
+                    <p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih border dan masukkan UID teman untuk mengirim gift menggunakan koin.</p>
+                    <input type="text" id="gift-uid-input" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box;">
+                    <div id="gift-inventory-list" style="max-height: 250px; overflow-y: auto;" class="hide-scrollbar"></div>
+                </div>
+
+                <div id="view-topup" style="display:none; max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
+
+                <button onclick="closeBorderShop()" style="width:100%; background:#1c1c1e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; margin-top:15px; cursor:pointer;">Tutup</button>
+            </div>
+        `;
+        document.body.appendChild(div);
+    }
+
+    const overlay = document.getElementById('borderShopOverlay'); const modal = document.getElementById('borderShopModal');
+    overlay.style.display = 'block'; modal.style.display = 'block';
+    setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
+    
+    db.ref('users/' + currentUser.uid).on('value', snap => {
+        let d = snap.val(); if(!d) return;
+        let koin = d.koin || 0; let owned = d.ownedBorders || {}; let active = d.activeBorder || '';
+        document.getElementById('user-coin-balance').innerText = koin;
+        
+        let shopHtml = '';
+        for(let key in window.BORDER_CATALOG) {
+            let item = window.BORDER_CATALOG[key]; let isOwned = owned[key]; let isActive = active === key;
+            let btnStr = isActive ? `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>` 
+                       : isOwned ? `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>` 
+                       : `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
+            
+            // Penyesuaian ukuran border di shop jadi 120% dan -50% biar presisi
+            shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};"><div style="width:50px; height:50px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div><div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div><div>${btnStr}</div></div>`;
+        }
+        document.getElementById('view-shop').innerHTML = shopHtml;
+
+        let giftHtml = '';
+        for(let key in window.BORDER_CATALOG) {
+            let item = window.BORDER_CATALOG[key];
+            giftHtml += `
+                <div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #1a1a1a;">
+                    <div style="width:40px; height:40px; position:relative; flex-shrink:0;">
+                        <div style="width:100%; height:100%; border-radius:50%; background:#222; background-image:url('${item.url}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="color:#fff; font-weight:800; font-size:13px;">${item.nama}</div>
+                        <div style="color:#facc15; font-size:11px; font-weight:700;">${item.harga} Koin</div>
+                    </div>
+                    <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
+                </div>`;
+        }
+        document.getElementById('gift-inventory-list').innerHTML = giftHtml;
+
+        const topupPackages = [
+            { koin: 100, harga: "Rp 5.000" },
+            { koin: 500, harga: "Rp 20.000" },
+            { koin: 1000, harga: "Rp 35.000" },
+            { koin: 5000, harga: "Rp 150.000" },
+            { koin: 10000, harga: "Rp 250.000" }
+        ];
+        let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
+        topupPackages.forEach(p => {
+            topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
+                <div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div>
+                <button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button>
+            </div>`;
+        });
+        document.getElementById('view-topup').innerHTML = topupHtml;
+    });
+};
+
+window.closeBorderShop = function() {
+    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
+    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
+    db.ref('users/' + currentUser.uid).off();
+};
+
+window.switchBorderTab = function(tab) {
+    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
+    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
+    document.getElementById('view-topup').style.display = tab === 'topup' ? 'block' : 'none';
+    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-topup').style.background = tab === 'topup' ? '#3b82f6' : '#1c1c1e';
+};
+
+window.buyBorder = function(borderId, harga) {
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val(); let koin = d.koin || 0;
+        if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
+        if(d.ownedBorders && d.ownedBorders[borderId]) return window.showToast('Sudah punya!', 'error');
+        
+        db.ref('users/' + currentUser.uid).update({ koin: koin - harga });
+        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).set(true);
+        window.showToast('Berhasil membeli border!', 'success');
+    });
+};
+
+window.equipBorder = function(borderId) {
+    db.ref('users/' + currentUser.uid).update({ activeBorder: borderId }).then(() => {
+        window.showToast(borderId ? 'Border dipakai!' : 'Border dilepas!', 'success');
+    });
+};
+
+window.giftBorder = function(borderId) {
+    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
+    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
+    
+    const item = window.BORDER_CATALOG[borderId];
+    if(!item) return;
+
+    db.ref('users/' + currentUser.uid).once('value').then(userSnap => {
+        let myKoin = userSnap.val().koin || 0;
+        if(myKoin < item.harga) return window.showToast('Koin tidak cukup untuk mengirim gift ini!', 'error');
+
+        db.ref('users').once('value').then(allUsersSnap => {
+            let targetFullUid = null; 
+            allUsersSnap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
+            
+            if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+            if(targetFullUid === currentUser.uid) return window.showToast('Gunakan tab Shop untuk membeli sendiri!', 'error');
+            
+            let targetData = allUsersSnap.val()[targetFullUid];
+            if(targetData.ownedBorders && targetData.ownedBorders[borderId]) {
+                return window.showToast('Teman kamu sudah memiliki border ini!', 'error');
+            }
+
+            db.ref('users/' + currentUser.uid).update({ koin: myKoin - item.harga });
+            db.ref('users/' + targetFullUid + '/ownedBorders/' + borderId).set(true);
+            
+            window.showToast(`Berhasil mengirim gift ${item.nama} ke #${targetUidShort}`, 'success');
+        });
+    });
+};
+
+
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
