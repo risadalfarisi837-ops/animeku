@@ -755,36 +755,58 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     
     let roleBadgeClass = 'badge-member'; let roleName = role; let decoHtml = '';
-    if(role === 'Developer') { 
-        roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; 
-    } else if(role === 'Wibu Premium' || level >= 50) { 
-        roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; 
-    } else if(role === 'Member') { 
-        roleName = 'Wibu Biasa'; 
-    }
+    if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
+    else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+    else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
     let decoUrl = c.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[c.activeBorder] ? window.BORDER_CATALOG[c.activeBorder].url : '';
     decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
     
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
-    let replyBtnHtml = ''; if(!isReply && epID && parentID) { replyBtnHtml = `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; }
+    
+    // --- SETUP TOMBOL ACTION (REPLY & HAPUS) ---
+    let actionBtnsHtml = ''; 
+    if(!isReply && epID && parentID) { 
+        actionBtnsHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+    }
+    
+    // Otomatis deteksi: Jika komentar ini milik user yang login, munculkan tombol Hapus
+    if (currentUser && c.uid === currentUser.uid) {
+        let deleteAction = isReply ? `deleteComment(true, null, '${parentID}', '${c.id}')` : `deleteComment(false, '${epID}', '${parentID}', null)`;
+        actionBtnsHtml += `<div style="font-size: 12px; color: #ef4444; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${deleteAction}">Hapus</div>`;
+    }
+    // -------------------------------------------
     
     let avatarSize = isReply ? '28px' : '36px';
-    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="openUserProfile('${c.uid}')">
-        <img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-        ${decoHtml}
-    </div>`;
+    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">${decoHtml}</div>`;
     
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word;">${c.teks}</div>${replyBtnHtml}</div></div>`;
+    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${actionBtnsHtml}</div></div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
 
 window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
-    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
-    db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    
+    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { 
+        if(snap.exists()) {
+            let pData = { id: snap.key, ...snap.val() };
+            document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(pData, false, epID, snap.key); 
+        }
+    });
+    
+    db.ref(`replies/${parentID}`).on('value', snap => { 
+        const list = document.getElementById('reply-list-container'); 
+        if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } 
+        
+        let repliesArr = []; 
+        // Mengambil ID child key agar bisa dipakai untuk hapus
+        snap.forEach(child => repliesArr.push({ id: child.key, ...child.val() })); 
+        repliesArr.sort((a, b) => a.waktu - b.waktu); 
+        
+        list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true, null, parentID)).join(''); 
+    });
     
     const inputArea = document.getElementById('reply-input-area'); 
     if(!currentUser) { 
@@ -792,7 +814,6 @@ window.openReplyModal = function(epID, parentID) {
     } 
     else { 
         const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
-        
         inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><div id="reply-input-avatar" style="position: relative; width: 32px; height: 32px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
         
         db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -1182,5 +1203,29 @@ function initApp() {
     switchTab('home'); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
+
+window.deleteComment = function(isReply, epID, parentID, replyID) {
+    if (!confirm("Yakin ingin menghapus komentar ini?")) return;
+    
+    if (isReply) {
+        // Hapus balasan (reply)
+        db.ref(`replies/${parentID}/${replyID}`).remove().then(() => {
+            window.showToast("Balasan berhasil dihapus!", "success");
+        });
+    } else {
+        // Hapus komentar utama
+        db.ref(`comments/${epID}/${parentID}`).remove().then(() => {
+            // Hapus juga SEMUA balasan yang nyangkut di komentar ini biar Firebase bersih
+            db.ref(`replies/${parentID}`).remove();
+            window.showToast("Komentar berhasil dihapus!", "success");
+            
+            // Kalau user lagi buka modal Reply, otomatis tutup modalnya
+            const replyModal = document.getElementById('replyModal');
+            if (replyModal && replyModal.classList.contains('show')) {
+                closeReplyModal();
+            }
+        });
+    }
+};
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
