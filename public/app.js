@@ -123,20 +123,14 @@ function updateDevUI() {
                 if(!data) { data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0, joined: Date.now() }; await db.ref('users/' + currentUser.uid).set(data); }
                 let historyData = []; try { historyData = await getHistory(); } catch(e) {}
                 
-                const role = data.role || 'Member'; 
-                const level = data.level || 1; 
-                const exp = data.exp || 0; 
+                const role = data.role || 'Member'; const level = data.level || 1; const exp = data.exp || 0; 
                 const creationDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date();
                 const diffMonths = (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth());
                 const joinMonths = Math.max(1, diffMonths);
 
-                let totalMenit = Math.floor(exp * 1.2);
-                if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
+                let totalMenit = Math.floor(exp * 1.2); if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
                 const jamNonton = Math.floor(totalMenit / 60);
-                
-                const userName = data.nama || 'User Animeku'; 
-                const userFoto = data.foto || 'https://placehold.co/100'; 
-                const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
+                const userName = data.nama || 'User Animeku'; const userFoto = data.foto || 'https://placehold.co/100'; const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
                 
                 let roleBadgeClass = 'badge-member'; let roleName = role;
                 if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
@@ -167,17 +161,21 @@ function updateDevUI() {
                     }
                 }).catch(() => { document.getElementById('ptab-comments').innerHTML = '<p style="text-align:center; color:#ef4444; font-size:13px; margin-top:30px;">Gagal memuat riwayat komentar.</p>'; });
 
-                let activeBorderId = data.activeBorder || '';
-                let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
+                // --- BACA DATA KOSMETIK UNTUK PROFIL ---
+                let activeBorderId = data.active_borders || data.activeBorder || '';
+                let decoUrl = activeBorderId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.borders[activeBorderId] ? window.COSMETIC_CATALOG.borders[activeBorderId].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+                
+                let activeColorId = data.active_colors || '';
+                let nameStyle = activeColorId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.colors[activeColorId] ? window.COSMETIC_CATALOG.colors[activeColorId].style : '';
+                
+                let activeTitleId = data.active_titles || '';
+                let titleHtml = activeTitleId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.titles[activeTitleId] ? `<div style="font-size:11px; margin-bottom:10px; padding:3px 10px; background:rgba(255,255,255,0.08); border-radius:8px; display:inline-block; border:1px solid rgba(255,255,255,0.1); ${window.COSMETIC_CATALOG.titles[activeTitleId].style}">${window.COSMETIC_CATALOG.titles[activeTitleId].nama}</div>` : '';
                 
                 let userKoin = data.koin || 0; 
 
-                // FIX ANTI ERROR KLIK:
-                // Menggunakan elemen button dan mengunci aksi sentuhan (pointer-events) agar responsif di HP
                 container.innerHTML = `
                     <div style="position: relative; width: 100%; z-index: 1;">
-                        
                         <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999; outline: none; user-select: none; -webkit-tap-highlight-color: transparent;" title="Pencet untuk buka Border Shop">
                             ${userKoin} Koin
                         </button>
@@ -187,7 +185,8 @@ function updateDevUI() {
                                 <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
                                 ${decoHtml}
                             </div>
-                            <div class="profile-name">${userName}</div>
+                            <div class="profile-name" style="${nameStyle}">${userName}</div>
+                            ${titleHtml}
                             <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
                                 <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
                                 <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
@@ -260,9 +259,16 @@ window.openUserProfile = function(uid) {
         else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
         else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
-        let activeBorderId = data.activeBorder || '';
-        let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
+        // --- BACA DATA KOSMETIK UNTUK PROFIL ORANG ---
+        let activeBorderId = data.active_borders || data.activeBorder || '';
+        let decoUrl = activeBorderId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.borders[activeBorderId] ? window.COSMETIC_CATALOG.borders[activeBorderId].url : '';
         let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+        
+        let activeColorId = data.active_colors || '';
+        let nameStyle = activeColorId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.colors[activeColorId] ? window.COSMETIC_CATALOG.colors[activeColorId].style : '';
+        
+        let activeTitleId = data.active_titles || '';
+        let titleHtml = activeTitleId && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.titles[activeTitleId] ? `<div style="font-size:11px; margin-bottom:10px; padding:3px 10px; background:rgba(255,255,255,0.08); border-radius:8px; display:inline-block; border:1px solid rgba(255,255,255,0.1); ${window.COSMETIC_CATALOG.titles[activeTitleId].style}">${window.COSMETIC_CATALOG.titles[activeTitleId].nama}</div>` : '';
         
         const rankInfo = getRankInfo(level); 
         let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
@@ -300,7 +306,8 @@ window.openUserProfile = function(uid) {
                     <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     ${decoHtml}
                 </div>
-                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-name" style="${nameStyle}">${userName}</div>
+                ${titleHtml}
                 <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
                     <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
                     <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
@@ -729,21 +736,18 @@ window.postComment = function(epID) {
                 animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', 
                 animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', 
                 url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '',
-                activeBorder: u.activeBorder || ''
+                activeBorder: u.activeBorder || '',
+                active_borders: u.active_borders || u.activeBorder || '',
+                active_titles: u.active_titles || '',
+                active_colors: u.active_colors || ''
             }); 
             input.value = ''; 
             addXP(10);
         };
 
-        if (isPremium) {
-            saveComment();
-        } else {
+        if (isPremium) { saveComment(); } else {
             db.ref('comments/' + epID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(cSnap => {
-                if (cSnap.exists()) {
-                    window.showToast('Limit tercapai! Wibu Biasa hanya bisa komen 1x per episode.', 'error');
-                } else {
-                    saveComment();
-                }
+                if (cSnap.exists()) { window.showToast('Limit tercapai! Wibu Biasa hanya bisa komen 1x per episode.', 'error'); } else { saveComment(); }
             });
         }
     }); 
@@ -866,26 +870,23 @@ window.postReply = function(parentID) {
                 role: u.role || 'Member', 
                 level: u.level || 1, 
                 teks: text, 
-                waktu: Date.now() 
+                waktu: Date.now(),
+                activeBorder: u.activeBorder || '',
+                active_borders: u.active_borders || u.activeBorder || '',
+                active_titles: u.active_titles || '',
+                active_colors: u.active_colors || ''
             }); 
             input.value = ''; 
             addXP(5); 
         };
 
-        if (isPremium) {
-            saveReply();
-        } else {
+        if (isPremium) { saveReply(); } else {
             db.ref('replies/' + parentID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(rSnap => {
-                if (rSnap.exists()) {
-                    window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error');
-                } else {
-                    saveReply();
-                }
+                if (rSnap.exists()) { window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error'); } else { saveReply(); }
             });
         }
     }); 
 };
-
 
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
