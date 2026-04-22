@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
 
 // ==========================================
-// KATALOG BORDER (Taruh di atas biar kebaca semua fungsi)
+// KATALOG BORDER
 // ==========================================
 window.BORDER_CATALOG = {
     'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
@@ -54,27 +54,11 @@ function injectPremiumStyles() {
         .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
         .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
         .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
-        
-        /* DIBUAT POLOSAN TANPA BORDER / SHADOW */
         .avatar-rank-emerald { border: none !important; box-shadow: none !important; }
         .avatar-rank-diamond { border: none !important; box-shadow: none !important; }
         .avatar-rank-master { border: none !important; box-shadow: none !important; }
         .avatar-rank-mythic { border: none !important; box-shadow: none !important; }
-
-        /* EFEK AVATAR DECORATION 100% DISCORD */
-        .avatar-deco-overlay {
-            position: absolute;
-            top: 50%; 
-            left: 50%; 
-            width: 125%; 
-            height: 125%; 
-            transform: translate(-50%, -48%);
-            pointer-events: none;
-            z-index: 10;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
+        .avatar-deco-overlay { position: absolute; top: 50%; left: 50%; width: 125%; height: 125%; transform: translate(-50%, -48%); pointer-events: none; z-index: 10; background-size: contain; background-position: center; background-repeat: no-repeat; }
     `;
     document.head.appendChild(style);
 }
@@ -170,7 +154,7 @@ function updateDevUI() {
                 
                 let userKoin = data.koin || 0; 
 
-                // Perubahan: Container diset relative, tombol koin di set absolute ke pojok kanan atas
+                // Container diset relative, tombol koin di set absolute ke pojok kanan atas
                 container.innerHTML = `
                     <div style="position: relative; width: 100%;">
                         <div onclick="openBorderShop()" style="position: absolute; top: 0px; right: 10px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 10;" title="Pencet untuk buka Border Shop">
@@ -408,6 +392,7 @@ function formatTimelineDate(timestamp) { const date = new Date(timestamp); const
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
 
 // ==== LOGIKA EXP & KOIN ====
+// Perubahan: EXP tidak lagi memberikan Koin
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -415,14 +400,12 @@ function addXP(amount) {
         let prevExp = d.exp || 0; let prevLvl = Math.floor(prevExp / 200) + 1; 
         let nExp = prevExp + amount; let nLvl = Math.floor(nExp / 200) + 1; let isLevelUp = nLvl > prevLvl;
         
-        // Dapat Koin tiap dapat EXP
-        let nKoin = (d.koin || 0) + (amount * 2);
-
-        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl, koin: nKoin });
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
         let currentLevelXp = nExp % 200; let progressPercent = Math.floor((currentLevelXp / 200) * 100);
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
+
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -690,10 +673,8 @@ function renderCommentInput(epID) {
     else { 
         const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
         
-        // Setup kerangka HTML dengan id untuk di-inject border
         container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div id="comment-input-avatar" style="position: relative; width: 36px; height: 36px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
         
-        // Inject border jika punya activeBorder
         db.ref('users/' + currentUser.uid).once('value').then(snap => {
             let d = snap.val();
             if(d && d.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[d.activeBorder]) {
@@ -751,6 +732,17 @@ window.postComment = function(epID) {
     }); 
 };
 
+// Logika Tahan untuk Hapus (Long Press)
+window.commentPressTimer = null;
+window.handleCommentTouchStart = function(isReply, epID, parentID, replyID) {
+    window.commentPressTimer = setTimeout(() => {
+        openDeleteModal(isReply, epID, parentID, replyID);
+    }, 600); // Tahan 0.6 detik
+};
+window.handleCommentTouchEnd = function() {
+    if (window.commentPressTimer) clearTimeout(window.commentPressTimer);
+};
+
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     
@@ -765,23 +757,27 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
     
-    // --- SETUP TOMBOL ACTION (REPLY & HAPUS) ---
-    let actionBtnsHtml = ''; 
+    let replyBtnHtml = ''; 
     if(!isReply && epID && parentID) { 
-        actionBtnsHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
     }
     
-    // Otomatis deteksi: Jika komentar ini milik user yang login, munculkan tombol Hapus
+    let containerAction = '';
+    let containerCursor = 'default';
+    let hintHapus = '';
+    
+    // Pasang action tekan lama (long press) hanya untuk pemilik komentar
     if (currentUser && c.uid === currentUser.uid) {
-        let deleteAction = isReply ? `deleteComment(true, null, '${parentID}', '${c.id}')` : `deleteComment(false, '${epID}', '${parentID}', null)`;
-        actionBtnsHtml += `<div style="font-size: 12px; color: #ef4444; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${deleteAction}">Hapus</div>`;
+        let args = isReply ? `true, null, '${parentID}', '${c.id}'` : `false, '${epID}', '${parentID}', null`;
+        containerAction = `onmousedown="handleCommentTouchStart(${args})" onmouseup="handleCommentTouchEnd()" onmouseleave="handleCommentTouchEnd()" ontouchstart="handleCommentTouchStart(${args})" ontouchend="handleCommentTouchEnd()" ontouchmove="handleCommentTouchEnd()"`;
+        containerCursor = 'pointer';
+        hintHapus = `<span style="font-size:10px; color:#ef4444; opacity:0.8; margin-left:auto; font-weight:700;">Tahan untuk Hapus</span>`;
     }
-    // -------------------------------------------
     
     let avatarSize = isReply ? '28px' : '36px';
-    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">${decoHtml}</div>`;
+    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">${decoHtml}</div>`;
     
-    return `<div class="comment-item" style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'};">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${actionBtnsHtml}</div></div></div>`;
+    return `<div class="comment-item" ${containerAction} style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'}; cursor: ${containerCursor}; transition: 0.2s;">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>${hintHapus}</div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="event.stopPropagation(); openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${replyBtnHtml}</div></div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -801,10 +797,8 @@ window.openReplyModal = function(epID, parentID) {
         if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } 
         
         let repliesArr = []; 
-        // Mengambil ID child key agar bisa dipakai untuk hapus
         snap.forEach(child => repliesArr.push({ id: child.key, ...child.val() })); 
         repliesArr.sort((a, b) => a.waktu - b.waktu); 
-        
         list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true, null, parentID)).join(''); 
     });
     
@@ -896,6 +890,58 @@ window.injectExitModal = function() {
 window.openExitModal = function() { document.getElementById('exitModalOverlay').style.display = 'block'; document.getElementById('exitModal').style.display = 'block'; setTimeout(() => { document.getElementById('exitModal').style.opacity = '1'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(1)'; }, 10); };
 window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
 window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
+
+// ==========================================
+// FITUR MODAL HAPUS KOMENTAR
+// ==========================================
+let commentToDelete = null;
+
+window.injectDeleteModal = function() {
+    if(document.getElementById('delete-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'delete-modal-injected';
+    div.innerHTML = `<div id="deleteModalOverlay" class="modal-overlay" onclick="closeDeleteModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div><div id="deleteModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;"><div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Hapus Komentar?</h3><p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Komentar ini akan dihapus secara permanen dan tidak bisa dikembalikan.</p><div style="display:flex; gap:10px;"><button onclick="closeDeleteModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button><button onclick="confirmDeleteComment()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Hapus</button></div></div>`;
+    document.body.appendChild(div);
+};
+
+window.openDeleteModal = function(isReply, epID, parentID, replyID) {
+    commentToDelete = { isReply, epID, parentID, replyID };
+    injectDeleteModal();
+    document.getElementById('deleteModalOverlay').style.display = 'block'; 
+    document.getElementById('deleteModal').style.display = 'block'; 
+    setTimeout(() => { 
+        document.getElementById('deleteModal').style.opacity = '1'; 
+        document.getElementById('deleteModal').style.transform = 'translate(-50%, -50%) scale(1)'; 
+    }, 10);
+};
+
+window.closeDeleteModal = function() {
+    const modal = document.getElementById('deleteModal'); const overlay = document.getElementById('deleteModalOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; 
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; commentToDelete = null; }, 300);
+    }
+};
+
+window.confirmDeleteComment = function() {
+    if (!commentToDelete) return;
+    const { isReply, epID, parentID, replyID } = commentToDelete;
+    
+    if (isReply) {
+        db.ref(`replies/${parentID}/${replyID}`).remove().then(() => {
+            window.showToast("Balasan berhasil dihapus!", "success");
+            closeDeleteModal();
+        });
+    } else {
+        db.ref(`comments/${epID}/${parentID}`).remove().then(() => {
+            db.ref(`replies/${parentID}`).remove();
+            window.showToast("Komentar berhasil dihapus!", "success");
+            closeDeleteModal();
+            
+            const replyModal = document.getElementById('replyModal');
+            if (replyModal && replyModal.classList.contains('show')) { closeReplyModal(); }
+        });
+    }
+};
 
 // ==========================================
 // FITUR JADWAL RILIS ANIME
@@ -1085,7 +1131,6 @@ window.openBorderShop = function() {
         let koin = d.koin || 0; let owned = d.ownedBorders || {}; let active = d.activeBorder || '';
         document.getElementById('user-coin-balance').innerText = koin;
         
-        // 1. Render Shop (Tanpa Emoji)
         let shopHtml = '';
         for(let key in window.BORDER_CATALOG) {
             let item = window.BORDER_CATALOG[key]; let isOwned = owned[key]; let isActive = active === key;
@@ -1096,7 +1141,6 @@ window.openBorderShop = function() {
         }
         document.getElementById('view-shop').innerHTML = shopHtml;
 
-        // 2. Render Gift (Tanpa Emoji)
         let giftHtml = '';
         for(let key in window.BORDER_CATALOG) {
             let item = window.BORDER_CATALOG[key];
@@ -1114,7 +1158,6 @@ window.openBorderShop = function() {
         }
         document.getElementById('gift-inventory-list').innerHTML = giftHtml;
 
-        // 3. Render Top Up Menu (Tanpa Emoji)
         const topupPackages = [
             { koin: 100, harga: "Rp 5.000" },
             { koin: 500, harga: "Rp 20.000" },
@@ -1198,34 +1241,10 @@ window.giftBorder = function(borderId) {
 };
 
 function initApp() { 
-    updateDevUI(); injectReportModal(); injectExitModal(); 
+    updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal();
     if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
     switchTab('home'); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
 }
-
-window.deleteComment = function(isReply, epID, parentID, replyID) {
-    if (!confirm("Yakin ingin menghapus komentar ini?")) return;
-    
-    if (isReply) {
-        // Hapus balasan (reply)
-        db.ref(`replies/${parentID}/${replyID}`).remove().then(() => {
-            window.showToast("Balasan berhasil dihapus!", "success");
-        });
-    } else {
-        // Hapus komentar utama
-        db.ref(`comments/${epID}/${parentID}`).remove().then(() => {
-            // Hapus juga SEMUA balasan yang nyangkut di komentar ini biar Firebase bersih
-            db.ref(`replies/${parentID}`).remove();
-            window.showToast("Komentar berhasil dihapus!", "success");
-            
-            // Kalau user lagi buka modal Reply, otomatis tutup modalnya
-            const replyModal = document.getElementById('replyModal');
-            if (replyModal && replyModal.classList.contains('show')) {
-                closeReplyModal();
-            }
-        });
-    }
-};
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
