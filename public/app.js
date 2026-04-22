@@ -17,11 +17,23 @@ const auth = firebase.auth(); const db = firebase.database(); let currentUser = 
 // ==========================================
 // KATALOG BORDER
 // ==========================================
-window.BORDER_CATALOG = {
-    'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
-    'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
-    'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
-    'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' }
+window.COSMETIC_CATALOG = {
+    borders: {
+        'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
+        'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
+        'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
+        'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' }
+    },
+    titles: {
+        'sepuh': { nama: 'Sepuh Lintas Universe', harga: 2000, style: 'background:linear-gradient(90deg, #facc15, #f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:900;' },
+        'waifu_collector': { nama: 'Kolektor Waifu', harga: 500, style: 'color:#ec4899; font-weight:800;' },
+        'otaku_pro': { nama: 'Otaku Pro', harga: 300, style: 'color:#3b82f6; font-weight:700;' }
+    },
+    colors: {
+        'gold_name': { nama: 'Golden Name', harga: 1500, style: 'color:#facc15; text-shadow: 0 0 5px rgba(250,204,21,0.5); font-weight:900;' },
+        'neon_cyan': { nama: 'Neon Cyan', harga: 600, style: 'color:#22d3ee; font-weight:800;' },
+        'blood_red': { nama: 'Blood Red', harga: 800, style: 'color:#ef4444; font-weight:800;' }
+    }
 };
 
 // ==== CUSTOM TOAST NOTIFICATION ====
@@ -751,20 +763,25 @@ window.handleCommentTouchEnd = function() {
 function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
     
-    let roleBadgeClass = 'badge-member'; let roleName = role; let decoHtml = '';
+    let roleBadgeClass = 'badge-member'; let roleName = role; 
     if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
     else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
     else if(role === 'Member') { roleName = 'Wibu Biasa'; }
 
-    let decoUrl = c.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[c.activeBorder] ? window.BORDER_CATALOG[c.activeBorder].url : '';
-    decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+    // --- BACA DATA KOSMETIK (BORDER, TITLE, WARNA NAMA) ---
+    let decoUrl = c.active_borders && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.borders && window.COSMETIC_CATALOG.borders[c.active_borders] ? window.COSMETIC_CATALOG.borders[c.active_borders].url : (c.activeBorder && window.BORDER_CATALOG ? window.BORDER_CATALOG[c.activeBorder]?.url : '');
+    let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
     
+    let nameStyle = c.active_colors && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.colors && window.COSMETIC_CATALOG.colors[c.active_colors] ? window.COSMETIC_CATALOG.colors[c.active_colors].style : 'color:#fff;';
+    let titleHtml = c.active_titles && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.titles && window.COSMETIC_CATALOG.titles[c.active_titles] ? `<div style="font-size:10px; margin-top:2px; padding:2px 6px; background:rgba(255,255,255,0.1); border-radius:4px; display:inline-block; ${window.COSMETIC_CATALOG.titles[c.active_titles].style}">${window.COSMETIC_CATALOG.titles[c.active_titles].nama}</div>` : '';
+    // -------------------------------------------------------
+
     const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
     const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
     
     let replyBtnHtml = ''; 
     if(!isReply && epID && parentID) { 
-        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
     }
     
     let containerAction = '';
@@ -782,7 +799,7 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     let avatarSize = isReply ? '28px' : '36px';
     let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">${decoHtml}</div>`;
     
-    return `<div class="comment-item" ${containerAction} style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'}; cursor: ${containerCursor}; transition: 0.2s;">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>${hintHapus}</div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="event.stopPropagation(); openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${replyBtnHtml}</div></div></div>`;
+    return `<div class="comment-item" ${containerAction} style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'}; cursor: ${containerCursor}; transition: 0.2s;">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 2px;"><div style="display:flex; flex-direction:column;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; ${nameStyle} white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')">${c.nama}</span>${titleHtml}</div><span style="font-size: 10px; color: #888; flex-shrink: 0; margin-top:2px;">• ${timeStr}</span>${hintHapus}</div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="event.stopPropagation(); openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${replyBtnHtml}</div></div></div>`;
 }
 
 function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
@@ -1097,45 +1114,47 @@ window.beliKoinWa = function(koin, harga) {
     window.open('https://wa.me/6281315059849?text=' + text);
 };
 
+window.currentShopCategory = 'borders';
+
 window.openBorderShop = function() {
-    if(!currentUser) return window.showToast('Login dulu untuk buka fitur Koin & Border!', 'error');
+    if(!currentUser) return window.showToast('Login dulu untuk belanja!', 'error');
     
     if(!document.getElementById('borderShopModal')) {
         const div = document.createElement('div');
         div.innerHTML = `
             <div id="borderShopOverlay" class="modal-overlay" onclick="closeBorderShop()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
-            <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #1a1a1a;">
+            <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:350px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s; opacity:0; border: 1px solid #1a1a1a;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
-                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
-                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
+                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Mall Kosmetik</h3>
+                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800;">
                         <span id="user-coin-balance">0</span> Koin
                     </div>
                 </div>
                 
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Shop</button>
-                    <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Gift</button>
-                    <button id="tab-topup" onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Top Up</button>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Shop</button>
+                    <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Gift</button>
+                    <button onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Top Up</button>
                 </div>
 
-                <div id="view-shop" style="max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
+                <div id="category-selector" style="display:flex; justify-content:center; gap:15px; margin-bottom:15px; border-bottom:1px solid #111; padding-bottom:10px;">
+                    <span onclick="setShopCategory('borders')" class="cat-item active" id="cat-borders" style="color:#fff; font-size:12px; font-weight:800; cursor:pointer;">Border</span>
+                    <span onclick="setShopCategory('titles')" class="cat-item" id="cat-titles" style="color:#666; font-size:12px; font-weight:800; cursor:pointer;">Title</span>
+                    <span onclick="setShopCategory('colors')" class="cat-item" id="cat-colors" style="color:#666; font-size:12px; font-weight:800; cursor:pointer;">Nama</span>
+                </div>
+
+                <div id="view-shop" style="max-height: 300px; overflow-y: auto;" class="hide-scrollbar"></div>
                 
                 <div id="view-gift" style="display:none;">
-                    <p style="color:#888; font-size:12px; margin-bottom:10px;">Masukkan UID teman untuk melihat profilnya, lalu kirim gift menggunakan koin.</p>
-                    <input type="text" id="gift-uid-input" oninput="previewGiftUser(this.value)" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:10px; outline:none; box-sizing:border-box;">
-                    
-                    <div id="gift-user-preview" style="display:none; align-items:center; gap:12px; background:#1c1c1e; padding:10px; border-radius:12px; margin-bottom:15px; border:1px solid #3b82f6;">
-                        <img id="gift-preview-img" src="" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-                        <div style="flex:1;">
-                            <div id="gift-preview-name" style="color:#fff; font-size:13px; font-weight:800;">Target</div>
-                            <div id="gift-preview-uid" style="color:#3b82f6; font-size:11px; font-weight:700;">#UID</div>
-                        </div>
+                    <input type="text" id="gift-uid-input" oninput="previewGiftUser(this.value)" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:10px; outline:none; box-sizing:border-box; font-size:13px;">
+                    <div id="gift-user-preview" style="display:none; align-items:center; gap:12px; background:#1c1c1e; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #3b82f6;">
+                        <img id="gift-preview-img" src="" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                        <div id="gift-preview-name" style="color:#fff; font-size:12px; font-weight:800;">Target</div>
                     </div>
-
-                    <div id="gift-inventory-list" style="max-height: 250px; overflow-y: auto;" class="hide-scrollbar"></div>
+                    <div id="gift-inventory-list" style="max-height: 200px; overflow-y: auto;" class="hide-scrollbar"></div>
                 </div>
 
-                <div id="view-topup" style="display:none; max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
+                <div id="view-topup" style="display:none; max-height: 300px; overflow-y: auto;" class="hide-scrollbar"></div>
 
                 <button onclick="closeBorderShop()" style="width:100%; background:#1c1c1e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; margin-top:15px; cursor:pointer;">Tutup</button>
             </div>
@@ -1143,92 +1162,81 @@ window.openBorderShop = function() {
         document.body.appendChild(div);
     }
 
-    const overlay = document.getElementById('borderShopOverlay'); const modal = document.getElementById('borderShopModal');
-    overlay.style.display = 'block'; modal.style.display = 'block';
+    const modal = document.getElementById('borderShopModal');
+    document.getElementById('borderShopOverlay').style.display = 'block'; 
+    modal.style.display = 'block';
     setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
     
+    // Listener Data User untuk Koin & Inventory
     db.ref('users/' + currentUser.uid).on('value', snap => {
         let d = snap.val(); if(!d) return;
-        let koin = d.koin || 0; let owned = d.ownedBorders || {}; let active = d.activeBorder || '';
-        document.getElementById('user-coin-balance').innerText = koin;
-        
-        let shopHtml = '';
-        for(let key in window.BORDER_CATALOG) {
-            let item = window.BORDER_CATALOG[key]; let isOwned = owned[key]; let isActive = active === key;
-            let btnStr = isActive ? `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>` 
-                       : isOwned ? `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>` 
-                       : `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
-            shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};"><div style="width:50px; height:50px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div><div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div><div>${btnStr}</div></div>`;
-        }
-        document.getElementById('view-shop').innerHTML = shopHtml;
-
-        let giftHtml = '';
-        for(let key in window.BORDER_CATALOG) {
-            let item = window.BORDER_CATALOG[key];
-            giftHtml += `
-                <div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #1a1a1a;">
-                    <div style="width:40px; height:40px; position:relative; flex-shrink:0;">
-                        <div style="width:100%; height:100%; border-radius:50%; background:#222; background-image:url('${item.url}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="color:#fff; font-weight:800; font-size:13px;">${item.nama}</div>
-                        <div style="color:#facc15; font-size:11px; font-weight:700;">${item.harga} Koin</div>
-                    </div>
-                    <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
-                </div>`;
-        }
-        document.getElementById('gift-inventory-list').innerHTML = giftHtml;
-
-        const topupPackages = [
-            { koin: 100, harga: "Rp 5.000" },
-            { koin: 500, harga: "Rp 20.000" },
-            { koin: 1000, harga: "Rp 35.000" },
-            { koin: 5000, harga: "Rp 150.000" },
-            { koin: 10000, harga: "Rp 250.000" }
-        ];
-        let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
-        topupPackages.forEach(p => {
-            topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
-                <div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div>
-                <button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button>
-            </div>`;
-        });
-        document.getElementById('view-topup').innerHTML = topupHtml;
+        document.getElementById('user-coin-balance').innerText = d.koin || 0;
+        renderShopContent(d);
     });
 };
 
-window.closeBorderShop = function() {
-    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
-    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
-    db.ref('users/' + currentUser.uid).off();
+window.setShopCategory = function(cat) {
+    window.currentShopCategory = cat;
+    document.querySelectorAll('.cat-item').forEach(el => el.style.color = '#666');
+    document.getElementById('cat-' + cat).style.color = '#fff';
+    db.ref('users/' + currentUser.uid).once('value', snap => renderShopContent(snap.val()));
 };
 
-window.switchBorderTab = function(tab) {
-    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
-    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
-    document.getElementById('view-topup').style.display = tab === 'topup' ? 'block' : 'none';
-    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-topup').style.background = tab === 'topup' ? '#3b82f6' : '#1c1c1e';
-};
+function renderShopContent(userData) {
+    const cat = window.currentShopCategory;
+    const catalog = window.COSMETIC_CATALOG[cat];
+    const owned = userData[`owned_${cat}`] || {};
+    const active = userData[`active_${cat}`] || '';
+    
+    let html = '';
+    for(let key in catalog) {
+        let item = catalog[key];
+        let isOwned = owned[key];
+        let isActive = active === key;
+        
+        let btn = isActive ? `<button onclick="equipItem('${cat}', '')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Lepas</button>` 
+                  : isOwned ? `<button onclick="equipItem('${cat}', '${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Pakai</button>` 
+                  : `<button onclick="buyItem('${cat}', '${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
 
-window.buyBorder = function(borderId, harga) {
+        html += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#3b82f6' : '#1a1a1a'};">
+            <div style="flex:1;">
+                <div style="color:#fff; font-weight:800; font-size:13px; ${cat === 'titles' || cat === 'colors' ? item.style : ''}">${item.nama}</div>
+                <div style="color:#666; font-size:10px;">${isOwned ? 'Milikmu' : 'Tersedia'}</div>
+            </div>
+            <div>${btn}</div>
+        </div>`;
+    }
+    document.getElementById('view-shop').innerHTML = html;
+
+    // Render Gift List juga disesuaikan dengan kategori
+    let giftHtml = '';
+    for(let key in catalog) {
+        let item = catalog[key];
+        giftHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:10px; margin-bottom:8px;">
+            <div style="color:#fff; font-size:12px; font-weight:700;">${item.nama}</div>
+            <button onclick="giftItem('${cat}', '${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
+        </div>`;
+    }
+    document.getElementById('gift-inventory-list').innerHTML = giftHtml;
+}
+
+window.buyItem = function(type, id, harga) {
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); let koin = d.koin || 0;
-        if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
-        if(d.ownedBorders && d.ownedBorders[borderId]) return window.showToast('Sudah punya!', 'error');
-        
-        db.ref('users/' + currentUser.uid).update({ koin: koin - harga });
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil membeli border!', 'success');
+        let d = snap.val();
+        if((d.koin || 0) < harga) return window.showToast('Koin tidak cukup!', 'error');
+        let updateData = { koin: d.koin - harga };
+        updateData[`owned_${type}/${id}`] = true;
+        db.ref('users/' + currentUser.uid).update(updateData);
+        window.showToast('Berhasil membeli!', 'success');
     });
 };
 
-window.equipBorder = function(borderId) {
-    db.ref('users/' + currentUser.uid).update({ activeBorder: borderId }).then(() => {
-        window.showToast(borderId ? 'Border dipakai!' : 'Border dilepas!', 'success');
-    });
+window.equipItem = function(type, id) {
+    let updateData = {}; updateData[`active_${type}`] = id;
+    db.ref('users/' + currentUser.uid).update(updateData);
+    window.showToast(id ? 'Berhasil dipakai!' : 'Berhasil dilepas!', 'success');
 };
+
 
 window.giftBorder = function(borderId) {
     let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
