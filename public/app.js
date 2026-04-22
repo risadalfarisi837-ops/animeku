@@ -1106,15 +1106,34 @@ function initApp() {
 }
 
 // ==========================================
-// FITUR BORDER SHOP, GIFT & TOP UP KOIN
+// FITUR MALL KOSMETIK (BORDER, TITLE, WARNA NAMA)
 // ==========================================
+window.COSMETIC_CATALOG = {
+    borders: {
+        'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
+        'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
+        'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
+        'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' }
+    },
+    titles: {
+        'sepuh': { nama: 'Sepuh Lintas Universe', harga: 2000, style: 'background:linear-gradient(90deg, #facc15, #f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:900;' },
+        'waifu_collector': { nama: 'Kolektor Waifu', harga: 500, style: 'color:#ec4899; font-weight:800;' },
+        'otaku_pro': { nama: 'Otaku Pro', harga: 300, style: 'color:#3b82f6; font-weight:700;' }
+    },
+    colors: {
+        'gold_name': { nama: 'Golden Name', harga: 1500, style: 'color:#facc15; text-shadow: 0 0 5px rgba(250,204,21,0.5); font-weight:900;' },
+        'neon_cyan': { nama: 'Neon Cyan', harga: 600, style: 'color:#22d3ee; font-weight:800;' },
+        'blood_red': { nama: 'Blood Red', harga: 800, style: 'color:#ef4444; font-weight:800;' }
+    }
+};
+
+window.currentShopCategory = 'borders';
+
 window.beliKoinWa = function(koin, harga) {
     if(!currentUser) return;
     let text = `Halo Admin, saya mau Top Up Koin Animeku.%0A%0AUID Saya: ${currentUser.uid}%0ANama: ${currentUser.displayName}%0APaket: ${koin} Koin seharga ${harga}`;
     window.open('https://wa.me/6281315059849?text=' + text);
 };
-
-window.currentShopCategory = 'borders';
 
 window.openBorderShop = function() {
     if(!currentUser) return window.showToast('Login dulu untuk belanja!', 'error');
@@ -1134,7 +1153,7 @@ window.openBorderShop = function() {
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
                     <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Shop</button>
                     <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Gift</button>
-                    <button onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Top Up</button>
+                    <button id="tab-topup" onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Top Up</button>
                 </div>
 
                 <div id="category-selector" style="display:flex; justify-content:center; gap:15px; margin-bottom:15px; border-bottom:1px solid #111; padding-bottom:10px;">
@@ -1169,24 +1188,45 @@ window.openBorderShop = function() {
     
     // Listener Data User untuk Koin & Inventory
     db.ref('users/' + currentUser.uid).on('value', snap => {
-        let d = snap.val(); if(!d) return;
-        document.getElementById('user-coin-balance').innerText = d.koin || 0;
-        renderShopContent(d);
+        window.currentUserData = snap.val(); 
+        if(!window.currentUserData) return;
+        document.getElementById('user-coin-balance').innerText = window.currentUserData.koin || 0;
+        renderShopContent();
+        
+        // Render Tab Topup
+        const topupPackages = [
+            { koin: 100, harga: "Rp 5.000" },
+            { koin: 500, harga: "Rp 20.000" },
+            { koin: 1000, harga: "Rp 35.000" },
+            { koin: 5000, harga: "Rp 150.000" },
+            { koin: 10000, harga: "Rp 250.000" }
+        ];
+        let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
+        topupPackages.forEach(p => {
+            topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
+                <div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div>
+                <button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button>
+            </div>`;
+        });
+        document.getElementById('view-topup').innerHTML = topupHtml;
     });
 };
 
 window.setShopCategory = function(cat) {
     window.currentShopCategory = cat;
-    document.querySelectorAll('.cat-item').forEach(el => el.style.color = '#666');
-    document.getElementById('cat-' + cat).style.color = '#fff';
-    db.ref('users/' + currentUser.uid).once('value', snap => renderShopContent(snap.val()));
+    document.querySelectorAll('.cat-item').forEach(el => { el.style.color = '#666'; el.classList.remove('active'); });
+    let activeTab = document.getElementById('cat-' + cat);
+    if(activeTab) { activeTab.style.color = '#fff'; activeTab.classList.add('active'); }
+    renderShopContent();
 };
 
-function renderShopContent(userData) {
-    const cat = window.currentShopCategory;
+window.renderShopContent = function() {
+    if(!window.currentUserData) return;
+    const d = window.currentUserData;
+    const cat = window.currentShopCategory || 'borders';
     const catalog = window.COSMETIC_CATALOG[cat];
-    const owned = userData[`owned_${cat}`] || {};
-    const active = userData[`active_${cat}`] || '';
+    const owned = d[`owned_${cat}`] || {};
+    const active = d[`active_${cat}`] || '';
     
     let html = '';
     for(let key in catalog) {
@@ -1198,9 +1238,19 @@ function renderShopContent(userData) {
                   : isOwned ? `<button onclick="equipItem('${cat}', '${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Pakai</button>` 
                   : `<button onclick="buyItem('${cat}', '${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
 
+        let displayIcon = '';
+        if (cat === 'borders') {
+            displayIcon = `<div style="width:40px; height:40px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div>`;
+        } else {
+            displayIcon = `<div style="width:40px; height:40px; background:#222; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px;">✨</div>`;
+        }
+
+        let stylePreview = (cat === 'titles' || cat === 'colors') ? item.style : '';
+
         html += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#3b82f6' : '#1a1a1a'};">
+            ${displayIcon}
             <div style="flex:1;">
-                <div style="color:#fff; font-weight:800; font-size:13px; ${cat === 'titles' || cat === 'colors' ? item.style : ''}">${item.nama}</div>
+                <div style="font-weight:800; font-size:13px; ${stylePreview}">${item.nama}</div>
                 <div style="color:#666; font-size:10px;">${isOwned ? 'Milikmu' : 'Tersedia'}</div>
             </div>
             <div>${btn}</div>
@@ -1208,64 +1258,105 @@ function renderShopContent(userData) {
     }
     document.getElementById('view-shop').innerHTML = html;
 
-    // Render Gift List juga disesuaikan dengan kategori
+    // Render Gift List
     let giftHtml = '';
     for(let key in catalog) {
         let item = catalog[key];
         giftHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:10px; margin-bottom:8px;">
-            <div style="color:#fff; font-size:12px; font-weight:700;">${item.nama}</div>
-            <button onclick="giftItem('${cat}', '${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
+            <div style="color:#fff; font-size:12px; font-weight:700; ${cat === 'titles' || cat === 'colors' ? item.style : ''}">${item.nama}</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#facc15; font-size:11px; font-weight:800;">${item.harga} Koin</span>
+                <button onclick="giftItem('${cat}', '${key}', ${item.harga})" style="background:#f59e0b; color:#000; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
+            </div>
         </div>`;
     }
     document.getElementById('gift-inventory-list').innerHTML = giftHtml;
-}
+};
+
+window.closeBorderShop = function() {
+    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
+    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
+    db.ref('users/' + currentUser.uid).off();
+};
+
+window.switchBorderTab = function(tab) {
+    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
+    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
+    document.getElementById('view-topup').style.display = tab === 'topup' ? 'block' : 'none';
+    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-topup').style.background = tab === 'topup' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('category-selector').style.display = tab === 'topup' ? 'none' : 'flex';
+};
 
 window.buyItem = function(type, id, harga) {
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val();
-        if((d.koin || 0) < harga) return window.showToast('Koin tidak cukup!', 'error');
-        let updateData = { koin: d.koin - harga };
-        updateData[`owned_${type}/${id}`] = true;
-        db.ref('users/' + currentUser.uid).update(updateData);
-        window.showToast('Berhasil membeli!', 'success');
+    let koin = window.currentUserData.koin || 0;
+    if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
+    let updateData = { koin: koin - harga };
+    updateData[`owned_${type}/${id}`] = true;
+    db.ref('users/' + currentUser.uid).update(updateData).then(() => {
+        window.showToast('Berhasil membeli item!', 'success');
     });
 };
 
 window.equipItem = function(type, id) {
     let updateData = {}; updateData[`active_${type}`] = id;
-    db.ref('users/' + currentUser.uid).update(updateData);
-    window.showToast(id ? 'Berhasil dipakai!' : 'Berhasil dilepas!', 'success');
+    db.ref('users/' + currentUser.uid).update(updateData).then(() => {
+        window.showToast(id ? 'Item dipakai!' : 'Item dilepas!', 'success');
+    });
 };
 
+window.previewGiftUser = function(val) {
+    let uidShort = val.replace('#', '').trim().toUpperCase();
+    let previewDiv = document.getElementById('gift-user-preview');
+    
+    if (!uidShort || uidShort.length !== 6) {
+        previewDiv.style.display = 'none';
+        return;
+    }
 
-window.giftBorder = function(borderId) {
+    db.ref('users').once('value').then(snap => {
+        let targetData = null; let fullUid = null;
+        snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === uidShort) { targetData = child.val(); fullUid = child.key; } });
+
+        if (targetData) {
+            document.getElementById('gift-preview-img').src = targetData.foto || 'https://placehold.co/100';
+            previewDiv.style.display = 'flex';
+            if (currentUser && fullUid === currentUser.uid) {
+                document.getElementById('gift-preview-name').innerText = targetData.nama + ' (Kamu)';
+                previewDiv.style.borderColor = '#ef4444'; 
+            } else {
+                document.getElementById('gift-preview-name').innerText = targetData.nama;
+                previewDiv.style.borderColor = '#3b82f6';
+            }
+        } else { previewDiv.style.display = 'none'; }
+    });
+};
+
+window.giftItem = function(type, id, harga) {
     let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
     if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
     
-    const item = window.BORDER_CATALOG[borderId];
-    if(!item) return;
+    let myKoin = window.currentUserData.koin || 0;
+    if(myKoin < harga) return window.showToast('Koin tidak cukup untuk gift ini!', 'error');
 
-    db.ref('users/' + currentUser.uid).once('value').then(userSnap => {
-        let myKoin = userSnap.val().koin || 0;
-        if(myKoin < item.harga) return window.showToast('Koin tidak cukup untuk mengirim gift ini!', 'error');
+    db.ref('users').once('value').then(snap => {
+        let targetFullUid = null; snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) { targetFullUid = child.key; } });
+        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+        if(targetFullUid === currentUser.uid) return window.showToast('Gunakan tab Shop untuk beli sendiri!', 'error');
+        
+        let targetData = snap.val()[targetFullUid];
+        if(targetData[`owned_${type}`] && targetData[`owned_${type}`][id]) {
+            return window.showToast('Teman kamu sudah memiliki item ini!', 'error');
+        }
 
-        db.ref('users').once('value').then(allUsersSnap => {
-            let targetFullUid = null; 
-            allUsersSnap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
-            
-            if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
-            if(targetFullUid === currentUser.uid) return window.showToast('Gunakan tab Shop untuk membeli sendiri!', 'error');
-            
-            let targetData = allUsersSnap.val()[targetFullUid];
-            if(targetData.ownedBorders && targetData.ownedBorders[borderId]) {
-                return window.showToast('Teman kamu sudah memiliki border ini!', 'error');
-            }
-
-            db.ref('users/' + currentUser.uid).update({ koin: myKoin - item.harga });
-            db.ref('users/' + targetFullUid + '/ownedBorders/' + borderId).set(true);
-            
-            window.showToast(`Berhasil mengirim gift ${item.nama} ke #${targetUidShort}`, 'success');
-        });
+        let updateMyData = { koin: myKoin - harga };
+        db.ref('users/' + currentUser.uid).update(updateMyData);
+        
+        let updateTargetData = {}; updateTargetData[`owned_${type}/${id}`] = true;
+        db.ref('users/' + targetFullUid).update(updateTargetData);
+        
+        window.showToast('Berhasil mengirim gift!', 'success');
     });
 };
 
