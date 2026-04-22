@@ -1239,7 +1239,7 @@ window.openBorderShop = function() {
         document.getElementById('user-coin-balance').innerText = window.currentUserData.koin || 0;
         window.renderShopContent();
         
-        const topupPackages = [{koin: 100, harga: "Rp 5.000"}, {koin: 500, harga: "Rp 20.000"}, {koin: 1000, harga: "Rp 35.000"}, {koin: 5000, harga: "Rp 150.000"}];
+        const topupPackages = [{koin: 100, harga: "Rp 2.000"}, {koin: 500, harga: "Rp 10.000"}, {koin: 1000, harga: "Rp 20.000"}, {koin: 5000, harga: "Rp 100.000"}];
         let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
         topupPackages.forEach(p => { topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;"><div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div><button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button></div>`; });
         document.getElementById('view-topup').innerHTML = topupHtml;
