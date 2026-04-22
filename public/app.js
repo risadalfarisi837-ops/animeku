@@ -58,7 +58,8 @@ function injectPremiumStyles() {
         .avatar-rank-diamond { border: none !important; box-shadow: none !important; }
         .avatar-rank-master { border: none !important; box-shadow: none !important; }
         .avatar-rank-mythic { border: none !important; box-shadow: none !important; }
-        .avatar-deco-overlay { position: absolute; top: 50%; left: 50%; width: 125%; height: 125%; transform: translate(-50%, -48%); pointer-events: none; z-index: 10; background-size: contain; background-position: center; background-repeat: no-repeat; }
+        /* CSS PERFECT FIT 120% */
+        .avatar-deco-overlay { position: absolute; top: 50%; left: 50%; width: 120%; height: 120%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; background-size: contain; background-position: center; background-repeat: no-repeat; }
     `;
     document.head.appendChild(style);
 }
@@ -128,7 +129,7 @@ function updateDevUI() {
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); let randProgress = Math.floor(Math.random() * 80 + 20);
-                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
+                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
                 let userCommentsHtml = '<div style="height:30px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:20px; height:20px;"></div></div>'; let totalKomentar = 0;
@@ -142,7 +143,7 @@ function updateDevUI() {
                             let d = new Date(c.waktu || Date.now()); let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
                             let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; let aImage = c.animeImage || 'https://placehold.co/100'; let aEp = c.animeEp || 'Episode ?';
                             let actionUrl = c.url ? `loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
-                            return `<div style="margin-bottom: 25px; padding: 0 5px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Reply</div></div>`;
+                            return `<div style="margin-bottom: 25px; padding: 0 5px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover; display:block;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Reply</div></div>`;
                         }).join('');
                         document.getElementById('ptab-comments').innerHTML = commentsHtml;
                     }
@@ -154,16 +155,15 @@ function updateDevUI() {
                 
                 let userKoin = data.koin || 0; 
 
-                // Container diset relative, tombol koin di set absolute ke pojok kanan atas
                 container.innerHTML = `
                     <div style="position: relative; width: 100%;">
                         <div onclick="openBorderShop()" style="position: absolute; top: 0px; right: 10px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 10;" title="Pencet untuk buka Border Shop">
                             ${userKoin} Koin
                         </div>
                         
-                        <div class="profile-header" style="padding-top: 40px;">
-                            <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer;" title="Pencet untuk buka Border Shop">
-                                <img src="${userFoto}" class="profile-avatar ${avatarClass}">
+                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center;">
+                            <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px;" title="Pencet untuk buka Border Shop">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                                 ${decoHtml}
                             </div>
                             <div class="profile-name">${userName}</div>
@@ -264,7 +264,7 @@ window.openUserProfile = function(uid) {
             
             let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
             
-            return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
+            return `<div style="margin-bottom: 25px; padding: 0 20px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover; display:block;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
         }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
 
         let userExp = data.exp || 0;
@@ -274,9 +274,9 @@ window.openUserProfile = function(uid) {
         let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan bersifat privat.</p>';
 
         content.innerHTML = `
-            <div class="profile-header" style="margin-top:-10px;">
-                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block;">
-                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%;">
+            <div class="profile-header" style="margin-top:-10px; display:flex; flex-direction:column; align-items:center;">
+                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block; margin-bottom:10px; border-radius:50%;">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     ${decoHtml}
                 </div>
                 <div class="profile-name" style="font-size:20px;">${userName}</div>
@@ -391,8 +391,7 @@ function getEpBadge(anime) {
 function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
 function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
 
-// ==== LOGIKA EXP & KOIN ====
-// Perubahan: EXP tidak lagi memberikan Koin
+// ==== LOGIKA EXP SAJA (TIDAK ADA KOIN) ====
 function addXP(amount) {
     if(!currentUser) return; 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
@@ -405,7 +404,6 @@ function addXP(amount) {
         showXPModal(amount, nLvl, progressPercent, isLevelUp);
     });
 }
-
 function showXPModal(addedAmount, level, progress, isLevelUp) {
     const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
     amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
@@ -673,7 +671,7 @@ function renderCommentInput(epID) {
     else { 
         const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
         
-        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div id="comment-input-avatar" style="position: relative; width: 36px; height: 36px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div id="comment-input-avatar" style="position: relative; width: 36px; height: 36px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"></div><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
         
         db.ref('users/' + currentUser.uid).once('value').then(snap => {
             let d = snap.val();
@@ -681,7 +679,7 @@ function renderCommentInput(epID) {
                 let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
                 let avatarContainer = document.getElementById('comment-input-avatar');
                 if(avatarContainer) {
-                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
                 }
             }
         });
@@ -759,7 +757,7 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     
     let replyBtnHtml = ''; 
     if(!isReply && epID && parentID) { 
-        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; margin-top: 6px; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
     }
     
     let containerAction = '';
@@ -775,7 +773,7 @@ function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
     }
     
     let avatarSize = isReply ? '28px' : '36px';
-    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">${decoHtml}</div>`;
+    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;">${decoHtml}</div>`;
     
     return `<div class="comment-item" ${containerAction} style="display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'}; cursor: ${containerCursor}; transition: 0.2s;">${avatarHtml}<div style="flex: 1; min-width: 0;"><div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;"><span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')">${c.nama}</span><span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>${hintHapus}</div><div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;"><span class="c-badge ${lvlClass}" onclick="event.stopPropagation(); openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span><span class="c-badge ${roleBadgeClass}">${roleName}</span><span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span></div><div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px;">${c.teks}</div><div style="margin-top: 4px;">${replyBtnHtml}</div></div></div>`;
 }
@@ -808,7 +806,7 @@ window.openReplyModal = function(epID, parentID) {
     } 
     else { 
         const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
-        inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><div id="reply-input-avatar" style="position: relative; width: 32px; height: 32px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><div id="reply-input-avatar" style="position: relative; width: 32px; height: 32px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"></div><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
         
         db.ref('users/' + currentUser.uid).once('value').then(snap => {
             let d = snap.val();
@@ -816,7 +814,7 @@ window.openReplyModal = function(epID, parentID) {
                 let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
                 let avatarContainer = document.getElementById('reply-input-avatar');
                 if(avatarContainer) {
-                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
                 }
             }
         });
@@ -1075,170 +1073,6 @@ function switchTab(tabName) {
     if (tabName === 'favorite') loadFavorites();
     if (tabName === 'jadwal') initJadwal();
 }
-
-// ==========================================
-// FITUR BORDER SHOP, GIFT & TOP UP KOIN
-// ==========================================
-window.beliKoinWa = function(koin, harga) {
-    if(!currentUser) return;
-    let text = `Halo Admin, saya mau Top Up Koin Animeku.%0A%0AUID Saya: ${currentUser.uid}%0ANama: ${currentUser.displayName}%0APaket: ${koin} Koin seharga ${harga}`;
-    window.open('https://wa.me/6281315059849?text=' + text);
-};
-
-window.openBorderShop = function() {
-    if(!currentUser) return window.showToast('Login dulu untuk buka fitur Koin & Border!', 'error');
-    
-    if(!document.getElementById('borderShopModal')) {
-        const div = document.createElement('div');
-        div.innerHTML = `
-            <div id="borderShopOverlay" class="modal-overlay" onclick="closeBorderShop()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
-            <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #1a1a1a;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
-                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
-                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
-                        <span id="user-coin-balance">0</span> Koin
-                    </div>
-                </div>
-                
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Shop</button>
-                    <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Gift</button>
-                    <button id="tab-topup" onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:12px; font-weight:800; cursor:pointer;">Top Up</button>
-                </div>
-
-                <div id="view-shop" style="max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
-                
-                <div id="view-gift" style="display:none;">
-                    <p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih border dan masukkan UID teman untuk mengirim gift menggunakan koin.</p>
-                    <input type="text" id="gift-uid-input" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box;">
-                    <div id="gift-inventory-list" style="max-height: 250px; overflow-y: auto;" class="hide-scrollbar"></div>
-                </div>
-
-                <div id="view-topup" style="display:none; max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
-
-                <button onclick="closeBorderShop()" style="width:100%; background:#1c1c1e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; margin-top:15px; cursor:pointer;">Tutup</button>
-            </div>
-        `;
-        document.body.appendChild(div);
-    }
-
-    const overlay = document.getElementById('borderShopOverlay'); const modal = document.getElementById('borderShopModal');
-    overlay.style.display = 'block'; modal.style.display = 'block';
-    setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
-    
-    db.ref('users/' + currentUser.uid).on('value', snap => {
-        let d = snap.val(); if(!d) return;
-        let koin = d.koin || 0; let owned = d.ownedBorders || {}; let active = d.activeBorder || '';
-        document.getElementById('user-coin-balance').innerText = koin;
-        
-        let shopHtml = '';
-        for(let key in window.BORDER_CATALOG) {
-            let item = window.BORDER_CATALOG[key]; let isOwned = owned[key]; let isActive = active === key;
-            let btnStr = isActive ? `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>` 
-                       : isOwned ? `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>` 
-                       : `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
-            shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};"><div style="width:50px; height:50px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div style="position:absolute; top:50%; left:50%; width:125%; height:125%; transform:translate(-50%, -48%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div><div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div><div>${btnStr}</div></div>`;
-        }
-        document.getElementById('view-shop').innerHTML = shopHtml;
-
-        let giftHtml = '';
-        for(let key in window.BORDER_CATALOG) {
-            let item = window.BORDER_CATALOG[key];
-            giftHtml += `
-                <div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #1a1a1a;">
-                    <div style="width:40px; height:40px; position:relative; flex-shrink:0;">
-                        <div style="width:100%; height:100%; border-radius:50%; background:#222; background-image:url('${item.url}'); background-size:contain; background-repeat:no-repeat; background-position:center;"></div>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="color:#fff; font-weight:800; font-size:13px;">${item.nama}</div>
-                        <div style="color:#facc15; font-size:11px; font-weight:700;">${item.harga} Koin</div>
-                    </div>
-                    <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
-                </div>`;
-        }
-        document.getElementById('gift-inventory-list').innerHTML = giftHtml;
-
-        const topupPackages = [
-            { koin: 100, harga: "Rp 5.000" },
-            { koin: 500, harga: "Rp 20.000" },
-            { koin: 1000, harga: "Rp 35.000" },
-            { koin: 5000, harga: "Rp 150.000" },
-            { koin: 10000, harga: "Rp 250.000" }
-        ];
-        let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
-        topupPackages.forEach(p => {
-            topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
-                <div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div>
-                <button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button>
-            </div>`;
-        });
-        document.getElementById('view-topup').innerHTML = topupHtml;
-    });
-};
-
-window.closeBorderShop = function() {
-    const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay');
-    if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); }
-    db.ref('users/' + currentUser.uid).off();
-};
-
-window.switchBorderTab = function(tab) {
-    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
-    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
-    document.getElementById('view-topup').style.display = tab === 'topup' ? 'block' : 'none';
-    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
-    document.getElementById('tab-topup').style.background = tab === 'topup' ? '#3b82f6' : '#1c1c1e';
-};
-
-window.buyBorder = function(borderId, harga) {
-    db.ref('users/' + currentUser.uid).once('value').then(snap => {
-        let d = snap.val(); let koin = d.koin || 0;
-        if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
-        if(d.ownedBorders && d.ownedBorders[borderId]) return window.showToast('Sudah punya!', 'error');
-        
-        db.ref('users/' + currentUser.uid).update({ koin: koin - harga });
-        db.ref('users/' + currentUser.uid + '/ownedBorders/' + borderId).set(true);
-        window.showToast('Berhasil membeli border!', 'success');
-    });
-};
-
-window.equipBorder = function(borderId) {
-    db.ref('users/' + currentUser.uid).update({ activeBorder: borderId }).then(() => {
-        window.showToast(borderId ? 'Border dipakai!' : 'Border dilepas!', 'success');
-    });
-};
-
-window.giftBorder = function(borderId) {
-    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
-    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
-    
-    const item = window.BORDER_CATALOG[borderId];
-    if(!item) return;
-
-    db.ref('users/' + currentUser.uid).once('value').then(userSnap => {
-        let myKoin = userSnap.val().koin || 0;
-        if(myKoin < item.harga) return window.showToast('Koin tidak cukup untuk mengirim gift ini!', 'error');
-
-        db.ref('users').once('value').then(allUsersSnap => {
-            let targetFullUid = null; 
-            allUsersSnap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
-            
-            if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
-            if(targetFullUid === currentUser.uid) return window.showToast('Gunakan tab Shop untuk membeli sendiri!', 'error');
-            
-            let targetData = allUsersSnap.val()[targetFullUid];
-            if(targetData.ownedBorders && targetData.ownedBorders[borderId]) {
-                return window.showToast('Teman kamu sudah memiliki border ini!', 'error');
-            }
-
-            db.ref('users/' + currentUser.uid).update({ koin: myKoin - item.harga });
-            db.ref('users/' + targetFullUid + '/ownedBorders/' + borderId).set(true);
-            
-            window.showToast(`Berhasil mengirim gift ${item.nama} ke #${targetUidShort}`, 'success');
-        });
-    });
-};
 
 function initApp() { 
     updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal();
