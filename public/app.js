@@ -1121,8 +1121,17 @@ window.openBorderShop = function() {
                 <div id="view-shop" style="max-height: 400px; overflow-y: auto;" class="hide-scrollbar"></div>
                 
                 <div id="view-gift" style="display:none;">
-                    <p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih border dan masukkan UID teman untuk mengirim gift menggunakan koin.</p>
-                    <input type="text" id="gift-uid-input" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:15px; outline:none; box-sizing:border-box;">
+                    <p style="color:#888; font-size:12px; margin-bottom:10px;">Masukkan UID teman untuk melihat profilnya, lalu kirim gift menggunakan koin.</p>
+                    <input type="text" id="gift-uid-input" oninput="previewGiftUser(this.value)" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:10px; outline:none; box-sizing:border-box;">
+                    
+                    <div id="gift-user-preview" style="display:none; align-items:center; gap:12px; background:#1c1c1e; padding:10px; border-radius:12px; margin-bottom:15px; border:1px solid #3b82f6;">
+                        <img id="gift-preview-img" src="" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                        <div style="flex:1;">
+                            <div id="gift-preview-name" style="color:#fff; font-size:13px; font-weight:800;">Target</div>
+                            <div id="gift-preview-uid" style="color:#3b82f6; font-size:11px; font-weight:700;">#UID</div>
+                        </div>
+                    </div>
+
                     <div id="gift-inventory-list" style="max-height: 250px; overflow-y: auto;" class="hide-scrollbar"></div>
                 </div>
 
@@ -1149,8 +1158,6 @@ window.openBorderShop = function() {
             let btnStr = isActive ? `<button onclick="equipBorder('')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Lepas</button>` 
                        : isOwned ? `<button onclick="equipBorder('${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">Pakai</button>` 
                        : `<button onclick="buyBorder('${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
-            
-            // Penyesuaian ukuran border di shop jadi 120% dan -50% biar presisi
             shopHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#10b981' : '#1a1a1a'};"><div style="width:50px; height:50px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div><div style="flex:1;"><div style="color:#fff; font-weight:800; font-size:14px;">${item.nama}</div><div style="color:#888; font-size:11px;">${isOwned ? 'Sudah dimiliki' : 'Belum dibeli'}</div></div><div>${btnStr}</div></div>`;
         }
         document.getElementById('view-shop').innerHTML = shopHtml;
@@ -1254,5 +1261,45 @@ window.giftBorder = function(borderId) {
     });
 };
 
+window.previewGiftUser = function(val) {
+    let uidShort = val.replace('#', '').trim().toUpperCase();
+    let previewDiv = document.getElementById('gift-user-preview');
+    
+    // Kalau hurufnya belum 6 (belum valid), sembunyikan kotak preview
+    if (!uidShort || uidShort.length !== 6) {
+        previewDiv.style.display = 'none';
+        return;
+    }
+
+    // Cari ke database Firebase
+    db.ref('users').once('value').then(snap => {
+        let targetData = null;
+        let fullUid = null;
+        
+        snap.forEach(child => { 
+            if(child.key.substring(0,6).toUpperCase() === uidShort) { 
+                targetData = child.val(); 
+                fullUid = child.key;
+            } 
+        });
+
+        if (targetData) {
+            document.getElementById('gift-preview-img').src = targetData.foto || 'https://placehold.co/100';
+            document.getElementById('gift-preview-uid').innerText = '#' + uidShort;
+            previewDiv.style.display = 'flex'; // Munculkan box
+            
+            // Cek kalau ternyata nyoba kirim ke diri sendiri
+            if (currentUser && fullUid === currentUser.uid) {
+                document.getElementById('gift-preview-name').innerText = targetData.nama + ' (Kamu)';
+                previewDiv.style.borderColor = '#ef4444'; // Merah (error)
+            } else {
+                document.getElementById('gift-preview-name').innerText = targetData.nama || 'Wibu Tidak Diketahui';
+                previewDiv.style.borderColor = '#3b82f6'; // Biru (sukses)
+            }
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    });
+};
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
