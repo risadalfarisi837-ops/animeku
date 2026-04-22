@@ -1173,19 +1173,19 @@ window.COSMETIC_CATALOG = {
         'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
         'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
     },
-                commentplates: {
+                    commentplates: {
         'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
         'toxic_green': { nama: 'Toxic Slime', harga: 1200, style: 'background: linear-gradient(90deg, rgba(6,78,59,0.3), transparent); border-left: 3px solid #10b981;' },
         'frame_kristal': { 
             nama: 'Crystal Frame', 
             harga: 2000, 
-            /* background 100% 100% biar frame gak kepotong, min-height 100px biar gak gepeng, padding kanan 60px biar aman dari hiasan */
-            style: 'background: url(https://i.ibb.co/N2kgJJjt/527171.png) center / 100% 100% no-repeat !important; padding: 20px 60px 20px 20px !important; min-height: 100px !important; border: none !important;' 
+            /* min-height dibikin 130px biar gambar bisa nafas (gak gepeng), padding diatur seimbang */
+            style: 'background: url(https://i.ibb.co/hR8M33mf/527170.png) center / 100% 100% no-repeat !important; padding: 35px 70px 35px 25px !important; min-height: 130px !important; border: none !important;' 
         },
         'frame_dark': { 
             nama: 'Dark Magic', 
             harga: 2000, 
-            style: 'background: url(https://i.ibb.co/mrTLgt8z/527170.png) center / 100% 100% no-repeat !important; padding: 20px 60px 20px 20px !important; min-height: 100px !important; border: none !important;' 
+            style: 'background: url(https://i.ibb.co/k2Ghyfy7/527171.png) center / 100% 100% no-repeat !important; padding: 35px 70px 35px 25px !important; min-height: 130px !important; border: none !important;' 
         }
     }
 };
