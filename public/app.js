@@ -1176,15 +1176,17 @@ window.COSMETIC_CATALOG = {
         commentplates: {
         'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
         'toxic_green': { nama: 'Toxic Slime', harga: 1200, style: 'background: linear-gradient(90deg, rgba(6,78,59,0.3), transparent); border-left: 3px solid #10b981;' },
-        'frame_kristal': { 
+                'frame_kristal': { 
             nama: 'Crystal Frame', 
             harga: 2000, 
-            style: 'background: url(https://i.ibb.co/N2kgJJjt/527171.png) center/100% 100% no-repeat !important; padding: 25px !important; border: none !important;' 
+            // padding: atas kanan bawah kiri (Kanan dibikin 50px biar teks gak nabrak kristal)
+            style: 'background: url(https://i.ibb.co/N2kgJJjt/527171.png) center/100% 100% no-repeat !important; padding: 15px 50px 15px 20px !important; min-height: 90px !important; border: none !important;' 
         },
         'frame_dark': { 
             nama: 'Dark Magic', 
             harga: 2000, 
-            style: 'background: url(https://i.ibb.co/mrTLgt8z/527170.png) center/100% 100% no-repeat !important; padding: 25px !important; border: none !important;' 
+            // padding atas & bawah dibikin 35px biar teks pas di tengah-tengah frame
+            style: 'background: url(https://i.ibb.co/mrTLgt8z/527170.png) center/100% 100% no-repeat !important; padding: 35px 25px 35px 25px !important; min-height: 120px !important; border: none !important;' 
         }
     }
 };
