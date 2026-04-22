@@ -46,6 +46,12 @@ function injectPremiumStyles() {
     if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
     const style = document.createElement('style'); style.id = 'premium-rank-styles';
     style.innerHTML = `
+        /* TAMBAHAN ANTI KOTAK BAYANGAN SAAT DIPENCET DI HP */
+        * {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+        }
+        
         @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
         .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
         .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
