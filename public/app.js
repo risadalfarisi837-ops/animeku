@@ -156,14 +156,14 @@ function updateDevUI() {
                 let userKoin = data.koin || 0; 
 
                 container.innerHTML = `
-                    <div style="position: relative; width: 100%;">
-                        <div onclick="openBorderShop()" style="position: absolute; top: 0px; right: 10px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 10;" title="Pencet untuk buka Border Shop">
+                    <div style="position: relative; width: 100%; z-index: 1;">
+                        <div onclick="openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999;" title="Pencet untuk buka Border Shop">
                             ${userKoin} Koin
                         </div>
                         
-                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center;">
-                            <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px;" title="Pencet untuk buka Border Shop">
-                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
+                            <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100;" title="Pencet untuk buka Border Shop">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2;">
                                 ${decoHtml}
                             </div>
                             <div class="profile-name">${userName}</div>
@@ -174,14 +174,14 @@ function updateDevUI() {
                             </div>
                         </div>
 
-                        <div class="profile-stats">
+                        <div class="profile-stats" style="position: relative; z-index: 10;">
                             <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
                             <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
                             <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
                         </div>
-                        <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
-                        <div id="ptab-all" class="ptab-content">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
-                        <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                        <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
+                        <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
+                        <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
                     </div>
                 `;
             } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
