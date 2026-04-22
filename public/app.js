@@ -371,44 +371,18 @@ window.renderDetailEpisodeUI = function() {
     document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
     document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
 
-    let rawEps = [...(window.currentAnimeEpisodes || [])];
-    
-    // --- FITUR AUTO-SORT & HAPUS DUPLIKAT ---
-    let uniqueEps = []; let seenUrls = new Set();
-    rawEps.forEach(ep => { if(!seenUrls.has(ep.url)) { seenUrls.add(ep.url); uniqueEps.push(ep); } });
-    
-    uniqueEps.sort((a, b) => {
-        let getNum = (str) => { let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); return m ? parseFloat(m[1]) : (str.match(/\d+/g) ? parseFloat(str.match(/\d+/g).pop()) : 0); };
-        return getNum(a.title) - getNum(b.title);
-    });
-
-    let eps = uniqueEps;
-    if (window.epSortOrder === 'desc') eps.reverse();
-    // -----------------------------------------
-
+    let eps = [...(window.currentAnimeEpisodes || [])]; if (window.epSortOrder === 'desc') eps.reverse();
     let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
     let renderHtml = '';
 
     if (window.epLayoutMode === 'grid') {
         renderHtml = eps.map((ep, index) => {
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (window.epSortOrder === 'desc' ? eps.length - index : index + 1);
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
             let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
             if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
             return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
         }).join('');
         containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.innerHTML = renderHtml; 
-    } else {
-        renderHtml = eps.map((ep, index) => {
-            let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (window.epSortOrder === 'desc' ? eps.length - index : index + 1);
-            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
-            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
-            if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
-            if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
-            return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
-        }).join('');
-        containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.innerHTML = renderHtml; 
-    }
-};
     } else {
         renderHtml = eps.map((ep, index) => {
             let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
@@ -485,21 +459,7 @@ const HOME_SECTIONS = [
 let sliderInterval;
 const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
 const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
-window.loaderTimeout = null;
-function loader(state) { 
-    const el = document.getElementById('loading'); 
-    if(el) { 
-        if (state) {
-            el.classList.remove('hidden'); 
-            clearTimeout(window.loaderTimeout);
-            // FAILSAFE: Loading bakal hilang paksa setelah 10 detik kalau internet putus!
-            window.loaderTimeout = setTimeout(() => { el.classList.add('hidden'); }, 10000);
-        } else {
-            el.classList.add('hidden'); 
-            clearTimeout(window.loaderTimeout);
-        }
-    } 
-};
+function loader(state) { const el = document.getElementById('loading'); if(el) { state ? el.classList.remove('hidden') : el.classList.add('hidden'); } };
 
 function generateCardHtml(anime) { let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`; }
 function generateRecentCardHtml(anime) { let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'"; return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`; }
@@ -1213,7 +1173,7 @@ window.COSMETIC_CATALOG = {
         'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
         'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
     },
-    commentplates: {
+        commentplates: {
         'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
         'toxic_green': { nama: 'Toxic Slime', harga: 1200, style: 'background: linear-gradient(90deg, rgba(6,78,59,0.3), transparent); border-left: 3px solid #10b981;' }
     }
@@ -1279,7 +1239,7 @@ window.openBorderShop = function() {
         document.getElementById('user-coin-balance').innerText = window.currentUserData.koin || 0;
         window.renderShopContent();
         
-        const topupPackages = [{koin: 100, harga: "Rp 5.000"}, {koin: 500, harga: "Rp 20.000"}, {koin: 1000, harga: "Rp 35.000"}, {koin: 5000, harga: "Rp 150.000"}];
+        const topupPackages = [{koin: 100, harga: "Rp 2.000"}, {koin: 500, harga: "Rp 10.000"}, {koin: 1000, harga: "Rp 20.000"}, {koin: 5000, harga: "Rp 100.000"}];
         let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
         topupPackages.forEach(p => { topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;"><div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div><button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button></div>`; });
         document.getElementById('view-topup').innerHTML = topupHtml;
