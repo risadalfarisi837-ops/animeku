@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
 
 // ==========================================
-// KATALOG BORDER (Taruh di atas biar kebaca di Komentar)
+// KATALOG BORDER (Taruh di atas biar kebaca semua fungsi)
 // ==========================================
 window.BORDER_CATALOG = {
     'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
@@ -170,32 +170,35 @@ function updateDevUI() {
                 
                 let userKoin = data.koin || 0; 
 
+                // Perubahan: Container diset relative, tombol koin di set absolute ke pojok kanan atas
                 container.innerHTML = `
-                    <div class="profile-header" style="padding-top: 40px;">
-                        <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer;" title="Pencet untuk buka Border Shop">
-                            <img src="${userFoto}" class="profile-avatar ${avatarClass}">
-                            ${decoHtml}
+                    <div style="position: relative; width: 100%;">
+                        <div onclick="openBorderShop()" style="position: absolute; top: 0px; right: 10px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 10;" title="Pencet untuk buka Border Shop">
+                            ${userKoin} Koin
                         </div>
-                        <div class="profile-name">${userName}</div>
-                        <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
-                            <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
-                            <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
-                            <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                        
+                        <div class="profile-header" style="padding-top: 40px;">
+                            <div class="profile-avatar-container" onclick="openBorderShop()" style="cursor:pointer;" title="Pencet untuk buka Border Shop">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}">
+                                ${decoHtml}
+                            </div>
+                            <div class="profile-name">${userName}</div>
+                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
+                                <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                                <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div onclick="openBorderShop()" style="text-align:center; color:#facc15; font-size:16px; font-weight:900; margin-bottom:20px; display:flex; justify-content:center; align-items:center; gap:6px; cursor:pointer;" title="Pencet untuk buka Border Shop">
-                        💰 ${userKoin} Koin
-                    </div>
 
-                    <div class="profile-stats">
-                        <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
-                        <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
-                        <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                        <div class="profile-stats">
+                            <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                            <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                            <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                        </div>
+                        <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
+                        <div id="ptab-all" class="ptab-content">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
+                        <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                     </div>
-                    <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
-                    <div id="ptab-all" class="ptab-content">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
-                    <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
                 `;
             } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
         });
@@ -644,7 +647,7 @@ async function loadVideo(url) {
                 ]
             });
         }
-        
+
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
         window.renderDetailEpisodeUI();
 
@@ -686,7 +689,21 @@ function renderCommentInput(epID) {
     } 
     else { 
         const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
-        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><img src="${userFoto}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        
+        // Setup kerangka HTML dengan id untuk di-inject border
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div id="comment-input-avatar" style="position: relative; width: 36px; height: 36px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        
+        // Inject border jika punya activeBorder
+        db.ref('users/' + currentUser.uid).once('value').then(snap => {
+            let d = snap.val();
+            if(d && d.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[d.activeBorder]) {
+                let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
+                let avatarContainer = document.getElementById('comment-input-avatar');
+                if(avatarContainer) {
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                }
+            }
+        });
     }
 }
 
@@ -697,7 +714,6 @@ window.postComment = function(epID) {
     
     db.ref('users/' + currentUser.uid).once('value').then(snap => { 
         const u = snap.val(); 
-        
         const role = u.role || 'Member';
         const level = u.level || 1;
         const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
@@ -769,11 +785,31 @@ window.openReplyModal = function(epID, parentID) {
     document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
     db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { if(snap.exists()) document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(snap.val(), false); });
     db.ref(`replies/${parentID}`).on('value', snap => { const list = document.getElementById('reply-list-container'); if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } let repliesArr = []; snap.forEach(child => repliesArr.push(child.val())); repliesArr.sort((a, b) => a.waktu - b.waktu); list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true)).join(''); });
+    
     const inputArea = document.getElementById('reply-input-area'); 
-    if(!currentUser) { inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; } 
-    else { const userFoto = currentUser.photoURL || 'https://placehold.co/40'; inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><img src="${userFoto}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; }
+    if(!currentUser) { 
+        inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; 
+    } 
+    else { 
+        const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
+        
+        inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><div id="reply-input-avatar" style="position: relative; width: 32px; height: 32px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        
+        db.ref('users/' + currentUser.uid).once('value').then(snap => {
+            let d = snap.val();
+            if(d && d.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[d.activeBorder]) {
+                let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
+                let avatarContainer = document.getElementById('reply-input-avatar');
+                if(avatarContainer) {
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                }
+            }
+        });
+    }
 };
+
 window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+
 window.postReply = function(parentID) { 
     const input = document.getElementById('reply-input-text'); 
     const text = input.value; 
@@ -812,6 +848,7 @@ window.postReply = function(parentID) {
         }
     }); 
 };
+
 
 window.allowExitApp = false; window.historyTrapSet = false;
 function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
@@ -992,7 +1029,7 @@ window.openBorderShop = function() {
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
                     <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Border Shop</h3>
                     <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:5px;">
-                        💰 <span id="user-coin-balance">0</span> Koin
+                        <span id="user-coin-balance">0</span> Koin
                     </div>
                 </div>
                 
@@ -1027,7 +1064,7 @@ window.openBorderShop = function() {
         let koin = d.koin || 0; let owned = d.ownedBorders || {}; let active = d.activeBorder || '';
         document.getElementById('user-coin-balance').innerText = koin;
         
-        // 1. Render Shop
+        // 1. Render Shop (Tanpa Emoji)
         let shopHtml = '';
         for(let key in window.BORDER_CATALOG) {
             let item = window.BORDER_CATALOG[key]; let isOwned = owned[key]; let isActive = active === key;
@@ -1038,7 +1075,7 @@ window.openBorderShop = function() {
         }
         document.getElementById('view-shop').innerHTML = shopHtml;
 
-        // 2. Render Gift
+        // 2. Render Gift (Tanpa Emoji)
         let giftHtml = '';
         for(let key in window.BORDER_CATALOG) {
             let item = window.BORDER_CATALOG[key];
@@ -1049,14 +1086,14 @@ window.openBorderShop = function() {
                     </div>
                     <div style="flex:1;">
                         <div style="color:#fff; font-weight:800; font-size:13px;">${item.nama}</div>
-                        <div style="color:#facc15; font-size:11px; font-weight:700;">💰 ${item.harga} Koin</div>
+                        <div style="color:#facc15; font-size:11px; font-weight:700;">${item.harga} Koin</div>
                     </div>
                     <button onclick="giftBorder('${key}')" style="background:#f59e0b; color:#000; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button>
                 </div>`;
         }
         document.getElementById('gift-inventory-list').innerHTML = giftHtml;
 
-        // 3. Render Top Up Menu
+        // 3. Render Top Up Menu (Tanpa Emoji)
         const topupPackages = [
             { koin: 100, harga: "Rp 5.000" },
             { koin: 500, harga: "Rp 20.000" },
@@ -1067,7 +1104,7 @@ window.openBorderShop = function() {
         let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
         topupPackages.forEach(p => {
             topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;">
-                <div style="color:#facc15; font-weight:900; font-size:15px;">💰 ${p.koin} Koin</div>
+                <div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div>
                 <button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button>
             </div>`;
         });
@@ -1117,14 +1154,11 @@ window.giftBorder = function(borderId) {
 
     db.ref('users/' + currentUser.uid).once('value').then(userSnap => {
         let myKoin = userSnap.val().koin || 0;
-        
         if(myKoin < item.harga) return window.showToast('Koin tidak cukup untuk mengirim gift ini!', 'error');
 
         db.ref('users').once('value').then(allUsersSnap => {
             let targetFullUid = null; 
-            allUsersSnap.forEach(child => { 
-                if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; 
-            });
+            allUsersSnap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
             
             if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
             if(targetFullUid === currentUser.uid) return window.showToast('Gunakan tab Shop untuk membeli sendiri!', 'error');
