@@ -155,7 +155,7 @@ function updateDevUI() {
                 
                 let userKoin = data.koin || 0; 
 
-                // Z-INDEX DIPERBAIKI: Koin dan Foto Profil aman buat dipencet
+                // Container diset relative, z-index tinggi biar bisa dipencet
                 container.innerHTML = `
                     <div style="position: relative; width: 100%; z-index: 1;">
                         <div onclick="openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; z-index: 9999;" title="Pencet untuk buka Border Shop">
