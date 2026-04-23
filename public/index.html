@@ -244,6 +244,36 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
+                /* === BIKIN TAMPILAN FULL WIDTH (EDGE-TO-EDGE) === */
+        
+        /* 1. Lebarin Jadwal, Riwayat Profil, & Kotak Komentar */
+        .sched-card, 
+        .profile-list-item, 
+        .profile-comment-box {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* 2. Lebarin Kotak Komentar Profil (Override JS) */
+        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* 3. Lebarin List Episode di menu Detail (Tembus Padding) */
+        div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
+            margin-left: -12px !important;
+            margin-right: -12px !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
     </style>
 </head>
 <body>
