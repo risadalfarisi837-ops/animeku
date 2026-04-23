@@ -244,53 +244,33 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === TAMPILAN BEBAS TANPA PENAHAN KOTAK (FULL EDGE-TO-EDGE) === */
+        /* === KEMBALIKAN BUBBLE & HANCURKAN TEMBOK SAMPING === */
         
-        /* 1. Jadwal, History Profil, & Komentar Item */
+        /* 1. Jadwal, Riwayat Profil & Komentar (Tarik mentok layar) */
         .sched-card, 
         .profile-list-item, 
         .profile-comment-box {
-            margin: 0 0 10px 0 !important; /* Hapus jarak kiri-kanan biar mentok */
-            border-radius: 0 !important; /* Hapus lengkungan kotak luar */
-            border: none !important; /* HAPUS GARIS PENAHAN */
-            border-bottom: 1px solid #1a1a1a !important; /* Cuma garis bawah halus sebagai pembatas */
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 16px !important; /* BUBBLE KEMBALI! */
+            background: #1c1c1e !important; /* WARNA KEMBALI! */
+            border: 1px solid #2c2c2e !important; /* GARIS KEMBALI! */
             width: 100% !important;
-            background: transparent !important; /* Menyatu langsung dengan background hitam utama */
-            padding-left: 20px !important;
-            padding-right: 20px !important;
             box-sizing: border-box !important;
         }
 
-        /* 2. Kotak Komentar di Profil (Override Inline JS) */
-        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin: 0 0 10px 0 !important;
-            border-radius: 0 !important;
-            border: none !important;
-            border-bottom: 1px solid #1a1a1a !important;
-            width: 100% !important;
-            background: transparent !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-            box-sizing: border-box !important;
-        }
-
-        /* 3. List Episode di Detail View */
-        #episode-list-detail-container > div {
-            border-radius: 0 !important;
-            border: none !important;
-            border-bottom: 1px solid #1a1a1a !important;
-            background: transparent !important; /* Hapus warna kotak */
-            margin-left: -12px !important; /* Tarik mentok layar */
-            margin-right: -12px !important; /* Tarik mentok layar */
-            padding-left: 20px !important;
-            padding-right: 20px !important;
+        /* 2. List Episode di Detail (Tarik paksa nembus tembok padding) */
+        div[style*="justify-content:space-between; align-items:center; padding:15px; border:1px solid"] {
+            margin-left: -12px !important; /* Hancurkan tembok kiri */
+            margin-right: -12px !important; /* Hancurkan tembok kanan */
+            border-radius: 16px !important; /* BUBBLE KEMBALI! */
         }
         
-        /* 4. Aksen List Episode yang sedang diputar (Tanpa ngurung) */
-        div[style*="background: rgba(59, 130, 246, 0.1)"] {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent) !important;
-            border-left: 4px solid #3b82f6 !important; /* Kasih tanda di kiri aja, ngga dikurung */
-            border-bottom: 1px solid #1a1a1a !important;
+        /* 3. Kotak Komentar di dalam Profil */
+        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 16px !important;
         }
     </style>
 </head>
