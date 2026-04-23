@@ -1640,11 +1640,13 @@ window.giftItem = function(cat, id, harga) {
         let updateTarget = {}; updateTarget[`${ownedKey}/${id}`] = true;
         db.ref('users/' + targetFullUid).update(updateTarget);
         
-        // BUAT NOTIFIKASI KADO KE FIREBASE TEMAN
+        // NOTIFIKASI KADO (Tambahin data cat dan id itemnya)
         let itemName = window.COSMETIC_CATALOG[cat][id].nama;
         db.ref('users/' + targetFullUid + '/newGift').set({
             from: window.currentUserData.nama || 'Seseorang',
             itemName: itemName,
+            cat: cat,        // <--- INI TAMBAHANNYA
+            itemId: id,      // <--- INI TAMBAHANNYA
             timestamp: Date.now()
         });
 
