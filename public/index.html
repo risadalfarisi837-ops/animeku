@@ -244,39 +244,33 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === JADIKAN 3 HALAMAN INI SAMA RATA DENGAN JADWAL === */
+        /* === KODE SAPU JAGAT: RATA KANAN-KIRI 100% PERSIS JADWAL === */
 
-        /* 1. Halaman Akun (History & Komentar) */
-        .profile-list-item,
-        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e; border: 1px solid #2c2c2e;"] {
-            margin: 0 15px 15px 15px !important;
-            width: calc(100vw - 30px) !important; /* Paksa selebar layar dikurangi margin 15px */
-            box-sizing: border-box !important;
-            max-width: none !important;
-        }
-
-        /* 2. Halaman Detail (List Episode) */
-        #episode-list-detail-container {
-            /* Tarik wadahnya biar ngepas 15px dari ujung layar */
-            margin-left: 3px !important; 
-            margin-right: 3px !important;
-        }
-        #episode-list-detail-container > div {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            width: 100% !important; /* Paksa kotaknya ngelebar penuh */
-            box-sizing: border-box !important;
-        }
-
-        /* 3. Halaman Nonton (Komentar) */
+        /* 1. HALAMAN DETAIL & NONTON: Luruskan SEMUA bagian (Sinopsis, Info, Tombol, Episode, Komentar) ke 15px */
+        #detail-view > div[style*="12px"],
+        #watch-view > div[style*="12px"],
         .comment-section {
-            /* Paskan penahan kiri-kanan jadi 15px rata dengan jadwal */
-            padding-left: 15px !important; 
+            padding-left: 15px !important;
             padding-right: 15px !important;
             box-sizing: border-box !important;
         }
+
+        /* 2. Pastikan isi kotak di dalamnya nge-pas penuh dengan wadah barunya */
+        #episode-list-detail-container > div,
         .comment-item {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
             width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 3. HALAMAN AKUN: Kembalikan murni ke setelan pabrik (Margin 15px rata tanpa nembus layar) */
+        .profile-list-item,
+        .profile-comment-box,
+        div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
+            margin: 0 15px 15px 15px !important;
+            width: auto !important;
+            max-width: none !important;
             box-sizing: border-box !important;
         }
     </style>
