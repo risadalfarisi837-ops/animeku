@@ -1509,7 +1509,76 @@ window.buyItem = function(cat, id, harga) {
 window.equipItem = function(cat, id) {
     let activeKey = cat === 'borders' ? 'activeBorder' : 'activeCommentplate';
     let updateData = {}; updateData[activeKey] = id;
-    db.ref('users/' + currentUser.uid).update(updateData).then(() => { window.showToast(id ? 'Berhasil dipakai!' : 'Berhasil dilepas!', 'success'); });
+    
+    db.ref('users/' + currentUser.uid).update(updateData).then(() => { 
+        window.showToast(id ? 'Berhasil dipakai!' : 'Berhasil dilepas!', 'success'); 
+        
+        // ==================================================
+        // UPDATE UI INSTAN (MENGUBAH SEMUA TAMPILAN TANPA REFRESH)
+        // ==================================================
+        
+        // 1. UPDATE AVATAR PROFIL & INPUT KOMENTAR
+        if (cat === 'borders') {
+            let decoUrl = id && window.COSMETIC_CATALOG.borders[id] ? window.COSMETIC_CATALOG.borders[id].url : '';
+            
+            const avatarContainers = [
+                document.querySelector('.profile-avatar-container'), // Profil Utama
+                document.getElementById('comment-input-avatar'),     // Input Komentar Baru
+                document.getElementById('reply-input-avatar')        // Input Reply Baru
+            ];
+
+            avatarContainers.forEach(container => {
+                if (container) {
+                    let existingOverlay = container.querySelector('.avatar-deco-overlay');
+                    if (existingOverlay) {
+                        if (decoUrl) existingOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                        else existingOverlay.remove();
+                    } else if (decoUrl) {
+                        let newOverlay = document.createElement('div');
+                        newOverlay.className = 'avatar-deco-overlay';
+                        newOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                        container.appendChild(newOverlay);
+                    }
+                }
+            });
+        }
+
+        // 2. UPDATE SEMUA KOMENTAR KAMU YANG SEDANG MUNCUL DI LAYAR
+        document.querySelectorAll('.comment-item').forEach(item => {
+            // Cari komentar yang milik User ini (berdasarkan UID di onClick)
+            let avatarDiv = item.querySelector(`div[onclick*="${currentUser.uid}"]`);
+            
+            if (avatarDiv) {
+                // A. Kalau Ganti Border
+                if (cat === 'borders') {
+                    let decoUrl = id && window.COSMETIC_CATALOG.borders[id] ? window.COSMETIC_CATALOG.borders[id].url : '';
+                    let existingOverlay = avatarDiv.querySelector('.avatar-deco-overlay');
+                    
+                    if (existingOverlay) {
+                        if (decoUrl) existingOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                        else existingOverlay.remove();
+                    } else if (decoUrl) {
+                        let newOverlay = document.createElement('div');
+                        newOverlay.className = 'avatar-deco-overlay';
+                        newOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                        avatarDiv.appendChild(newOverlay);
+                    }
+                } 
+                // B. Kalau Ganti Efek Komen (Background / Plate)
+                else if (cat === 'commentplates') {
+                    // Bersihkan efek lama
+                    item.style.background = 'transparent';
+                    item.style.borderLeft = 'none';
+                    
+                    // Tempel efek baru
+                    if (id && window.COSMETIC_CATALOG.commentplates[id]) {
+                        item.style.cssText += window.COSMETIC_CATALOG.commentplates[id].style;
+                    }
+                }
+            }
+        });
+        // ==================================================
+    });
 };
 
 window.previewGiftUser = function(val) {
