@@ -244,34 +244,19 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === TAMPILAN KOTAK RAPI SEPERTI JADWAL === */
+        /* === TAMPILAN WIDE BUBBLE (LEBAR SEPERTI JADWAL) === */
         
-        /* 1. Jadwal, History Profil, & Kotak Komentar */
+        /* 1. Menyamakan Jadwal, History Akun, & Komentar */
         .sched-card, 
         .profile-list-item, 
-        .profile-comment-box {
-            margin-left: 15px !important;
-            margin-right: 15px !important;
-            border-radius: 12px !important; /* Mengembalikan ujung membulat */
-            
-            /* Menyesuaikan lebar biar sama persis dengan jadwal */
-            width: calc(100% - 30px) !important; 
-            max-width: none !important;
-            position: relative !important;
-            left: auto !important;
-            transform: none !important;
-            
-            border-left: 1px solid #2c2c2e !important; /* Kembalikan garis pinggir */
-            border-right: 1px solid #2c2c2e !important;
-            box-sizing: border-box !important;
-        }
-
-        /* 2. Kotak Komentar di Profil */
+        .profile-comment-box,
         div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin-left: 15px !important;
-            margin-right: 15px !important;
-            border-radius: 12px !important;
-            width: calc(100% - 30px) !important;
+            margin-left: 8px !important;
+            margin-right: 8px !important;
+            border-radius: 16px !important; /* Ujung melengkung rapi */
+            
+            /* Lebar dimaksimalkan biar persis kaya menu Jadwal */
+            width: calc(100% - 16px) !important; 
             max-width: none !important;
             position: relative !important;
             left: auto !important;
@@ -282,11 +267,11 @@
             box-sizing: border-box !important;
         }
 
-        /* 3. List Episode di Detail View */
+        /* 2. List Episode di Detail View */
         #episode-list-detail-container {
-            margin-left: 0 !important; 
-            margin-right: 0 !important;
-            width: 100% !important;
+            margin-left: -4px !important; 
+            margin-right: -4px !important;
+            width: calc(100% + 8px) !important;
             max-width: none !important;
             position: relative !important;
             left: auto !important;
@@ -294,7 +279,7 @@
         }
         
         div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
-            border-radius: 12px !important;
+            border-radius: 16px !important;
             border-left: 1px solid #2c2c2e !important;
             border-right: 1px solid #2c2c2e !important;
         }
