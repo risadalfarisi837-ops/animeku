@@ -1465,16 +1465,22 @@ window.renderShopContent = function() {
     let html = ''; let giftHtml = '';
     for(let key in catalog) {
         let item = catalog[key]; let isOwned = owned[key]; let isActive = active === key;
+        
+        // Tombol untuk Shop
         let btn = isActive ? `<button onclick="equipItem('${cat}', '')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Lepas</button>` 
                   : isOwned ? `<button onclick="equipItem('${cat}', '${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Pakai</button>` 
-                  : `<button onclick="buyItem('${cat}', '${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">${item.harga} Koin</button>`;
+                  : `<button onclick="buyItem('${cat}', '${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Beli</button>`;
 
+        // Preview Ikon (Dipakai untuk Shop & Gift)
         let displayIcon = cat === 'borders' 
             ? `<div style="width:40px; height:40px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div>`
             : `<div style="width:40px; height:40px; border-radius:8px; flex-shrink:0; border:1px solid #333; ${item.style}"></div>`;
 
-        html += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#3b82f6' : '#1a1a1a'};">${displayIcon}<div style="flex:1;"><div style="font-weight:800; font-size:13px; color:#fff;">${item.nama}</div><div style="color:#666; font-size:10px;">${isOwned ? 'Milikmu' : 'Tersedia'}</div></div><div>${btn}</div></div>`;
-        giftHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:10px; margin-bottom:8px;"><div style="color:#fff; font-size:12px; font-weight:700;">${item.nama}</div><div style="display:flex; align-items:center; gap:8px;"><span style="color:#facc15; font-size:11px; font-weight:800;">${item.harga} Koin</span><button onclick="giftItem('${cat}', '${key}', ${item.harga})" style="background:#f59e0b; color:#000; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Gift</button></div></div>`;
+        // Tampilan List Shop
+        html += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#3b82f6' : '#1a1a1a'};">${displayIcon}<div style="flex:1;"><div style="font-weight:800; font-size:13px; color:#fff;">${item.nama}</div><div style="color:${isOwned ? '#10b981' : '#facc15'}; font-size:11px; font-weight:700;">${isOwned ? 'Milikmu' : item.harga + ' Koin'}</div></div><div>${btn}</div></div>`;
+        
+        // Tampilan List Gift (Dibuat SAMA PERSIS dengan Shop)
+        giftHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #1a1a1a;">${displayIcon}<div style="flex:1;"><div style="font-weight:800; font-size:13px; color:#fff;">${item.nama}</div><div style="color:#facc15; font-size:11px; font-weight:700;">Harga: ${item.harga} Koin</div></div><div><button onclick="giftItem('${cat}', '${key}', ${item.harga})" style="background:#f59e0b; color:#000; border:none; padding:6px 16px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);">Gift</button></div></div>`;
     }
     document.getElementById('view-shop').innerHTML = html;
     document.getElementById('gift-inventory-list').innerHTML = giftHtml;
@@ -1553,7 +1559,7 @@ window.injectChangeNameModal = function() {
             </div>
             <h3 style="color:#fff; margin:0 0 5px 0; font-size:18px; font-weight:900;">Ganti Nama</h3>
             <p id="change-name-desc" style="color:#888; font-size:12px; margin-bottom:20px; line-height:1.4;"></p>
-            <input type="text" id="new-name-input" placeholder="Nama Baru..." maxlength="15" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:20px; outline:none; box-sizing:border-box; text-align:center; font-size:14px; font-weight:bold;">
+            <input type="text" id="new-name-input" placeholder="Nama Baru..." maxlength="25" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:20px; outline:none; box-sizing:border-box; text-align:center; font-size:14px; font-weight:bold;">
             <div style="display:flex; gap:10px;">
                 <button onclick="closeChangeNameModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer;">Batal</button>
                 <button onclick="confirmChangeName()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">Simpan</button>
@@ -1598,7 +1604,7 @@ window.closeChangeNameModal = function() {
 window.confirmChangeName = function() {
     let newName = document.getElementById('new-name-input').value.trim();
     if(newName.length < 3) return window.showToast('Minimal 3 karakter!', 'error');
-    if(newName.length > 15) return window.showToast('Maksimal 15 karakter!', 'error');
+    if(newName.length > 25) return window.showToast('Maksimal 25 karakter!', 'error');
 
     db.ref('users/' + currentUser.uid).once('value').then(snap => {
         let d = snap.val();
