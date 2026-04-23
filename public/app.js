@@ -27,7 +27,17 @@ window.BORDER_CATALOG = {
     'fishbones': { nama: 'FISHBONES!', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
     'hologram-dragon': { nama: 'Hologram Dragon', harga: 3000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
     'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
-    'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
+    'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' },
+    'spider-man': { nama: 'Spider Man', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481384635886862397/animated' },
+    'super-recognizer': { nama: 'Super Recognizer', harga: 1200, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated' },
+    'infinite-swirl': { nama: 'Infinite Swirl', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated' },
+    'juggernaut-astro': { nama: 'Juggernaut Astro', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1387888352639975484/animated' },
+    'the-anomaly': { nama: 'The-Anomaly', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1306752744258011166/animated' },
+    'purple-animation': { nama: 'Purple-Animation', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated' },
+    'dark-hood': { nama: 'Dark Hood', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633615765524/animated' },
+    'dark-hood (crimson)': { nama: 'Drak Hood (crimson)', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated' },
+    'zombie-food': { nama: 'Zombie Food', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated' },
+    'juri': { nama: 'Juri', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated' }
 };
 
 // ==== CUSTOM TOAST NOTIFICATION ====
@@ -1372,7 +1382,17 @@ window.COSMETIC_CATALOG = {
         'fishbones': { nama: 'FISHBONES!', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
         'hologram-dragon': { nama: 'Hologram Dragon', harga: 3000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
         'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
-        'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' }
+        'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' },
+        'spider-man': { nama: 'Spider Man', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481384635886862397/animated' },
+        'super-recognizer': { nama: 'Super Recognizer', harga: 1200, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated' },
+        'infinite-swirl': { nama: 'Infinite Swirl', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated' },
+        'juggernaut-astro': { nama: 'Juggernaut Astro', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1387888352639975484/animated' },
+        'the-anomaly': { nama: 'The-Anomaly', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1306752744258011166/animated' },
+        'purple-animation': { nama: 'Purple-Animation', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated' },
+        'dark-hood': { nama: 'Dark Hood', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633615765524/animated' },
+        'dark-hood (crimson)': { nama: 'Drak Hood (crimson)', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated' },
+        'zombie-food': { nama: 'Zombie Food', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated' },
+        'juri': { nama: 'Juri', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated' }
     },
         commentplates: {
         'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
