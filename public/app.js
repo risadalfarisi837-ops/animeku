@@ -113,17 +113,15 @@ auth.onAuthStateChanged(user => {
 
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
-    if (isLoggingIn) return; isLoggingIn = true; 
     const provider = new firebase.auth.GoogleAuthProvider(); 
     provider.setCustomParameters({ prompt: 'select_account' });
     
+    // Langsung tembak popup tanpa lock (biar ga nyangkut di HP)
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
         
-        // CEK DULU APAKAH USER SUDAH PUNYA DATA DI DATABASE
         db.ref('users/' + u.uid).once('value').then(snap => {
             if (!snap.exists()) {
-                // Kalau belum ada (User Baru), bikin data level 1
                 db.ref('users/' + u.uid).set({ 
                     nama: u.displayName, 
                     email: u.email, 
@@ -132,27 +130,21 @@ window.loginDenganGoogle = function() {
                     level: 1, 
                     exp: 0, 
                     joined: Date.now(),
-                    koin: 0 // tambahin koin default juga biar aman
+                    koin: 0
                 });
             } else {
-                // Kalau sudah ada (User Lama login di HP baru), jangan reset level!
-                // Cukup update nama & foto aja biar tetep sinkron sama akun Google-nya
-                db.ref('users/' + u.uid).update({ 
-                    nama: u.displayName, 
-                    foto: u.photoURL 
-                });
+                db.ref('users/' + u.uid).update({ nama: u.displayName, foto: u.photoURL });
             }
             window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); 
             updateDevUI(); 
-            isLoggingIn = false;
         });
     }).catch(err => {
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { 
             window.showToast("Gagal login: " + err.message, 'error'); 
         }
-        isLoggingIn = false;
     });
 };
+
 window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
 
 const RANK_TIERS = [
@@ -254,7 +246,7 @@ function updateDevUI() {
                         </div>
                         <div class="profile-tabs" style="position: relative; z-index: 10;"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
                         <div id="ptab-all" class="ptab-content" style="position: relative; z-index: 10;">${historyHtml}</div><div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px; position: relative; z-index: 10;">${userCommentsHtml}</div><div id="ptab-history" class="ptab-content" style="display:none; position: relative; z-index: 10;">${historyHtml}</div>
-                        <button onclick="logoutAkun()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
+                        <button onclick="openLogoutModal()" style="margin:20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; position: relative; z-index: 50;">Keluar Akun</button>
                     </div>
                 `;
             } catch(errorProfile) { console.error(errorProfile); container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil. Silakan refresh halaman.</div>`; }
@@ -1365,7 +1357,8 @@ function switchTab(tabName) {
 
 function initApp() { 
     updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal(); 
-    injectChangeNameModal(); // <--- TAMBAHKAN INI
+    injectChangeNameModal(); 
+    injectLogoutModal(); // <--- TAMBAHIN INI
     if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
     switchTab('home'); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
@@ -1758,7 +1751,6 @@ window.injectGiftStyles = function() {
     document.head.appendChild(style);
 };
 
-// Modal Untuk Pengirim
 window.showGiftSentModal = function(targetName, itemName) {
     let container = document.getElementById('gift-anim-container');
     if(!container) { container = document.createElement('div'); container.id = 'gift-anim-container'; document.body.appendChild(container); }
@@ -1773,21 +1765,35 @@ window.showGiftSentModal = function(targetName, itemName) {
     injectGiftStyles();
 };
 
-// Modal Untuk Penerima
-window.showGiftReceivedModal = function(fromName, itemName, callback) {
+window.showGiftReceivedModal = function(fromName, itemName, cat, itemId, callback) {
     let container = document.getElementById('gift-anim-container');
     if(!container) { container = document.createElement('div'); container.id = 'gift-anim-container'; document.body.appendChild(container); }
+    
+    // LOGIKA RENDER GAMBAR BORDER / EFEK KOMEN YANG DIDAPAT
+    let displayIconHtml = '<div style="font-size:70px; margin-bottom:10px;">✨</div>'; 
+    if (cat && itemId && window.COSMETIC_CATALOG[cat] && window.COSMETIC_CATALOG[cat][itemId]) {
+        let item = window.COSMETIC_CATALOG[cat][itemId];
+        if (cat === 'borders') {
+            let tempFoto = currentUser && currentUser.photoURL ? currentUser.photoURL : 'https://placehold.co/100';
+            displayIconHtml = `<div style="width:80px; height:80px; position:relative; margin: 0 auto 15px auto;"><img src="${tempFoto}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div>`;
+        } else if (cat === 'commentplates') {
+            displayIconHtml = `<div style="width:80px; height:80px; border-radius:16px; border:2px solid #333; margin: 0 auto 15px auto; ${item.style}"></div>`;
+        }
+    }
+
     container.innerHTML = `
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
             <h2 id="gift-title-text" style="color:#fff; font-weight:900; margin-bottom:10px; text-align:center;">Seseorang Mengirim Kado!</h2>
             <p id="gift-sub-text" style="color:#a1a1aa; font-size:14px; text-align:center; margin-bottom:30px;">Ketuk kado di bawah untuk membukanya</p>
             <div id="the-gift-box" class="gift-box-anim" onclick="openReceivedGift('${fromName}', '${itemName}')">🎁</div>
             
-            <div id="gift-reveal-content" style="display:none; flex-direction:column; align-items:center; text-align:center;">
-                <div style="font-size:70px; margin-bottom:10px; animation: popItem 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">✨</div>
-                <div style="color:#facc15; font-size:22px; font-weight:900; animation: popItem 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Kejutan!</div>
+            <div id="gift-reveal-content" style="display:none; flex-direction:column; align-items:center; text-align:center; width:100%;">
+                <div style="animation: popItem 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                    ${displayIconHtml}
+                </div>
+                <div style="color:#facc15; font-size:24px; font-weight:900; animation: popItem 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Kejutan!</div>
                 <p style="color:#fff; font-size:15px; margin-top:10px; line-height:1.5; animation: popItem 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Kamu mendapat <b>${itemName}</b><br>dari <b>${fromName}</b> 🎉</p>
-                <button id="close-gift-btn" style="margin-top:30px; background:#facc15; color:#000; border:none; padding:12px 30px; border-radius:20px; font-weight:900; cursor:pointer; opacity:0; animation: popItem 1.2s forwards;">Ambil Hadiah</button>
+                <button id="close-gift-btn" style="margin-top:30px; background:#facc15; color:#000; border:none; padding:12px 35px; border-radius:20px; font-weight:900; cursor:pointer; opacity:0; animation: popItem 1.2s forwards;">Ambil Hadiah</button>
             </div>
         </div>
     `;
@@ -1810,18 +1816,102 @@ window.showGiftReceivedModal = function(fromName, itemName, callback) {
     }, 100);
 };
 
-// Fungsi Deteksi Kado Masuk dari Firebase
 window.listenForGifts = function() {
     if(!currentUser) return;
     db.ref('users/' + currentUser.uid + '/newGift').on('value', snap => {
         if(snap.exists()) {
             let gift = snap.val();
-            showGiftReceivedModal(gift.from, gift.itemName, () => {
-                db.ref('users/' + currentUser.uid + '/newGift').remove(); // Hapus notif kado kalau udah dibuka
+            // Memastikan data cat dan itemId dipassing dengan benar
+            showGiftReceivedModal(gift.from, gift.itemName, gift.cat, gift.itemId, () => {
+                db.ref('users/' + currentUser.uid + '/newGift').remove(); 
             });
         }
     });
 };
 
+window.giftItem = function(cat, id, harga) {
+    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
+    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
+    let myKoin = window.currentUserData.koin || 0;
+    if(myKoin < harga) return window.showToast('Koin tidak cukup!', 'error');
+    
+    db.ref('users').once('value').then(snap => {
+        let targetFullUid = null; snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
+        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+        if(targetFullUid === currentUser.uid) return window.showToast('Beli di tab Shop aja!', 'error');
+        
+        let targetData = snap.val()[targetFullUid]; let ownedKey = cat === 'borders' ? 'ownedBorders' : 'ownedCommentplates';
+        if(targetData[ownedKey] && targetData[ownedKey][id]) return window.showToast('Teman kamu sudah punya ini!', 'error');
+        
+        // Potong Saldo
+        db.ref('users/' + currentUser.uid).update({ koin: myKoin - harga });
+        
+        // Kirim Item
+        let updateTarget = {}; updateTarget[`${ownedKey}/${id}`] = true;
+        db.ref('users/' + targetFullUid).update(updateTarget);
+        
+        // NOTIFIKASI KADO (Ditambah data cat dan itemId)
+        let itemName = window.COSMETIC_CATALOG[cat][id].nama;
+        db.ref('users/' + targetFullUid + '/newGift').set({
+            from: window.currentUserData.nama || 'Seseorang',
+            itemName: itemName,
+            cat: cat,        // <--- Wajib ada
+            itemId: id,      // <--- Wajib ada
+            timestamp: Date.now()
+        });
+
+        window.closeBorderShop();
+        showGiftSentModal(targetData.nama, itemName);
+    });
+};
+
+// ==========================================
+// FITUR KONFIRMASI KELUAR AKUN
+// ==========================================
+window.injectLogoutModal = function() {
+    if(document.getElementById('logout-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'logout-modal-injected';
+    div.innerHTML = `
+        <div id="logoutModalOverlay" class="modal-overlay" onclick="closeLogoutModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+        <div id="logoutModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;">
+            <div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </div>
+            <h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Keluar Akun?</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin keluar dari akun ini?</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeLogoutModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="confirmLogout()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openLogoutModal = function() {
+    document.getElementById('logoutModalOverlay').style.display = 'block'; 
+    document.getElementById('logoutModal').style.display = 'block'; 
+    setTimeout(() => { 
+        document.getElementById('logoutModal').style.opacity = '1'; 
+        document.getElementById('logoutModal').style.transform = 'translate(-50%, -50%) scale(1)'; 
+    }, 10);
+};
+
+window.closeLogoutModal = function() {
+    const modal = document.getElementById('logoutModal'); 
+    const overlay = document.getElementById('logoutModalOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; 
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300);
+    }
+};
+
+window.confirmLogout = function() {
+    auth.signOut().then(() => { 
+        window.showToast("Berhasil keluar dari akun.", 'success'); 
+        closeLogoutModal();
+        setTimeout(() => { location.reload(); }, 1500); 
+    });
+};
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
