@@ -782,10 +782,9 @@ async function loadDetail(url) {
                 let nums = String(t).match(/\d+/g);
                 return nums ? parseFloat(nums[nums.length-1]) : 0;
             };
-            return getNum(a.title) - getNum(b.title); // Urutkan 1, 2, 3 dst...
+            return getNum(a.title) - getNum(b.title); 
         });
         data.episodes = cleanEps;
-
         window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url }; window.currentAnimeEpisodes = data.episodes; window.currentPlayingAnime = null; 
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25'; const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
@@ -867,8 +866,9 @@ async function loadVideo(url) {
         const watchEpListContainer = document.getElementById('watch-episode-squares');
         if (watchEpListContainer) { 
             if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
-                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].reverse().map((ep, index) => { 
-                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : (index + 1); 
+                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].map((ep, index) => { 
+                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                    let eNum = m ? m[1] : (index + 1); 
                     let progress = watchProgress[ep.url]; let isCurrent = (ep.url === url); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
                     if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; }
                     return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
