@@ -104,7 +104,10 @@ window.syncProgressWithFirebase = function() {
 auth.onAuthStateChanged(user => {
     currentUser = user; 
     updateDevUI();
-    if(user) { syncProgressWithFirebase(); }
+    if(user) { 
+        syncProgressWithFirebase(); 
+        listenForGifts(); // <--- INI PENDETEKSI KADONYA
+    }
     if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) {} }
 });
 
@@ -1621,16 +1624,33 @@ window.giftItem = function(cat, id, harga) {
     if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Format UID Teman salah!', 'error');
     let myKoin = window.currentUserData.koin || 0;
     if(myKoin < harga) return window.showToast('Koin tidak cukup!', 'error');
+    
     db.ref('users').once('value').then(snap => {
         let targetFullUid = null; snap.forEach(child => { if(child.key.substring(0,6).toUpperCase() === targetUidShort) targetFullUid = child.key; });
         if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
         if(targetFullUid === currentUser.uid) return window.showToast('Beli di tab Shop aja!', 'error');
+        
         let targetData = snap.val()[targetFullUid]; let ownedKey = cat === 'borders' ? 'ownedBorders' : 'ownedCommentplates';
         if(targetData[ownedKey] && targetData[ownedKey][id]) return window.showToast('Teman kamu sudah punya ini!', 'error');
+        
+        // Potong Saldo
         db.ref('users/' + currentUser.uid).update({ koin: myKoin - harga });
+        
+        // Kirim Item
         let updateTarget = {}; updateTarget[`${ownedKey}/${id}`] = true;
         db.ref('users/' + targetFullUid).update(updateTarget);
-        window.showToast('Berhasil mengirim gift!', 'success');
+        
+        // BUAT NOTIFIKASI KADO KE FIREBASE TEMAN
+        let itemName = window.COSMETIC_CATALOG[cat][id].nama;
+        db.ref('users/' + targetFullUid + '/newGift').set({
+            from: window.currentUserData.nama || 'Seseorang',
+            itemName: itemName,
+            timestamp: Date.now()
+        });
+
+        // Tutup Modal Shop & Tampilkan Animasi Sukses Mengirim Kado
+        window.closeBorderShop();
+        showGiftSentModal(targetData.nama, itemName);
     });
 };
 
@@ -1719,5 +1739,87 @@ window.confirmChangeName = function() {
         });
     });
 };
+
+// ==========================================
+// FITUR ANIMASI KADO (GIFT)
+// ==========================================
+window.injectGiftStyles = function() {
+    if(document.getElementById('gift-styles')) return;
+    const style = document.createElement('style'); style.id = 'gift-styles';
+    style.innerHTML = `
+        @keyframes bounceGift { 0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.3)); } 50% { transform: translateY(-15px) scale(1.05); filter: drop-shadow(0 0 30px rgba(250, 204, 21, 0.9)); } }
+        @keyframes openGift { 0% { transform: scale(1) rotate(0deg); } 20% { transform: scale(1.2) rotate(-15deg); } 40% { transform: scale(1.2) rotate(15deg); } 60% { transform: scale(1.2) rotate(-15deg); } 100% { transform: scale(0) rotate(0deg); opacity: 0; } }
+        @keyframes popItem { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .gift-box-anim { font-size: 90px; animation: bounceGift 1.5s infinite ease-in-out; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .gift-box-open { animation: openGift 0.8s forwards; }
+    `;
+    document.head.appendChild(style);
+};
+
+// Modal Untuk Pengirim
+window.showGiftSentModal = function(targetName, itemName) {
+    let container = document.getElementById('gift-anim-container');
+    if(!container) { container = document.createElement('div'); container.id = 'gift-anim-container'; document.body.appendChild(container); }
+    container.innerHTML = `
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+            <div style="font-size: 80px; animation: bounceGift 1.5s infinite;">🎁</div>
+            <h2 style="color:#fff; font-weight:900; margin-top:20px; text-align:center;">Kado Terkirim!</h2>
+            <p style="color:#a1a1aa; font-size:14px; text-align:center; max-width:80%;">Kamu berhasil mengirim kado <b>${itemName}</b> untuk <b>${targetName}</b>.</p>
+            <button onclick="document.getElementById('gift-anim-container').innerHTML=''" style="margin-top:30px; background:#3b82f6; color:#fff; border:none; padding:12px 30px; border-radius:20px; font-weight:800; cursor:pointer;">Tutup</button>
+        </div>
+    `;
+    injectGiftStyles();
+};
+
+// Modal Untuk Penerima
+window.showGiftReceivedModal = function(fromName, itemName, callback) {
+    let container = document.getElementById('gift-anim-container');
+    if(!container) { container = document.createElement('div'); container.id = 'gift-anim-container'; document.body.appendChild(container); }
+    container.innerHTML = `
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+            <h2 id="gift-title-text" style="color:#fff; font-weight:900; margin-bottom:10px; text-align:center;">Seseorang Mengirim Kado!</h2>
+            <p id="gift-sub-text" style="color:#a1a1aa; font-size:14px; text-align:center; margin-bottom:30px;">Ketuk kado di bawah untuk membukanya</p>
+            <div id="the-gift-box" class="gift-box-anim" onclick="openReceivedGift('${fromName}', '${itemName}')">🎁</div>
+            
+            <div id="gift-reveal-content" style="display:none; flex-direction:column; align-items:center; text-align:center;">
+                <div style="font-size:70px; margin-bottom:10px; animation: popItem 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">✨</div>
+                <div style="color:#facc15; font-size:22px; font-weight:900; animation: popItem 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Kejutan!</div>
+                <p style="color:#fff; font-size:15px; margin-top:10px; line-height:1.5; animation: popItem 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Kamu mendapat <b>${itemName}</b><br>dari <b>${fromName}</b> 🎉</p>
+                <button id="close-gift-btn" style="margin-top:30px; background:#facc15; color:#000; border:none; padding:12px 30px; border-radius:20px; font-weight:900; cursor:pointer; opacity:0; animation: popItem 1.2s forwards;">Ambil Hadiah</button>
+            </div>
+        </div>
+    `;
+    injectGiftStyles();
+
+    window.openReceivedGift = function(fName, iName) {
+        let box = document.getElementById('the-gift-box');
+        document.getElementById('gift-title-text').style.display = 'none';
+        document.getElementById('gift-sub-text').style.display = 'none';
+        box.classList.remove('gift-box-anim'); box.classList.add('gift-box-open');
+        setTimeout(() => {
+            box.style.display = 'none';
+            document.getElementById('gift-reveal-content').style.display = 'flex';
+        }, 800);
+    };
+
+    setTimeout(() => {
+        let btn = document.getElementById('close-gift-btn');
+        if(btn) { btn.onclick = () => { container.innerHTML = ''; if(callback) callback(); }; }
+    }, 100);
+};
+
+// Fungsi Deteksi Kado Masuk dari Firebase
+window.listenForGifts = function() {
+    if(!currentUser) return;
+    db.ref('users/' + currentUser.uid + '/newGift').on('value', snap => {
+        if(snap.exists()) {
+            let gift = snap.val();
+            showGiftReceivedModal(gift.from, gift.itemName, () => {
+                db.ref('users/' + currentUser.uid + '/newGift').remove(); // Hapus notif kado kalau udah dibuka
+            });
+        }
+    });
+};
+
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
