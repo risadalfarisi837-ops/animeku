@@ -226,7 +226,7 @@ function updateDevUI() {
                                 <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
                                 ${decoHtml}
                             </div>
-                            <div class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s;" title="Klik untuk ganti nama">${userName}</div>
+                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;" title="Klik untuk ganti nama">${userName}</div>
                             <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
                                 <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
                                 <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
@@ -1620,6 +1620,13 @@ window.confirmChangeName = function() {
         db.ref('users/' + currentUser.uid).update(updates).then(() => {
             window.showToast('Nama berhasil diganti!', 'success');
             window.closeChangeNameModal();
+            
+            // BIAR NAMA LANGSUNG KEGANTI DI LAYAR TANPA REFRESH
+            let nameEl = document.getElementById('profile-user-name-display');
+            if (nameEl) nameEl.innerText = newName;
+            
+            // Update nama Google Auth biar 100% sinkron
+            if (currentUser) currentUser.updateProfile({ displayName: newName }).catch(()=>{});
         });
     });
 };
