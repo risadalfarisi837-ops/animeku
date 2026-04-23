@@ -244,33 +244,36 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === KEMBALIKAN BUBBLE & HANCURKAN TEMBOK SAMPING === */
+        /* === PENYELARAS MARGIN KIRI KANAN (SAMAKAN DENGAN FOTO 4) === */
         
-        /* 1. Jadwal, Riwayat Profil & Komentar (Tarik mentok layar) */
-        .sched-card, 
-        .profile-list-item, 
-        .profile-comment-box {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            border-radius: 16px !important; /* BUBBLE KEMBALI! */
-            background: #1c1c1e !important; /* WARNA KEMBALI! */
-            border: 1px solid #2c2c2e !important; /* GARIS KEMBALI! */
-            width: 100% !important;
-            box-sizing: border-box !important;
+        /* 1. Samakan jarak kiri-kanan di Menu Home & Subscribe */
+        .header-flex, 
+        .anime-grid, 
+        .horizontal-scroll {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
         }
 
-        /* 2. List Episode di Detail (Tarik paksa nembus tembok padding) */
-        div[style*="justify-content:space-between; align-items:center; padding:15px; border:1px solid"] {
-            margin-left: -12px !important; /* Hancurkan tembok kiri */
-            margin-right: -12px !important; /* Hancurkan tembok kanan */
-            border-radius: 16px !important; /* BUBBLE KEMBALI! */
+        /* 2. Samakan jarak kiri-kanan di Menu Detail Anime & Nonton */
+        /* (Pengecualian untuk cover atas dan video player agar tetap full nempel layar) */
+        #detail-view > div:not(.detail-hero),
+        #watch-view > div:not(.video-container-fixed) {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
         }
-        
-        /* 3. Kotak Komentar di dalam Profil */
+
+        /* 3. Pastikan semua kotak (Bubble) konsisten di 15px */
+        .profile-comment-box, 
+        .profile-list-item, 
+        .sched-card {
+            margin-left: 15px !important;
+            margin-right: 15px !important;
+        }
+
+        /* 4. Samakan lebar komentar di halaman profil */
         div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            border-radius: 16px !important;
+            margin-left: 15px !important;
+            margin-right: 15px !important;
         }
     </style>
 </head>
