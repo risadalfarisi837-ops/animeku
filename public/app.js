@@ -226,7 +226,7 @@ function updateDevUI() {
                                 <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; position: relative; z-index: 2; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">
                                 ${decoHtml}
                             </div>
-                            <div class="profile-name">${userName}</div>
+                            <div class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer; transition:0.2s;" title="Klik untuk ganti nama">${userName}</div>
                             <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">
                                 <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
                                 <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
@@ -1351,7 +1351,8 @@ function switchTab(tabName) {
 }
 
 function initApp() { 
-    updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal();
+    updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal(); 
+    injectChangeNameModal(); // <--- TAMBAHKAN INI
     if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
     switchTab('home'); 
     setTimeout(() => { checkAnimeUpdates(); }, 3000);
@@ -1535,6 +1536,85 @@ window.giftItem = function(cat, id, harga) {
         let updateTarget = {}; updateTarget[`${ownedKey}/${id}`] = true;
         db.ref('users/' + targetFullUid).update(updateTarget);
         window.showToast('Berhasil mengirim gift!', 'success');
+    });
+};
+
+// ==========================================
+// FITUR GANTI NAMA (Klik Nama Langsung)
+// ==========================================
+window.injectChangeNameModal = function() {
+    if(document.getElementById('change-name-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'change-name-modal-injected';
+    div.innerHTML = `
+        <div id="changeNameOverlay" class="modal-overlay" onclick="closeChangeNameModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+        <div id="changeNameModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px; transition:0.3s; opacity:0; border: 1px solid #2c2c2e; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+            <div style="width:50px; height:50px; background:rgba(59, 130, 246, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -45px auto 15px auto; border: 2px solid #3b82f6;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <h3 style="color:#fff; margin:0 0 5px 0; font-size:18px; font-weight:900;">Ganti Nama</h3>
+            <p id="change-name-desc" style="color:#888; font-size:12px; margin-bottom:20px; line-height:1.4;"></p>
+            <input type="text" id="new-name-input" placeholder="Nama Baru..." maxlength="15" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:20px; outline:none; box-sizing:border-box; text-align:center; font-size:14px; font-weight:bold;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeChangeNameModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer;">Batal</button>
+                <button onclick="confirmChangeName()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openChangeNameModal = function() {
+    if(!currentUser) return window.showToast('Login dulu yuk!', 'error');
+    window.injectChangeNameModal();
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val();
+        let changeCount = d.nameChangeCount || 0; 
+        let descEl = document.getElementById('change-name-desc');
+        
+        if (changeCount === 0) {
+            descEl.innerHTML = "Ganti nama pertamamu <b style='color:#10b981;'>GRATIS!</b>";
+        } else {
+            descEl.innerHTML = "Biaya ganti nama: <b style='color:#facc15;'>1000 Koin</b>";
+        }
+        
+        document.getElementById('new-name-input').value = d.nama || '';
+        document.getElementById('changeNameOverlay').style.display = 'block';
+        let modal = document.getElementById('changeNameModal');
+        modal.style.display = 'block';
+        setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
+    });
+};
+
+window.closeChangeNameModal = function() {
+    let modal = document.getElementById('changeNameModal');
+    let overlay = document.getElementById('changeNameOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300);
+    }
+};
+
+window.confirmChangeName = function() {
+    let newName = document.getElementById('new-name-input').value.trim();
+    if(newName.length < 3) return window.showToast('Minimal 3 karakter!', 'error');
+    if(newName.length > 15) return window.showToast('Maksimal 15 karakter!', 'error');
+
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val();
+        let changeCount = d.nameChangeCount || 0;
+        let koin = d.koin || 0;
+        let cost = (changeCount === 0) ? 0 : 1000;
+
+        if (cost > 0 && koin < cost) return window.showToast('Koin tidak cukup! Butuh 1000.', 'error');
+
+        let updates = { nama: newName, nameChangeCount: changeCount + 1 };
+        if(cost > 0) updates.koin = koin - cost;
+
+        db.ref('users/' + currentUser.uid).update(updates).then(() => {
+            window.showToast('Nama berhasil diganti!', 'success');
+            window.closeChangeNameModal();
+        });
     });
 };
 
