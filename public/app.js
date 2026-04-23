@@ -78,20 +78,65 @@ function injectPremiumStyles() {
 
 injectPremiumStyles();
 
+window.syncProgressWithFirebase = function() {
+    if(!currentUser) return;
+    db.ref('progress/' + currentUser.uid).once('value').then(snap => {
+        if(snap.exists()) {
+            let cloudProgress = snap.val();
+            let localProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+            let merged = { ...localProgress, ...cloudProgress }; 
+            localStorage.setItem('watchProgress', JSON.stringify(merged));
+            if(typeof window.renderDetailEpisodeUI === 'function') window.renderDetailEpisodeUI();
+        }
+    });
+};
+
 auth.onAuthStateChanged(user => {
-    currentUser = user; updateDevUI();
+    currentUser = user; 
+    updateDevUI();
+    if(user) { syncProgressWithFirebase(); }
     if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) {} }
 });
 
 let isLoggingIn = false;
 window.loginDenganGoogle = function() {
-    if (isLoggingIn) return; isLoggingIn = true; const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
+    if (isLoggingIn) return; isLoggingIn = true; 
+    const provider = new firebase.auth.GoogleAuthProvider(); 
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
     auth.signInWithPopup(provider).then(res => {
         const u = res.user;
-        db.ref('users/' + u.uid).set({ nama: u.displayName, email: u.email, foto: u.photoURL, role: 'Member', level: 1, exp: 0, joined: Date.now() });
-        window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); updateDevUI(); isLoggingIn = false;
+        
+        // CEK DULU APAKAH USER SUDAH PUNYA DATA DI DATABASE
+        db.ref('users/' + u.uid).once('value').then(snap => {
+            if (!snap.exists()) {
+                // Kalau belum ada (User Baru), bikin data level 1
+                db.ref('users/' + u.uid).set({ 
+                    nama: u.displayName, 
+                    email: u.email, 
+                    foto: u.photoURL, 
+                    role: 'Member', 
+                    level: 1, 
+                    exp: 0, 
+                    joined: Date.now(),
+                    koin: 0 // tambahin koin default juga biar aman
+                });
+            } else {
+                // Kalau sudah ada (User Lama login di HP baru), jangan reset level!
+                // Cukup update nama & foto aja biar tetep sinkron sama akun Google-nya
+                db.ref('users/' + u.uid).update({ 
+                    nama: u.displayName, 
+                    foto: u.photoURL 
+                });
+            }
+            window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); 
+            updateDevUI(); 
+            isLoggingIn = false;
+        });
     }).catch(err => {
-        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { window.showToast("Gagal login: " + err.message, 'error'); }
+        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { 
+            window.showToast("Gagal login: " + err.message, 'error'); 
+        }
         isLoggingIn = false;
     });
 };
@@ -372,14 +417,19 @@ window.renderDetailEpisodeUI = function() {
     document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
 
     let eps = [...(window.currentAnimeEpisodes || [])]; if (window.epSortOrder === 'desc') eps.reverse();
-    let watchedEps = JSON.parse(localStorage.getItem('watchedEps')) || []; let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+    
+    // FIX NGELAG: Pakai 'Set' biar pengecekan data HP secepat kilat walau episodenya ribuan
+    let watchedEpsArray = JSON.parse(localStorage.getItem('watchedEps')) || []; 
+    let watchedEpsSet = new Set(watchedEpsArray); 
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; 
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
     let renderHtml = '';
 
     if (window.epLayoutMode === 'grid') {
         renderHtml = eps.map((ep, index) => {
             let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
             let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
-            if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEps.includes(ep.url)) { c += " active"; }
+            if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEpsSet.has(ep.url)) { c += " active"; }
             return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
         }).join('');
         containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.innerHTML = renderHtml; 
@@ -388,7 +438,7 @@ window.renderDetailEpisodeUI = function() {
             let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
             let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
             let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
-            if (progress >= 100 || watchedEps.includes(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
+            if (progress >= 100 || watchedEpsSet.has(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
             if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
             return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #1a1a1a; cursor:pointer; background: ${isCurrent ? '#111' : 'transparent'}; border-radius: 8px; margin-bottom: 4px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
         }).join('');
@@ -428,18 +478,141 @@ function showXPModal(addedAmount, level, progress, isLevelUp) {
 }
 
 function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
-async function saveHistory(a) { try { const d = await initDB(); a.timestamp = Date.now(); d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); } catch(e) { console.error(e); } }
-async function getHistory() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
-async function getFavorites() { try { const d = await initDB(); return new Promise((res) => { const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); req.onerror = () => res([]); }); } catch(e) { return []; } }
+// 1. Fungsi Bantuan untuk Ambil Data Lokal (Buat yang belum login)
+async function getLocalHistory() {
+    try { 
+        const d = await initDB(); 
+        return new Promise((res) => { 
+            const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); 
+            req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
+            req.onerror = () => res([]); 
+        }); 
+    } catch(e) { return []; }
+}
 
+// 2. Fungsi Simpan History (Firebase + Lokal)
+async function saveHistory(a) { 
+    a.timestamp = Date.now(); 
+    
+    // Simpan ke Lokal (buat jaga-jaga kalau offline/belum login)
+    try { 
+        const d = await initDB(); 
+        d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); 
+    } catch(e) { console.error(e); } 
+    
+    // Simpan ke Firebase (Kalau sudah login)
+    if (currentUser) {
+        // Firebase nggak ngebolehin karakter kayak titik (.) atau slash (/) buat ID, jadi kita ubah dulu URL-nya
+        const safeKey = a.url.replace(/[^a-zA-Z0-9]/g, '_'); 
+        db.ref(`history/${currentUser.uid}/${safeKey}`).set(a);
+    }
+}
+
+// 3. Fungsi Ambil History (Prioritas dari Firebase)
+async function getHistory() { 
+    if (currentUser) {
+        try {
+            // Kalau udah login, tarik datanya dari Firebase!
+            const snap = await db.ref(`history/${currentUser.uid}`).once('value');
+            let historyData = [];
+            if (snap.exists()) {
+                snap.forEach(child => { historyData.push(child.val()); });
+            }
+            return historyData.sort((a,b) => b.timestamp - a.timestamp);
+        } catch(e) {
+            console.error("Gagal ambil history dari Firebase", e);
+            return await getLocalHistory(); // Fallback kalau gagal
+        }
+    } else {
+        // Kalau belum login, tarik dari HP (Lokal)
+        return await getLocalHistory(); 
+    }
+}
+// 1. Fungsi Bantuan untuk Ambil Data Lokal (Offline/Belum Login)
+async function getLocalFavorites() { 
+    try { 
+        const d = await initDB(); 
+        return new Promise((res) => { 
+            const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); 
+            req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
+            req.onerror = () => res([]); 
+        }); 
+    } catch(e) { return []; } 
+}
+
+// 2. Fungsi Ambil Subscribe (Prioritas dari Firebase)
+async function getFavorites() { 
+    if (currentUser) {
+        try {
+            const snap = await db.ref(`favorites/${currentUser.uid}`).once('value');
+            let favData = [];
+            if (snap.exists()) {
+                snap.forEach(child => { favData.push(child.val()); });
+            }
+            return favData.sort((a,b) => b.timestamp - a.timestamp);
+        } catch(e) { 
+            console.error(e);
+            return await getLocalFavorites(); 
+        }
+    } else {
+        return await getLocalFavorites(); 
+    }
+}
+
+// 3. Fungsi Cek Apakah Anime Sudah di-Subscribe
+async function checkFavorite(url) { 
+    if (currentUser) {
+        const safeKey = url.replace(/[^a-zA-Z0-9]/g, '_');
+        const snap = await db.ref(`favorites/${currentUser.uid}/${safeKey}`).once('value');
+        return snap.exists();
+    } else {
+        try { 
+            const database = await initDB(); 
+            return new Promise((res) => { 
+                const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); 
+                req.onsuccess = () => res(!!req.result); 
+                req.onerror = () => res(false); 
+            }); 
+        } catch(e) { return false; } 
+    }
+}
+
+// 4. Fungsi Klik Subscribe / Unsubscribe (Firebase + Lokal)
 async function toggleFavorite(url, title, image, score, episode) {
     try {
-        const database = await initDB(); const isFav = await checkFavorite(url); const tx = database.transaction(STORE_FAV, 'readwrite'); const store = tx.objectStore(STORE_FAV); const btn = document.getElementById('favBtn');
-        if (isFav) { store.delete(url); if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; btn.style.color = '#fff'; } } 
-        else { store.put({url, title, image, score, episode, timestamp: Date.now()}); if(btn) { btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; btn.style.color = '#ef4444'; } }
+        const isFav = await checkFavorite(url); 
+        const btn = document.getElementById('favBtn');
+        const safeKey = url.replace(/[^a-zA-Z0-9]/g, '_');
+        const favData = {url, title, image, score, episode, timestamp: Date.now()};
+
+        // Siapkan penyimpanan Lokal
+        const database = await initDB(); 
+        const tx = database.transaction(STORE_FAV, 'readwrite'); 
+        const store = tx.objectStore(STORE_FAV);
+
+        if (isFav) { 
+            // Hapus dari Lokal & Firebase
+            store.delete(url); 
+            if(currentUser) db.ref(`favorites/${currentUser.uid}/${safeKey}`).remove();
+            
+            // Ubah UI Tombol
+            if(btn) { 
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; 
+                btn.style.color = '#fff'; 
+            } 
+        } else { 
+            // Simpan ke Lokal & Firebase
+            store.put(favData); 
+            if(currentUser) db.ref(`favorites/${currentUser.uid}/${safeKey}`).set(favData);
+            
+            // Ubah UI Tombol
+            if(btn) { 
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; 
+                btn.style.color = '#ef4444'; 
+            } 
+        }
     } catch(e) { console.error(e); }
 }
-async function checkFavorite(url) { try { const database = await initDB(); return new Promise((res) => { const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); req.onsuccess = () => res(!!req.result); req.onerror = () => res(false); }); } catch(e) { return false; } }
 
 window.toggleLikeAction = function(btn, type) {
     let likeBtn = document.getElementById('btn-like-action'); let dislikeBtn = document.getElementById('btn-dislike-action');
@@ -581,7 +754,29 @@ async function loadDetail(url) {
     history.pushState({page: 'detail'}, '', '#detail'); loader(true);
     try {
         const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
-        window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url }; window.currentAnimeEpisodes = data.episodes || []; window.currentPlayingAnime = null; 
+        
+        // FIX EPISODE GANDA DAN ACAK-ACAKAN
+        let rawEps = data.episodes || [];
+        let cleanEps = [];
+        let seenUrl = new Set();
+        rawEps.forEach(e => {
+            if(!seenUrl.has(e.url)) {
+                seenUrl.add(e.url);
+                cleanEps.push(e);
+            }
+        });
+        cleanEps.sort((a,b) => {
+            let getNum = (t) => {
+                let m = String(t).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                if(m) return parseFloat(m[1]);
+                let nums = String(t).match(/\d+/g);
+                return nums ? parseFloat(nums[nums.length-1]) : 0;
+            };
+            return getNum(a.title) - getNum(b.title); // Urutkan 1, 2, 3 dst...
+        });
+        data.episodes = cleanEps;
+
+        window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url }; window.currentAnimeEpisodes = data.episodes; window.currentPlayingAnime = null; 
         switchTab('detail'); 
         let scoreStr = data.info?.skor || data.info?.score || '8.25'; const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
         const type = data.info?.tipe || data.info?.type || 'TV'; const musim = data.info?.musim || data.info?.season || ''; const rilis = data.info?.dirilis || data.info?.released || ''; const seasonInfo = `${musim} ${rilis}`.trim() || 'Unknown';
@@ -644,6 +839,7 @@ async function loadVideo(url) {
         }
 
         let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
+if (currentUser) { db.ref('progress/' + currentUser.uid).set(watchProgress); }
         window.renderDetailEpisodeUI();
 
         let episodeID = url.replace(/[^a-zA-Z0-9]/g, '_'); 
@@ -1137,7 +1333,12 @@ async function checkAnimeUpdates() {
 }
 
 function switchTab(tabName) {
+    // FIX LAYAR NYANGKUT: Tutup paksa semua modal tersembunyi pas pindah halaman
+    document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.bottom-sheet').forEach(el => { el.style.display = 'none'; el.classList.remove('show'); });
+
     ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => { let el = document.getElementById(v); if(el) el.classList.add('hidden'); });
+    // ... sisa kode di bawahnya biarkan saja
     document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
     document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
