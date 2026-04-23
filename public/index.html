@@ -244,34 +244,35 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === KODE SAPU JAGAT: RATA KANAN-KIRI 100% PERSIS JADWAL === */
-
-        /* 1. HALAMAN DETAIL & NONTON: Luruskan SEMUA bagian (Sinopsis, Info, Tombol, Episode, Komentar) ke 15px */
-        #detail-view > div[style*="12px"],
-        #watch-view > div[style*="12px"],
-        .comment-section {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-            box-sizing: border-box !important;
-        }
-
-        /* 2. Pastikan isi kotak di dalamnya nge-pas penuh dengan wadah barunya */
-        #episode-list-detail-container > div,
-        .comment-item {
+                /* === BIKIN TAMPILAN FULL WIDTH (EDGE-TO-EDGE) === */
+        
+        /* 1. Lebarin Jadwal, Riwayat Profil, & Kotak Komentar */
+        .sched-card, 
+        .profile-list-item, 
+        .profile-comment-box {
             margin-left: 0 !important;
             margin-right: 0 !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
         }
 
-        /* 3. HALAMAN AKUN: Kembalikan murni ke setelan pabrik (Margin 15px rata tanpa nembus layar) */
-        .profile-list-item,
-        .profile-comment-box,
+        /* 2. Lebarin Kotak Komentar Profil (Override JS) */
         div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin: 0 15px 15px 15px !important;
-            width: auto !important;
-            max-width: none !important;
-            box-sizing: border-box !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        /* 3. Lebarin List Episode di menu Detail (Tembus Padding) */
+        div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
+            margin-left: -12px !important;
+            margin-right: -12px !important;
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
         }
     </style>
 </head>
@@ -419,6 +420,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
         </button>
     </nav>
+    
     <script src="app.js?v=1"></script>
 </body>
 </html>
