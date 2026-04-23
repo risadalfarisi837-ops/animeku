@@ -244,35 +244,38 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-                /* === BIKIN TAMPILAN FULL WIDTH (EDGE-TO-EDGE) === */
+        /* === TAMPILAN WIDE BUBBLE (LEBAR, LEGA, TAPI TETAP MEMBULAT) === */
         
-        /* 1. Lebarin Jadwal, Riwayat Profil, & Kotak Komentar */
+        /* 1. Jadwal, History Profil, & Kotak Komentar */
         .sched-card, 
         .profile-list-item, 
         .profile-comment-box {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            border-radius: 0 !important;
-            border-left: none !important;
-            border-right: none !important;
+            margin-left: 8px !important;
+            margin-right: 8px !important;
+            border-radius: 16px !important; /* Efek Bubble dipertahankan */
+            width: calc(100% - 16px) !important; /* Mentok ngelebar tapi sisa jarak aman 8px */
+            box-sizing: border-box !important;
         }
 
-        /* 2. Lebarin Kotak Komentar Profil (Override JS) */
+        /* 2. Kotak Komentar di Profil */
         div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            border-radius: 0 !important;
-            border-left: none !important;
-            border-right: none !important;
+            margin-left: 8px !important;
+            margin-right: 8px !important;
+            border-radius: 16px !important; /* Efek Bubble */
+            width: calc(100% - 16px) !important;
+            box-sizing: border-box !important;
         }
 
-        /* 3. Lebarin List Episode di menu Detail (Tembus Padding) */
+        /* 3. List Episode di Detail View */
+        #episode-list-detail-container {
+            /* Tarik keluar sedikit biar lebih lebar dari padding wadah aslinya */
+            margin-left: -4px !important; 
+            margin-right: -4px !important;
+            width: calc(100% + 8px) !important;
+        }
         div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
-            margin-left: -12px !important;
-            margin-right: -12px !important;
-            border-radius: 0 !important;
-            border-left: none !important;
-            border-right: none !important;
+            border-radius: 16px !important; /* Balikin jadi Bubble */
+            border: 1px solid #2c2c2e !important; /* Biar ngga kelihatan nyatu sama background */
         }
     </style>
 </head>
