@@ -244,38 +244,53 @@
         .nav-item { flex: 1; padding: 12px 0; background: transparent; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; cursor: pointer; transition: 0.2s; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;}
         .nav-item svg { margin-bottom: 4px; }
         .nav-item.active { color: #3b82f6; }
-        /* === TAMPILAN WIDE BUBBLE (LEBAR, LEGA, TAPI TETAP MEMBULAT) === */
+        /* === TAMPILAN BEBAS TANPA PENAHAN KOTAK (FULL EDGE-TO-EDGE) === */
         
-        /* 1. Jadwal, History Profil, & Kotak Komentar */
+        /* 1. Jadwal, History Profil, & Komentar Item */
         .sched-card, 
         .profile-list-item, 
         .profile-comment-box {
-            margin-left: 8px !important;
-            margin-right: 8px !important;
-            border-radius: 16px !important; /* Efek Bubble dipertahankan */
-            width: calc(100% - 16px) !important; /* Mentok ngelebar tapi sisa jarak aman 8px */
+            margin: 0 0 10px 0 !important; /* Hapus jarak kiri-kanan biar mentok */
+            border-radius: 0 !important; /* Hapus lengkungan kotak luar */
+            border: none !important; /* HAPUS GARIS PENAHAN */
+            border-bottom: 1px solid #1a1a1a !important; /* Cuma garis bawah halus sebagai pembatas */
+            width: 100% !important;
+            background: transparent !important; /* Menyatu langsung dengan background hitam utama */
+            padding-left: 20px !important;
+            padding-right: 20px !important;
             box-sizing: border-box !important;
         }
 
-        /* 2. Kotak Komentar di Profil */
+        /* 2. Kotak Komentar di Profil (Override Inline JS) */
         div[style*="margin-left: 15px; margin-right: 15px; background: #1c1c1e;"] {
-            margin-left: 8px !important;
-            margin-right: 8px !important;
-            border-radius: 16px !important; /* Efek Bubble */
-            width: calc(100% - 16px) !important;
+            margin: 0 0 10px 0 !important;
+            border-radius: 0 !important;
+            border: none !important;
+            border-bottom: 1px solid #1a1a1a !important;
+            width: 100% !important;
+            background: transparent !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
             box-sizing: border-box !important;
         }
 
         /* 3. List Episode di Detail View */
-        #episode-list-detail-container {
-            /* Tarik keluar sedikit biar lebih lebar dari padding wadah aslinya */
-            margin-left: -4px !important; 
-            margin-right: -4px !important;
-            width: calc(100% + 8px) !important;
+        #episode-list-detail-container > div {
+            border-radius: 0 !important;
+            border: none !important;
+            border-bottom: 1px solid #1a1a1a !important;
+            background: transparent !important; /* Hapus warna kotak */
+            margin-left: -12px !important; /* Tarik mentok layar */
+            margin-right: -12px !important; /* Tarik mentok layar */
+            padding-left: 20px !important;
+            padding-right: 20px !important;
         }
-        div[style*="justify-content:space-between; align-items:center; padding:15px;"] {
-            border-radius: 16px !important; /* Balikin jadi Bubble */
-            border: 1px solid #2c2c2e !important; /* Biar ngga kelihatan nyatu sama background */
+        
+        /* 4. Aksen List Episode yang sedang diputar (Tanpa ngurung) */
+        div[style*="background: rgba(59, 130, 246, 0.1)"] {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent) !important;
+            border-left: 4px solid #3b82f6 !important; /* Kasih tanda di kiri aja, ngga dikurung */
+            border-bottom: 1px solid #1a1a1a !important;
         }
     </style>
 </head>
@@ -423,7 +438,6 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Akun</span>
         </button>
     </nav>
-    
     <script src="app.js?v=1"></script>
 </body>
 </html>
