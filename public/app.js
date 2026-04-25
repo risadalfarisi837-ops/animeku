@@ -1,1 +1,2248 @@
-const _0x3e2470=_0x3f78;(function(_0x427cb7,_0x3d534e){const _0x2ab79b=_0x3f78,_0x403dff=_0x427cb7();while(!![]){try{const _0xac6878=-parseInt(_0x2ab79b(0x1e0))/0x1*(-parseInt(_0x2ab79b(0x266))/0x2)+parseInt(_0x2ab79b(0x565))/0x3+-parseInt(_0x2ab79b(0x355))/0x4*(parseInt(_0x2ab79b(0x36c))/0x5)+-parseInt(_0x2ab79b(0x306))/0x6*(-parseInt(_0x2ab79b(0x2d3))/0x7)+-parseInt(_0x2ab79b(0x305))/0x8+-parseInt(_0x2ab79b(0x443))/0x9*(parseInt(_0x2ab79b(0x20a))/0xa)+-parseInt(_0x2ab79b(0x26c))/0xb;if(_0xac6878===_0x3d534e)break;else _0x403dff['push'](_0x403dff['shift']());}catch(_0xe90eb4){_0x403dff['push'](_0x403dff['shift']());}}}(_0x2f4a,0x5ef76));const firebaseConfig={'apiKey':_0x3e2470(0x552),'authDomain':'animeku-c39ab.firebaseapp.com','databaseURL':_0x3e2470(0x533),'projectId':_0x3e2470(0x2eb),'storageBucket':_0x3e2470(0x435),'messagingSenderId':'583107813249','appId':_0x3e2470(0x316),'measurementId':_0x3e2470(0x230)};firebase['initializeApp'](firebaseConfig);const auth=firebase['auth'](),db=firebase['database']();let currentUser=null;window[_0x3e2470(0x39f)]={'glitch_merah':{'nama':_0x3e2470(0x3fa),'harga':0x3e8,'url':_0x3e2470(0x1cb)},'blue_premium':{'nama':_0x3e2470(0x206),'harga':0x1f4,'url':_0x3e2470(0x575)},'phoenix':{'nama':_0x3e2470(0x441),'harga':0x2ee,'url':_0x3e2470(0x1cd)},'venom':{'nama':'Venom','harga':0x320,'url':_0x3e2470(0x377)},'black-mana':{'nama':'Black\x20Mana','harga':0x3e8,'url':_0x3e2470(0x555)},'the-haxcore':{'nama':_0x3e2470(0x303),'harga':0x7d0,'url':_0x3e2470(0x515)},'fishbones':{'nama':_0x3e2470(0x1bb),'harga':0x5dc,'url':_0x3e2470(0x2fc)},'hologram-dragon':{'nama':_0x3e2470(0x42e),'harga':0xbb8,'url':_0x3e2470(0x557)},'baby-displacer-beast':{'nama':_0x3e2470(0x46d),'harga':0x1f4,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated'},'fallen-angel-(black)':{'nama':_0x3e2470(0x340),'harga':0x2bc,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated'},'spider-man':{'nama':_0x3e2470(0x268),'harga':0x3e8,'url':_0x3e2470(0x3aa)},'super-recognizer':{'nama':_0x3e2470(0x549),'harga':0x4b0,'url':_0x3e2470(0x508)},'infinite-swirl':{'nama':_0x3e2470(0x4f7),'harga':0x320,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated'},'juggernaut-astro':{'nama':'Juggernaut\x20Astro','harga':0x3e8,'url':_0x3e2470(0x3ae)},'the-anomaly':{'nama':'The-Anomaly','harga':0x7d0,'url':_0x3e2470(0x502)},'purple-animation':{'nama':_0x3e2470(0x3cc),'harga':0x3e8,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated'},'dark-hood':{'nama':_0x3e2470(0x221),'harga':0x1f4,'url':_0x3e2470(0x475)},'dark-hood\x20(crimson)':{'nama':'Drak\x20Hood\x20(crimson)','harga':0x1f4,'url':_0x3e2470(0x52d)},'zombie-food':{'nama':_0x3e2470(0x4e0),'harga':0x5dc,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated'},'juri':{'nama':_0x3e2470(0x327),'harga':0x3e8,'url':_0x3e2470(0x44e)}},window[_0x3e2470(0x460)]=function(_0x760fc6,_0x36846a='success'){const _0x421783=_0x3e2470;let _0xa8fef1=document['getElementById'](_0x421783(0x4be));!_0xa8fef1&&(_0xa8fef1=document[_0x421783(0x286)](_0x421783(0x36a)),_0xa8fef1['id']=_0x421783(0x4be),_0xa8fef1['style'][_0x421783(0x404)]=_0x421783(0x296),document[_0x421783(0x39c)]['appendChild'](_0xa8fef1));const _0x5534fc=document[_0x421783(0x286)]('div'),_0x503798=_0x36846a===_0x421783(0x22c)?_0x421783(0x1dc):_0x421783(0x352),_0x3092fa=_0x36846a===_0x421783(0x22c)?_0x421783(0x1fd):_0x421783(0x2f1);_0x5534fc[_0x421783(0x4bb)]['cssText']=_0x421783(0x21d)+_0x503798+';\x20border-radius:12px;\x20padding:12px\x2016px;\x20display:flex;\x20align-items:center;\x20gap:12px;\x20box-shadow:0\x2010px\x2025px\x20rgba(0,0,0,0.8);\x20transform:translateY(-30px);\x20opacity:0;\x20transition:all\x200.4s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);',_0x5534fc['innerHTML']=_0x421783(0x570)+_0x503798+';\x20border-radius:50%;\x20width:28px;\x20height:28px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20flex-shrink:0;\x20box-shadow:\x200\x200\x2010px\x20'+_0x503798+_0x421783(0x48e)+_0x3092fa+_0x421783(0x386)+_0x760fc6+_0x421783(0x1bf),_0xa8fef1[_0x421783(0x411)](_0x5534fc),setTimeout(()=>{const _0x46a818=_0x421783;_0x5534fc[_0x46a818(0x4bb)][_0x46a818(0x47f)]=_0x46a818(0x236),_0x5534fc['style']['opacity']='1';},0xa),setTimeout(()=>{const _0x1b96f4=_0x421783;_0x5534fc[_0x1b96f4(0x212)]&&(_0x5534fc[_0x1b96f4(0x4bb)][_0x1b96f4(0x47f)]=_0x1b96f4(0x2ef),_0x5534fc['style']['opacity']='0',setTimeout(()=>{const _0x515568=_0x1b96f4;if(_0x5534fc[_0x515568(0x212)])_0x5534fc['remove']();},0x12c));},0xbb8);};function injectPremiumStyles(){const _0xf0f94c=_0x3e2470;if(document[_0xf0f94c(0x25e)](_0xf0f94c(0x250)))document['getElementById'](_0xf0f94c(0x250))['remove']();const _0xee7a68=document['createElement'](_0xf0f94c(0x4bb));_0xee7a68['id']=_0xf0f94c(0x250),_0xee7a68[_0xf0f94c(0x54e)]=_0xf0f94c(0x49c),document[_0xf0f94c(0x48f)][_0xf0f94c(0x411)](_0xee7a68);}injectPremiumStyles(),window[_0x3e2470(0x338)]=function(){const _0x41167a=_0x3e2470;if(!currentUser)return;db[_0x41167a(0x4a4)](_0x41167a(0x579)+currentUser[_0x41167a(0x4f1)])[_0x41167a(0x472)](_0x41167a(0x493))[_0x41167a(0x4a2)](_0x3f7a33=>{const _0x259a4d=_0x41167a;if(_0x3f7a33[_0x259a4d(0x38c)]()){let _0x3092fd=_0x3f7a33[_0x259a4d(0x421)](),_0x373190=JSON[_0x259a4d(0x357)](localStorage[_0x259a4d(0x20e)]('watchProgress'))||{},_0x1a816d={..._0x373190,..._0x3092fd};localStorage[_0x259a4d(0x46c)](_0x259a4d(0x51e),JSON[_0x259a4d(0x20d)](_0x1a816d));if(typeof window[_0x259a4d(0x3d0)]==='function')window['renderDetailEpisodeUI']();}});},auth[_0x3e2470(0x201)](_0x340a27=>{const _0x5d0f45=_0x3e2470;currentUser=_0x340a27,updateDevUI();_0x340a27&&(syncProgressWithFirebase(),listenForGifts());if(document[_0x5d0f45(0x25e)](_0x5d0f45(0x2d7)))try{renderCommentInput(window[_0x5d0f45(0x2ff)]);}catch(_0x13aee3){}}),window['loginDenganGoogle']=function(){const _0x4db7da=_0x3e2470,_0x5a8ca8=new firebase['auth'][(_0x4db7da(0x45f))]();_0x5a8ca8['setCustomParameters']({'prompt':_0x4db7da(0x52a)}),auth[_0x4db7da(0x22b)](_0x5a8ca8)[_0x4db7da(0x4a2)](_0x174a16=>{const _0x5d2772=_0x4db7da,_0x1a4382=_0x174a16[_0x5d2772(0x3b7)];db[_0x5d2772(0x4a4)](_0x5d2772(0x247)+_0x1a4382[_0x5d2772(0x4f1)])[_0x5d2772(0x472)](_0x5d2772(0x493))[_0x5d2772(0x4a2)](_0x110d27=>{const _0x554ccf=_0x5d2772;!_0x110d27['exists']()?db['ref'](_0x554ccf(0x247)+_0x1a4382['uid'])[_0x554ccf(0x2fb)]({'nama':_0x1a4382[_0x554ccf(0x1f9)],'email':_0x1a4382[_0x554ccf(0x2c6)],'foto':_0x1a4382[_0x554ccf(0x1c6)],'role':_0x554ccf(0x1c7),'level':0x1,'exp':0x0,'joined':Date[_0x554ccf(0x3bf)](),'koin':0x0}):db[_0x554ccf(0x4a4)](_0x554ccf(0x247)+_0x1a4382[_0x554ccf(0x4f1)])[_0x554ccf(0x370)]({'nama':_0x1a4382[_0x554ccf(0x1f9)],'foto':_0x1a4382['photoURL']}),window[_0x554ccf(0x460)](_0x554ccf(0x1d0)+_0x1a4382[_0x554ccf(0x1f9)],_0x554ccf(0x22c));});})[_0x4db7da(0x32c)](_0x226a92=>{const _0x52d633=_0x4db7da;_0x226a92[_0x52d633(0x261)]!==_0x52d633(0x484)&&_0x226a92[_0x52d633(0x261)]!=='auth/cancelled-popup-request'&&window[_0x52d633(0x460)]('Gagal\x20login:\x20'+_0x226a92[_0x52d633(0x561)],_0x52d633(0x49b));});},window['logoutAkun']=function(){const _0x57648b=_0x3e2470;auth[_0x57648b(0x34a)]()[_0x57648b(0x4a2)](()=>{const _0x2947ed=_0x57648b;window[_0x2947ed(0x460)](_0x2947ed(0x2a0),_0x2947ed(0x22c)),setTimeout(()=>{const _0x33b9e4=_0x2947ed;location[_0x33b9e4(0x1e2)]();},0x5dc);});};const RANK_TIERS=[{'name':_0x3e2470(0x283),'minLvl':0x0,'maxLvl':0x31,'color':_0x3e2470(0x2ea),'icon':'🌑'},{'name':_0x3e2470(0x1c4),'minLvl':0x32,'maxLvl':0x95,'color':'#cd7f32','icon':'🥉'},{'name':_0x3e2470(0x46f),'minLvl':0x96,'maxLvl':0x1f3,'color':_0x3e2470(0x237),'icon':'🥈'},{'name':_0x3e2470(0x4e4),'minLvl':0x1f4,'maxLvl':0x9c3,'color':_0x3e2470(0x419),'icon':'🥇'},{'name':_0x3e2470(0x320),'minLvl':0x9c4,'maxLvl':0x1387,'color':_0x3e2470(0x448),'icon':'🔮'},{'name':_0x3e2470(0x1be),'minLvl':0x1388,'maxLvl':0x270f,'color':'#3498db','icon':'💎'},{'name':'Master','minLvl':0x2710,'maxLvl':0x4e1f,'color':'#9b59b6','icon':'👑'},{'name':_0x3e2470(0x2f3),'minLvl':0x4e20,'maxLvl':Infinity,'color':_0x3e2470(0x352),'icon':'🌟'}];function getRankInfo(_0x45a9d3){const _0x38dabd=_0x3e2470;return RANK_TIERS[_0x38dabd(0x4fc)](_0x3a6523=>_0x45a9d3>=_0x3a6523[_0x38dabd(0x42c)]&&_0x45a9d3<=_0x3a6523[_0x38dabd(0x2e9)])||RANK_TIERS[0x0];}function updateDevUI(){const _0x222da9=_0x3e2470,_0x3f7cdf=document['getElementById'](_0x222da9(0x477));if(!_0x3f7cdf)return;!currentUser?_0x3f7cdf[_0x222da9(0x54e)]='<div\x20style=\x22text-align:center;\x20padding:\x2040px\x2020px;\x22><div\x20style=\x22width:\x20100px;\x20height:\x20100px;\x20border-radius:\x2050%;\x20background:\x20#1a1a1a;\x20border:\x203px\x20solid\x20#333;\x20display:\x20flex;\x20align-items:\x20center;\x20justify-content:\x20center;\x20margin:\x200\x20auto\x2015px\x20auto;\x22><svg\x20width=\x2240\x22\x20height=\x2240\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#3b82f6\x22\x20stroke-width=\x222\x22><path\x20d=\x22M20\x2021v-2a4\x204\x200\x200\x200-4-4H8a4\x204\x200\x200\x200-4\x204v2\x22></path><circle\x20cx=\x2212\x22\x20cy=\x227\x22\x20r=\x224\x22></circle></svg></div><h2\x20style=\x22font-weight:900;\x20color:#fff;\x22>Akses\x20Akun\x20Animeku</h2><p\x20style=\x22color:#888;\x20margin-bottom:25px;\x20font-size:14px;\x20line-height:1.5;\x22>Login\x20untuk\x20membuka\x20fitur\x20Level,\x20ikut\x20berdiskusi\x20di\x20kolom\x20Komentar,\x20dan\x20menyimpan\x20progress\x20kamu.</p><button\x20class=\x22login-btn-google\x22\x20style=\x22display:\x20flex;\x20align-items:\x20center;\x20gap:\x2010px;\x20background:\x20#fff;\x20color:\x20#000;\x20padding:\x2012px\x2020px;\x20border-radius:\x2012px;\x20font-weight:\x20800;\x20border:\x20none;\x20width:\x20100%;\x20justify-content:\x20center;\x20cursor:\x20pointer;\x20margin-top:\x2015px;\x22\x20onclick=\x22loginDenganGoogle()\x22><svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22><path\x20fill-rule=\x22evenodd\x22\x20clip-rule=\x22evenodd\x22\x20d=\x22M23.52\x2012.2727C23.52\x2011.4218\x2023.4436\x2010.6036\x2023.3018\x209.81818H12V14.4545H18.4582C18.18\x2015.9491\x2017.3345\x2017.2145\x2016.0691\x2018.0655V21.0545H19.9473C22.2164\x2018.96\x2023.52\x2015.8945\x2023.52\x2012.2727Z\x22\x20fill=\x22#4285F4\x22/><path\x20fill-rule=\x22evenodd\x22\x20clip-rule=\x22evenodd\x22\x20d=\x22M12\x2024C15.24\x2024\x2017.9673\x2022.92\x2019.9473\x2021.0545L16.0691\x2018.0655C15.0055\x2018.7855\x2013.6255\x2019.2218\x2012\x2019.2218C8.85273\x2019.2218\x206.18545\x2017.0945\x205.21455\x2014.2364H1.22182V17.3345C3.20182\x2021.2727\x207.27636\x2024\x2012\x2024Z\x22\x20fill=\x22#34A853\x22/><path\x20fill-rule=\x22evenodd\x22\x20clip-rule=\x22evenodd\x22\x20d=\x22M5.21455\x2014.2364C4.96364\x2013.4836\x204.82182\x2012.6764\x204.82182\x2011.8473C4.82182\x2011.0182\x204.96364\x2010.2109\x205.21455\x209.45818V6.36H1.22182C0.447273\x207.90909\x200\x209.81818\x200\x2011.8473C0\x2013.8764\x200.447273\x2015.7855\x201.22182\x2017.3345L5.21455\x2014.2364Z\x22\x20fill=\x22#FBBC05\x22/><path\x20fill-rule=\x22evenodd\x22\x20clip-rule=\x22evenodd\x22\x20d=\x22M12\x204.47273C13.7673\x204.47273\x2015.3491\x205.08364\x2016.5927\x206.27273L20.0345\x202.83091C17.9564\x200.894545\x2015.2291\x200\x2012\x200C7.27636\x200\x203.20182\x202.72727\x201.22182\x206.36L5.21455\x209.45818C6.18545\x206.6\x208.85273\x204.47273\x2012\x204.47273Z\x22\x20fill=\x22#EA4335\x22/></svg>\x20Lanjutkan\x20dengan\x20Google</button></div>':(_0x3f7cdf[_0x222da9(0x54e)]='<div\x20style=\x22height:50px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x22><div\x20class=\x22spinner\x22\x20style=\x22width:25px;\x20height:25px;\x22></div></div>',db[_0x222da9(0x4a4)](_0x222da9(0x247)+currentUser[_0x222da9(0x4f1)])['on'](_0x222da9(0x493),async _0x54ca3a=>{const _0x2a769d=_0x222da9;try{let _0x5535ba=_0x54ca3a[_0x2a769d(0x421)]();!_0x5535ba&&(_0x5535ba={'nama':currentUser[_0x2a769d(0x1f9)]||'Wibu','email':currentUser['email']||'','foto':currentUser['photoURL']||_0x2a769d(0x51b),'role':_0x2a769d(0x1c7),'level':0x1,'exp':0x0,'joined':Date[_0x2a769d(0x3bf)]()},await db[_0x2a769d(0x4a4)]('users/'+currentUser['uid'])['set'](_0x5535ba));let _0x35a373=[];try{_0x35a373=await getHistory();}catch(_0x12209e){}const _0x5b480b=_0x5535ba[_0x2a769d(0x577)]||_0x2a769d(0x1c7),_0x19c324=_0x5535ba[_0x2a769d(0x1f4)]||0x1,_0x499dd7=_0x5535ba[_0x2a769d(0x4db)]||0x0,_0x4853d3=currentUser[_0x2a769d(0x44b)][_0x2a769d(0x1c5)]?new Date(currentUser['metadata'][_0x2a769d(0x1c5)]):new Date(),_0x3fd446=(new Date()['getFullYear']()-_0x4853d3[_0x2a769d(0x2c9)]())*0xc+(new Date()[_0x2a769d(0x2fd)]()-_0x4853d3[_0x2a769d(0x2fd)]()),_0x6ece30=Math[_0x2a769d(0x4f0)](0x1,_0x3fd446);let _0xb44383=Math[_0x2a769d(0x35f)](_0x499dd7*1.2);if(_0xb44383===0x0)_0xb44383=(_0x35a373[_0x2a769d(0x314)]||0x0)*0x18;const _0x5aa399=Math['floor'](_0xb44383/0x3c),_0x314189=_0x5535ba[_0x2a769d(0x539)]||_0x2a769d(0x3fe),_0x5030fb=_0x5535ba['foto']||'https://placehold.co/100',_0x5290ca='#'+currentUser[_0x2a769d(0x4f1)][_0x2a769d(0x483)](0x0,0x6)[_0x2a769d(0x276)]();let _0x3fd318=_0x2a769d(0x523),_0xbc7f35=_0x5b480b,_0x59e1ed='';if(_0x5b480b==='Developer')_0x3fd318=_0x2a769d(0x4c1),_0xbc7f35=_0x2a769d(0x4a3),_0x59e1ed='onclick=\x22event.stopPropagation();\x20openDevModal(\x27'+_0x5290ca+_0x2a769d(0x35e);else(_0x5b480b===_0x2a769d(0x1d3)||_0x19c324>=0x32)&&(_0x3fd318='badge-premium-anim',_0xbc7f35=_0x5b480b!=='Member'?_0x5b480b:_0x2a769d(0x1d3));const _0x3f9f08=getRankInfo(_0x19c324);let _0x115bf2=_0x2a769d(0x546)+_0x3f9f08[_0x2a769d(0x535)]['toLowerCase'](),_0x8dd74a=_0x2a769d(0x46b)+_0x3f9f08[_0x2a769d(0x535)]['toLowerCase'](),_0x37073b=_0x35a373&&_0x35a373[_0x2a769d(0x314)]>0x0?_0x35a373[_0x2a769d(0x3d4)](_0x330f89=>{const _0x9232ba=_0x2a769d;let _0x619196=Math[_0x9232ba(0x4f0)](0x1,Math[_0x9232ba(0x35f)]((Date[_0x9232ba(0x3bf)]()-_0x330f89['timestamp'])/(0x3e8*0x3c*0x3c*0x18))),_0x22faeb=Math[_0x9232ba(0x35f)](Math[_0x9232ba(0x243)]()*0x50+0x14);return'<div\x20class=\x22profile-list-item\x22\x20onclick=\x22loadDetail(\x27'+_0x330f89[_0x9232ba(0x374)]+_0x9232ba(0x317)+_0x330f89[_0x9232ba(0x27d)]+'\x22\x20class=\x22pli-img\x22><div\x20style=\x22position:absolute;\x20bottom:-5px;\x20right:-5px;\x20background:#111;\x20border-radius:50%;\x20padding:2px;\x22><img\x20src=\x22'+_0x5030fb+_0x9232ba(0x55e)+_0x330f89[_0x9232ba(0x4d0)]+'</div><div\x20class=\x22pli-ep\x22>'+(_0x330f89[_0x9232ba(0x41d)]||_0x9232ba(0x31b))+'\x20•\x20'+_0x619196+_0x9232ba(0x412)+_0x22faeb+_0x9232ba(0x479);})[_0x2a769d(0x4dd)](''):_0x2a769d(0x413),_0x29bf30=_0x5535ba[_0x2a769d(0x41a)]||'',_0x5ce925=_0x29bf30&&window[_0x2a769d(0x39f)]&&window[_0x2a769d(0x39f)][_0x29bf30]?window[_0x2a769d(0x39f)][_0x29bf30][_0x2a769d(0x374)]:'',_0x4f8cf1=_0x5ce925?_0x2a769d(0x3f4)+_0x5ce925+_0x2a769d(0x53b):'',_0x1b9a87=_0x5535ba[_0x2a769d(0x3bc)]||0x0;_0x3f7cdf[_0x2a769d(0x54e)]=_0x2a769d(0x282)+_0x1b9a87+_0x2a769d(0x466)+_0x5030fb+_0x2a769d(0x295)+_0x8dd74a+_0x2a769d(0x553)+_0x4f8cf1+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22profile-user-name-display\x22\x20class=\x22profile-name\x22\x20onclick=\x22window.openChangeNameModal()\x22\x20style=\x22cursor:pointer;\x22>'+_0x314189+_0x2a769d(0x511)+_0x3fd318+'\x22\x20'+_0x59e1ed+'>'+_0xbc7f35+_0x2a769d(0x3fc)+_0x115bf2+_0x2a769d(0x50a)+_0x19c324+_0x2a769d(0x271)+_0x499dd7+_0x2a769d(0x40a)+_0x5aa399+_0x2a769d(0x31d)+_0x3f9f08[_0x2a769d(0x4e7)]+_0x2a769d(0x56c)+_0x19c324+_0x2a769d(0x4d4)+_0x5290ca+_0x2a769d(0x529)+_0xb44383+_0x2a769d(0x3be)+_0x6ece30+'</div><div\x20class=\x22stat-lbl\x22>bulan<br>bergabung</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-tabs\x22><div\x20class=\x22ptab\x20active\x22\x20onclick=\x22switchProfileTab(\x27all\x27,\x20this)\x22>All</div><div\x20class=\x22ptab\x22\x20onclick=\x22switchProfileTab(\x27comments\x27,\x20this)\x22>Comments</div><div\x20class=\x22ptab\x22\x20onclick=\x22switchProfileTab(\x27history\x27,\x20this)\x22>History</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22ptab-all\x22\x20class=\x22ptab-content\x22>'+_0x37073b+_0x2a769d(0x1bd)+_0x37073b+'</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22openLogoutModal()\x22\x20style=\x22margin:\x2020px;\x20width:calc(100%\x20-\x2040px);\x20background:transparent;\x20border:1px\x20solid\x20#333;\x20color:#ef4444;\x20padding:12px;\x20border-radius:12px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x22>Keluar\x20Akun</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';}catch(_0x5e6480){console['error'](_0x5e6480),_0x3f7cdf['innerHTML']=_0x2a769d(0x23a);}}));}function injectUserProfileModal(){const _0x545603=_0x3e2470;if(document[_0x545603(0x25e)](_0x545603(0x24a)))return;const _0x47cfb6=document[_0x545603(0x286)](_0x545603(0x36a));_0x47cfb6['id']='user-profile-modal-injected',_0x47cfb6[_0x545603(0x54e)]=_0x545603(0x53e),document['body'][_0x545603(0x411)](_0x47cfb6);}window[_0x3e2470(0x2e1)]=function(_0x1f6610,_0xdc2762){const _0x875448=_0x3e2470;document['querySelectorAll'](_0x875448(0x38e))[_0x875448(0x27e)](_0xed588d=>_0xed588d[_0x875448(0x476)][_0x875448(0x318)](_0x875448(0x396))),_0xdc2762['classList'][_0x875448(0x536)]('active'),document[_0x875448(0x325)](_0x875448(0x499))[_0x875448(0x27e)](_0x115119=>_0x115119[_0x875448(0x4bb)]['display']=_0x875448(0x442)),document[_0x875448(0x25e)]('modal-ptab-'+_0x1f6610)[_0x875448(0x4bb)][_0x875448(0x28e)]='block';},window[_0x3e2470(0x391)]=function(_0x88f531){const _0x2de1c8=_0x3e2470;if(!_0x88f531||_0x88f531==='undefined')return;injectUserProfileModal();const _0x5e93dc=document[_0x2de1c8(0x25e)](_0x2de1c8(0x23c)),_0x2248a5=document[_0x2de1c8(0x25e)](_0x2de1c8(0x23b)),_0x6a9dfe=document['getElementById'](_0x2de1c8(0x473));_0x5e93dc[_0x2de1c8(0x4bb)][_0x2de1c8(0x28e)]=_0x2de1c8(0x214),_0x2248a5['style']['display']=_0x2de1c8(0x284),setTimeout(()=>{const _0x16028c=_0x2de1c8;_0x2248a5['classList'][_0x16028c(0x536)]('show');},0xa),_0x6a9dfe[_0x2de1c8(0x54e)]='<div\x20style=\x22height:100px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x22><div\x20class=\x22spinner\x22></div></div>',db[_0x2de1c8(0x4a4)](_0x2de1c8(0x247)+_0x88f531)[_0x2de1c8(0x472)](_0x2de1c8(0x493))[_0x2de1c8(0x4a2)](async _0xf3f417=>{const _0x3fbfe3=_0x2de1c8;if(!_0xf3f417[_0x3fbfe3(0x38c)]()){_0x6a9dfe['innerHTML']='<div\x20style=\x22text-align:center;\x20padding:30px;\x20color:#888;\x22>User\x20tidak\x20ditemukan.</div>';return;}const _0xa1d0ca=_0xf3f417[_0x3fbfe3(0x421)](),_0x570e93=_0xa1d0ca['nama']||_0x3fbfe3(0x544),_0x19899c=_0xa1d0ca[_0x3fbfe3(0x1d6)]||_0x3fbfe3(0x51b),_0x47b752=_0xa1d0ca[_0x3fbfe3(0x577)]||_0x3fbfe3(0x1c7),_0x12ed8c=_0xa1d0ca[_0x3fbfe3(0x1f4)]||0x1,_0x600f4e='#'+_0x88f531[_0x3fbfe3(0x483)](0x0,0x6)['toUpperCase']();let _0xe4f2d8=_0x3fbfe3(0x523),_0x220dff=_0x47b752;if(_0x47b752===_0x3fbfe3(0x302))_0xe4f2d8=_0x3fbfe3(0x4c1),_0x220dff=_0x3fbfe3(0x4a3);else{if(_0x47b752===_0x3fbfe3(0x1d3)||_0x12ed8c>=0x32)_0xe4f2d8=_0x3fbfe3(0x2c7),_0x220dff=_0x47b752!==_0x3fbfe3(0x1c7)?_0x47b752:_0x3fbfe3(0x1d3);else _0x47b752===_0x3fbfe3(0x1c7)&&(_0x220dff=_0x3fbfe3(0x22f));}let _0x322c09=_0xa1d0ca[_0x3fbfe3(0x41a)]||'',_0x4d90ee=_0x322c09&&window['BORDER_CATALOG']&&window[_0x3fbfe3(0x39f)][_0x322c09]?window[_0x3fbfe3(0x39f)][_0x322c09][_0x3fbfe3(0x374)]:'',_0x5ed9c0=_0x4d90ee?_0x3fbfe3(0x3f4)+_0x4d90ee+_0x3fbfe3(0x53b):'';const _0x5cf064=getRankInfo(_0x12ed8c);let _0x3e4ef0=_0x3fbfe3(0x546)+_0x5cf064[_0x3fbfe3(0x535)][_0x3fbfe3(0x36e)](),_0xee07a9=_0x3fbfe3(0x46b)+_0x5cf064[_0x3fbfe3(0x535)][_0x3fbfe3(0x36e)](),_0x50c3a6=[];try{const _0x40dbc7=await db[_0x3fbfe3(0x4a4)]('comments')[_0x3fbfe3(0x472)](_0x3fbfe3(0x493));_0x40dbc7[_0x3fbfe3(0x27e)](_0x11b9e1=>{_0x11b9e1['forEach'](_0x407e38=>{const _0x27eff7=_0x3f78;let _0x5f4fb0=_0x407e38['val']();_0x5f4fb0[_0x27eff7(0x4f1)]===_0x88f531&&_0x50c3a6[_0x27eff7(0x49e)]({'epID':_0x11b9e1['key'],..._0x5f4fb0});});});}catch(_0x1d0402){}_0x50c3a6['sort']((_0x575a1d,_0x1519b2)=>_0x1519b2[_0x3fbfe3(0x3f1)]-_0x575a1d[_0x3fbfe3(0x3f1)]);let _0x44c841=_0x50c3a6[_0x3fbfe3(0x314)]>0x0?_0x50c3a6[_0x3fbfe3(0x3d4)](_0x28d436=>{const _0x4fd523=_0x3fbfe3;let _0x231098=new Date(_0x28d436[_0x4fd523(0x3f1)]||Date[_0x4fd523(0x3bf)]()),_0x124448=[_0x4fd523(0x280),_0x4fd523(0x37d),_0x4fd523(0x1c3),_0x4fd523(0x204),'Mei','Jun',_0x4fd523(0x2b2),_0x4fd523(0x55d),_0x4fd523(0x249),_0x4fd523(0x298),_0x4fd523(0x35a),_0x4fd523(0x334)],_0xaeaac8=String(_0x231098['getDate']())[_0x4fd523(0x488)](0x2,'0')+'\x20'+_0x124448[_0x231098[_0x4fd523(0x2fd)]()]+'\x20'+_0x231098['getFullYear'](),_0x54d617=_0x28d436[_0x4fd523(0x4f4)]||_0x4fd523(0x474),_0x3d5a15=_0x28d436[_0x4fd523(0x573)]||_0x4fd523(0x51b),_0xde2feb=_0x28d436[_0x4fd523(0x37a)]||_0x4fd523(0x31b),_0x78e710=_0x28d436[_0x4fd523(0x374)]?'closeUserProfileModal();\x20loadDetail(\x27'+_0x28d436[_0x4fd523(0x374)]+'\x27)':_0x4fd523(0x566)+_0x28d436['epID']+'\x27,\x20\x27success\x27)';return _0x4fd523(0x211)+_0x78e710+_0x4fd523(0x4c6)+_0x3d5a15+_0x4fd523(0x1ea)+_0x19899c+_0x4fd523(0x531)+_0x54d617+_0x4fd523(0x39d)+_0xde2feb+'\x20•\x20'+_0xaeaac8+_0x4fd523(0x1ce)+_0x28d436[_0x4fd523(0x1ff)]+'</div><div\x20style=\x22font-size:\x2013px;\x20color:\x20#3b82f6;\x20font-weight:\x20700;\x20cursor:\x20pointer;\x20display:\x20inline-block;\x22\x20onclick=\x22'+_0x78e710+_0x4fd523(0x2f8);})[_0x3fbfe3(0x4dd)](''):_0x3fbfe3(0x3c6),_0xec513b=_0xa1d0ca[_0x3fbfe3(0x4db)]||0x0,_0x178dc7=Math[_0x3fbfe3(0x35f)](_0xec513b*1.2)||_0x12ed8c*0x78,_0x249cdd=_0xa1d0ca[_0x3fbfe3(0x440)]?Math[_0x3fbfe3(0x4f0)](0x1,Math['floor']((Date[_0x3fbfe3(0x3bf)]()-_0xa1d0ca['joined'])/(0x3e8*0x3c*0x3c*0x18*0x1e))):0x1,_0x4462e4='<p\x20style=\x22text-align:center;\x20color:#555;\x20font-size:13px;\x20margin-top:30px;\x22>Riwayat\x20tontonan\x20bersifat\x20privat.</p>';_0x6a9dfe[_0x3fbfe3(0x54e)]=_0x3fbfe3(0x3dc)+_0x19899c+_0x3fbfe3(0x295)+_0xee07a9+_0x3fbfe3(0x290)+_0x5ed9c0+_0x3fbfe3(0x2ac)+_0x570e93+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-badges\x22\x20style=\x22display:flex;\x20gap:8px;\x20justify-content:center;\x20align-items:center;\x20margin-bottom:20px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20'+_0xe4f2d8+'\x22\x20style=\x22font-size:11px;\x20padding:4px\x2010px;\x22>'+_0x220dff+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20'+_0x3e4ef0+_0x3fbfe3(0x37f)+_0x5cf064[_0x3fbfe3(0x4e7)]+_0x3fbfe3(0x56c)+_0x12ed8c+_0x3fbfe3(0x392)+_0x600f4e+_0x3fbfe3(0x450)+_0x178dc7+_0x3fbfe3(0x495)+_0x50c3a6[_0x3fbfe3(0x314)]+'</div><div\x20class=\x22stat-lbl\x22>jumlah<br>komentar</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22>'+_0x249cdd+_0x3fbfe3(0x376)+_0x44c841+_0x3fbfe3(0x2e8)+_0x44c841+_0x3fbfe3(0x521)+_0x4462e4+_0x3fbfe3(0x4c4);});},window[_0x3e2470(0x509)]=function(){const _0x7f3ac5=_0x3e2470,_0x21e223=document[_0x7f3ac5(0x25e)](_0x7f3ac5(0x23b)),_0x3188f1=document[_0x7f3ac5(0x25e)](_0x7f3ac5(0x23c));_0x21e223&&(_0x21e223[_0x7f3ac5(0x476)][_0x7f3ac5(0x318)]('show'),setTimeout(()=>{const _0x58d20a=_0x7f3ac5;_0x3188f1['style'][_0x58d20a(0x28e)]=_0x58d20a(0x442),_0x21e223['style'][_0x58d20a(0x28e)]=_0x58d20a(0x442);},0x12c));},window[_0x3e2470(0x4c2)]=function(_0x134c60,_0x16de57,_0x23cf25){const _0x2ffab5=_0x3e2470,_0x536c21=document['getElementById'](_0x2ffab5(0x29a)),_0xcd4c25=document[_0x2ffab5(0x25e)](_0x2ffab5(0x4b6)),_0x16c992=document[_0x2ffab5(0x25e)](_0x2ffab5(0x562)),_0x3ed51c=getRankInfo(_0x134c60);document[_0x2ffab5(0x25e)]('level-modal-subtitle')[_0x2ffab5(0x432)]=_0x2ffab5(0x2be)+_0x134c60+'\x20•\x20'+_0x3ed51c[_0x2ffab5(0x535)],document[_0x2ffab5(0x25e)](_0x2ffab5(0x3d8))[_0x2ffab5(0x432)]=typeof _0x16de57===_0x2ffab5(0x375)?_0x16de57['toLocaleString'](_0x2ffab5(0x28b)):_0x16de57,document['getElementById']('level-modal-total-time')[_0x2ffab5(0x432)]=_0x23cf25+_0x2ffab5(0x3c4);let _0x102dbb='';RANK_TIERS[_0x2ffab5(0x27e)](_0x152c27=>{const _0x4a4354=_0x2ffab5;let _0xfd67a7=_0x134c60>=_0x152c27['minLvl']&&_0x134c60<=_0x152c27[_0x4a4354(0x2e9)],_0xeb97a=_0x134c60>_0x152c27[_0x4a4354(0x2e9)],_0x368f16=_0xfd67a7?_0x4a4354(0x47d):_0xeb97a?'<svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#10b981\x22\x20stroke-width=\x223\x22><polyline\x20points=\x2220\x206\x209\x2017\x204\x2012\x22></polyline></svg>':'<svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#555\x22\x20stroke-width=\x222\x22><rect\x20x=\x223\x22\x20y=\x2211\x22\x20width=\x2218\x22\x20height=\x2211\x22\x20rx=\x222\x22\x20ry=\x222\x22></rect><path\x20d=\x22M7\x2011V7a5\x205\x200\x200\x201\x2010\x200v4\x22></path></svg>',_0x34bd97=_0xfd67a7?_0x4a4354(0x2aa):'padding:\x2015px\x200;',_0x3ee665=_0x152c27[_0x4a4354(0x2e9)]===Infinity?_0x4a4354(0x2be)+_0x152c27[_0x4a4354(0x42c)]+'+':'Level\x20'+_0x152c27['minLvl']+_0x4a4354(0x422)+_0x152c27[_0x4a4354(0x2e9)];_0x102dbb+=_0x4a4354(0x52b)+_0x34bd97+'\x22><div\x20class=\x22rank-info\x22><div\x20class=\x22rank-icon\x20rank-icon-'+_0x152c27['name'][_0x4a4354(0x36e)]()+'\x22\x20style=\x22background:\x20'+_0x152c27[_0x4a4354(0x1e4)]+_0x4a4354(0x2ba)+_0x152c27[_0x4a4354(0x1e4)][_0x4a4354(0x3a0)](_0x4a4354(0x3a7),_0x4a4354(0x360))[_0x4a4354(0x3a0)]('0.25','0.6')+_0x4a4354(0x568)+_0x152c27[_0x4a4354(0x4e7)]+_0x4a4354(0x34c)+(_0xfd67a7?_0x4a4354(0x564):_0xeb97a?_0x4a4354(0x4cd):'#888')+'\x22>'+_0x152c27['name']+'</div><div\x20class=\x22rank-req\x22>'+_0x3ee665+_0x4a4354(0x1fe)+_0x368f16+'</div></div>';}),_0x16c992[_0x2ffab5(0x54e)]=_0x102dbb,_0x536c21['style']['display']='block',_0xcd4c25[_0x2ffab5(0x4bb)]['display']=_0x2ffab5(0x284),setTimeout(()=>{const _0x3d0648=_0x2ffab5;_0xcd4c25[_0x3d0648(0x476)][_0x3d0648(0x536)]('show');},0xa);},window[_0x3e2470(0x428)]=function(){const _0x5d3b61=_0x3e2470,_0x35075e=document[_0x5d3b61(0x25e)]('levelModal');_0x35075e[_0x5d3b61(0x476)]['remove'](_0x5d3b61(0x540)),setTimeout(()=>{const _0x2ce073=_0x5d3b61;document['getElementById']('levelModalOverlay')['style']['display']=_0x2ce073(0x442),_0x35075e['style']['display']=_0x2ce073(0x442);},0x12c);},window[_0x3e2470(0x407)]=function(_0x5900fd,_0x1f18e6){const _0xae47c7=_0x3e2470;document[_0xae47c7(0x325)]('.ptab')[_0xae47c7(0x27e)](_0x2190b9=>_0x2190b9[_0xae47c7(0x476)][_0xae47c7(0x318)]('active')),_0x1f18e6['classList']['add']('active'),document[_0xae47c7(0x325)](_0xae47c7(0x48a))['forEach'](_0x1f51aa=>_0x1f51aa['style'][_0xae47c7(0x28e)]='none'),document['getElementById'](_0xae47c7(0x38b)+_0x5900fd)[_0xae47c7(0x4bb)][_0xae47c7(0x28e)]=_0xae47c7(0x214);};const API_BASE='/api',DB_NAME=_0x3e2470(0x342),STORE_HISTORY=_0x3e2470(0x1fa),STORE_FAV=_0x3e2470(0x414);window['currentFavData']=[],window[_0x3e2470(0x300)]=null,window[_0x3e2470(0x33f)]='desc',window['epLayoutMode']='list',window['toggleEpLayout']=function(){const _0x2f633d=_0x3e2470;window[_0x2f633d(0x35d)]=window[_0x2f633d(0x35d)]===_0x2f633d(0x359)?_0x2f633d(0x34f):_0x2f633d(0x359),window[_0x2f633d(0x3d0)]();},window[_0x3e2470(0x44c)]=function(){const _0x2cd68e=_0x3e2470;window['epSortOrder']=window[_0x2cd68e(0x33f)]==='desc'?_0x2cd68e(0x4e6):'desc',window[_0x2cd68e(0x3d0)]();},window[_0x3e2470(0x3d0)]=function(){const _0x1a3c1d=_0x3e2470;let _0x4ed732=document['getElementById'](_0x1a3c1d(0x29d));if(!_0x4ed732)return;let _0x2e7a16='<svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><line\x20x1=\x228\x22\x20y1=\x226\x22\x20x2=\x2221\x22\x20y2=\x226\x22></line><line\x20x1=\x228\x22\x20y1=\x2212\x22\x20x2=\x2221\x22\x20y2=\x2212\x22></line><line\x20x1=\x228\x22\x20y1=\x2218\x22\x20x2=\x2221\x22\x20y2=\x2218\x22></line><line\x20x1=\x223\x22\x20y1=\x226\x22\x20x2=\x223.01\x22\x20y2=\x226\x22></line><line\x20x1=\x223\x22\x20y1=\x2212\x22\x20x2=\x223.01\x22\x20y2=\x2212\x22></line><line\x20x1=\x223\x22\x20y1=\x2218\x22\x20x2=\x223.01\x22\x20y2=\x2218\x22></line></svg>\x20List',_0x3be4a3='<svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><rect\x20x=\x223\x22\x20y=\x223\x22\x20width=\x227\x22\x20height=\x227\x22></rect><rect\x20x=\x2214\x22\x20y=\x223\x22\x20width=\x227\x22\x20height=\x227\x22></rect><rect\x20x=\x2214\x22\x20y=\x2214\x22\x20width=\x227\x22\x20height=\x227\x22></rect><rect\x20x=\x223\x22\x20y=\x2214\x22\x20width=\x227\x22\x20height=\x227\x22></rect></svg>\x20Grid',_0x589a41=window[_0x1a3c1d(0x33f)]===_0x1a3c1d(0x4da)?_0x1a3c1d(0x4bc):_0x1a3c1d(0x409);document[_0x1a3c1d(0x325)](_0x1a3c1d(0x36f))[_0x1a3c1d(0x27e)](_0x4e757d=>_0x4e757d['innerHTML']=window['epLayoutMode']===_0x1a3c1d(0x34f)?_0x3be4a3:_0x2e7a16),document[_0x1a3c1d(0x325)]('.btn-ep-sort')[_0x1a3c1d(0x27e)](_0x396ea8=>_0x396ea8[_0x1a3c1d(0x54e)]=_0x589a41);let _0x13adc3=[...window[_0x1a3c1d(0x4df)]||[]];if(window['epSortOrder']===_0x1a3c1d(0x4da))_0x13adc3[_0x1a3c1d(0x4fb)]();let _0x3ea8cb=JSON[_0x1a3c1d(0x357)](localStorage['getItem'](_0x1a3c1d(0x4a5)))||[],_0x4e326e=new Set(_0x3ea8cb),_0x4f46dc=JSON['parse'](localStorage[_0x1a3c1d(0x20e)](_0x1a3c1d(0x51e)))||{},_0x37b4ee=window['currentPlayingAnime']?window[_0x1a3c1d(0x300)][_0x1a3c1d(0x374)]:'',_0x30a265='';window[_0x1a3c1d(0x35d)]==='grid'?(_0x30a265=_0x13adc3[_0x1a3c1d(0x3d4)]((_0x1ab14c,_0x4836a9)=>{const _0x367acf=_0x1a3c1d;let _0x28c555=window[_0x367acf(0x33f)]===_0x367acf(0x4da)?_0x13adc3['length']-_0x4836a9:_0x4836a9+0x1,_0xcd802a=String(_0x1ab14c[_0x367acf(0x4d0)]||'1')[_0x367acf(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i),_0x54a31b=_0xcd802a?_0xcd802a[0x1]:_0x28c555,_0x255d5a=_0x4f46dc[_0x1ab14c['url']],_0x4dd6cf=_0x1ab14c[_0x367acf(0x374)]===_0x37b4ee,_0x2f3ff2=_0x367acf(0x2f9),_0x740106=_0x367acf(0x246);if(_0x255d5a>=0x64){_0x2f3ff2+='\x20active';if(_0x4dd6cf)_0x740106+=_0x367acf(0x4e8);}else{if(_0x255d5a>0x0)_0x740106+=_0x367acf(0x2cc)+_0x255d5a+_0x367acf(0x272)+_0x255d5a+_0x367acf(0x2f7);else{if(_0x255d5a===0x0||_0x4dd6cf)_0x2f3ff2+='\x20watched';else _0x4e326e['has'](_0x1ab14c[_0x367acf(0x374)])&&(_0x2f3ff2+=_0x367acf(0x54a));}}return _0x367acf(0x348)+_0x2f3ff2+'\x22\x20style=\x22'+_0x740106+'\x22\x20onclick=\x22loadVideo(\x27'+_0x1ab14c[_0x367acf(0x374)]+'\x27)\x22>'+_0x54a31b+_0x367acf(0x1bf);})[_0x1a3c1d(0x4dd)](''),_0x4ed732[_0x1a3c1d(0x4bb)]=_0x1a3c1d(0x3b5),_0x4ed732[_0x1a3c1d(0x54e)]=_0x30a265):(_0x30a265=_0x13adc3[_0x1a3c1d(0x3d4)]((_0x3b28d3,_0x1724f9)=>{const _0x3e274b=_0x1a3c1d;let _0xabd6d2=window[_0x3e274b(0x33f)]===_0x3e274b(0x4da)?_0x13adc3[_0x3e274b(0x314)]-_0x1724f9:_0x1724f9+0x1,_0x52dd2f=String(_0x3b28d3[_0x3e274b(0x4d0)]||'1')[_0x3e274b(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i),_0x33a796=_0x52dd2f?_0x52dd2f[0x1]:_0xabd6d2,_0x5efccd=Math['floor'](Math['random']()*0xc8+0xa)+','+Math[_0x3e274b(0x35f)](Math[_0x3e274b(0x243)]()*0x9)+_0x3e274b(0x2de),_0x571d8d='16\x20Apr\x202026',_0xd75b69=_0x4f46dc[_0x3b28d3[_0x3e274b(0x374)]],_0x7de74d=_0x3b28d3[_0x3e274b(0x374)]===_0x37b4ee,_0x4c2b03=_0x3e274b(0x293),_0x1ce797=_0x3e274b(0x310);if(_0xd75b69>=0x64||_0x4e326e['has'](_0x3b28d3['url']))_0x4c2b03='#3b82f6',_0x1ce797=_0x3e274b(0x51a);else _0xd75b69>0x0&&(_0x4c2b03=_0x3e274b(0x4d2),_0x1ce797='Lanjut');return _0x7de74d&&(_0x4c2b03='#ef4444',_0x1ce797=_0x3e274b(0x215)),_0x3e274b(0x4d8)+_0x3b28d3['url']+'\x27)\x22\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20padding:15px;\x20border:1px\x20solid\x20'+(_0x7de74d?_0x3e274b(0x4d2):'#2c2c2e')+_0x3e274b(0x43c)+(_0x7de74d?_0x3e274b(0x2ab):_0x3e274b(0x446))+_0x3e274b(0x501)+(_0x7de74d?_0x3e274b(0x4d2):'#fff')+';\x20margin-bottom:6px;\x22>Episode\x20'+_0x33a796+_0x3e274b(0x3f6)+_0x5efccd+_0x3e274b(0x470)+_0x571d8d+'</div></div><div><button\x20style=\x22background:'+_0x4c2b03+_0x3e274b(0x4f5)+_0x1ce797+_0x3e274b(0x322);})['join'](''),_0x4ed732[_0x1a3c1d(0x4bb)]=_0x1a3c1d(0x3e8),_0x4ed732[_0x1a3c1d(0x54e)]=_0x30a265);};function getHighRes(_0x35dc1f){const _0x2bd005=_0x3e2470;if(!_0x35dc1f)return'';try{return _0x35dc1f['replace'](/\/s\d+(-[a-zA-Z0-9]+)?\//g,_0x2bd005(0x40e))[_0x2bd005(0x3a0)](/=s\d+/g,_0x2bd005(0x4ff));}catch(_0x4b02a3){return _0x35dc1f;}}function removeDuplicates(_0x10275a,_0x88fcf4){const _0x52d334=_0x3e2470,_0x10295c=new Set();return _0x10275a[_0x52d334(0x27a)](_0x4de414=>{const _0x1b530c=_0x52d334;if(!_0x4de414||!_0x4de414[_0x88fcf4])return![];if(_0x10295c[_0x1b530c(0x445)](_0x4de414[_0x88fcf4]))return![];return _0x10295c['add'](_0x4de414[_0x88fcf4]),!![];});}function getEpBadge(_0x17aa5e){const _0x566821=_0x3e2470;if(!_0x17aa5e)return _0x566821(0x33d);let _0x2a13d0=String(_0x17aa5e[_0x566821(0x41d)]||_0x17aa5e[_0x566821(0x4e9)]||_0x17aa5e[_0x566821(0x4d1)]||_0x17aa5e[_0x566821(0x42b)]||'');if(!_0x2a13d0||_0x2a13d0===_0x566821(0x453)||_0x2a13d0[_0x566821(0x3ed)]()==='')return _0x566821(0x33d);let _0x187e74=_0x2a13d0[_0x566821(0x36e)]()[_0x566821(0x3ed)]();if(_0x187e74['includes'](_0x566821(0x2e3))||_0x187e74[_0x566821(0x312)](_0x566821(0x2c2)))return'Tamat';if(_0x187e74[_0x566821(0x312)](_0x566821(0x385)))return _0x566821(0x1f5);if(_0x187e74['includes'](_0x566821(0x4ce)))return _0x566821(0x2e4);if(/^\d+(\.\d+)?$/[_0x566821(0x1ed)](_0x187e74))return _0x566821(0x287)+_0x187e74;let _0x3a60da=_0x2a13d0['match'](/(episode|eps|ep)\s*(\d+(\.\d+)?)/i);if(_0x3a60da)return'Episode\x20'+_0x3a60da[0x1];let _0x49e6f6=_0x2a13d0['match'](/\d+/g);if(_0x49e6f6)return _0x566821(0x287)+_0x49e6f6[_0x49e6f6['length']-0x1];return _0x2a13d0[_0x566821(0x314)]>0xa?_0x2a13d0[_0x566821(0x483)](0x0,0xa):_0x2a13d0;}function formatTimelineDate(_0x29f5e5){const _0x5374c8=_0x3e2470,_0x302929=new Date(_0x29f5e5),_0x394316=new Date(),_0x3f958d=new Date(_0x394316);_0x3f958d[_0x5374c8(0x390)](_0x3f958d[_0x5374c8(0x2b5)]()-0x1);if(_0x302929['toDateString']()===_0x394316['toDateString']())return'Hari\x20ini';if(_0x302929['toDateString']()===_0x3f958d[_0x5374c8(0x51f)]())return _0x5374c8(0x4cc);const _0x1a95b1=[_0x5374c8(0x280),_0x5374c8(0x37d),_0x5374c8(0x1c3),_0x5374c8(0x204),_0x5374c8(0x4cf),_0x5374c8(0x528),_0x5374c8(0x2b2),_0x5374c8(0x55d),_0x5374c8(0x249),'Okt',_0x5374c8(0x35a),_0x5374c8(0x334)];return _0x302929[_0x5374c8(0x2b5)]()+'\x20'+_0x1a95b1[_0x302929[_0x5374c8(0x2fd)]()]+'\x20'+_0x302929[_0x5374c8(0x2c9)]();}function timeAgo(_0x1e3025){const _0x5e613c=_0x3e2470,_0x42d160=Math['floor']((new Date()-_0x1e3025)/0x3e8);let _0x17e52a=_0x42d160/0x1e13380;if(_0x17e52a>0x1)return Math[_0x5e613c(0x35f)](_0x17e52a)+'\x20thn\x20lalu';_0x17e52a=_0x42d160/0x278d00;if(_0x17e52a>0x1)return Math[_0x5e613c(0x35f)](_0x17e52a)+_0x5e613c(0x497);_0x17e52a=_0x42d160/0x15180;if(_0x17e52a>0x1)return Math[_0x5e613c(0x35f)](_0x17e52a)+_0x5e613c(0x1e7);_0x17e52a=_0x42d160/0xe10;if(_0x17e52a>0x1)return Math[_0x5e613c(0x35f)](_0x17e52a)+_0x5e613c(0x3e3);_0x17e52a=_0x42d160/0x3c;if(_0x17e52a>0x1)return Math[_0x5e613c(0x35f)](_0x17e52a)+_0x5e613c(0x548);return _0x5e613c(0x55a);}function addXP(_0x5bba86){const _0x2b1c7f=_0x3e2470;if(!currentUser)return;db[_0x2b1c7f(0x4a4)](_0x2b1c7f(0x247)+currentUser[_0x2b1c7f(0x4f1)])[_0x2b1c7f(0x472)]('value')['then'](_0x553672=>{const _0x340d62=_0x2b1c7f;let _0x545bce=_0x553672[_0x340d62(0x421)]();if(!_0x545bce)return;let _0x237432=_0x545bce['exp']||0x0,_0xe0d970=_0x545bce['level']||0x1,_0x381871=(_0xe0d970-0x1)*0xc8;_0x237432<_0x381871&&(_0x237432=_0x381871);let _0x128a33=_0x237432+_0x5bba86,_0x412674=Math[_0x340d62(0x35f)](_0x128a33/0xc8)+0x1,_0x47fb67=_0x412674>_0xe0d970;db[_0x340d62(0x4a4)](_0x340d62(0x247)+currentUser['uid'])['update']({'exp':_0x128a33,'level':_0x412674});let _0x1baae6=_0x128a33%0xc8,_0x56365e=Math['floor'](_0x1baae6/0xc8*0x64);showXPModal(_0x5bba86,_0x412674,_0x56365e,_0x47fb67);});}function showXPModal(_0x418e1c,_0x43e96c,_0x149130,_0x12b06d){const _0x5e4abb=_0x3e2470,_0x3276ab=document['getElementById'](_0x5e4abb(0x30b)),_0x350b43=document[_0x5e4abb(0x25e)](_0x5e4abb(0x383)),_0x38b23b=document[_0x5e4abb(0x25e)](_0x5e4abb(0x4d6)),_0x34dffb=document[_0x5e4abb(0x25e)]('xp-amount-text'),_0x446482=document[_0x5e4abb(0x25e)]('xp-level-text'),_0x53a685=document[_0x5e4abb(0x25e)]('xp-progress-text'),_0x1198ab=document['getElementById'](_0x5e4abb(0x4b1));_0x34dffb[_0x5e4abb(0x432)]='+'+_0x418e1c,_0x446482[_0x5e4abb(0x432)]=_0x5e4abb(0x2be)+_0x43e96c,_0x53a685[_0x5e4abb(0x432)]=_0x149130+'%',_0x1198ab[_0x5e4abb(0x4bb)][_0x5e4abb(0x1f0)]=_0x149130+'%',_0x12b06d?(_0x38b23b[_0x5e4abb(0x432)]=_0x5e4abb(0x25d),_0x38b23b[_0x5e4abb(0x4bb)][_0x5e4abb(0x1e4)]=_0x5e4abb(0x4d2)):(_0x38b23b['innerText']='EXP\x20Gained',_0x38b23b['style'][_0x5e4abb(0x1e4)]='#fff'),_0x3276ab['style']['display']='flex',setTimeout(()=>{const _0x54860c=_0x5e4abb;_0x3276ab[_0x54860c(0x4bb)]['opacity']='1',_0x350b43['style'][_0x54860c(0x47f)]=_0x54860c(0x236);},0xa),setTimeout(()=>{const _0xe7c2ba=_0x5e4abb;_0x3276ab[_0xe7c2ba(0x4bb)][_0xe7c2ba(0x36b)]='0',_0x350b43['style'][_0xe7c2ba(0x47f)]=_0xe7c2ba(0x36d),setTimeout(()=>{const _0x183e64=_0xe7c2ba;_0x3276ab[_0x183e64(0x4bb)][_0x183e64(0x28e)]=_0x183e64(0x442);},0x12c);},0x9c4);}function initDB(){return new Promise((_0x330fae,_0x11ac69)=>{const _0x57c02d=_0x3f78,_0x1ce037=indexedDB[_0x57c02d(0x299)](DB_NAME,0x2);_0x1ce037[_0x57c02d(0x505)]=_0x59bb1c=>{const _0x591388=_0x57c02d,_0x3a0d55=_0x59bb1c[_0x591388(0x451)][_0x591388(0x53f)];if(!_0x3a0d55[_0x591388(0x2cd)]['contains'](STORE_HISTORY))_0x3a0d55['createObjectStore'](STORE_HISTORY,{'keyPath':_0x591388(0x374)});if(!_0x3a0d55[_0x591388(0x2cd)][_0x591388(0x455)](STORE_FAV))_0x3a0d55[_0x591388(0x485)](STORE_FAV,{'keyPath':'url'});},_0x1ce037['onsuccess']=()=>_0x330fae(_0x1ce037[_0x57c02d(0x53f)]),_0x1ce037['onerror']=()=>_0x11ac69(_0x1ce037[_0x57c02d(0x49b)]);});}async function getLocalHistory(){try{const _0x38347a=await initDB();return new Promise(_0x52eaf5=>{const _0x5443ef=_0x3f78,_0x1667fe=_0x38347a[_0x5443ef(0x44d)](STORE_HISTORY,_0x5443ef(0x40b))[_0x5443ef(0x571)](STORE_HISTORY)[_0x5443ef(0x203)]();_0x1667fe[_0x5443ef(0x1ee)]=()=>_0x52eaf5(_0x1667fe[_0x5443ef(0x53f)][_0x5443ef(0x4c8)]((_0xe0d185,_0x21f743)=>_0x21f743[_0x5443ef(0x30e)]-_0xe0d185[_0x5443ef(0x30e)])),_0x1667fe[_0x5443ef(0x4ed)]=()=>_0x52eaf5([]);});}catch(_0xbd5675){return[];}}async function saveHistory(_0x140e9d){const _0x639dc8=_0x3e2470;_0x140e9d['timestamp']=Date[_0x639dc8(0x3bf)]();try{const _0x4061dc=await initDB();_0x4061dc['transaction'](STORE_HISTORY,_0x639dc8(0x3ce))[_0x639dc8(0x571)](STORE_HISTORY)[_0x639dc8(0x235)](_0x140e9d);}catch(_0x351529){console[_0x639dc8(0x49b)](_0x351529);}if(currentUser){const _0x1d3764=_0x140e9d['url']['replace'](/[^a-zA-Z0-9]/g,'_');db['ref']('history/'+currentUser['uid']+'/'+_0x1d3764)[_0x639dc8(0x2fb)](_0x140e9d);}}async function getHistory(){const _0x1eb0e7=_0x3e2470;if(currentUser)try{const _0x15d1d0=await db[_0x1eb0e7(0x4a4)](_0x1eb0e7(0x3a2)+currentUser[_0x1eb0e7(0x4f1)])[_0x1eb0e7(0x472)]('value');let _0x215e69=[];return _0x15d1d0[_0x1eb0e7(0x38c)]()&&_0x15d1d0['forEach'](_0x4f9c21=>{const _0x1790a1=_0x1eb0e7;_0x215e69[_0x1790a1(0x49e)](_0x4f9c21[_0x1790a1(0x421)]());}),_0x215e69['sort']((_0x37e8c2,_0x595bb1)=>_0x595bb1[_0x1eb0e7(0x30e)]-_0x37e8c2[_0x1eb0e7(0x30e)]);}catch(_0x4c635d){return console[_0x1eb0e7(0x49b)](_0x1eb0e7(0x263),_0x4c635d),await getLocalHistory();}else return await getLocalHistory();}async function getLocalFavorites(){try{const _0x3155bb=await initDB();return new Promise(_0x553d08=>{const _0x4902ff=_0x3f78,_0x3db259=_0x3155bb[_0x4902ff(0x44d)](STORE_FAV,_0x4902ff(0x40b))[_0x4902ff(0x571)](STORE_FAV)[_0x4902ff(0x203)]();_0x3db259[_0x4902ff(0x1ee)]=()=>_0x553d08(_0x3db259[_0x4902ff(0x53f)][_0x4902ff(0x4c8)]((_0x436911,_0x3db90e)=>_0x3db90e[_0x4902ff(0x30e)]-_0x436911[_0x4902ff(0x30e)])),_0x3db259['onerror']=()=>_0x553d08([]);});}catch(_0x35ccd7){return[];}}async function getFavorites(){const _0x9cf9de=_0x3e2470;if(currentUser)try{const _0x1f17d6=await db['ref'](_0x9cf9de(0x273)+currentUser[_0x9cf9de(0x4f1)])[_0x9cf9de(0x472)](_0x9cf9de(0x493));let _0x3e075c=[];return _0x1f17d6[_0x9cf9de(0x38c)]()&&_0x1f17d6[_0x9cf9de(0x27e)](_0x58067b=>{const _0x125647=_0x9cf9de;_0x3e075c['push'](_0x58067b[_0x125647(0x421)]());}),_0x3e075c[_0x9cf9de(0x4c8)]((_0x1db6bd,_0x50a65e)=>_0x50a65e[_0x9cf9de(0x30e)]-_0x1db6bd[_0x9cf9de(0x30e)]);}catch(_0x3130de){return console[_0x9cf9de(0x49b)](_0x3130de),await getLocalFavorites();}else return await getLocalFavorites();}async function checkFavorite(_0x1f28c2){const _0x4c8bf6=_0x3e2470;if(currentUser){const _0x1d597c=_0x1f28c2[_0x4c8bf6(0x3a0)](/[^a-zA-Z0-9]/g,'_'),_0x5d6ba2=await db[_0x4c8bf6(0x4a4)](_0x4c8bf6(0x273)+currentUser[_0x4c8bf6(0x4f1)]+'/'+_0x1d597c)[_0x4c8bf6(0x472)](_0x4c8bf6(0x493));return _0x5d6ba2[_0x4c8bf6(0x38c)]();}else try{const _0x373a58=await initDB();return new Promise(_0x271cb9=>{const _0x4b3259=_0x4c8bf6,_0x2256b5=_0x373a58[_0x4b3259(0x44d)](STORE_FAV,_0x4b3259(0x40b))[_0x4b3259(0x571)](STORE_FAV)[_0x4b3259(0x525)](_0x1f28c2);_0x2256b5[_0x4b3259(0x1ee)]=()=>_0x271cb9(!!_0x2256b5['result']),_0x2256b5[_0x4b3259(0x4ed)]=()=>_0x271cb9(![]);});}catch(_0x589440){return![];}}async function toggleFavorite(_0x44a849,_0x4db28e,_0x3680cb,_0x2a3902,_0x24d7a8){const _0x1b5cf1=_0x3e2470;try{const _0x4c0ae0=await checkFavorite(_0x44a849),_0x4b76cd=document['getElementById']('favBtn'),_0x1ea95a=_0x44a849[_0x1b5cf1(0x3a0)](/[^a-zA-Z0-9]/g,'_'),_0x3cac09={'url':_0x44a849,'title':_0x4db28e,'image':_0x3680cb,'score':_0x2a3902,'episode':_0x24d7a8,'timestamp':Date[_0x1b5cf1(0x3bf)]()},_0x4eb360=await initDB(),_0x3a6525=_0x4eb360[_0x1b5cf1(0x44d)](STORE_FAV,_0x1b5cf1(0x3ce)),_0x3d9bf2=_0x3a6525['objectStore'](STORE_FAV);if(_0x4c0ae0){_0x3d9bf2[_0x1b5cf1(0x29b)](_0x44a849);if(currentUser)db[_0x1b5cf1(0x4a4)](_0x1b5cf1(0x273)+currentUser[_0x1b5cf1(0x4f1)]+'/'+_0x1ea95a)[_0x1b5cf1(0x318)]();_0x4b76cd&&(_0x4b76cd[_0x1b5cf1(0x54e)]=_0x1b5cf1(0x487),_0x4b76cd[_0x1b5cf1(0x4bb)][_0x1b5cf1(0x1e4)]=_0x1b5cf1(0x4cd));}else{_0x3d9bf2[_0x1b5cf1(0x235)](_0x3cac09);if(currentUser)db['ref'](_0x1b5cf1(0x273)+currentUser['uid']+'/'+_0x1ea95a)['set'](_0x3cac09);_0x4b76cd&&(_0x4b76cd['innerHTML']=_0x1b5cf1(0x356),_0x4b76cd[_0x1b5cf1(0x4bb)][_0x1b5cf1(0x1e4)]=_0x1b5cf1(0x352));}}catch(_0x44704f){console[_0x1b5cf1(0x49b)](_0x44704f);}}window[_0x3e2470(0x41f)]=function(_0x12d3d9,_0xd349d){const _0x172068=_0x3e2470;let _0x2cde61=document[_0x172068(0x25e)](_0x172068(0x35b)),_0x3c3e67=document[_0x172068(0x25e)](_0x172068(0x323));const _0x1aa51f=_0x12d3d9[_0x172068(0x4bb)][_0x172068(0x2e7)]===_0x172068(0x40d)||_0x12d3d9['style'][_0x172068(0x2e7)]==='rgb(239,\x2068,\x2068)'||_0x12d3d9[_0x172068(0x4bb)]['backgroundColor']===_0x172068(0x4d2)||_0x12d3d9[_0x172068(0x4bb)]['backgroundColor']===_0x172068(0x352);_0xd349d===_0x172068(0x3b1)?_0x1aa51f?_0x12d3d9['style'][_0x172068(0x2e7)]=_0x172068(0x467):(_0x12d3d9['style'][_0x172068(0x2e7)]=_0x172068(0x4d2),_0x3c3e67&&(_0x3c3e67['style'][_0x172068(0x2e7)]=_0x172068(0x467))):_0x1aa51f?_0x12d3d9[_0x172068(0x4bb)][_0x172068(0x2e7)]=_0x172068(0x467):(_0x12d3d9[_0x172068(0x4bb)][_0x172068(0x2e7)]='#ef4444',_0x2cde61&&(_0x2cde61[_0x172068(0x4bb)][_0x172068(0x2e7)]=_0x172068(0x467)));},window[_0x3e2470(0x4de)]=function(){const _0x2a34bc=_0x3e2470,_0x4df64f=document[_0x2a34bc(0x25e)](_0x2a34bc(0x454)),_0x513a81=document[_0x2a34bc(0x25e)]('read-more-btn');_0x4df64f[_0x2a34bc(0x476)][_0x2a34bc(0x455)](_0x2a34bc(0x2d6))?(_0x4df64f[_0x2a34bc(0x476)][_0x2a34bc(0x318)](_0x2a34bc(0x2d6)),_0x513a81[_0x2a34bc(0x54e)]=_0x2a34bc(0x4eb)):(_0x4df64f[_0x2a34bc(0x476)][_0x2a34bc(0x536)]('expanded'),_0x513a81[_0x2a34bc(0x54e)]=_0x2a34bc(0x418));};const HOME_SECTIONS=[{'title':_0x3e2470(0x490),'queries':[_0x3e2470(0x32b),_0x3e2470(0x492),'jujutsu','piece']},{'title':_0x3e2470(0x406),'queries':[_0x3e2470(0x202),_0x3e2470(0x378),_0x3e2470(0x30c)]},{'title':'Sci-Fi\x20Anime','queries':[_0x3e2470(0x251),'science',_0x3e2470(0x2f4)]},{'title':'Comedy\x20Anime','queries':[_0x3e2470(0x3c2),_0x3e2470(0x47a),_0x3e2470(0x4fd),_0x3e2470(0x224)]},{'title':_0x3e2470(0x2d9),'queries':[_0x3e2470(0x35c),'magic',_0x3e2470(0x2b0),_0x3e2470(0x49f)]},{'title':_0x3e2470(0x1f7),'queries':[_0x3e2470(0x4c9),_0x3e2470(0x4bd),'mushoku']},{'title':'School\x20Anime','queries':[_0x3e2470(0x417),_0x3e2470(0x29f),'academy']},{'title':_0x3e2470(0x2da),'queries':[_0x3e2470(0x385),_0x3e2470(0x269)]}];let sliderInterval;function _0x2f4a(){const _0x387c27=['giftItem','onerror','</span>\x20•\x20<span>','openServerModal','max','uid','confirmChangeName','-view','animeTitle',';\x20border:none;\x20color:#fff;\x20font-size:12px;\x20font-weight:800;\x20padding:8px\x2020px;\x20border-radius:20px;\x20cursor:pointer;\x20transition:0.2s;\x22>','\x22\x20onclick=\x22changeServer(\x27','Infinite\x20Swirl','current-sort-btn','<div\x20style=\x22width:40px;\x20height:40px;\x20position:relative;\x20flex-shrink:0;\x22><img\x20src=\x22','/detail?url=','reverse','find','bocchi','currentUserData','=s0','#trap',';\x20border-radius:\x2012px;\x20margin-bottom:\x2010px;\x20transition:0.2s;\x22><div><div\x20style=\x22font-size:15px;\x20font-weight:800;\x20color:','https://cdn.discordapp.com/media/v1/collectibles-shop/1306752744258011166/animated','Eps\x20','releaseTime','onupgradeneeded','<div\x20style=\x22width:45px;\x20height:45px;\x20position:relative;\x20background-image:url(\x27','\x27);\x20background-size:contain;\x20background-position:center;\x20background-repeat:no-repeat;\x20pointer-events:none;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>','https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated','closeUserProfileModal','\x22\x20style=\x22font-size:11px;\x20padding:4px\x2010px;\x22\x20onclick=\x22openLevelModal(','commentPressTimer','pointer-events:auto;\x20background:#1c1c1e;\x20border:1px\x20solid\x20#3b82f6;\x20border-radius:16px;\x20padding:12px;\x20display:flex;\x20gap:12px;\x20align-items:center;\x20box-shadow:0\x2010px\x2025px\x20rgba(0,0,0,0.8);\x20transform:translateY(-30px)\x20scale(0.95);\x20opacity:0;\x20transition:all\x200.4s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20cursor:pointer;','https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated','\x27)\x22><img\x20src=\x22','search','handleDownload','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-badges\x22\x20style=\x22display:flex;\x20gap:8px;\x20justify-content:center;\x20align-items:center;\x20cursor:pointer;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22borderShopOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeBorderShop()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:9999998;\x20backdrop-filter:blur(2px);\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22borderShopModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#050505;\x20width:340px;\x20border-radius:24px;\x20z-index:9999999;\x20padding:20px;\x20transition:0.3s;\x20opacity:0;\x20border:\x201px\x20solid\x20#1a1a1a;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20border-bottom:\x201px\x20solid\x20#111;\x20padding-bottom:\x2015px;\x20margin-bottom:\x2015px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#fff;\x20margin:0;\x20font-size:18px;\x20font-weight:900;\x22>Mall\x20Kosmetik</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#facc15;\x20color:#000;\x20padding:4px\x2010px;\x20border-radius:12px;\x20font-size:12px;\x20font-weight:800;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20id=\x22user-coin-balance\x22>0</span>\x20Koin\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:5px;\x20margin-bottom:15px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22tab-shop\x22\x20onclick=\x22switchBorderTab(\x27shop\x27)\x22\x20style=\x22flex:1;\x20background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:8px;\x20border-radius:10px;\x20font-weight:800;\x20cursor:pointer;\x20font-size:12px;\x22>Shop</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22tab-gift\x22\x20onclick=\x22switchBorderTab(\x27gift\x27)\x22\x20style=\x22flex:1;\x20background:#1c1c1e;\x20color:#fff;\x20border:none;\x20padding:8px;\x20border-radius:10px;\x20font-weight:800;\x20cursor:pointer;\x20font-size:12px;\x22>Gift</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22tab-topup\x22\x20onclick=\x22switchBorderTab(\x27topup\x27)\x22\x20style=\x22flex:1;\x20background:#1c1c1e;\x20color:#fff;\x20border:none;\x20padding:8px;\x20border-radius:10px;\x20font-weight:800;\x20cursor:pointer;\x20font-size:12px;\x22>Top\x20Up</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22category-selector\x22\x20style=\x22display:flex;\x20justify-content:center;\x20gap:15px;\x20margin-bottom:15px;\x20border-bottom:1px\x20solid\x20#111;\x20padding-bottom:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20onclick=\x22setShopCategory(\x27borders\x27)\x22\x20class=\x22cat-item\x20active\x22\x20id=\x22cat-borders\x22\x20style=\x22color:#fff;\x20font-size:12px;\x20font-weight:800;\x20cursor:pointer;\x22>Border\x20Profil</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20onclick=\x22setShopCategory(\x27commentplates\x27)\x22\x20class=\x22cat-item\x22\x20id=\x22cat-commentplates\x22\x20style=\x22color:#666;\x20font-size:12px;\x20font-weight:800;\x20cursor:pointer;\x22>Efek\x20Komen</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22view-shop\x22\x20style=\x22max-height:\x20300px;\x20overflow-y:\x20auto;\x22\x20class=\x22hide-scrollbar\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22view-gift\x22\x20style=\x22display:none;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22gift-uid-input\x22\x20oninput=\x22window.previewGiftUser(this.value)\x22\x20placeholder=\x22Masukkan\x20UID\x20Teman\x20(#...)\x22\x20style=\x22width:100%;\x20background:#111;\x20border:1px\x20solid\x20#333;\x20color:#fff;\x20padding:12px;\x20border-radius:12px;\x20margin-bottom:10px;\x20outline:none;\x20box-sizing:border-box;\x20font-size:13px;\x22>\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22gift-user-preview\x22\x20style=\x22display:none;\x20align-items:center;\x20gap:12px;\x20background:rgba(59,\x20130,\x20246,\x200.1);\x20padding:12px;\x20border-radius:15px;\x20margin-bottom:15px;\x20border:1px\x20solid\x20#3b82f6;\x20animation:\x20slideInGift\x200.3s\x20ease;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:relative;\x20width:40px;\x20height:40px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20id=\x22gift-preview-img\x22\x20src=\x22\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x20border:1px\x20solid\x20#3b82f6;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22flex:1;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22gift-preview-name\x22\x20style=\x22color:#fff;\x20font-size:14px;\x20font-weight:900;\x22>Mencari...</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22gift-preview-uid\x22\x20style=\x22color:#3b82f6;\x20font-size:11px;\x20font-weight:700;\x20font-family:monospace;\x22>#XXXXXX</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:#3b82f6;\x20color:#fff;\x20padding:4px\x208px;\x20border-radius:8px;\x20font-size:10px;\x20font-weight:900;\x22>TARGET</div>\x0a\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x0a\x20\x20\x20\x20<div\x20id=\x22gift-inventory-list\x22\x20style=\x22max-height:\x20200px;\x20overflow-y:\x20auto;\x22\x20class=\x22hide-scrollbar\x22></div>\x0a</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22view-topup\x22\x20style=\x22display:none;\x20max-height:\x20300px;\x20overflow-y:\x20auto;\x22\x20class=\x22hide-scrollbar\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeBorderShop()\x22\x20style=\x22width:100%;\x20background:#1c1c1e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20margin-top:15px;\x20cursor:pointer;\x22>Tutup</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','<div\x20class=\x22header-flex\x22><h2>',')\x22><div\x20class=\x22s-name\x22>','https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165171294268/animated','.modal-overlay','<div\x20style=\x22font-size:35px;\x20filter:\x20drop-shadow(0\x200\x2010px\x20#3b82f6);\x22>🛍️</div>','handleCommentTouchEnd','reply-input-text','Ditonton','https://placehold.co/100','releaseHour','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20flex-direction:\x20column;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#fff;\x20font-size:14px;\x20font-weight:800;\x22>','watchProgress','toDateString','\x27);\x20background-size:contain;\x20background-position:center;\x20background-repeat:no-repeat;\x20filter:\x20drop-shadow(0\x200\x2010px\x20rgba(59,\x20130,\x20246,\x200.8));\x22></div>','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22modal-ptab-history\x22\x20class=\x22modal-ptab-content\x22\x20style=\x22display:none;\x20padding:\x200\x2015px;\x22>','https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated','badge-member','allowExitApp','get','<div\x20class=\x22hero-slide\x22\x20onclick=\x22loadDetail(\x27','\x22\x20style=\x22width:\x20100%;\x20height:\x20100%;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20display:block;\x22></div><div\x20style=\x22flex:\x201;\x20position:\x20relative;\x22><input\x20type=\x22text\x22\x20id=\x22main-comment-input\x22\x20onkeypress=\x22if(event.key\x20===\x20\x27Enter\x27)\x20postComment(\x27','Jun','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-stats\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22>','select_account','<div\x20class=\x22level-rank-item\x22\x20style=\x22','changeNameModal','https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated','tiktok-purchase-el','replies/','setCommentFilter','\x22\x20style=\x22width:16px;\x20height:16px;\x20border-radius:50%;\x20object-fit:cover;\x20display:block;\x22></div></div><div\x20style=\x22flex:\x201;\x20min-width:\x200;\x22><div\x20style=\x22font-weight:\x20800;\x20font-size:\x2014px;\x20color:\x20#fff;\x20margin-bottom:\x203px;\x20display:\x20-webkit-box;\x20-webkit-line-clamp:\x201;\x20-webkit-box-orient:\x20vertical;\x20overflow:\x20hidden;\x22>','<span\x20class=\x22status-done\x22>Sudah\x20Update\x20Rilis</span>','https://animeku-c39ab-default-rtdb.asia-southeast1.firebasedatabase.app','\x20sudah\x20tersedia.</div></div><div\x20style=\x22background:rgba(59,130,246,0.15);\x20border-radius:50%;\x20width:32px;\x20height:32px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20flex-shrink:0;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#3b82f6\x22\x20stroke-width=\x222.5\x22><polyline\x20points=\x229\x2018\x2015\x2012\x209\x206\x22></polyline></svg></div>','name','add','hidden','*Alasan:*\x20','nama','new','\x27);\x22></div>','\x20•\x20<svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M1\x2012s4-8\x2011-8\x2011\x208\x2011\x208-4\x208-11\x208-11-8-11-8z\x22></path><circle\x20cx=\x2212\x22\x20cy=\x2212\x22\x20r=\x223\x22></circle></svg>\x20','\x27,\x20this)\x22><span>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22userProfileOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeUserProfileModal()\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22userProfileModal\x22\x20class=\x22bottom-sheet\x22\x20style=\x22display:none;\x20background:#050505;\x20z-index:999999;\x20border-radius:24px\x2024px\x200\x200;\x20padding:0;\x20flex-direction:column;\x20max-height:85vh;\x20box-shadow:\x200\x20-5px\x2020px\x20rgba(0,0,0,0.5);\x20border-top:\x201px\x20solid\x20#1a1a1a;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x2015px\x2020px;\x20display:flex;\x20justify-content:flex-end;\x20border-bottom:\x201px\x20solid\x20#111;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeUserProfileModal()\x22\x20style=\x22background:rgba(255,255,255,0.1);\x20border:none;\x20color:#fff;\x20border-radius:50%;\x20width:30px;\x20height:30px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20cursor:pointer;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><line\x20x1=\x2218\x22\x20y1=\x226\x22\x20x2=\x226\x22\x20y2=\x2218\x22></line><line\x20x1=\x226\x22\x20y1=\x226\x22\x20x2=\x2218\x22\x20y2=\x2218\x22></line></svg>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22user-profile-content\x22\x20class=\x22hide-scrollbar\x22\x20style=\x22overflow-y:auto;\x20flex:1;\x20padding-bottom:20px;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>','result','show','injectChangeNameModal','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22background:\x20rgba(0,0,0,0.3);\x20padding:\x2010px;\x20border-radius:\x2010px;\x20margin-bottom:\x2012px;\x20font-size:\x2012px;\x20text-align:\x20left;\x20border:\x201px\x20solid\x20#2c2c2e;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-bottom:\x204px;\x22><span\x20style=\x22color:#888;\x22>Dari:</span>\x20<b\x20style=\x22color:#fff;\x22>','\x20Koin</span>\x0a\x20\x20\x20\x20','Wibu','\x27,\x20\x27\x27)\x22\x20style=\x22background:#ef4444;\x20color:#fff;\x20border:none;\x20padding:6px\x2012px;\x20border-radius:8px;\x20font-size:11px;\x20font-weight:800;\x20cursor:pointer;\x22>Lepas</button>','badge-lvl-','<div\x20class=\x22ep-square\x20watched\x22\x20style=\x22width:\x2055px;\x20height:\x2055px;\x22>','\x20mnt\x20lalu','Super\x20Recognizer','\x20active','<div\x20class=\x22scroll-card\x22\x20onclick=\x22loadDetail(\x27','Kamis','shop','innerHTML','hash','exit-modal-injected','Rp\x202.000','AIzaSyDHtgikUcph-eQh7qZEJELFogpPjIgtB0M','\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','setJadwalDay','https://cdn.discordapp.com/media/v1/collectibles-shop/1379220459026911342/animated','*Episode:*\x20','https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated','<p\x20style=\x22color:#888;\x20font-size:12px;\x20margin-bottom:10px;\x22>Pilih\x20jumlah\x20koin\x20yang\x20ingin\x20kamu\x20beli\x20via\x20WhatsApp.</p>','Koin\x20tidak\x20cukup!\x20Butuh\x201000.','Baru\x20saja','\x27,\x20\x27','applyFavSort','Agt','\x22\x20style=\x22width:22px;\x20height:22px;\x20border-radius:50%;\x20object-fit:cover;\x20display:block;\x22></div></div><div\x20class=\x22pli-info\x22><div\x20class=\x22pli-title\x22>','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:60px;\x20height:60px;\x20position:relative;\x20margin:\x20-45px\x20auto\x2015px\x20auto;\x20border-radius:50%;\x20background:#111;\x20border:2px\x20solid\x20#facc15;\x20box-shadow:\x200\x200\x2015px\x20rgba(250,\x20204,\x2021,\x200.5);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','message','level-modal-list','Venom','#facc15','1976991exQUjx','window.showToast(\x27Komentar\x20ini\x20ada\x20di\x20Episode\x20ID:\x20','ownedCommentplates/',';\x22>','Koin\x20kamu\x20tidak\x20cukup!','</button></div></div><div\x20class=\x22nav-back\x22><button\x20onclick=\x22goHome()\x22><svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222\x22><path\x20d=\x22M19\x2012H5M12\x2019l-7-7\x207-7\x22/></svg></button></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x2015px\x2012px;\x22><h2\x20style=\x22font-size:\x2018px;\x20margin:\x200\x200\x2012px\x200;\x20font-weight:bold;\x20border-left:\x204px\x20solid\x20#3b82f6;\x20padding-left:\x2010px;\x22>Sinopsis</h2><p\x20id=\x22detail-synopsis-text\x22\x20class=\x22synopsis-text\x22>','harga','\x20Lvl.\x20','buy','orderByChild','<div\x20style=\x22font-size:40px;\x22>✨</div>','<div\x20style=\x22background:','objectStore','apiCache','animeImage','changeNameOverlay','https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated','back','role','Login\x20dulu\x20yuk!','progress/','<div\x20style=\x22position:absolute;\x20top:50%;\x20left:50%;\x20width:150%;\x20height:150%;\x20transform:translate(-50%,\x20-50%);\x20background-image:url(\x27','FISHBONES!','15px','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22ptab-comments\x22\x20class=\x22ptab-content\x22\x20style=\x22display:none;\x20padding-top:\x2010px;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22ptab-history\x22\x20class=\x22ptab-content\x22\x20style=\x22display:none;\x22>','Diamond','</div>','Quality','jadwal-view','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22flex:\x201;\x20min-width:\x200;\x20position:\x20relative;\x20z-index:\x202;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20align-items:\x20center;\x20gap:\x208px;\x20margin-bottom:\x202px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-weight:\x20700;\x20font-size:\x20','Mar','Bronze','creationTime','photoURL','Member','translateX(-','.server-list-btn','Halo\x20Admin,\x20saya\x20mau\x20report\x20episode\x20error.\x0a\x0a','https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated','UID\x20Target\x20harus\x20diisi!','https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated','</div></div></div><div\x20style=\x22font-size:\x2014px;\x20color:\x20#fff;\x20line-height:\x201.5;\x20margin-bottom:\x208px;\x20word-wrap:\x20break-word;\x20padding-right:\x2010px;\x22>','</div><div\x20class=\x22sched-ep\x22>','Login\x20Berhasil!\x20Selamat\x20datang,\x20','queries','dev-exp','Wibu\x20Premium','Dark\x20Nebula','Min','foto','schedule-styles',';\x20color:#fff;\x20white-space:\x20nowrap;\x20overflow:\x20hidden;\x20text-overflow:\x20ellipsis;\x20cursor:pointer;\x22\x20onclick=\x22event.stopPropagation();\x20openUserProfile(\x27','json','<span\x20class=\x22status-wait\x22>Menunggu\x20Update\x20Baru</span>','delete-modal-injected','#10b981','jadwal','\x22><svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22currentColor\x22><path\x20d=\x22M8\x205v14l11-7z\x22/></svg>\x20Mulai\x20Tonton</button><button\x20id=\x22favBtn\x22\x20onclick=\x22toggleFavorite(\x27','</p><div\x20id=\x22read-more-btn\x22\x20class=\x22read-more-btn\x22\x20onclick=\x22toggleSynopsis()\x22>Selengkapnya\x20▼</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x200\x2012px;\x20margin-top:20px;\x22><div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20margin-bottom:15px;\x22><h2\x20style=\x22font-size:18px;\x20font-weight:800;\x20margin:0;\x22>Episodes\x20(','698SwKsGB',')\x22\x20style=\x22cursor:\x20pointer;\x22>','reload','Disubscribe','color','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22changeNameOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeChangeNameModal()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:9999998;\x20backdrop-filter:blur(2px);\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22changeNameModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:300px;\x20border-radius:24px;\x20z-index:9999999;\x20padding:25px\x2020px;\x20transition:0.3s;\x20opacity:0;\x20border:\x201px\x20solid\x20#2c2c2e;\x20text-align:center;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:50px;\x20height:50px;\x20background:rgba(59,\x20130,\x20246,\x200.1);\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20margin:\x20-45px\x20auto\x2015px\x20auto;\x20border:\x202px\x20solid\x20#3b82f6;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#3b82f6\x22\x20stroke-width=\x222.5\x22><path\x20d=\x22M20\x2021v-2a4\x204\x200\x200\x200-4-4H8a4\x204\x200\x200\x200-4\x204v2\x22></path><circle\x20cx=\x2212\x22\x20cy=\x227\x22\x20r=\x224\x22></circle></svg>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#fff;\x20margin:0\x200\x205px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Ganti\x20Nama</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20id=\x22change-name-desc\x22\x20style=\x22color:#888;\x20font-size:12px;\x20margin-bottom:20px;\x20line-height:1.4;\x22></p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22new-name-input\x22\x20placeholder=\x22Nama\x20Baru...\x22\x20maxlength=\x2225\x22\x20style=\x22width:100%;\x20background:#111;\x20border:1px\x20solid\x20#333;\x20color:#fff;\x20padding:12px;\x20border-radius:12px;\x20margin-bottom:20px;\x20outline:none;\x20box-sizing:border-box;\x20text-align:center;\x20font-size:14px;\x20font-weight:bold;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeChangeNameModal()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:13px;\x20cursor:pointer;\x22>Batal</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22confirmChangeName()\x22\x20style=\x22flex:1;\x20background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:13px;\x20cursor:pointer;\x20box-shadow:\x200\x204px\x2010px\x20rgba(59,\x20130,\x20246,\x200.3);\x22>Simpan</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','\x22><div\x20class=\x22badge-ep\x22>','\x20hr\x20lalu','en-GB','\x27)\x22><div\x20class=\x22scroll-card-img\x22><img\x20src=\x22','\x22\x20style=\x22width:48px;\x20height:48px;\x20border-radius:10px;\x20object-fit:cover;\x20border:\x201px\x20solid\x20#222;\x22><div\x20style=\x22position:absolute;\x20bottom:-4px;\x20right:-4px;\x20background:#050505;\x20border-radius:50%;\x20padding:2px;\x22><img\x20src=\x22','#home','\x27)\x22>','test','onsuccess','<div\x20style=\x22width:40px;\x20height:40px;\x20border-radius:8px;\x20border:2px\x20solid\x20#fff;\x20box-shadow:\x200\x200\x2015px\x20#facc15;\x20','width','confirmTransaction','https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated','Kamu','level','Movie','<div\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#ef4444;\x22><h2>Gagal\x20memuat\x20Subscribe.</h2></div>','Isekai\x20Anime','touchstart','displayName','history','updateProfile','equalTo','<polyline\x20points=\x2220\x206\x209\x2017\x204\x2012\x22></polyline>','</div></div></div><div\x20class=\x22rank-status\x22>','teks','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:60px;\x20height:60px;\x20position:relative;\x20margin:\x20-45px\x20auto\x2015px\x20auto;\x20border-radius:50%;\x20background:#111;\x20border:2px\x20solid\x20#3b82f6;\x20box-shadow:\x200\x200\x2015px\x20rgba(59,\x20130,\x20246,\x200.5);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','onAuthStateChanged','romance','getAll','Apr','renderShopContent','Blue\x20Premium','</div></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x200\x2012px\x2015px\x2012px;\x20border-bottom:\x201px\x20solid\x20#111;\x22><div\x20class=\x22hide-scrollbar\x22\x20style=\x22display:\x20flex;\x20gap:\x208px;\x20margin-bottom:\x2012px;\x20flex-wrap:\x20nowrap;\x20overflow-x:\x20auto;\x22><div\x20style=\x22display:\x20flex;\x20background:\x20#1c1c1e;\x20border:\x201px\x20solid\x20#333;\x20border-radius:\x2020px;\x20overflow:\x20hidden;\x20align-items:\x20center;\x20flex-shrink:\x200;\x22><button\x20id=\x22btn-like-action\x22\x20onclick=\x22toggleLikeAction(this,\x20\x27like\x27)\x22\x20style=\x22background:\x20transparent;\x20color:\x20#fff;\x20border:\x20none;\x20padding:\x208px\x2016px;\x20font-size:\x2013px;\x20font-weight:\x20700;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x206px;\x20cursor:\x20pointer;\x20border-right:\x201px\x20solid\x20#333;\x20transition:\x200.2s;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M14\x209V5a3\x203\x200\x200\x200-3-3l-4\x209v11h11.28a2\x202\x200\x200\x200\x202-1.7l1.38-9a2\x202\x200\x200\x200-2-2.3zM7\x2022H4a2\x202\x200\x200\x201-2-2v-7a2\x202\x200\x200\x201\x202-2h3\x22></path></svg>\x206,3K</button><button\x20id=\x22btn-dislike-action\x22\x20onclick=\x22toggleLikeAction(this,\x20\x27dislike\x27)\x22\x20style=\x22background:\x20transparent;\x20color:\x20#fff;\x20border:\x20none;\x20padding:\x208px\x2016px;\x20font-size:\x2013px;\x20font-weight:\x20700;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x206px;\x20cursor:\x20pointer;\x20transition:\x200.2s;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M10\x2015v4a3\x203\x200\x200\x200\x203\x203l4-9V2H5.72a2\x202\x200\x200\x200-2\x201.7l-1.38\x209a2\x202\x200\x200\x200\x202\x202.3zm7-13h2.67A2.31\x202.31\x200\x200\x201\x2022\x204v7a2.31\x202.31\x200\x200\x201-2.33\x202H17\x22></path></svg>\x2028</button></div><button\x20class=\x22action-btn\x22\x20onclick=\x22openServerModal()\x22\x20style=\x22border-radius:\x2020px;\x20flex-shrink:\x200;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><circle\x20cx=\x2212\x22\x20cy=\x2212\x22\x20r=\x2210\x22></circle><polygon\x20points=\x2210\x208\x2016\x2012\x2010\x2016\x2010\x208\x22></polygon></svg>\x20<span\x20id=\x22current-quality-text\x22>','\x27)\x22\x20placeholder=\x22Balas\x20komentar...\x22\x20style=\x22width:\x20100%;\x20background:\x20#1c1c1e;\x20border:\x201px\x20solid\x20#2c2c2e;\x20color:\x20#fff;\x20padding:\x2010px\x2040px\x2010px\x2015px;\x20border-radius:\x2020px;\x20font-size:\x2013px;\x20outline:\x20none;\x20box-sizing:\x20border-box;\x22><button\x20onclick=\x22postReply(\x27','\x20watched','21350ALRyQv','%;\x22></div></div><div\x20class=\x22timeline-progress-text\x22>','loading','stringify','getItem',';\x20color:\x20#d1d5db;\x20line-height:\x201.5;\x20word-wrap:\x20break-word;\x20margin-bottom:\x206px;\x20text-shadow:\x200\x201px\x202px\x20rgba(0,0,0,0.8);\x22>','Jumat','<div\x20style=\x22margin-bottom:\x2015px;\x20padding:\x2015px;\x20background:\x20#1c1c1e;\x20border:\x201px\x20solid\x20#2c2c2e;\x20border-radius:\x2012px;\x22><div\x20style=\x22display:\x20flex;\x20gap:\x2012px;\x20margin-bottom:\x2010px;\x20align-items:\x20center;\x20cursor:\x20pointer;\x22\x20onclick=\x22','parentNode','newEp','block','Diputar','setAttribute','beliKoinWa','https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated','popstate','className','this.src=\x27https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime\x27','buyItem','background:#1c1c1e;\x20border:1px\x20solid\x20#333;\x20border-left:\x204px\x20solid\x20','transaction-preview-container','devModal','borderShopModal','Dark\x20Hood','sin','Isi\x20minimal\x201\x20data\x20yang\x20mau\x20diubah!','kaguya','server-list-btn','Gak\x20bisa\x20kirim\x20ke\x20diri\x20sendiri!','<div\x20id=\x22reportModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeReportModal()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:999998;\x20backdrop-filter:blur(2px);\x22></div><div\x20id=\x22reportModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:320px;\x20border-radius:24px;\x20z-index:999999;\x20padding:25px\x2020px\x2020px\x2020px;\x20transition:0.3s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20opacity:0;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x20border:\x201px\x20solid\x20#2c2c2e;\x22><div\x20style=\x22position:absolute;\x20top:-25px;\x20left:50%;\x20transform:translateX(-50%);\x20width:60px;\x20height:60px;\x20background:#050505;\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x22><div\x20style=\x22width:46px;\x20height:46px;\x20background:#3b82f6;\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20box-shadow:\x200\x200\x2010px\x20rgba(59,\x20130,\x20246,\x200.5);\x22><svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#fff\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222\x22><path\x20d=\x22M4\x2015s1-1\x204-1\x205\x202\x208\x202\x204-1\x204-1V3s-1\x201-4\x201-5-2-8-2-4\x201-4\x201z\x22></path><line\x20x1=\x224\x22\x20y1=\x2222\x22\x20x2=\x224\x22\x20y2=\x2215\x22></line></svg></div></div><h3\x20style=\x22text-align:center;\x20color:#3b82f6;\x20margin:15px\x200\x2020px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Report\x20Episode</h3><div\x20style=\x22display:flex;\x20flex-direction:column;\x20gap:16px;\x20margin-bottom:25px;\x20padding:\x200\x2010px;\x22><label\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20cursor:pointer;\x20color:#fff;\x20font-size:14px;\x20font-weight:700;\x22><input\x20type=\x22radio\x22\x20name=\x22reportReason\x22\x20value=\x22Video\x20Tidak\x20Bisa\x20Diputar\x22\x20style=\x22accent-color:#3b82f6;\x20width:20px;\x20height:20px;\x22\x20checked>Video\x20Tidak\x20Bisa\x20Diputar</label><label\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20cursor:pointer;\x20color:#fff;\x20font-size:14px;\x20font-weight:700;\x22><input\x20type=\x22radio\x22\x20name=\x22reportReason\x22\x20value=\x22Subtitle\x20Rusak\x22\x20style=\x22accent-color:#3b82f6;\x20width:20px;\x20height:20px;\x22>Subtitle\x20Rusak</label><label\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20cursor:pointer;\x20color:#fff;\x20font-size:14px;\x20font-weight:700;\x22><input\x20type=\x22radio\x22\x20name=\x22reportReason\x22\x20value=\x22Anime\x20Berbeda\x22\x20style=\x22accent-color:#3b82f6;\x20width:20px;\x20height:20px;\x22>Anime\x20Berbeda</label><label\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20cursor:pointer;\x20color:#fff;\x20font-size:14px;\x20font-weight:700;\x22><input\x20type=\x22radio\x22\x20name=\x22reportReason\x22\x20value=\x22DMCA\x20(Email)\x22\x20style=\x22accent-color:#3b82f6;\x20width:20px;\x20height:20px;\x22>DMCA\x20(Email)</label></div><div\x20style=\x22display:flex;\x20gap:12px;\x22><button\x20onclick=\x22closeReportModal()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:14px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20transition:0.2s;\x22>Batal</button><button\x20onclick=\x22submitReport()\x22\x20style=\x22flex:1;\x20background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:14px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20transition:0.2s;\x20box-shadow:\x200\x204px\x2010px\x20rgba(59,\x20130,\x20246,\x200.4);\x22>Report</button></div></div>','\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M18\x208A6\x206\x200\x200\x200\x206\x208c0\x207-3\x209-3\x209h18s-3-2-3-9\x22></path><path\x20d=\x22M13.73\x2021a2\x202\x200\x200\x201-3.46\x200\x22></path></svg>\x20','borderShopOverlay','popular','signInWithPopup','success','\x22\x20style=\x22width:\x20100%;\x20height:\x20100%;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20display:block;\x22><div\x20class=\x22avatar-deco-overlay\x22\x20style=\x22background-image:url(\x27','submitReport','Wibu\x20Biasa','G-3E8VRPRM0F','gift-preview-img','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#facc15;\x20font-size:12px;\x20font-weight:700;\x22>Mengirim\x20<b\x20style=\x22color:#fff;\x22>','</b></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div><span\x20style=\x22color:#888;\x22>Ke:</span>\x20<b\x20style=\x22color:#facc15;\x22>','bottomNav','put','translateY(0)','#bdc3c7','abort','\x22\x20class=\x22hero-bg\x22\x20onerror=\x22','<div\x20style=\x22text-align:center;\x20padding:\x2040px;\x20color:#ef4444;\x22>Gagal\x20memuat\x20profil.</div>','userProfileModal','userProfileOverlay','%0APaket:\x20','true,\x20null,\x20\x27','server','addEventListener','comment-count-text','openChangeNameModal','random','favorite-results-container','allowfullscreen','width:\x2055px;\x20height:\x2055px;','users/','User\x20tidak\x20ditemukan!','Sep','user-profile-modal-injected','<div\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20background:#111;\x20padding:10px;\x20border-radius:12px;\x20margin-bottom:10px;\x20border:1px\x20solid\x20#1a1a1a;\x22>','score','</div><div\x20class=\x22sched-stats\x22><svg\x20width=\x2212\x22\x20height=\x2212\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M1\x2012s4-8\x2011-8\x2011\x208\x2011\x208-4\x208-11\x208-11-8-11-8z\x22></path><circle\x20cx=\x2212\x22\x20cy=\x2212\x22\x20r=\x223\x22></circle></svg>\x20','tiktok-gift-card-el','currentJadwalDay','premium-rank-styles','sci-fi','sort-dropdown-menu','closeTransactionModal','changeJadwalDay','location','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20flex-direction:\x20column;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#3b82f6;\x20font-size:12px;\x20font-weight:900;\x20text-transform:uppercase;\x22>Pembelian\x20Sukses!</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#fff;\x20font-size:13px;\x20font-weight:700;\x22>Kamu\x20mendapatkan\x20<b>','transaction-title','animation','showGiftSentModal','Konfirmasi\x20Gift\x20🎁','<div\x20style=\x22width:60px;\x20height:45px;\x20border-radius:10px;\x20margin:\x20-45px\x20auto\x2015px\x20auto;\x20border:2px\x20solid\x20#3b82f6;\x20box-shadow:\x200\x200\x2015px\x20rgba(59,\x20130,\x20246,\x200.5);\x20background:#111;\x20','Biaya\x20ganti\x20nama:\x20<b\x20style=\x27color:#facc15;\x27>1000\x20Koin</b>','LEVEL\x20UP!','getElementById','</h2></div><div\x20class=\x22horizontal-scroll\x22\x20style=\x22padding:\x200\x2015px;\x22><div\x20style=\x22width:100%;\x20height:160px;\x20border-radius:8px;\x20background:#111;\x20display:flex;\x20flex-direction:column;\x20align-items:center;\x20justify-content:center;\x20color:#666;\x20font-size:12px;\x20border:1px\x20dashed\x20#333;\x22><div\x20style=\x22width:24px;\x20height:24px;\x20border:3px\x20solid\x20rgba(255,255,255,0.1);\x20border-left-color:#3b82f6;\x20border-radius:50%;\x20animation:spin\x201s\x20linear\x20infinite;\x20margin-bottom:8px;\x22></div>Memuat\x20Anime...</div></div>','borders','code','sched-text-prev','Gagal\x20ambil\x20history\x20dari\x20Firebase','onclick','</div></div><div>','2044QmGLSm','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22video-container-fixed\x22><button\x20class=\x22watch-back-btn\x22\x20onclick=\x22backToDetail()\x22><svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M19\x2012H5M12\x2019l-7-7\x207-7\x22/></svg></button><iframe\x20id=\x22video-player\x22\x20src=\x22','Spider\x20Man','film','search-view','\x27)\x22><div\x20class=\x22recent-img-box\x22><img\x20src=\x22','8165476dXzNjn','\x27)\x22>Lihat\x20Lainnya\x20></span></div><div\x20class=\x22horizontal-scroll\x22>','home','confirmExit','<div\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#ef4444;\x22><h2>Gagal\x20memuat\x20riwayat.</h2></div>',',\x20\x27','%,\x20transparent\x20','favorites/','gift-preview-name','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22margin-top:\x204px;\x22>','toUpperCase','</div><h2\x20class=\x22hero-title\x22>','loadVideo(\x27','<button\x20onclick=\x22buyItem(\x27','filter','devModalOverlay','off','image','forEach','play','Jan','signal','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:\x20relative;\x20width:\x20100%;\x20z-index:\x201;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22window.openBorderShop()\x22\x20style=\x22position:\x20absolute;\x20top:\x2015px;\x20right:\x2015px;\x20background:\x20rgba(250,\x20204,\x2021,\x200.1);\x20border:\x201px\x20solid\x20#facc15;\x20color:\x20#facc15;\x20padding:\x206px\x2016px;\x20border-radius:\x2020px;\x20font-size:\x2013px;\x20font-weight:\x20800;\x20cursor:\x20pointer;\x20z-index:\x209999;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','Stone','flex','fav-total-count','createElement','Episode\x20','</div></div><div\x20class=\x22scroll-card-title\x22>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22logoutModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeLogoutModal()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:9999998;\x20backdrop-filter:blur(2px);\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22logoutModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:300px;\x20border-radius:24px;\x20z-index:9999999;\x20padding:25px\x2020px\x2020px\x2020px;\x20transition:0.3s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20opacity:0;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x20border:\x201px\x20solid\x20#2c2c2e;\x20text-align:\x20center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22width:50px;\x20height:50px;\x20background:#ef4444;\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20margin:\x20-40px\x20auto\x2015px\x20auto;\x20box-shadow:\x200\x200\x2015px\x20rgba(239,\x2068,\x2068,\x200.5);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222\x22><path\x20d=\x22M9\x2021H5a2\x202\x200\x200\x201-2-2V5a2\x202\x200\x200\x201\x202-2h4\x22></path><polyline\x20points=\x2216\x2017\x2021\x2012\x2016\x207\x22></polyline><line\x20x1=\x2221\x22\x20y1=\x2212\x22\x20x2=\x229\x22\x20y2=\x2212\x22></line></svg>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#fff;\x20margin:0\x200\x2010px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Keluar\x20Akun?</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22color:#888;\x20font-size:13px;\x20margin-bottom:20px;\x20line-height:1.5;\x22>Apakah\x20kamu\x20yakin\x20ingin\x20keluar\x20dari\x20akun\x20ini?</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeLogoutModal()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20transition:0.2s;\x22>Batal</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22confirmLogout()\x22\x20style=\x22flex:1;\x20background:#ef4444;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20box-shadow:\x200\x204px\x2010px\x20rgba(239,\x2068,\x2068,\x200.4);\x20transition:0.2s;\x22>Ya,\x20Keluar</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','width:\x2055px;\x20height:\x2055px;\x20font-size:\x2016px;','id-ID','8.25','watch-episode-squares','display','translate(-50%,\x20-50%)\x20scale(1)','\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x20display:block;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','Sel','fav-completed-count','rgba(255,255,255,0.1)','silent-audio','\x22\x20class=\x22profile-avatar\x20','position:fixed;\x20top:20px;\x20left:50%;\x20transform:translateX(-50%);\x20z-index:9999999;\x20display:flex;\x20flex-direction:column;\x20gap:10px;\x20pointer-events:none;\x20width:\x2090%;\x20max-width:\x20350px;','getDay','Okt','open','levelModalOverlay','delete','openTransactionModal','episode-list-detail-container','isArray','classroom','Berhasil\x20keluar\x20dari\x20akun.','match','\x27)\x22><div\x20class=\x22timeline-img\x22><img\x20src=\x22',')\x22\x20style=\x22background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:6px\x2012px;\x20border-radius:8px;\x20font-size:11px;\x20font-weight:800;\x20cursor:pointer;\x22>Beli</button>','\x22\x20style=\x22','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22devModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeDevModal()\x22\x20style=\x22display:none;\x20z-index:9999998;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22devModal\x22\x20class=\x22bottom-sheet\x22\x20style=\x22z-index:9999999;\x20padding:25px\x2020px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20margin-bottom:15px;\x20border-bottom:1px\x20solid\x20#333;\x20padding-bottom:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20style=\x22color:#ef4444;\x20margin:0;\x20font-size:18px;\x22>🛠️\x20Panel\x20God\x20Mode</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeDevModal()\x22\x20style=\x22background:transparent;\x20border:none;\x20color:#fff;\x20font-size:16px;\x20cursor:pointer;\x22>✖</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20style=\x22font-size:12px;\x20color:#888;\x20margin-bottom:15px;\x22>Edit\x20data\x20user\x20lewat\x20UID\x20(Bisa\x20pakai\x206\x20digit\x20awal\x20saja).</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22dev-uid\x22\x20placeholder=\x22Target\x20UID\x20(Contoh:\x20#A1B2C3)\x22\x20style=\x22width:100%;\x20padding:12px;\x20margin-bottom:10px;\x20background:#111;\x20color:#fff;\x20border:1px\x20solid\x20#ef4444;\x20border-radius:12px;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x20margin-bottom:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22number\x22\x20id=\x22dev-koin\x22\x20placeholder=\x22Set\x20Koin\x22\x20style=\x22flex:1;\x20padding:12px;\x20background:#111;\x20color:#fff;\x20border:1px\x20solid\x20#333;\x20border-radius:12px;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22number\x22\x20id=\x22dev-level\x22\x20placeholder=\x22Set\x20Level\x22\x20style=\x22flex:1;\x20padding:12px;\x20background:#111;\x20color:#fff;\x20border:1px\x20solid\x20#333;\x20border-radius:12px;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22number\x22\x20id=\x22dev-exp\x22\x20placeholder=\x22Set\x20EXP\x22\x20style=\x22width:100%;\x20padding:12px;\x20margin-bottom:10px;\x20background:#111;\x20color:#fff;\x20border:1px\x20solid\x20#333;\x20border-radius:12px;\x20box-sizing:border-box;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<select\x20id=\x22dev-role\x22\x20style=\x22width:100%;\x20padding:12px;\x20margin-bottom:20px;\x20background:#111;\x20color:#fff;\x20border:1px\x20solid\x20#333;\x20border-radius:12px;\x20box-sizing:border-box;\x20outline:none;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22\x22>--\x20Jangan\x20Ubah\x20Role\x20--</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Member\x22>Member\x20(Wibu\x20Biasa)</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Wibu\x20Premium\x22>Wibu\x20Premium</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<option\x20value=\x22Developer\x22>Developer</option>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</select>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22executeGodMode()\x22\x20style=\x22width:100%;\x20padding:14px;\x20background:linear-gradient(90deg,\x20#dc2626,\x20#7f1d1d);\x20color:#fff;\x20border:none;\x20border-radius:16px;\x20font-weight:900;\x20font-size:14px;\x20cursor:pointer;\x20box-shadow:0\x205px\x2015px\x20rgba(220,\x2038,\x2038,\x200.4);\x22>⚡\x20EKSEKUSI</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','Black\x20Mana','tab-','\x22><div\x20class=\x22fav-overlay\x22></div><div\x20class=\x22fav-ep\x22>','#watch','background:\x20rgba(255,255,255,0.05);\x20border-radius:\x2012px;\x20padding:\x2015px;','rgba(59,\x20130,\x20246,\x200.1)','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-name\x22\x20style=\x22font-size:20px;\x22>','exitModal','change-name-modal-injected','function','maou','replyModal','Jul','keyCode','Error\x20render:','getDate','transactionModal','Judul\x20Tidak\x20Diketahui','\x20Koin</div></div><div><button\x20onclick=\x22giftItem(\x27','openBorderShop',';\x20border:\x201px\x20solid\x20','dev-koin','\x22\x20allowfullscreen></iframe></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x2015px\x2012px;\x20display:\x20flex;\x20gap:\x2012px;\x20align-items:\x20center;\x22><img\x20src=\x22','<div\x20style=\x22flex:1;\x22><div\x20style=\x22font-weight:800;\x20font-size:13px;\x20color:#fff;\x22>','Level\x20','</button></div>','season','\x22\x20loading=\x22lazy\x22\x20onerror=\x22','completed','<div\x20class=\x22sched-card\x22\x20onclick=\x22loadDetail(\x27','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22transactionModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeTransactionModal()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:99999998;\x20backdrop-filter:blur(2px);\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22transactionModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:300px;\x20border-radius:24px;\x20z-index:99999999;\x20padding:25px\x2020px\x2020px\x2020px;\x20transition:0.3s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20opacity:0;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x20border:\x201px\x20solid\x20#2c2c2e;\x20text-align:\x20center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22transaction-preview-container\x22\x20style=\x22margin-bottom:\x2015px;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20id=\x22transaction-title\x22\x20style=\x22color:#fff;\x20margin:0\x200\x2010px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Konfirmasi</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20id=\x22transaction-desc\x22\x20style=\x22color:#888;\x20font-size:13px;\x20margin-bottom:20px;\x20line-height:1.5;\x22>Apakah\x20kamu\x20yakin?</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;\x20gap:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeTransactionModal()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:13px;\x20cursor:pointer;\x20transition:0.2s;\x22>Batal</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22confirmTransaction()\x22\x20style=\x22flex:1;\x20background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:13px;\x20cursor:pointer;\x20box-shadow:\x200\x204px\x2010px\x20rgba(59,\x20130,\x20246,\x200.3);\x20transition:0.2s;\x22>Ya,\x20Gas!</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','transition','email','badge-premium-anim','touchend','getFullYear','onkeydown','</b>?<br>\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Biaya:\x20<b\x20style=\x22color:#facc15;\x22>','\x20background:\x20linear-gradient(to\x20right,\x20#3b82f6\x20','objectStoreNames','reply-parent-content','view-gift','<div\x20style=\x22display:\x20flex;\x20gap:\x2012px;\x20align-items:\x20center;\x22><div\x20id=\x22comment-input-avatar\x22\x20style=\x22position:\x20relative;\x20width:\x2036px;\x20height:\x2036px;\x20flex-shrink:\x200;\x22><img\x20src=\x22','logoutModal','<div\x20style=\x22position:\x20relative;\x20width:\x20','70TyINDF','Komentar\x20berhasil\x20dihapus!','skor','expanded','custom-comment-area','default','Fantasy\x20Anime','Movie\x20Anime','key','this.src=\x27https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime\x27','ctrlKey','K\x20Views','closeBorderShop','video-player','switchProfileModalTab','Rab','tamat','Ongoing','injectExitModal','confirmLogout','backgroundColor','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22modal-ptab-comments\x22\x20class=\x22modal-ptab-content\x22\x20style=\x22display:none;\x20padding:\x200\x2015px;\x22>','maxLvl','#444444','animeku-c39ab','/search?q=','currentAnimeMeta','transform\x200.5s\x20ease-in-out','translateY(-30px)','<div\x20style=\x22font-size:12px;\x20color:#666;\x20padding:10px\x200;\x22>Jadilah\x20yang\x20pertama\x20membalas...</div>','<line\x20x1=\x2218\x22\x20y1=\x226\x22\x20x2=\x226\x22\x20y2=\x2218\x22></line><line\x20x1=\x226\x22\x20y1=\x226\x22\x20x2=\x2218\x22\x20y2=\x2218\x22></line>','replyModalOverlay','Mythic','dr.\x20stone','Toxic\x20Slime','report-modal-injected','%);\x20border-color:\x20#3b82f6;\x20color:\x20#fff;','\x22>Buka\x20Episode</div></div>','ep-square','\x27)\x22\x20style=\x22background:#10b981;\x20color:#fff;\x20border:none;\x20padding:6px\x2012px;\x20border-radius:8px;\x20font-size:12px;\x20font-weight:800;\x20cursor:pointer;\x22>','set','https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated','getMonth','gift-styles','currentEpID','currentPlayingAnime','Senin','Developer','The\x20Hacxcore','Home\x20loading\x20failed\x20total','1721136ulFCxc','363198qtZmHm','\x22></div>','historyTrapSet','\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x20display:block;\x22><div\x20style=\x22position:absolute;\x20top:50%;\x20left:50%;\x20width:120%;\x20height:120%;\x20transform:translate(-50%,\x20-50%);\x20pointer-events:none;\x20background-image:url(\x27','localeCompare','xp-modal-overlay','gotoubun','readyState','timestamp','sched-text-next','Buka','offsetHeight','includes','UID\x20tidak\x20ditemukan!','length','</div></div></div></div>','1:583107813249:web:4a2ebe047393f4f744d280','\x27)\x22><div\x20style=\x22position:relative;\x22><img\x20src=\x22','remove','#666','heroWrapper','Episode\x20?','main-comment-input',')\x22>','fadeOutGift\x200.5s\x20forwards','onmousedown=\x22handleCommentTouchStart(','Emerald','musim','</button></div></div>','btn-dislike-action','Rp\x2020.000','querySelectorAll','gift','Juri','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-overlay\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-card\x22\x20id=\x22tiktok-gift-card-el\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-icon-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:absolute;\x20top:-25px;\x20left:-25px;\x20width:100px;\x20height:100px;\x20background:\x20radial-gradient(circle,\x20rgba(250,204,21,0.4)\x200%,\x20transparent\x2070%);\x20animation:\x20glowSpin\x204s\x20linear\x20infinite;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','Item\x20berhasil\x20','13px','action','catch','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:\x20','logoutModalOverlay','<div\x20style=\x22text-align:center;\x20padding:10px;\x20color:#888;\x20font-size:12px;\x20cursor:pointer;\x22\x20onclick=\x22closeReplyModal();\x20switchTab(\x27developer\x27)\x22>Login\x20untuk\x20membalas...</div>','getHours','Selasa','</div></div><div\x20class=\x22fav-title\x22>','gift-preview-uid','Des','\x20<svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M6\x209l6\x206\x206-6\x22></path></svg>','.comment-filter-btn','short','syncProgressWithFirebase','current-quality-text','users','</b></span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20','Tautan\x20disalin\x20ke\x20clipboard!','Anime','<div\x20class=\x22sched-day-item\x20','epSortOrder','Fallen\x20Angel\x20(Black)','changedTouches','AnimekuDB','\x22\x20onerror=\x22','Milikmu','Video\x20tidak\x20ditemukan\x20atau\x20server\x20belum\x20dimuat.','</div><div\x20style=\x22color:','/newGift','<div\x20class=\x22','\x20Comments','signOut','sched-days-container','</div><div><div\x20class=\x22rank-title\x22\x20style=\x22color:\x20','comments/','</div><div\x20class=\x22timeline-time\x22>','list','</div></div><div\x20class=\x22recent-title\x22>','slice','#ef4444','reply-list-container','switchBorderTab','2132132yCNjeR','<svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#ef4444\x22\x20stroke=\x22#ef4444\x22\x20stroke-width=\x222\x22><path\x20d=\x22M18\x208A6\x206\x200\x200\x200\x206\x208c0\x207-3\x209-3\x209h18s-3-2-3-9\x22></path><path\x20d=\x22M13.73\x2021a2\x202\x200\x200\x201-3.46\x200\x22></path></svg>\x20Disubscribe','parse','\x20Koin</b>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','grid','Nov','btn-like-action','fantasy','epLayoutMode','\x27)\x22\x20style=\x22cursor:pointer;\x22','floor','0.3','<div\x20style=\x22text-align:center;\x20padding:30px\x200;\x22><p\x20style=\x22color:#555;\x20font-size:13px;\x22>Belum\x20ada\x20komentar.</p></div>','closeLogoutModal','</h2><button\x20class=\x22hero-btn\x22><svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22currentColor\x22><path\x20d=\x22M8\x205v14l11-7z\x22/></svg>\x20Putar</button></div></div>','tab-topup','currentFavData','36px','closeChangeNameModal','profile-user-name-display','<div\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#555;\x22><h2>Belum\x20ada\x20Subscribe\x20Anime</h2></div>','div','opacity','5qYJVTr','translateY(20px)','toLowerCase','.btn-ep-layout','update','ownedCommentplates','translateY(-20px)\x20scale(0.95)','charCodeAt','url','number','</div><div\x20class=\x22stat-lbl\x22>bulan<br>bergabung</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-tabs\x22\x20style=\x22border-bottom:\x201px\x20solid\x20#1a1a1a;\x20margin-bottom:\x2020px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ptab\x20active\x22\x20onclick=\x22switchProfileModalTab(\x27all\x27,\x20this)\x22>All</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ptab\x22\x20onclick=\x22switchProfileModalTab(\x27comments\x27,\x20this)\x22>Comments</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22ptab\x22\x20onclick=\x22switchProfileModalTab(\x27history\x27,\x20this)\x22>History</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22modal-ptab-all\x22\x20class=\x22modal-ptab-content\x22\x20style=\x22padding:\x200\x2015px;\x22>','https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated','kanojo','reply-input-avatar','animeEp','reply-input-area','hero-slider','Feb','<div\x20class=\x22header-flex\x22\x20style=\x22padding-top:20px;\x22><h2>Pencarian:\x20\x22','\x22\x20style=\x22font-size:11px;\x20padding:4px\x2010px;\x22>','\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-scroll\x20{\x20display:\x20flex;\x20overflow-x:\x20auto;\x20gap:\x2015px;\x20padding:\x2015px\x2020px;\x20background:\x20#050505;\x20border-bottom:\x201px\x20solid\x20#1a1a1a;\x20position:\x20sticky;\x20top:\x200;\x20z-index:\x2010;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-scroll::-webkit-scrollbar\x20{\x20display:\x20none;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-item\x20{\x20display:\x20flex;\x20flex-direction:\x20column;\x20align-items:\x20center;\x20gap:\x205px;\x20color:\x20#666;\x20font-weight:\x20700;\x20cursor:\x20pointer;\x20min-width:\x2040px;\x20transition:\x200.2s;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-item\x20.s-name\x20{\x20font-size:\x2012px;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-item\x20.s-date\x20{\x20font-size:\x2016px;\x20width:\x2036px;\x20height:\x2036px;\x20display:\x20flex;\x20align-items:\x20center;\x20justify-content:\x20center;\x20border-radius:\x2050%;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-item.active\x20{\x20color:\x20#3b82f6;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-day-item.active\x20.s-date\x20{\x20background:\x20#3b82f6;\x20color:\x20#fff;\x20box-shadow:\x200\x204px\x2010px\x20rgba(59,130,246,0.4);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-card\x20{\x20display:\x20flex;\x20gap:\x2012px;\x20padding:\x2012px;\x20border:\x201px\x20solid\x20#2c2c2e;\x20border-radius:\x2012px;\x20cursor:\x20pointer;\x20transition:\x200.2s;\x20background:\x20#1c1c1e;\x20align-items:\x20center;\x20margin:\x200\x2015px\x2015px\x2015px;\x20box-sizing:\x20border-box;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-card:hover\x20{\x20border-color:\x20#3b82f6;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-time\x20{\x20font-size:\x2016px;\x20font-weight:\x20900;\x20color:\x20#fff;\x20width:\x2050px;\x20text-align:\x20center;\x20flex-shrink:\x200;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-img\x20{\x20width:\x2075px;\x20height:\x20100px;\x20border-radius:\x208px;\x20object-fit:\x20cover;\x20border:\x201px\x20solid\x20#222;\x20flex-shrink:\x200;\x20background:\x20#111;}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-info\x20{\x20flex:\x201;\x20min-width:\x200;\x20display:\x20flex;\x20flex-direction:\x20column;\x20justify-content:\x20center;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-title\x20{\x20font-size:\x2015px;\x20font-weight:\x20800;\x20color:\x20#fff;\x20margin-bottom:\x204px;\x20display:\x20-webkit-box;\x20-webkit-line-clamp:\x202;\x20-webkit-box-orient:\x20vertical;\x20overflow:\x20hidden;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-ep\x20{\x20font-size:\x2012px;\x20color:\x20#d1d5db;\x20margin-bottom:\x206px;\x20font-weight:\x20600;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-stats\x20{\x20font-size:\x2011px;\x20color:\x20#a1a1aa;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x208px;\x20font-weight:\x20500;\x20margin-bottom:\x206px;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-status\x20{\x20font-size:\x2011px;\x20font-weight:\x20600;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x205px;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.status-wait\x20{\x20color:\x20#a1a1aa;\x20}\x20.status-wait::before\x20{\x20content:\x20\x27\x27;\x20display:\x20inline-block;\x20width:\x206px;\x20height:\x206px;\x20background:\x20#555;\x20border-radius:\x2050%;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.status-done\x20{\x20color:\x20#10b981;\x20}\x20.status-done::before\x20{\x20content:\x20\x27\x27;\x20display:\x20inline-block;\x20width:\x206px;\x20height:\x206px;\x20background:\x20#10b981;\x20border-radius:\x2050%;\x20box-shadow:\x200\x200\x205px\x20#10b981;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-float-nav\x20{\x20display:\x20flex;\x20justify-content:\x20space-between;\x20padding:\x2015px\x2020px;\x20background:\x20linear-gradient(transparent,\x20#050505\x2040%);\x20position:\x20fixed;\x20bottom:\x2060px;\x20width:\x20100%;\x20max-width:\x20500px;\x20box-sizing:\x20border-box;\x20pointer-events:\x20none;\x20z-index:\x2010;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.sched-btn\x20{\x20pointer-events:\x20auto;\x20background:\x20#1c1c1e;\x20color:\x20#fff;\x20border:\x201px\x20solid\x20#333;\x20padding:\x2010px\x2020px;\x20border-radius:\x2020px;\x20font-size:\x2013px;\x20font-weight:\x20800;\x20cursor:\x20pointer;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x208px;\x20box-shadow:\x200\x205px\x2015px\x20rgba(0,0,0,0.5);\x20}\x0a\x20\x20\x20\x20','./animeku.jpg','all','xp-modal-card','<div\x20class=\x22timeline-card\x22\x20onclick=\x22loadDetail(\x27','movie','</svg></div><div\x20style=\x22color:#fff;\x20font-size:13px;\x20font-weight:700;\x20line-height:1.4;\x22>','closeReportModal','detail-view','window.showToast(\x27Belum\x20ada\x20episode\x27,\x20\x27error\x27)','<div\x20style=\x22display:flex;\x20align-items:center;\x20gap:12px;\x20background:#111;\x20padding:10px;\x20border-radius:12px;\x20margin-bottom:10px;\x20border:1px\x20solid\x20','ptab-','exists','<div\x20style=\x22font-size:\x2012px;\x20color:\x20#3b82f6;\x20font-weight:\x20700;\x20cursor:\x20pointer;\x20display:\x20inline-block;\x20margin-right:\x2015px;\x22\x20onclick=\x22event.stopPropagation();\x20openReplyModal(\x27','#userProfileModal\x20.ptab','\x20<span\x20style=\x22color:#fbbf24;\x20margin-left:8px;\x22>⭐\x20','setDate','openUserProfile','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x22\x20style=\x22font-size:11px;\x20padding:4px\x2010px;\x20background:\x20rgba(255,255,255,0.05);\x20color:\x20#a1a1aa;\x20border:\x201px\x20solid\x20rgba(255,255,255,0.1);\x22>','injectTransactionModal','goHome','https://wa.me/6281315059849?text=','active','</span>\x20<svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M5\x2012l5\x205l10\x20-10\x22></path></svg></button>','2-digit','recent-results-container','getMinutes','\x27)\x22\x20style=\x22position:\x20absolute;\x20right:\x204px;\x20top:\x2050%;\x20transform:\x20translateY(-50%);\x20background:\x20transparent;\x20border:\x20none;\x20padding:\x206px;\x20cursor:\x20pointer;\x20display:\x20flex;\x22><svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#3b82f6\x22><path\x20d=\x22M2.01\x2021L23\x2012\x202.01\x203\x202\x2010l15\x202-15\x202z\x22/></svg></button></div></div>','body','</div><div\x20style=\x22font-size:\x2012px;\x20color:\x20#a1a1aa;\x20font-weight:\x20500;\x22>','screenX','BORDER_CATALOG','replace','postComment','history/','share','pointer','pop','gift-uid-input','0.15','dev-level','Limit\x20tercapai!\x20Wibu\x20Biasa\x20hanya\x20bisa\x20komen\x201x\x20per\x20episode.','https://cdn.discordapp.com/media/v1/collectibles-shop/1481384635886862397/animated','\x20Quality','DOMContentLoaded','currentCommentSort','https://cdn.discordapp.com/media/v1/collectibles-shop/1387888352639975484/animated','12px','<div\x20id=\x22exitModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22cancelExit()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:9999998;\x20backdrop-filter:blur(2px);\x22></div><div\x20id=\x22exitModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:300px;\x20border-radius:24px;\x20z-index:9999999;\x20padding:25px\x2020px\x2020px\x2020px;\x20transition:0.3s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20opacity:0;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x20border:\x201px\x20solid\x20#2c2c2e;\x20text-align:\x20center;\x22><div\x20style=\x22width:50px;\x20height:50px;\x20background:#ef4444;\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20margin:\x20-40px\x20auto\x2015px\x20auto;\x20box-shadow:\x200\x200\x2015px\x20rgba(239,\x2068,\x2068,\x200.5);\x22><svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222\x22><path\x20d=\x22M9\x2021H5a2\x202\x200\x200\x201-2-2V5a2\x202\x200\x200\x201\x202-2h4\x22></path><polyline\x20points=\x2216\x2017\x2021\x2012\x2016\x207\x22></polyline><line\x20x1=\x2221\x22\x20y1=\x2212\x22\x20x2=\x229\x22\x20y2=\x2212\x22></line></svg></div><h3\x20style=\x22color:#fff;\x20margin:0\x200\x2010px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Yakin\x20ingin\x20keluar?</h3><p\x20style=\x22color:#888;\x20font-size:13px;\x20margin-bottom:20px;\x20line-height:1.5;\x22>Apakah\x20kamu\x20yakin\x20ingin\x20menutup\x20aplikasi\x20Animeku?</p><div\x20style=\x22display:flex;\x20gap:10px;\x22><button\x20onclick=\x22cancelExit()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20transition:0.2s;\x22>Tidak</button><button\x20onclick=\x22confirmExit()\x22\x20style=\x22flex:1;\x20background:#ef4444;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20box-shadow:\x200\x204px\x2010px\x20rgba(239,\x2068,\x2068,\x200.4);\x20transition:0.2s;\x22>Ya,\x20Keluar</button></div></div>','like','\x22><div\x20class=\x22recent-overlay\x22></div><div\x20class=\x22recent-ep-text\x22>','<div\x20style=\x22text-align:center;\x20padding:\x2060px\x2020px;\x20display:flex;\x20flex-direction:column;\x20align-items:center;\x22><svg\x20width=\x2250\x22\x20height=\x2250\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#ef4444\x22\x20stroke-width=\x222\x22\x20style=\x22margin-bottom:15px;\x22><path\x20d=\x22M10.29\x203.86L1.82\x2018a2\x202\x200\x200\x200\x201.71\x203h16.94a2\x202\x200\x200\x200\x201.71-3L13.71\x203.86a2\x202\x200\x200\x200-3.42\x200z\x22></path><line\x20x1=\x2212\x22\x20y1=\x229\x22\x20x2=\x2212\x22\x20y2=\x2213\x22></line><line\x20x1=\x2212\x22\x20y1=\x2217\x22\x20x2=\x2212.01\x22\x20y2=\x2217\x22></line></svg><h2\x20style=\x22font-size:18px;\x20margin:0\x200\x208px\x200;\x20color:#fff;\x22>Gagal\x20Memuat\x20Data</h2><p\x20style=\x22font-size:13px;\x20color:#888;\x20margin-bottom:20px;\x20line-height:1.5;\x22>Server\x20API\x20kamu\x20sedang\x20sibuk\x20atau\x20menolak\x20koneksi.\x20Silakan\x20coba\x20lagi\x20nanti.</p><button\x20onclick=\x22loadLatest()\x22\x20style=\x22background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:12px\x2024px;\x20border-radius:24px;\x20font-weight:800;\x20cursor:pointer;\x22>Coba\x20Lagi</button></div>','\x27)\x22>Reply</div>','display:\x20flex;\x20gap:\x2010px;\x20flex-wrap:\x20wrap;\x20padding-bottom:\x2010px;','ceil','user','</div><div\x20class=\x22badge-score\x22><svg\x20width=\x2210\x22\x20height=\x2210\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#fbbf24\x22><path\x20d=\x22M12\x202l3.09\x206.26L22\x209.27l-5\x204.87\x201.18\x206.88L12\x2017.77l-6.18\x203.25L7\x2014.14\x202\x209.27l6.91-1.01L12\x202z\x22/></svg>\x20','new-name-input','\x27,\x20\x27Eps\x20','sched-list-container','koin','detail','</div><div\x20class=\x22stat-lbl\x22>menit<br>menonton</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22\x20id=\x22stat-komentar-val\x22>...</div><div\x20class=\x22stat-lbl\x22>jumlah<br>komentar</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22>','now','Maksimal\x2025\x20karakter!','transaction-modal-injected','comedy','Rabu','j\x200m','Rp\x2010.000','<p\x20style=\x22text-align:center;\x20color:#555;\x20font-size:13px;\x20margin-top:30px;\x22>Belum\x20ada\x20aktivitas\x20komentar.</p>','<div\x20style=\x22display:\x20flex;\x20gap:\x2010px;\x20align-items:\x20center;\x20margin-top:\x2015px;\x22><div\x20id=\x22reply-input-avatar\x22\x20style=\x22position:\x20relative;\x20width:\x2032px;\x20height:\x2032px;\x20flex-shrink:\x200;\x22><img\x20src=\x22','recent','<div\x20class=\x22recent-card\x22\x20onclick=\x22loadDetail(\x27','exitModalOverlay','gift-user-preview','Purple-Animation','purchase-anim-container','readwrite','Seseorang','renderDetailEpisodeUI','*Anime:*\x20','https://placehold.co/40','tipe','map','</div><img\x20src=\x22',';\x20transition:\x200.2s;\x20padding:\x2010px;\x20border-radius:\x2012px;\x20','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20</div>','level-modal-total-exp','openDeleteModal','currentShopCategory','cat','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-header\x22\x20style=\x22margin-top:-10px;\x20display:flex;\x20flex-direction:column;\x20align-items:center;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-avatar-container\x22\x20style=\x22width:90px;\x20height:90px;\x20position:relative;\x20display:inline-block;\x20margin-bottom:10px;\x20border-radius:50%;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','#comment-input-avatar,\x20#reply-input-avatar','/latest','dev-modal-injected','<div\x20style=\x22width:60px;\x20height:45px;\x20border-radius:10px;\x20margin:\x20-45px\x20auto\x2015px\x20auto;\x20border:2px\x20solid\x20#facc15;\x20box-shadow:\x200\x200\x2015px\x20rgba(250,\x20204,\x2021,\x200.5);\x20background:#111;\x20','dipakai','closeReplyModal','\x20jam\x20lalu','.bottom-sheet','view-topup','\x20Koin\x20seharga\x20','serverModal','display:\x20flex;\x20flex-direction:\x20column;','</div><div\x20style=\x22color:#a1a1aa;\x20font-size:12px;\x20font-weight:500;\x22>Episode\x20','cancelExit','Gagal\x20mengubah\x20item:\x20','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-overlay\x22\x20style=\x22top:\x2010%;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-card\x22\x20id=\x22tiktok-gift-sent-el\x22\x20style=\x22border-color:\x20#10b981;\x20box-shadow:\x200\x2010px\x2030px\x20rgba(0,0,0,0.8),\x200\x200\x2020px\x20rgba(16,\x20185,\x20129,\x200.3);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-icon-container\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:35px;\x20filter:\x20drop-shadow(0\x200\x2010px\x20#10b981);\x22>🎁</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20flex-direction:\x20column;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#10b981;\x20font-size:12px;\x20font-weight:900;\x20text-transform:uppercase;\x22>Terkirim!</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22color:#fff;\x20font-size:13px;\x20font-weight:700;\x22><b>','trim','equipItem','<div\x20class=\x22comment-item\x22\x20','description','waktu','<div\x20style=\x22width:40px;\x20height:40px;\x20border-radius:8px;\x20border:2px\x20solid\x20#fff;\x20box-shadow:\x200\x200\x2015px\x20#3b82f6;\x20','handleCommentTouchStart','<div\x20class=\x22avatar-deco-overlay\x22\x20style=\x22background-image:url(\x27','25px','</div><div\x20style=\x22font-size:12px;\x20color:#888;\x20display:flex;\x20align-items:center;\x20gap:6px;\x20font-weight:500;\x22><svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M1\x2012s4-8\x2011-8\x2011\x208\x2011\x208-4\x208-11\x208-11-8-11-8z\x22></path><circle\x20cx=\x2212\x22\x20cy=\x2212\x22\x20r=\x223\x22></circle></svg>\x20','.nav-item','contextmenu','Wibu\x20Biasa\x20hanya\x20bisa\x20membalas\x201x\x20di\x20komentar\x20ini.','Glitch\x20Merah\x20(Mythic)','entries','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20','</div><div\x20class=\x22timeline-progress-container\x22><div\x20class=\x22timeline-progress-bg\x22><div\x20class=\x22timeline-progress-fill\x22\x20style=\x22width:\x20','User\x20Animeku','</div></div>','deleteModal','\x20/\x20','background:\x20linear-gradient(90deg,\x20rgba(88,28,135,0.3),\x20transparent);\x20border-left:\x203px\x20solid\x20#8b5cf6;','top','cssText','<div\x20style=\x22width:40px;\x20height:40px;\x20border-radius:8px;\x20flex-shrink:0;\x20border:1px\x20solid\x20#333;\x20','Romance\x20&\x20Drama','switchProfileTab','serverModalOverlay','Sort:\x201\x20&#9650;\x2099','\x27,\x20','readonly','.profile-avatar-container','rgb(59,\x20130,\x20246)','/s0/','ownedBorders','#detail','appendChild','\x20hari\x20lalu</div><div\x20style=\x22display:flex;\x20align-items:center;\x20gap:8px;\x22><svg\x20width=\x2214\x22\x20height=\x2214\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#fff\x22><path\x20d=\x22M8\x205v14l11-7z\x22/></svg><div\x20class=\x22pli-progress-bg\x22><div\x20class=\x22pli-progress-fill\x22\x20style=\x22width:\x20','<p\x20style=\x22text-align:center;\x20color:#555;\x20font-size:13px;\x20margin-top:30px;\x22>Belum\x20ada\x20riwayat\x20tontonan.</p>','favorites','activeCommentplate','in-app-notif-container','school','Sembunyikan\x20▲','#f1c40f','activeBorder','background','\x20Koin</div><button\x20onclick=\x22beliKoinWa(','episode','click','toggleLikeAction',')\x22\x20onmouseup=\x22handleCommentTouchEnd()\x22\x20onmouseleave=\x22handleCommentTouchEnd()\x22\x20ontouchstart=\x22handleCommentTouchStart(','val','\x20-\x20','\x27);\x20background-size:contain;\x20background-position:center;\x20background-repeat:no-repeat;\x22></div></div>',':00','Sabtu','avatar-deco-overlay','<div\x20style=\x22display:flex;\x20justify-content:space-between;\x20align-items:center;\x20background:#111;\x20padding:10px;\x20border-radius:12px;\x20margin-bottom:10px;\x22><div\x20style=\x22color:#facc15;\x20font-weight:900;\x20font-size:15px;\x22>','closeLevelModal','querySelector','Animeku\x20•\x20Episode\x20','type','minLvl','tiktok-gift-sent-el','Hologram\x20Dragon','\x22><div\x20class=\x22timeline-play-icon\x22><svg\x20width=\x2212\x22\x20height=\x2212\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22currentColor\x22><path\x20d=\x22M8\x205v14l11-7z\x22/></svg></div></div><div\x20class=\x22timeline-info\x22><div\x20class=\x22timeline-header\x22><div\x20class=\x22timeline-title\x22>','</div><div\x20class=\x22timeline-items\x22>','developer-view','innerText','*Link:*\x20','reportModalOverlay','animeku-c39ab.firebasestorage.app','true','logout-modal-injected','Subscribe','pushState','Ketik\x20UID\x20Teman\x20dulu!','view-shop',';\x20cursor:pointer;\x20background:\x20','COSMETIC_CATALOG','home-view','url(\x27','joined','Phoenix','none','414SbjnHm',';\x20height:\x20','has','#1c1c1e','\x20style=\x22position:\x20relative;\x20display:\x20flex;\x20gap:\x2012px;\x20margin-bottom:\x20','#2ecc71','this.src=\x27https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime\x27','watch_','metadata','toggleEpSort','transaction','https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated','iframe','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-stats\x22\x20style=\x22border-bottom:\x201px\x20solid\x20#1a1a1a;\x20margin-bottom:\x205px;\x20padding:\x200\x2010px\x2025px\x2010px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22>','target','</b>\x20untuk\x20profilmu?<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Harga:\x20<span\x20style=\x22color:#facc15;\x20font-weight:900;\x22>','undefined','detail-synopsis-text','contains','cachedScheduleData','watch','commentplates','streams','category-selector','<button\x20class=\x22','Sen','transactionModalOverlay','/watch?url=','GoogleAuthProvider','showToast','<div\x20class=\x22fav-card\x22\x20onclick=\x22loadDetail(\x27','backgroundImage','The-Anomaly','Nama\x20berhasil\x20diganti!','setShopCategory','\x20Koin\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-header\x22\x20style=\x22padding-top:\x2040px;\x20display:flex;\x20flex-direction:column;\x20align-items:center;\x20position:\x20relative;\x20z-index:\x2050;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22profile-avatar-container\x22\x20onclick=\x22window.openBorderShop()\x22\x20style=\x22cursor:pointer;\x20position:relative;\x20width:90px;\x20height:90px;\x20border-radius:50%;\x20margin-bottom:10px;\x20z-index:\x20100;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','transparent','mediaSession','0\x20Comments','openReportModal','avatar-rank-','setItem','Baby-Displacer-Beast','info','Silver','\x20•\x20','Koin\x20tidak\x20cukup!','once','user-profile-content','Anime\x20Tidak\x20Diketahui','https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633615765524/animated','classList','auth-check-container','gift-sent-container','%;\x22></div></div><span\x20style=\x22font-size:11px;\x20color:#a1a1aa;\x20font-weight:800;\x22>23:40</span></div></div></div>','spy','background:\x20linear-gradient(90deg,\x20rgba(6,78,59,0.3),\x20transparent);\x20border-left:\x203px\x20solid\x20#10b981;','href','<svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#facc15\x22\x20stroke-width=\x223\x22><polyline\x20points=\x2220\x206\x209\x2017\x204\x2012\x22></polyline></svg>','rating','transform','user-coin-balance','postReply','dilepas','substring','auth/popup-closed-by-user','createObjectStore','Sab','<svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M18\x208A6\x206\x200\x200\x200\x206\x208c0\x207-3\x209-3\x209h18s-3-2-3-9\x22></path><path\x20d=\x22M13.73\x2021a2\x202\x200\x200\x201-3.46\x200\x22></path></svg>\x20Subscribe','padStart','background:\x20transparent;','.ptab-content',';\x20cursor:\x20','</div></div><div\x20class=\x22timeline-ep\x22>','<img\x20src=\x22','80;\x22><svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222.5\x22>','head','Action\x20Anime','injectDevModal','kimetsu','value','released','</div><div\x20class=\x22stat-lbl\x22>menit<br>menonton</div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22stat-box\x22><div\x20class=\x22stat-val\x22>','\x22\x20alt=\x22','\x20bln\x20lalu','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20','.modal-ptab-content','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-size:\x2010px;\x20color:\x20#888;\x20flex-shrink:\x200;\x22>•\x20','error','\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20TAMBAHAN\x20ANTI\x20KOTAK\x20BAYANGAN\x20SAAT\x20DIPENCET\x20DI\x20HP\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20*\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20-webkit-tap-highlight-color:\x20transparent\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20outline:\x20none\x20!important;\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20@keyframes\x20shimmerPremium\x20{\x200%\x20{\x20background-position:\x20100%\x200;\x20}\x20100%\x20{\x20background-position:\x20-100%\x200;\x20}\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.c-badge,\x20.rank-icon\x20{\x20position:\x20relative;\x20overflow:\x20visible\x20!important;\x20}\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20.rank-icon-emerald,\x20.badge-lvl-emerald\x20{\x20animation:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.rank-icon-emerald::after,\x20.rank-icon-emerald::before\x20{\x20display:\x20none\x20!important;\x20content:\x20none\x20!important;\x20animation:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.rank-icon-master,\x20.badge-lvl-master\x20{\x20animation:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.rank-icon-master::before,\x20.rank-icon-master::after\x20{\x20display:\x20none\x20!important;\x20content:\x20none\x20!important;\x20animation:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.badge-lvl-diamond,\x20.rank-icon-diamond\x20{\x20box-shadow:\x200\x200\x2012px\x20rgba(6,\x20182,\x20212,\x200.6)\x20!important;\x20background:\x20linear-gradient(90deg,\x20#2563eb,\x20#06b6d4,\x20#2563eb)\x20!important;\x20background-size:\x20200%\x20100%\x20!important;\x20color:\x20#fff\x20!important;\x20border:\x20none\x20!important;\x20animation:\x20shimmerPremium\x203s\x20infinite\x20linear\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.badge-lvl-mythic,\x20.rank-icon-mythic\x20{\x20box-shadow:\x200\x200\x2016px\x20rgba(239,\x2068,\x2068,\x200.7)\x20!important;\x20background:\x20linear-gradient(90deg,\x20#ef4444,\x20#eab308,\x20#ef4444)\x20!important;\x20background-size:\x20200%\x20100%\x20!important;\x20color:\x20#fff\x20!important;\x20border:\x20none\x20!important;\x20animation:\x20shimmerPremium\x203s\x20infinite\x20linear\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.avatar-rank-emerald\x20{\x20border:\x20none\x20!important;\x20box-shadow:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.avatar-rank-diamond\x20{\x20border:\x20none\x20!important;\x20box-shadow:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.avatar-rank-master\x20{\x20border:\x20none\x20!important;\x20box-shadow:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.avatar-rank-mythic\x20{\x20border:\x20none\x20!important;\x20box-shadow:\x20none\x20!important;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20/*\x20CSS\x20PERFECT\x20FIT\x20120%\x20*/\x0a\x20\x20\x20\x20\x20\x20\x20\x20.avatar-deco-overlay\x20{\x20position:\x20absolute;\x20top:\x2050%;\x20left:\x2050%;\x20width:\x20120%;\x20height:\x20120%;\x20transform:\x20translate(-50%,\x20-50%);\x20pointer-events:\x20none;\x20z-index:\x2010;\x20background-size:\x20contain;\x20background-position:\x20center;\x20background-repeat:\x20no-repeat;\x20}\x0a\x20\x20\x20\x20','\x22\x20style=\x22width:\x20100%;\x20height:\x20100%;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20display:block;\x20pointer-events:\x20none;\x20-webkit-user-drag:\x20none;\x20-webkit-touch-callout:\x20none;\x22>','push','elf','\x22\x20style=\x22width:45px;\x20height:45px;\x20border-radius:10px;\x20object-fit:cover;\x20border:1px\x20solid\x20#333;\x22><div\x20style=\x22flex:1;\x20min-width:0;\x22><div\x20style=\x22color:#3b82f6;\x20font-size:11px;\x20font-weight:900;\x20text-transform:uppercase;\x20letter-spacing:0.5px;\x20margin-bottom:2px;\x22>Update\x20Rilis!</div><div\x20style=\x22color:#fff;\x20font-size:14px;\x20font-weight:800;\x20white-space:nowrap;\x20overflow:hidden;\x20text-overflow:ellipsis;\x22>','replaceState','then','DEV','ref','watchedEps','src','injectLogoutModal','\x22\x20loading=\x22','\x20Koin','shiftKey','\x22\x20onclick=\x22setJadwalDay(','showGiftReceivedModal','cat-borders','\x22><div\x20class=\x22hero-overlay\x22></div><div\x20class=\x22hero-content\x22><div\x20class=\x22hero-badge\x22>','toFixed','\x22\x20style=\x22width:\x20100%;\x20height:\x20100%;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20display:block;\x22></div><div\x20style=\x22flex:\x201;\x20position:\x20relative;\x22><input\x20type=\x22text\x22\x20id=\x22reply-input-text\x22\x20onkeypress=\x22if(event.key\x20===\x20\x27Enter\x27)\x20postReply(\x27','xp-progress-fill','Minggu','reportModal','from','cat-commentplates','levelModal','gift-inventory-list','</span></button><button\x20class=\x22action-btn\x22\x20onclick=\x22handleDownload()\x22\x20style=\x22border-radius:\x2020px;\x20flex-shrink:\x200;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M21\x2015v4a2\x202\x200\x200\x201-2\x202H5a2\x202\x200\x200\x201-2-2v-4M7\x2010l5\x205\x205-5M12\x2015V3\x22></path></svg>\x20Download</button></div><div\x20style=\x22display:\x20flex;\x20gap:\x208px;\x20flex-wrap:\x20wrap;\x22><button\x20class=\x22action-btn\x22\x20onclick=\x22handleShare()\x22\x20style=\x22border-radius:\x2020px;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><circle\x20cx=\x2218\x22\x20cy=\x225\x22\x20r=\x223\x22></circle><circle\x20cx=\x226\x22\x20cy=\x2212\x22\x20r=\x223\x22></circle><circle\x20cx=\x2218\x22\x20cy=\x2219\x22\x20r=\x223\x22></circle><line\x20x1=\x228.59\x22\x20y1=\x2213.51\x22\x20x2=\x2215.42\x22\x20y2=\x2217.49\x22></line><line\x20x1=\x2215.41\x22\x20y1=\x226.51\x22\x20x2=\x228.59\x22\x20y2=\x2210.49\x22></line></svg>\x20Share</button><button\x20class=\x22action-btn\x22\x20onclick=\x22openReportModal()\x22\x20style=\x22border-radius:\x2020px;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22currentColor\x22\x20stroke-width=\x222\x22><path\x20d=\x22M4\x2015s1-1\x204-1\x205\x202\x208\x202\x204-1\x204-1V3s-1\x201-4\x201-5-2-8-2-4\x201-4\x201z\x22></path><line\x20x1=\x224\x22\x20y1=\x2222\x22\x20x2=\x224\x22\x20y2=\x2215\x22></line></svg>\x20Report</button></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22padding:\x2020px\x2012px\x2010px\x2012px;\x22><h2\x20style=\x22font-size:18px;\x20font-weight:800;\x20margin:0\x200\x2015px\x200;\x22>Episode\x20List</h2><div\x20id=\x22watch-episode-squares\x22\x20class=\x22hide-scrollbar\x22\x20style=\x22display:\x20flex;\x20gap:\x2010px;\x20overflow-x:\x20auto;\x20padding-bottom:\x2010px;\x22></div></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22comment-section\x22\x20style=\x22padding:\x2020px\x2012px;\x22><div\x20id=\x22comment-count-text\x22\x20style=\x22font-size:16px;\x20font-weight:800;\x20margin:0\x200\x2015px\x200;\x22>0\x20Comments</div><div\x20style=\x22display:\x20flex;\x20gap:\x2010px;\x20margin-bottom:\x2020px;\x22><button\x20class=\x22comment-filter-btn\x20active\x22\x20onclick=\x22setCommentFilter(\x27top\x27,\x20this)\x22>Top\x20Comment</button><button\x20class=\x22comment-filter-btn\x22\x20onclick=\x22setCommentFilter(\x27new\x27,\x20this)\x22>Terbaru</button></div><div\x20id=\x22custom-comment-area\x22\x20style=\x22margin-bottom:\x2030px;\x22></div><div\x20id=\x22comment-list-container\x22><div\x20style=\x22text-align:center;\x20padding:30px;\x22><div\x20class=\x22spinner\x22\x20style=\x22margin:0\x20auto;\x22></div><div\x20style=\x22margin-top:10px;\x20color:#666;\x20font-size:12px;\x22>Memuat\x20komentar...</div></div></div></div><div\x20style=\x22padding-bottom:\x2060px;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','\x27)\x22><div\x20class=\x22detail-hero-overlay\x22></div><div\x20class=\x22detail-hero-content\x22><div\x20style=\x22background:#3b82f6;\x20color:#fff;\x20display:inline-block;\x20margin-bottom:8px;\x20padding:6px\x2012px;\x20border-radius:6px;\x20font-weight:bold;\x20font-size:12px;\x22>Episode\x20','handleShare','style','Sort:\x2099\x20&#9660;\x201','slime','custom-toast-container','28px','dev-role','badge-dev-anim','openLevelModal','listenForGifts','</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','changeServer','\x22><div\x20style=\x22position:relative;\x20flex-shrink:0;\x22><img\x20src=\x22','deleteModalOverlay','sort','isekai','translate(-50%,\x20-50%)\x20scale(0.9)','nameChangeCount','Kemarin','#fff','ongoin','Mei','title','status','#3b82f6',';\x20font-size:11px;\x20font-weight:700;\x22>','</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x22\x20style=\x22font-size:11px;\x20padding:4px\x2010px;\x20background:\x20rgba(255,255,255,0.05);\x20color:\x20#a1a1aa;\x20border:\x201px\x20solid\x20rgba(255,255,255,0.1);\x22>','itemName','xp-title-text','Konfirmasi\x20Beli\x20🛒','<div\x20onclick=\x22loadVideo(\x27','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','desc','exp','</div><h1\x20style=\x22font-size:24px;\x20line-height:1.2;\x20font-weight:800;\x20margin:0\x200\x208px\x200;\x20color:#fff;\x22>','join','toggleSynopsis','currentAnimeEpisodes','Zombie\x20Food','Gagal\x20memuat\x20video,\x20periksa\x20koneksi\x20internet.','image/jpeg','topup','Gold','change-name-desc','asc','icon','\x20box-shadow:\x200\x200\x208px\x20rgba(59,130,246,0.8);\x20border:\x202px\x20solid\x20#fff;','episodes','modal-server-list','Selengkapnya\x20▼'];_0x2f4a=function(){return _0x387c27;};return _0x2f4a();}const show=_0x4b7012=>{const _0x35885e=_0x3e2470,_0x39ce96=document[_0x35885e(0x25e)](_0x4b7012);if(_0x39ce96)_0x39ce96[_0x35885e(0x4bb)][_0x35885e(0x28e)]='block';},hide=_0x4f485b=>{const _0x21e5ec=_0x3e2470,_0xada865=document[_0x21e5ec(0x25e)](_0x4f485b);if(_0xada865)_0xada865[_0x21e5ec(0x4bb)]['display']=_0x21e5ec(0x442);};function loader(_0x2b4706){const _0x259f3c=_0x3e2470,_0x13b98a=document[_0x259f3c(0x25e)](_0x259f3c(0x20c));_0x13b98a&&(_0x2b4706?_0x13b98a[_0x259f3c(0x476)][_0x259f3c(0x318)]('hidden'):_0x13b98a[_0x259f3c(0x476)][_0x259f3c(0x536)](_0x259f3c(0x537)));};function generateCardHtml(_0x28f695){const _0x41cb86=_0x3e2470;let _0x5a4b59=getEpBadge(_0x28f695),_0xe57f14=_0x28f695[_0x41cb86(0x24c)]||_0x28f695[_0x41cb86(0x2d5)]||_0x28f695[_0x41cb86(0x47e)],_0x16f112=_0xe57f14&&_0xe57f14!=='?'&&_0xe57f14!=='0'&&_0xe57f14!==''?_0xe57f14:(Math['random']()*1.5+0x7)[_0x41cb86(0x4af)](0x2);const _0xadecbb=_0x41cb86(0x449);return _0x41cb86(0x54b)+_0x28f695[_0x41cb86(0x374)]+_0x41cb86(0x1e9)+getHighRes(_0x28f695[_0x41cb86(0x27d)])+_0x41cb86(0x496)+_0x28f695['title']+_0x41cb86(0x2c1)+_0xadecbb+_0x41cb86(0x1e6)+_0x5a4b59+_0x41cb86(0x3b8)+_0x16f112+_0x41cb86(0x288)+_0x28f695[_0x41cb86(0x4d0)]+_0x41cb86(0x3ff);}function generateRecentCardHtml(_0x4babe4){const _0x52b0b9=_0x3e2470;let _0x3be176=getEpBadge(_0x4babe4);const _0x3a02be=_0x52b0b9(0x2dc);return _0x52b0b9(0x3c9)+_0x4babe4['url']+_0x52b0b9(0x26b)+getHighRes(_0x4babe4['image'])+'\x22\x20alt=\x22'+_0x4babe4[_0x52b0b9(0x4d0)]+'\x22\x20loading=\x22lazy\x22\x20onerror=\x22'+_0x3a02be+_0x52b0b9(0x3b2)+_0x3be176+_0x52b0b9(0x350)+_0x4babe4[_0x52b0b9(0x4d0)]+'</div></div>';}function generateFavCardHtml(_0x3b9c4c){const _0x55a570=_0x3e2470;if(!_0x3b9c4c)return'';let _0x382cf0=getEpBadge(_0x3b9c4c),_0x182514=_0x3b9c4c[_0x55a570(0x24c)]||_0x3b9c4c[_0x55a570(0x2d5)]||_0x3b9c4c[_0x55a570(0x47e)]||'?',_0x1c82f1=_0x182514&&_0x182514!=='?'&&_0x182514!=='0'&&_0x182514!==''?_0x182514:(Math[_0x55a570(0x243)]()*1.5+0x7)[_0x55a570(0x4af)](0x2);const _0x223f2d=_0x55a570(0x449);return _0x55a570(0x461)+_0x3b9c4c[_0x55a570(0x374)]+'\x27)\x22><div\x20class=\x22fav-card-img\x22><img\x20src=\x22'+getHighRes(_0x3b9c4c[_0x55a570(0x27d)])+_0x55a570(0x496)+_0x3b9c4c[_0x55a570(0x4d0)]+'\x22\x20loading=\x22lazy\x22\x20onerror=\x22'+_0x223f2d+_0x55a570(0x2a8)+_0x382cf0+'</div><div\x20class=\x22fav-score\x22><svg\x20width=\x2210\x22\x20height=\x2210\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#fbbf24\x22><path\x20d=\x22M12\x202l3.09\x206.26L22\x209.27l-5\x204.87\x201.18\x206.88L12\x2017.77l-6.18\x203.25L7\x2014.14\x202\x209.27l6.91-1.01L12\x202z\x22/></svg>\x20'+_0x1c82f1+_0x55a570(0x332)+_0x3b9c4c['title']+_0x55a570(0x3ff);}async function fetchTimeout(_0x4c659f,_0x36b1aa=0x3a98){const _0x2f6053=_0x3e2470,_0x353ecd=new AbortController(),_0x43987a=setTimeout(()=>_0x353ecd[_0x2f6053(0x238)](),_0x36b1aa);try{const _0x53311d=await fetch(_0x4c659f,{'signal':_0x353ecd[_0x2f6053(0x281)]});return clearTimeout(_0x43987a),_0x53311d;}catch(_0x628f09){clearTimeout(_0x43987a);throw _0x628f09;}}async function loadLatest(){const _0xaa11eb=_0x3e2470;loader(!![]);const _0x1c2b65=document[_0xaa11eb(0x25e)](_0xaa11eb(0x43e));_0x1c2b65['innerHTML']='';let _0x1b164a=![];try{try{let _0x5bd6e2=[];const _0x555b05=await fetchTimeout(API_BASE+_0xaa11eb(0x3de),0x3a98);_0x555b05&&_0x555b05['ok']&&(_0x5bd6e2=await _0x555b05[_0xaa11eb(0x1d9)](),_0x5bd6e2&&_0x5bd6e2['length']>0x0&&(renderHeroSlider(_0x5bd6e2[_0xaa11eb(0x351)](0x0,0x14),_0x1c2b65),_0x1b164a=!![]));}catch(_0x286c7a){}try{const _0x5733cf=await getHistory();if(_0x5733cf&&_0x5733cf[_0xaa11eb(0x314)]>0x0){const _0x141d4e=document[_0xaa11eb(0x286)](_0xaa11eb(0x36a));_0x141d4e[_0xaa11eb(0x54e)]='<div\x20class=\x22header-flex\x22><h2>Terakhir\x20Ditonton</h2><span\x20class=\x22more-link\x22\x20onclick=\x22switchTab(\x27recent\x27)\x22>Lihat\x20Lainnya\x20></span></div><div\x20class=\x22horizontal-scroll\x22\x20style=\x22gap:\x2012px;\x22>'+_0x5733cf['slice'](0x0,0xf)[_0xaa11eb(0x3d4)](_0xf30936=>generateRecentCardHtml(_0xf30936))[_0xaa11eb(0x4dd)]('')+'</div>',_0x1c2b65[_0xaa11eb(0x411)](_0x141d4e),_0x1b164a=!![];}}catch(_0x57e423){}const _0xd86838=[];for(const _0x363ccd of HOME_SECTIONS){const _0x5a3cbb=document[_0xaa11eb(0x286)](_0xaa11eb(0x36a));_0x5a3cbb[_0xaa11eb(0x54e)]=_0xaa11eb(0x513)+_0x363ccd[_0xaa11eb(0x4d0)]+_0xaa11eb(0x25f),_0x1c2b65[_0xaa11eb(0x411)](_0x5a3cbb),_0xd86838[_0xaa11eb(0x49e)]({'section':_0x363ccd,'div':_0x5a3cbb});}const _0x15cdb0=(_0x93907d,_0x1d1331)=>Array[_0xaa11eb(0x4b4)]({'length':Math[_0xaa11eb(0x3b6)](_0x93907d['length']/_0x1d1331)},(_0x5b9529,_0x891ef9)=>_0x93907d['slice'](_0x891ef9*_0x1d1331,_0x891ef9*_0x1d1331+_0x1d1331)),_0x4b9121=_0x15cdb0(_0xd86838,0x3);for(const _0x57425b of _0x4b9121){await Promise[_0xaa11eb(0x382)](_0x57425b[_0xaa11eb(0x3d4)](async({section:_0x6a2864,div:_0x1bda61})=>{const _0x113a81=_0xaa11eb;try{let _0x243bc1=[];const _0x46e798=_0x6a2864[_0x113a81(0x1d1)][_0x113a81(0x351)](0x0,0x4)['map'](async _0x334e8d=>{const _0x413e2e=_0x113a81;try{const _0x1685b2=await fetchTimeout(API_BASE+_0x413e2e(0x2ec)+encodeURIComponent(_0x334e8d),0x2710);if(_0x1685b2&&_0x1685b2['ok']){const _0x2a4f2d=await _0x1685b2[_0x413e2e(0x1d9)]();if(Array[_0x413e2e(0x29e)](_0x2a4f2d))_0x243bc1['push'](..._0x2a4f2d);}}catch(_0x9f3735){}});await Promise['all'](_0x46e798),_0x243bc1=removeDuplicates(_0x243bc1,_0x113a81(0x374)),_0x243bc1[_0x113a81(0x314)]>0x0?(_0x1bda61[_0x113a81(0x54e)]=_0x113a81(0x513)+_0x6a2864[_0x113a81(0x4d0)]+'</h2><span\x20class=\x22more-link\x22\x20onclick=\x22handleSearch(\x27'+_0x6a2864['queries'][0x0]+_0x113a81(0x26d)+_0x243bc1[_0x113a81(0x351)](0x0,0xf)[_0x113a81(0x3d4)](_0x127ed3=>generateCardHtml(_0x127ed3))[_0x113a81(0x4dd)]('')+_0x113a81(0x1bf),_0x1b164a=!![]):_0x1bda61[_0x113a81(0x318)]();}catch(_0x580e87){_0x1bda61['remove']();}}));}!_0x1b164a&&(_0x1c2b65['innerHTML']=_0xaa11eb(0x3b3));}catch(_0x49fff1){console[_0xaa11eb(0x49b)](_0xaa11eb(0x304),_0x49fff1);}finally{loader(![]);}}function renderHeroSlider(_0x1d0ead,_0x5e3498){const _0x44f75d=_0x3e2470,_0x175145=document[_0x44f75d(0x286)]('div');_0x175145[_0x44f75d(0x21a)]='hero-section-container';const _0xe5b7ff=document['createElement'](_0x44f75d(0x36a));_0xe5b7ff['className']=_0x44f75d(0x37c);const _0x2bdb27=[..._0x1d0ead,_0x1d0ead[0x0]],_0x503e75=_0x44f75d(0x21b),_0x4334c3=_0x2bdb27[_0x44f75d(0x3d4)]((_0x158e38,_0x222b52)=>{const _0xfb721a=_0x44f75d;return _0xfb721a(0x526)+_0x158e38[_0xfb721a(0x374)]+'\x27)\x22\x20style=\x22cursor:pointer;\x22><img\x20src=\x22'+getHighRes(_0x158e38[_0xfb721a(0x27d)])+_0xfb721a(0x239)+_0x503e75+'\x22\x20alt=\x22'+_0x158e38[_0xfb721a(0x4d0)]+_0xfb721a(0x4a8)+(_0x222b52===0x0?'eager':'lazy')+_0xfb721a(0x4ae)+getEpBadge(_0x158e38)+_0xfb721a(0x277)+_0x158e38[_0xfb721a(0x4d0)]+_0xfb721a(0x363);})[_0x44f75d(0x4dd)]('');_0xe5b7ff[_0x44f75d(0x54e)]='<div\x20class=\x22hero-wrapper\x22\x20id=\x22heroWrapper\x22>'+_0x4334c3+_0x44f75d(0x1bf),_0x175145['appendChild'](_0xe5b7ff),_0x5e3498[_0x44f75d(0x411)](_0x175145);const _0x2371ef=document[_0x44f75d(0x25e)](_0x44f75d(0x31a));let _0x4cd9e6=0x0;const _0x5139d9=_0x2bdb27[_0x44f75d(0x314)];let _0x5edade=0x0,_0xdc5857=0x0;function _0xf3523d(){const _0x4c0ea7=_0x44f75d;if(!_0x2371ef||document['getElementById'](_0x4c0ea7(0x43e))[_0x4c0ea7(0x476)][_0x4c0ea7(0x455)](_0x4c0ea7(0x537)))return;_0x4cd9e6++,_0x2371ef[_0x4c0ea7(0x4bb)]['transition']=_0x4c0ea7(0x2ee),_0x2371ef[_0x4c0ea7(0x4bb)][_0x4c0ea7(0x47f)]='translateX(-'+_0x4cd9e6*0x64+'%)',_0x4cd9e6>=_0x5139d9-0x1&&setTimeout(()=>{const _0xb92de1=_0x4c0ea7;if(!_0x2371ef)return;_0x2371ef[_0xb92de1(0x4bb)][_0xb92de1(0x2c5)]='none',_0x4cd9e6=0x0,_0x2371ef[_0xb92de1(0x4bb)][_0xb92de1(0x47f)]='translateX(0)';},0x1f4);}function _0x4aad9f(){const _0x4824fd=_0x44f75d;if(!_0x2371ef||document[_0x4824fd(0x25e)]('home-view')[_0x4824fd(0x476)][_0x4824fd(0x455)]('hidden'))return;_0x4cd9e6===0x0&&(_0x2371ef[_0x4824fd(0x4bb)]['transition']=_0x4824fd(0x442),_0x4cd9e6=_0x5139d9-0x1,_0x2371ef[_0x4824fd(0x4bb)][_0x4824fd(0x47f)]=_0x4824fd(0x1c8)+_0x4cd9e6*0x64+'%)',_0x2371ef[_0x4824fd(0x311)]),_0x4cd9e6--,_0x2371ef['style'][_0x4824fd(0x2c5)]=_0x4824fd(0x2ee),_0x2371ef[_0x4824fd(0x4bb)][_0x4824fd(0x47f)]=_0x4824fd(0x1c8)+_0x4cd9e6*0x64+'%)';}function _0xafe855(){if(sliderInterval)clearInterval(sliderInterval);sliderInterval=setInterval(_0xf3523d,0x1388);}_0x2371ef['addEventListener'](_0x44f75d(0x1f8),_0x5d801c=>{const _0x15fc6a=_0x44f75d;_0x5edade=_0x5d801c[_0x15fc6a(0x341)][0x0]['screenX'];if(sliderInterval)clearInterval(sliderInterval);},{'passive':!![]}),_0x2371ef[_0x44f75d(0x240)](_0x44f75d(0x2c8),_0x64329b=>{const _0x4a230b=_0x44f75d;_0xdc5857=_0x64329b['changedTouches'][0x0][_0x4a230b(0x39e)];const _0x1f736b=0x32;if(_0x5edade-_0xdc5857>_0x1f736b)_0xf3523d();if(_0xdc5857-_0x5edade>_0x1f736b)_0x4aad9f();_0xafe855();},{'passive':!![]}),_0xafe855();}async function handleSearch(_0x5193b1){const _0x25faf0=_0x3e2470;if(!_0x5193b1){switchTab('home');return;}switchTab(_0x25faf0(0x50f)),loader(!![]),document[_0x25faf0(0x25e)]('tab-home')['classList'][_0x25faf0(0x536)](_0x25faf0(0x396));try{const _0x2c6aee=await fetch(API_BASE+_0x25faf0(0x2ec)+encodeURIComponent(_0x5193b1)),_0x15e74f=await _0x2c6aee[_0x25faf0(0x1d9)]();document[_0x25faf0(0x25e)](_0x25faf0(0x26a))[_0x25faf0(0x54e)]=_0x25faf0(0x37e)+_0x5193b1+'\x22</h2></div><div\x20class=\x22anime-grid\x22>'+_0x15e74f[_0x25faf0(0x3d4)](_0x1a4ce3=>generateCardHtml(_0x1a4ce3))[_0x25faf0(0x4dd)]('')+_0x25faf0(0x1bf);}catch(_0x1079b7){}finally{loader(![]);}}function injectReportModal(){const _0x2b8fc0=_0x3e2470;if(document[_0x2b8fc0(0x25e)](_0x2b8fc0(0x2f6)))return;const _0x3f51bb=document[_0x2b8fc0(0x286)](_0x2b8fc0(0x36a));_0x3f51bb['id']=_0x2b8fc0(0x2f6),_0x3f51bb['innerHTML']=_0x2b8fc0(0x227),document['body']['appendChild'](_0x3f51bb);}window[_0x3e2470(0x46a)]=function(){const _0x1e8936=_0x3e2470;injectReportModal();const _0xf51cb8=document['getElementById'](_0x1e8936(0x434)),_0x326fe1=document[_0x1e8936(0x25e)](_0x1e8936(0x4b3));_0xf51cb8['style']['display']='block',_0x326fe1['style']['display']=_0x1e8936(0x214),setTimeout(()=>{const _0x5cc177=_0x1e8936;_0x326fe1[_0x5cc177(0x4bb)][_0x5cc177(0x36b)]='1',_0x326fe1[_0x5cc177(0x4bb)][_0x5cc177(0x47f)]=_0x5cc177(0x28f);},0xa);},window[_0x3e2470(0x387)]=function(){const _0x259e60=_0x3e2470,_0x35e6a9=document[_0x259e60(0x25e)](_0x259e60(0x434)),_0x3e9b60=document[_0x259e60(0x25e)](_0x259e60(0x4b3));if(!_0x3e9b60)return;_0x3e9b60['style']['opacity']='0',_0x3e9b60['style']['transform']=_0x259e60(0x4ca),setTimeout(()=>{const _0x530bdf=_0x259e60;_0x35e6a9[_0x530bdf(0x4bb)][_0x530bdf(0x28e)]='none',_0x3e9b60[_0x530bdf(0x4bb)]['display']=_0x530bdf(0x442);},0x12c);},window[_0x3e2470(0x22e)]=function(){const _0x3e0d7a=_0x3e2470,_0x112142=document['querySelector']('input[name=\x22reportReason\x22]:checked');if(!_0x112142)return;let _0x43469f=_0x112142[_0x3e0d7a(0x493)],_0x53e184=window[_0x3e0d7a(0x300)]?window[_0x3e0d7a(0x300)][_0x3e0d7a(0x4d0)]:_0x3e0d7a(0x2b7),_0x5abe27=window['currentPlayingAnime']?window[_0x3e0d7a(0x300)]['ep']:_0x3e0d7a(0x31b),_0x1fe24e=_0x3e0d7a(0x1ca)+(_0x3e0d7a(0x3d1)+_0x53e184+'\x0a')+(_0x3e0d7a(0x556)+_0x5abe27+'\x0a')+(_0x3e0d7a(0x538)+_0x43469f+'\x0a')+(_0x3e0d7a(0x433)+window[_0x3e0d7a(0x255)][_0x3e0d7a(0x47c)]);window['open'](_0x3e0d7a(0x395)+encodeURIComponent(_0x1fe24e)),closeReportModal();},window[_0x3e2470(0x4ef)]=function(){const _0x37ac5f=_0x3e2470;show('serverModalOverlay'),show(_0x37ac5f(0x3e7)),setTimeout(()=>{const _0x1a2084=_0x37ac5f;document['getElementById'](_0x1a2084(0x3e7))['classList'][_0x1a2084(0x536)](_0x1a2084(0x540));},0xa);},window['closeServerModal']=function(){const _0x408e4a=_0x3e2470,_0x4bfe79=document[_0x408e4a(0x25e)](_0x408e4a(0x3e7));_0x4bfe79['classList']['remove']('show'),setTimeout(()=>{const _0x10fb1d=_0x408e4a;hide(_0x10fb1d(0x408)),hide(_0x10fb1d(0x3e7));},0x12c);},window[_0x3e2470(0x4c5)]=function(_0x34b4c9,_0x43c11c,_0x30eeb1){const _0x5c8896=_0x3e2470,_0x11de8a=document[_0x5c8896(0x25e)](_0x5c8896(0x2e0));if(_0x11de8a){const _0x27b9cb=document[_0x5c8896(0x286)](_0x5c8896(0x44f));_0x27b9cb['id']=_0x5c8896(0x2e0),_0x27b9cb[_0x5c8896(0x216)](_0x5c8896(0x245),_0x5c8896(0x436)),_0x27b9cb[_0x5c8896(0x4a6)]=_0x34b4c9,_0x11de8a[_0x5c8896(0x212)]['replaceChild'](_0x27b9cb,_0x11de8a);}let _0x44e2c0=_0x43c11c[_0x5c8896(0x2a1)](/\d{3,4}p/i),_0x1f8397=_0x44e2c0?_0x44e2c0[0x0]+_0x5c8896(0x3ab):_0x5c8896(0x1c0);document[_0x5c8896(0x25e)](_0x5c8896(0x339))[_0x5c8896(0x432)]=_0x1f8397,document[_0x5c8896(0x325)](_0x5c8896(0x1c9))['forEach'](_0x34ea5e=>{const _0x4e28cf=_0x5c8896;_0x34ea5e['classList'][_0x4e28cf(0x318)]('active');}),_0x30eeb1[_0x5c8896(0x476)][_0x5c8896(0x536)](_0x5c8896(0x396)),window['closeServerModal']();},window[_0x3e2470(0x510)]=function(){const _0x269344=_0x3e2470;let _0x2944c0=document['getElementById'](_0x269344(0x2e0));_0x2944c0&&_0x2944c0[_0x269344(0x4a6)]?window['open'](_0x2944c0['src'],'_blank'):window[_0x269344(0x460)](_0x269344(0x345),_0x269344(0x49b));},window[_0x3e2470(0x4ba)]=function(){const _0x421d2b=_0x3e2470;navigator[_0x421d2b(0x3a3)]?navigator['share']({'title':document[_0x421d2b(0x4d0)],'url':window['location'][_0x421d2b(0x47c)]}):window[_0x421d2b(0x460)](_0x421d2b(0x33c),'success');};async function loadRecentHistory(){const _0x37eb16=_0x3e2470,_0x5949f8=document[_0x37eb16(0x25e)](_0x37eb16(0x399));loader(!![]);try{const _0x5730c9=await getHistory();if(!_0x5730c9||_0x5730c9[_0x37eb16(0x314)]===0x0){_0x5949f8['innerHTML']='<div\x20class=\x22empty-state\x22\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#555;\x22><h2>Belum\x20ada\x20riwayat\x20tontonan</h2></div>',loader(![]);return;}const _0x313e02={};_0x5730c9[_0x37eb16(0x27e)](_0x16a1f8=>{const _0xd22eac=_0x37eb16,_0x4680d3=formatTimelineDate(_0x16a1f8[_0xd22eac(0x30e)]);if(!_0x313e02[_0x4680d3])_0x313e02[_0x4680d3]=[];_0x313e02[_0x4680d3][_0xd22eac(0x49e)](_0x16a1f8);});let _0x48ac5f='<div\x20class=\x22timeline-wrapper\x22>';for(const [_0x4817d7,_0x485875]of Object[_0x37eb16(0x3fb)](_0x313e02)){_0x48ac5f+='<div\x20class=\x22timeline-group\x22><div\x20class=\x22timeline-date-badge\x22>'+_0x4817d7+_0x37eb16(0x430),_0x485875[_0x37eb16(0x27e)](_0x4c20d8=>{const _0x26edb9=_0x37eb16,_0xb4d107=new Date(_0x4c20d8[_0x26edb9(0x30e)]),_0x1c7076=String(_0xb4d107[_0x26edb9(0x330)]())['padStart'](0x2,'0')+':'+String(_0xb4d107[_0x26edb9(0x39a)]())[_0x26edb9(0x488)](0x2,'0'),_0x4d745a=Math[_0x26edb9(0x35f)](Math[_0x26edb9(0x243)]()*0x46+0x14),_0x252c12=0x18,_0x3c6ce8=Math[_0x26edb9(0x35f)](_0x4d745a/0x64*_0x252c12),_0x343d3f=String(_0x3c6ce8)[_0x26edb9(0x488)](0x2,'0')+':'+String(Math['floor'](Math[_0x26edb9(0x243)]()*0x3c))[_0x26edb9(0x488)](0x2,'0')+_0x26edb9(0x401)+_0x252c12+_0x26edb9(0x424),_0x1949fa='this.src=\x27https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime\x27';_0x48ac5f+=_0x26edb9(0x384)+_0x4c20d8[_0x26edb9(0x374)]+_0x26edb9(0x2a2)+getHighRes(_0x4c20d8[_0x26edb9(0x27d)])+'\x22\x20alt=\x22'+_0x4c20d8['title']+_0x26edb9(0x343)+_0x1949fa+_0x26edb9(0x42f)+_0x4c20d8[_0x26edb9(0x4d0)]+_0x26edb9(0x34e)+_0x1c7076+_0x26edb9(0x48c)+getEpBadge(_0x4c20d8)+_0x26edb9(0x3fd)+_0x4d745a+_0x26edb9(0x20b)+_0x343d3f+_0x26edb9(0x315);}),_0x48ac5f+=_0x37eb16(0x3ff);}_0x5949f8[_0x37eb16(0x54e)]=_0x48ac5f+_0x37eb16(0x1bf);}catch(_0x5f300b){_0x5949f8[_0x37eb16(0x54e)]=_0x37eb16(0x270);}loader(![]);}window['toggleSortMenu']=function(){const _0x214c6f=_0x3e2470,_0x4c2963=document['getElementById']('sort-dropdown-menu');_0x4c2963['style'][_0x214c6f(0x28e)]=_0x4c2963[_0x214c6f(0x4bb)]['display']===_0x214c6f(0x442)?'block':_0x214c6f(0x442);},window[_0x3e2470(0x55c)]=function(_0x1d7262,_0x1c2d8f){const _0x2c42d0=_0x3e2470;document[_0x2c42d0(0x25e)](_0x2c42d0(0x4f8))[_0x2c42d0(0x54e)]=_0x1c2d8f+_0x2c42d0(0x335),document['getElementById'](_0x2c42d0(0x252))[_0x2c42d0(0x4bb)]['display']='none';if(_0x1d7262===_0x2c42d0(0x53a))window[_0x2c42d0(0x365)][_0x2c42d0(0x4c8)]((_0x54ae94,_0x385826)=>_0x385826[_0x2c42d0(0x30e)]-_0x54ae94[_0x2c42d0(0x30e)]);else{if(_0x1d7262==='az')window[_0x2c42d0(0x365)][_0x2c42d0(0x4c8)]((_0x43e3aa,_0x481b33)=>_0x43e3aa[_0x2c42d0(0x4d0)][_0x2c42d0(0x30a)](_0x481b33[_0x2c42d0(0x4d0)]));else{if(_0x1d7262==='za')window['currentFavData'][_0x2c42d0(0x4c8)]((_0x50e5bd,_0x55f55c)=>_0x55f55c[_0x2c42d0(0x4d0)][_0x2c42d0(0x30a)](_0x50e5bd[_0x2c42d0(0x4d0)]));else(_0x1d7262===_0x2c42d0(0x47e)||_0x1d7262===_0x2c42d0(0x22a))&&window[_0x2c42d0(0x365)][_0x2c42d0(0x4c8)]((_0x112d59,_0x436aa7)=>parseFloat(_0x436aa7[_0x2c42d0(0x24c)])-parseFloat(_0x112d59['score']));}}renderFavoritesList();};function renderFavoritesList(){const _0xda63ea=_0x3e2470,_0x2b9d46=document[_0xda63ea(0x25e)](_0xda63ea(0x244));try{_0x2b9d46['innerHTML']='<div\x20class=\x22anime-grid\x22\x20style=\x22grid-template-columns:\x20repeat(3,\x201fr);\x20padding:\x200\x2010px;\x20gap:\x2012px\x208px;\x22>'+window[_0xda63ea(0x365)][_0xda63ea(0x3d4)](_0x31596f=>generateFavCardHtml(_0x31596f))[_0xda63ea(0x4dd)]('')+_0xda63ea(0x1bf);}catch(_0x485e10){console[_0xda63ea(0x49b)](_0xda63ea(0x2b4),_0x485e10);}}async function loadFavorites(){const _0x379b79=_0x3e2470,_0xd1befc=document[_0x379b79(0x25e)]('favorite-results-container');loader(!![]);try{window['currentFavData']=await getFavorites();const _0x3a7bce=window[_0x379b79(0x365)]?window['currentFavData'][_0x379b79(0x314)]:0x0,_0xcf88a0=document[_0x379b79(0x25e)](_0x379b79(0x285)),_0x676621=document[_0x379b79(0x25e)](_0x379b79(0x292));if(_0xcf88a0)_0xcf88a0[_0x379b79(0x432)]=_0x3a7bce;if(_0x676621)_0x676621[_0x379b79(0x432)]=_0x3a7bce;if(_0x3a7bce===0x0){_0xd1befc[_0x379b79(0x54e)]=_0x379b79(0x369),loader(![]);return;}renderFavoritesList();}catch(_0x562656){_0xd1befc['innerHTML']=_0x379b79(0x1f6);}loader(![]);}document[_0x3e2470(0x240)](_0x3e2470(0x41e),function(_0x53122b){const _0x30bf81=_0x3e2470,_0x1e3ed2=document[_0x30bf81(0x25e)](_0x30bf81(0x4f8)),_0x2b8a8b=document[_0x30bf81(0x25e)](_0x30bf81(0x252));_0x1e3ed2&&_0x2b8a8b&&!_0x1e3ed2[_0x30bf81(0x455)](_0x53122b[_0x30bf81(0x451)])&&!_0x2b8a8b[_0x30bf81(0x455)](_0x53122b[_0x30bf81(0x451)])&&(_0x2b8a8b[_0x30bf81(0x4bb)][_0x30bf81(0x28e)]=_0x30bf81(0x442));});async function loadDetail(_0x3d7601){const _0x1e2b00=_0x3e2470;history[_0x1e2b00(0x439)]({'page':_0x1e2b00(0x3bd)},'',_0x1e2b00(0x410)),loader(!![]);try{const _0x5e0307=await fetch(API_BASE+_0x1e2b00(0x4fa)+encodeURIComponent(_0x3d7601)),_0x31a62a=await _0x5e0307['json']();let _0x1c0326=_0x31a62a['episodes']||[],_0x17f662=[],_0x2e5bbf=new Set();_0x1c0326[_0x1e2b00(0x27e)](_0x361d41=>{const _0x46e3d4=_0x1e2b00;!_0x2e5bbf[_0x46e3d4(0x445)](_0x361d41[_0x46e3d4(0x374)])&&(_0x2e5bbf[_0x46e3d4(0x536)](_0x361d41[_0x46e3d4(0x374)]),_0x17f662['push'](_0x361d41));}),_0x17f662[_0x1e2b00(0x4c8)]((_0x2fd702,_0xae14f5)=>{const _0x2c0882=_0x1e2b00;let _0x2e4dfe=_0x191c87=>{const _0x404363=_0x3f78;let _0x3320da=String(_0x191c87)[_0x404363(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);if(_0x3320da)return parseFloat(_0x3320da[0x1]);let _0x44e0a4=String(_0x191c87)[_0x404363(0x2a1)](/\d+/g);return _0x44e0a4?parseFloat(_0x44e0a4[_0x44e0a4[_0x404363(0x314)]-0x1]):0x0;};return _0x2e4dfe(_0x2fd702[_0x2c0882(0x4d0)])-_0x2e4dfe(_0xae14f5[_0x2c0882(0x4d0)]);}),_0x31a62a[_0x1e2b00(0x4e9)]=_0x17f662,window['currentAnimeMeta']={'title':_0x31a62a[_0x1e2b00(0x4d0)],'description':_0x31a62a['description'],'image':_0x31a62a['image'],'url':_0x3d7601},window[_0x1e2b00(0x4df)]=_0x31a62a['episodes'],window[_0x1e2b00(0x300)]=null,switchTab(_0x1e2b00(0x3bd));let _0x48621b=_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x2d5)]||_0x31a62a[_0x1e2b00(0x46e)]?.['score']||_0x1e2b00(0x28c);const _0x144b53=_0x48621b&&_0x48621b!=='?'&&_0x48621b!=='0'?_0x48621b:(Math[_0x1e2b00(0x243)]()*1.5+0x7)[_0x1e2b00(0x4af)](0x2),_0xf0dd4b=_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x3d3)]||_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x42b)]||'TV',_0x11ed65=_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x321)]||_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x2c0)]||'',_0x4000d8=_0x31a62a[_0x1e2b00(0x46e)]?.['dirilis']||_0x31a62a[_0x1e2b00(0x46e)]?.[_0x1e2b00(0x494)]||'',_0x1e1411=(_0x11ed65+'\x20'+_0x4000d8)[_0x1e2b00(0x3ed)]()||'Unknown';let _0x16af57=_0x31a62a[_0x1e2b00(0x4e9)]['length']>0x0?_0x31a62a[_0x1e2b00(0x4e9)][0x0][_0x1e2b00(0x374)]:'',_0x5c2ffe=_0x31a62a[_0x1e2b00(0x4e9)][_0x1e2b00(0x314)]>0x0?''+_0x31a62a[_0x1e2b00(0x4e9)][_0x1e2b00(0x314)]:'?';if(_0x31a62a[_0x1e2b00(0x4e9)][_0x1e2b00(0x314)]>0x0&&_0x31a62a[_0x1e2b00(0x4e9)][0x0][_0x1e2b00(0x4d0)]){let _0x9e4982=_0x31a62a['episodes'][0x0][_0x1e2b00(0x4d0)][_0x1e2b00(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);if(_0x9e4982)_0x5c2ffe=_0x9e4982[0x1];else{let _0x309094=_0x31a62a[_0x1e2b00(0x4e9)][0x0]['title'][_0x1e2b00(0x2a1)](/\d+/g);if(_0x309094)_0x5c2ffe=_0x309094[_0x309094[_0x1e2b00(0x314)]-0x1];}}saveHistory({'url':_0x3d7601,'title':_0x31a62a[_0x1e2b00(0x4d0)],'image':_0x31a62a['image'],'score':_0x144b53,'episode':_0x1e2b00(0x503)+_0x5c2ffe});const _0x223ca4=await checkFavorite(_0x3d7601);document['getElementById'](_0x1e2b00(0x388))[_0x1e2b00(0x54e)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22detail-hero\x22\x20style=\x22background-image:\x20url(\x27'+getHighRes(_0x31a62a[_0x1e2b00(0x27d)])+_0x1e2b00(0x4b9)+_0x5c2ffe+_0x1e2b00(0x4dc)+_0x31a62a['title']+'</h1><div\x20style=\x22font-size:\x2013px;\x20color:\x20#d1d5db;\x20margin-bottom:\x2020px;\x20display:flex;\x20align-items:center;\x20gap:8px;\x20font-weight:500;\x22><span\x20style=\x22color:#fbbf24;\x22>⭐\x20'+_0x144b53+_0x1e2b00(0x4ee)+_0xf0dd4b+'</span>\x20•\x20<span>'+_0x1e1411+'</span></div><div\x20style=\x22display:flex;\x20gap:10px;\x20width:100%;\x22><button\x20style=\x22flex:1;\x20background:#3b82f6;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:24px;\x20font-weight:800;\x20font-size:14px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20gap:8px;\x20cursor:pointer;\x22\x20onclick=\x22'+(_0x16af57?_0x1e2b00(0x278)+_0x16af57+'\x27)':_0x1e2b00(0x389))+_0x1e2b00(0x1de)+_0x3d7601+_0x1e2b00(0x55b)+_0x31a62a[_0x1e2b00(0x4d0)][_0x1e2b00(0x3a0)](/'/g,'\x5c\x27')+_0x1e2b00(0x55b)+_0x31a62a[_0x1e2b00(0x27d)]+_0x1e2b00(0x55b)+_0x144b53+_0x1e2b00(0x3ba)+_0x5c2ffe+'\x27)\x22\x20style=\x22flex:1;\x20background:#1c1c1e;\x20color:'+(_0x223ca4?'#ef4444':_0x1e2b00(0x4cd))+';\x20border:none;\x20padding:12px;\x20border-radius:24px;\x20font-weight:800;\x20font-size:14px;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20gap:8px;\x20cursor:pointer;\x20transition:0.2s;\x22><svg\x20width=\x2218\x22\x20height=\x2218\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22'+(_0x223ca4?_0x1e2b00(0x352):_0x1e2b00(0x442))+_0x1e2b00(0x228)+(_0x223ca4?_0x1e2b00(0x1e3):_0x1e2b00(0x438))+_0x1e2b00(0x56a)+(_0x31a62a[_0x1e2b00(0x3f0)]||'Tidak\x20ada\x20deskripsi\x20tersedia.')+_0x1e2b00(0x1df)+_0x31a62a['episodes'][_0x1e2b00(0x314)]+')</h2><div\x20style=\x22display:flex;\x20gap:8px;\x22><button\x20onclick=\x22toggleEpLayout()\x22\x20class=\x22btn-ep-layout\x22\x20style=\x22background:#1c1c1e;\x20border:1px\x20solid\x20#333;\x20color:#fff;\x20padding:6px\x2012px;\x20border-radius:12px;\x20font-size:12px;\x20font-weight:700;\x20display:flex;\x20align-items:center;\x20gap:6px;\x20cursor:pointer;\x20transition:0.2s;\x22></button><button\x20onclick=\x22toggleEpSort()\x22\x20class=\x22btn-ep-sort\x22\x20style=\x22background:#1c1c1e;\x20border:1px\x20solid\x20#333;\x20color:#fff;\x20padding:6px\x2012px;\x20border-radius:12px;\x20font-size:12px;\x20font-weight:700;\x20cursor:pointer;\x20transition:0.2s;\x22></button></div></div><div\x20id=\x22episode-list-detail-container\x22></div></div><div\x20style=\x22padding-bottom:\x2040px;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20',window['renderDetailEpisodeUI']();}catch(_0xb88be){console['error'](_0xb88be);}finally{loader(![]);}}window[_0x3e2470(0x3ad)]=_0x3e2470(0x403),window[_0x3e2470(0x572)]=window['apiCache']||{};async function loadVideo(_0x52c8f1){const _0x2b27b4=_0x3e2470;history[_0x2b27b4(0x439)]({'page':_0x2b27b4(0x457)},'',_0x2b27b4(0x2a9));let _0x33f886;if(window[_0x2b27b4(0x572)][_0x2b27b4(0x44a)+_0x52c8f1])_0x33f886=window[_0x2b27b4(0x572)][_0x2b27b4(0x44a)+_0x52c8f1];else{loader(!![]);try{const _0x33ac5d=await fetch(API_BASE+_0x2b27b4(0x45e)+encodeURIComponent(_0x52c8f1));_0x33f886=await _0x33ac5d[_0x2b27b4(0x1d9)](),window[_0x2b27b4(0x572)][_0x2b27b4(0x44a)+_0x52c8f1]=_0x33f886;}catch(_0x417a4d){console[_0x2b27b4(0x49b)](_0x417a4d),loader(![]),window[_0x2b27b4(0x460)](_0x2b27b4(0x4e1),'error');return;}}loader(![]);try{switchTab('watch'),addXP(0x14);let _0xd8d2db=window[_0x2b27b4(0x2ed)]?.[_0x2b27b4(0x4d0)]||_0x33f886[_0x2b27b4(0x4d0)],_0x45904c=Math[_0x2b27b4(0x35f)](Math['random']()*0x384+0x64)+'.'+Math[_0x2b27b4(0x35f)](Math[_0x2b27b4(0x243)]()*0x384+0x64)+'\x20Views',_0x310c02=new Date()['toLocaleDateString'](_0x2b27b4(0x1e8),{'day':_0x2b27b4(0x398),'month':_0x2b27b4(0x337),'year':'numeric'}),_0x251838='1';if(window[_0x2b27b4(0x4df)]&&window[_0x2b27b4(0x4df)][_0x2b27b4(0x314)]>0x0){let _0x5014a6=window[_0x2b27b4(0x4df)][_0x2b27b4(0x4fc)](_0x1a4625=>_0x1a4625[_0x2b27b4(0x374)]===_0x52c8f1);if(_0x5014a6){let _0x32d861=_0x5014a6[_0x2b27b4(0x4d0)][_0x2b27b4(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);_0x251838=_0x32d861?_0x32d861[0x1]:_0x5014a6['title'][_0x2b27b4(0x2a1)](/\d+/g)?_0x5014a6[_0x2b27b4(0x4d0)][_0x2b27b4(0x2a1)](/\d+/g)[_0x2b27b4(0x3a5)]():'1';}}window[_0x2b27b4(0x300)]={'title':window[_0x2b27b4(0x2ed)]?.[_0x2b27b4(0x4d0)]||_0xd8d2db,'image':window['currentAnimeMeta']?.[_0x2b27b4(0x27d)]||_0x2b27b4(0x51b),'ep':'Episode\x20'+_0x251838,'url':window[_0x2b27b4(0x2ed)]?.['url']||_0x52c8f1};try{document['getElementById'](_0x2b27b4(0x294))[_0x2b27b4(0x27f)]();}catch(_0x7b861b){}_0x2b27b4(0x468)in navigator&&(navigator[_0x2b27b4(0x468)][_0x2b27b4(0x44b)]=new MediaMetadata({'title':_0xd8d2db,'artist':_0x2b27b4(0x42a)+_0x251838,'artwork':[{'src':getHighRes(window['currentPlayingAnime'][_0x2b27b4(0x27d)]),'sizes':'512x512','type':_0x2b27b4(0x4e2)},{'src':_0x2b27b4(0x381),'sizes':'512x512','type':'image/jpeg'}]}));let _0x134c01=JSON[_0x2b27b4(0x357)](localStorage[_0x2b27b4(0x20e)]('watchProgress'))||{},_0x45e702=JSON[_0x2b27b4(0x357)](localStorage['getItem']('watchedEps'))||[];_0x45e702[_0x2b27b4(0x27e)](_0x555495=>{if(_0x134c01[_0x555495]===undefined)_0x134c01[_0x555495]=0x64;}),_0x134c01[_0x52c8f1]=0x64,localStorage[_0x2b27b4(0x46c)](_0x2b27b4(0x51e),JSON[_0x2b27b4(0x20d)](_0x134c01)),window[_0x2b27b4(0x3d0)]();let _0x351057=_0x52c8f1[_0x2b27b4(0x3a0)](/[^a-zA-Z0-9]/g,'_'),_0x42843e=_0x33f886[_0x2b27b4(0x459)][_0x2b27b4(0x314)]>0x0?_0x33f886[_0x2b27b4(0x459)][0x0][_0x2b27b4(0x23f)]:'',_0xae4bff=_0x42843e[_0x2b27b4(0x2a1)](/\d{3,4}p/i),_0x3e5089=_0xae4bff?_0xae4bff[0x0]+'\x20Quality':_0x2b27b4(0x1c0);document[_0x2b27b4(0x25e)]('watch-view')['innerHTML']=_0x2b27b4(0x267)+(_0x33f886['streams'][_0x2b27b4(0x314)]>0x0?_0x33f886[_0x2b27b4(0x459)][0x0]['url']:'')+_0x2b27b4(0x2bc)+getHighRes(window[_0x2b27b4(0x300)][_0x2b27b4(0x27d)])+'\x22\x20style=\x22width:\x2048px;\x20height:\x2048px;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20border:\x201px\x20solid\x20#333;\x20flex-shrink:\x200;\x22><div\x20style=\x22flex:\x201;\x22><h2\x20style=\x22font-size:\x2016px;\x20font-weight:\x20800;\x20margin:\x200\x200\x204px\x200;\x20line-height:\x201.3;\x22>'+_0xd8d2db+'</h2><div\x20style=\x22font-size:\x2012px;\x20color:\x20#a1a1aa;\x20font-weight:\x20500;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x204px;\x20flex-wrap:\x20wrap;\x22>Episode\x20'+_0x251838+_0x2b27b4(0x53c)+_0x45904c+_0x2b27b4(0x470)+_0x310c02+_0x2b27b4(0x207)+_0x3e5089+_0x2b27b4(0x4b8);if(_0x33f886[_0x2b27b4(0x459)]['length']>0x0){const _0x11f9d1=document['getElementById'](_0x2b27b4(0x4ea));_0x11f9d1['innerHTML']=_0x33f886['streams'][_0x2b27b4(0x3d4)]((_0x1c36ff,_0x78a8a3)=>{const _0x257dfa=_0x2b27b4;let _0xb441f2=_0x78a8a3===0x0?'server-list-btn\x20active':_0x257dfa(0x225);return _0x257dfa(0x45b)+_0xb441f2+_0x257dfa(0x4f6)+_0x1c36ff[_0x257dfa(0x374)]+'\x27,\x20\x27'+_0x1c36ff[_0x257dfa(0x23f)]+_0x257dfa(0x53d)+_0x1c36ff[_0x257dfa(0x23f)]+_0x257dfa(0x397);})[_0x2b27b4(0x4dd)]('');}const _0x16f234=document[_0x2b27b4(0x25e)](_0x2b27b4(0x28d));_0x16f234&&(window['currentAnimeEpisodes']&&window[_0x2b27b4(0x4df)][_0x2b27b4(0x314)]>0x0?_0x16f234[_0x2b27b4(0x54e)]=[...window['currentAnimeEpisodes']][_0x2b27b4(0x3d4)]((_0x3a5428,_0x436b0c)=>{const _0x1fe0e2=_0x2b27b4;let _0x5e86e6=String(_0x3a5428[_0x1fe0e2(0x4d0)]||'1')[_0x1fe0e2(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i),_0x1f07d=_0x5e86e6?_0x5e86e6[0x1]:_0x436b0c+0x1,_0x18ca5a=_0x134c01[_0x3a5428[_0x1fe0e2(0x374)]],_0x88a27f=_0x3a5428[_0x1fe0e2(0x374)]===_0x52c8f1,_0x543cf1=_0x1fe0e2(0x2f9),_0x5d07e8=_0x1fe0e2(0x28a);if(_0x18ca5a>=0x64){_0x543cf1+=_0x1fe0e2(0x54a);if(_0x88a27f)_0x5d07e8+=_0x1fe0e2(0x4e8);}else{if(_0x18ca5a>0x0)_0x5d07e8+=_0x1fe0e2(0x2cc)+_0x18ca5a+'%,\x20transparent\x20'+_0x18ca5a+_0x1fe0e2(0x2f7);else(_0x18ca5a===0x0||_0x88a27f)&&(_0x543cf1+=_0x1fe0e2(0x209));}return _0x1fe0e2(0x348)+_0x543cf1+_0x1fe0e2(0x2a4)+_0x5d07e8+'\x22\x20onclick=\x22loadVideo(\x27'+_0x3a5428[_0x1fe0e2(0x374)]+_0x1fe0e2(0x1ec)+_0x1f07d+_0x1fe0e2(0x1bf);})[_0x2b27b4(0x4dd)](''):_0x16f234['innerHTML']=_0x2b27b4(0x547)+_0x251838+_0x2b27b4(0x1bf)),window[_0x2b27b4(0x2ff)]=_0x351057,renderCommentInput(_0x351057),listenToComments(_0x351057);}catch(_0x1aa2c8){console[_0x2b27b4(0x49b)](_0x1aa2c8);}finally{loader(![]);}}window[_0x3e2470(0x530)]=function(_0x2fad54,_0xc3341e){const _0x1a9d31=_0x3e2470;document['querySelectorAll'](_0x1a9d31(0x336))[_0x1a9d31(0x27e)](_0x350ec3=>_0x350ec3[_0x1a9d31(0x476)][_0x1a9d31(0x318)](_0x1a9d31(0x396))),_0xc3341e['classList'][_0x1a9d31(0x536)]('active'),window[_0x1a9d31(0x3ad)]=_0x2fad54;if(window['currentEpID'])listenToComments(window[_0x1a9d31(0x2ff)]);};function renderCommentInput(_0x181181){const _0x59d5e0=_0x3e2470,_0x3b3fd1=document[_0x59d5e0(0x25e)](_0x59d5e0(0x2d7));if(!_0x3b3fd1)return;if(!currentUser)_0x3b3fd1[_0x59d5e0(0x54e)]='<div\x20style=\x22display:\x20flex;\x20gap:\x2012px;\x20align-items:\x20center;\x22><div\x20style=\x22width:\x2036px;\x20height:\x2036px;\x20border-radius:\x2050%;\x20background:\x20#222;\x20display:\x20flex;\x20justify-content:\x20center;\x20align-items:\x20center;\x22><svg\x20width=\x2216\x22\x20height=\x2216\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#555\x22><path\x20d=\x22M12\x2012c2.21\x200\x204-1.79\x204-4s-1.79-4-4-4-4\x201.79-4\x204\x201.79\x204\x204\x204zm0\x202c-2.67\x200-8\x201.34-8\x204v2h16v-2c0-2.66-5.33-4-8-4z\x22/></svg></div><div\x20style=\x22flex:\x201;\x20background:\x20#1c1c1e;\x20border:\x201px\x20solid\x20#2c2c2e;\x20padding:\x2010px\x2016px;\x20border-radius:\x2024px;\x20color:\x20#888;\x20font-size:\x2013px;\x20cursor:\x20pointer;\x22\x20onclick=\x22switchTab(\x27developer\x27)\x22>Login\x20untuk\x20menambahkan\x20komentar...</div></div>';else{const _0x14289a=currentUser[_0x59d5e0(0x1c6)]||_0x59d5e0(0x3d2);_0x3b3fd1[_0x59d5e0(0x54e)]=_0x59d5e0(0x2d0)+_0x14289a+_0x59d5e0(0x527)+_0x181181+'\x27)\x22\x20placeholder=\x22Tambahkan\x20komentar...\x22\x20style=\x22width:\x20100%;\x20background:\x20#1c1c1e;\x20border:\x201px\x20solid\x20#2c2c2e;\x20color:\x20#fff;\x20padding:\x2012px\x2045px\x2012px\x2016px;\x20border-radius:\x2024px;\x20font-size:\x2013px;\x20outline:\x20none;\x20box-sizing:\x20border-box;\x22><button\x20onclick=\x22postComment(\x27'+_0x181181+'\x27)\x22\x20style=\x22position:\x20absolute;\x20right:\x206px;\x20top:\x2050%;\x20transform:\x20translateY(-50%);\x20background:\x20transparent;\x20border:\x20none;\x20padding:\x208px;\x20cursor:\x20pointer;\x20display:\x20flex;\x22><svg\x20width=\x2220\x22\x20height=\x2220\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#3b82f6\x22><path\x20d=\x22M2.01\x2021L23\x2012\x202.01\x203\x202\x2010l15\x202-15\x202z\x22/></svg></button></div></div>',db[_0x59d5e0(0x4a4)](_0x59d5e0(0x247)+currentUser['uid'])['once'](_0x59d5e0(0x493))['then'](_0x14d1ee=>{const _0x29c3d3=_0x59d5e0;let _0x5cd7ac=_0x14d1ee[_0x29c3d3(0x421)]();if(_0x5cd7ac&&_0x5cd7ac[_0x29c3d3(0x41a)]&&window['BORDER_CATALOG']&&window['BORDER_CATALOG'][_0x5cd7ac['activeBorder']]){let _0x45cb6f=window[_0x29c3d3(0x39f)][_0x5cd7ac[_0x29c3d3(0x41a)]][_0x29c3d3(0x374)],_0x95f3a4=document[_0x29c3d3(0x25e)]('comment-input-avatar');_0x95f3a4&&(_0x95f3a4[_0x29c3d3(0x54e)]=_0x29c3d3(0x48d)+_0x14289a+_0x29c3d3(0x22d)+_0x45cb6f+_0x29c3d3(0x53b));}});}}window[_0x3e2470(0x3a1)]=function(_0x1c78b8){const _0x40f5dc=_0x3e2470,_0x2d8b1c=document[_0x40f5dc(0x25e)](_0x40f5dc(0x31c)),_0x5574db=_0x2d8b1c['value'];if(!_0x5574db[_0x40f5dc(0x3ed)]()||!currentUser)return;db[_0x40f5dc(0x4a4)]('users/'+currentUser[_0x40f5dc(0x4f1)])[_0x40f5dc(0x472)]('value')[_0x40f5dc(0x4a2)](_0x4bc089=>{const _0x42b88e=_0x40f5dc,_0x352a66=_0x4bc089['val'](),_0x44e662=_0x352a66['role']||_0x42b88e(0x1c7),_0x522df8=_0x352a66['level']||0x1,_0x287e98=_0x44e662==='Wibu\x20Premium'||_0x44e662===_0x42b88e(0x302)||_0x522df8>=0x32,_0x4a37b6=()=>{const _0x51cbab=_0x42b88e;db[_0x51cbab(0x4a4)](_0x51cbab(0x34d)+_0x1c78b8)[_0x51cbab(0x49e)]()[_0x51cbab(0x2fb)]({'uid':currentUser[_0x51cbab(0x4f1)],'nama':_0x352a66['nama'],'foto':_0x352a66['foto'],'role':_0x352a66['role']||_0x51cbab(0x1c7),'level':_0x352a66['level']||0x1,'teks':_0x5574db,'waktu':Date['now'](),'animeTitle':window[_0x51cbab(0x300)]?window[_0x51cbab(0x300)][_0x51cbab(0x4d0)]:'Anime\x20Tidak\x20Diketahui','animeImage':window[_0x51cbab(0x300)]?window[_0x51cbab(0x300)][_0x51cbab(0x27d)]:_0x51cbab(0x51b),'animeEp':window['currentPlayingAnime']?window[_0x51cbab(0x300)]['ep']:_0x51cbab(0x31b),'url':window[_0x51cbab(0x300)]?window[_0x51cbab(0x300)][_0x51cbab(0x374)]:'','activeBorder':_0x352a66['activeBorder']||'','activeCommentplate':_0x352a66['activeCommentplate']||''}),_0x2d8b1c['value']='',addXP(0xa);};_0x287e98?_0x4a37b6():db['ref'](_0x42b88e(0x34d)+_0x1c78b8)[_0x42b88e(0x56e)]('uid')['equalTo'](currentUser[_0x42b88e(0x4f1)])[_0x42b88e(0x472)]('value')['then'](_0x5b90f6=>{const _0x513cf7=_0x42b88e;_0x5b90f6[_0x513cf7(0x38c)]()?window['showToast'](_0x513cf7(0x3a9),'error'):_0x4a37b6();});});},window[_0x3e2470(0x481)]=function(_0x5f1474){const _0x25ee99=_0x3e2470,_0x2e92f6=document[_0x25ee99(0x25e)](_0x25ee99(0x519)),_0x156dca=_0x2e92f6[_0x25ee99(0x493)];if(!_0x156dca[_0x25ee99(0x3ed)]()||!currentUser)return;db['ref'](_0x25ee99(0x247)+currentUser[_0x25ee99(0x4f1)])['once']('value')['then'](_0x12463b=>{const _0x37219f=_0x25ee99,_0x4e4bc7=_0x12463b[_0x37219f(0x421)](),_0x3f2709=_0x4e4bc7[_0x37219f(0x577)]||'Member',_0x237473=_0x4e4bc7[_0x37219f(0x1f4)]||0x1,_0x45be50=_0x3f2709==='Wibu\x20Premium'||_0x3f2709===_0x37219f(0x302)||_0x237473>=0x32,_0x4b2b5c=()=>{const _0x153723=_0x37219f;db[_0x153723(0x4a4)](_0x153723(0x52f)+_0x5f1474)[_0x153723(0x49e)]()[_0x153723(0x2fb)]({'uid':currentUser[_0x153723(0x4f1)],'nama':_0x4e4bc7[_0x153723(0x539)],'foto':_0x4e4bc7['foto'],'role':_0x4e4bc7[_0x153723(0x577)]||_0x153723(0x1c7),'level':_0x4e4bc7[_0x153723(0x1f4)]||0x1,'teks':_0x156dca,'waktu':Date[_0x153723(0x3bf)](),'activeBorder':_0x4e4bc7[_0x153723(0x41a)]||'','activeCommentplate':_0x4e4bc7[_0x153723(0x415)]||''}),_0x2e92f6[_0x153723(0x493)]='',addXP(0x5);};_0x45be50?_0x4b2b5c():db[_0x37219f(0x4a4)](_0x37219f(0x52f)+_0x5f1474)['orderByChild'](_0x37219f(0x4f1))[_0x37219f(0x1fc)](currentUser[_0x37219f(0x4f1)])[_0x37219f(0x472)](_0x37219f(0x493))[_0x37219f(0x4a2)](_0x3cb1d7=>{const _0x448338=_0x37219f;_0x3cb1d7['exists']()?window[_0x448338(0x460)](_0x448338(0x3f9),_0x448338(0x49b)):_0x4b2b5c();});});},window[_0x3e2470(0x50b)]=null,window[_0x3e2470(0x3f3)]=function(_0x245c2c,_0x6ddfc,_0x1c578a,_0x24b9e8){const _0x20cc65=_0x3e2470;window[_0x20cc65(0x50b)]=setTimeout(()=>{openDeleteModal(_0x245c2c,_0x6ddfc,_0x1c578a,_0x24b9e8);},0x258);},window[_0x3e2470(0x518)]=function(){const _0x3f2528=_0x3e2470;if(window['commentPressTimer'])clearTimeout(window[_0x3f2528(0x50b)]);};function generateCommentHtml(_0x2982b5,_0x518df0=![],_0x55ffa3=null,_0x20077e=null){const _0x50a2fe=_0x3e2470,_0x33248b=_0x2982b5['role']||_0x50a2fe(0x1c7),_0x2ba87a=_0x2982b5['level']||0x1,_0x312a5c=_0x2982b5['uid']?'#'+_0x2982b5['uid']['substring'](0x0,0x7)[_0x50a2fe(0x276)]():'#0000000',_0xe550ed=timeAgo(_0x2982b5['waktu']||Date[_0x50a2fe(0x3bf)]());let _0x3848ae='badge-member',_0x4a363b=_0x33248b;if(_0x33248b===_0x50a2fe(0x302))_0x3848ae=_0x50a2fe(0x4c1),_0x4a363b=_0x50a2fe(0x4a3);else{if(_0x33248b===_0x50a2fe(0x1d3)||_0x2ba87a>=0x32)_0x3848ae=_0x50a2fe(0x2c7),_0x4a363b=_0x33248b!==_0x50a2fe(0x1c7)?_0x33248b:_0x50a2fe(0x1d3);else _0x33248b===_0x50a2fe(0x1c7)&&(_0x4a363b='Wibu\x20Biasa');}let _0x7112f2=_0x2982b5[_0x50a2fe(0x41a)]&&window[_0x50a2fe(0x43d)]&&window['COSMETIC_CATALOG'][_0x50a2fe(0x260)]&&window['COSMETIC_CATALOG'][_0x50a2fe(0x260)][_0x2982b5['activeBorder']]?window[_0x50a2fe(0x43d)][_0x50a2fe(0x260)][_0x2982b5['activeBorder']]['url']:'',_0x1b8294=_0x7112f2?_0x50a2fe(0x3f4)+_0x7112f2+'\x27);\x22></div>':'',_0x46babe=_0x2982b5['activeCommentplate']&&window[_0x50a2fe(0x43d)]&&window[_0x50a2fe(0x43d)]['commentplates']&&window['COSMETIC_CATALOG'][_0x50a2fe(0x458)][_0x2982b5[_0x50a2fe(0x415)]]?window[_0x50a2fe(0x43d)][_0x50a2fe(0x458)][_0x2982b5[_0x50a2fe(0x415)]]['style']:_0x50a2fe(0x489);const _0x39913c=getRankInfo(_0x2ba87a);let _0x504ee3='badge-lvl-'+_0x39913c[_0x50a2fe(0x535)][_0x50a2fe(0x36e)]();const _0x556ca2=(_0x2ba87a-0x1)*0xc8+Math[_0x50a2fe(0x35f)](Math[_0x50a2fe(0x243)]()*0x96),_0x4935a6=_0x2ba87a*0x2;let _0x32dbdf='';!_0x518df0&&_0x55ffa3&&_0x20077e&&(_0x32dbdf+=_0x50a2fe(0x38d)+_0x55ffa3+'\x27,\x20\x27'+_0x20077e+_0x50a2fe(0x3b4));let _0x4d471b='',_0x2dd8c2=_0x50a2fe(0x2d8),_0x403d3b='';if(currentUser&&_0x2982b5[_0x50a2fe(0x4f1)]===currentUser['uid']){let _0x16d0b3=_0x518df0?_0x50a2fe(0x23e)+_0x20077e+'\x27,\x20\x27'+_0x2982b5['id']+'\x27':'false,\x20\x27'+_0x55ffa3+'\x27,\x20\x27'+_0x20077e+'\x27,\x20null';_0x4d471b=_0x50a2fe(0x31f)+_0x16d0b3+_0x50a2fe(0x420)+_0x16d0b3+')\x22\x20ontouchend=\x22handleCommentTouchEnd()\x22\x20ontouchmove=\x22handleCommentTouchEnd()\x22',_0x2dd8c2=_0x50a2fe(0x3a4),_0x403d3b='<span\x20style=\x22font-size:10px;\x20color:#ef4444;\x20opacity:0.8;\x20margin-left:auto;\x20font-weight:700;\x20position:relative;\x20z-index:2;\x22>Tahan\x20Hapus</span>';}let _0x314c23=_0x518df0?_0x50a2fe(0x4bf):_0x50a2fe(0x366),_0x1b9f39=_0x50a2fe(0x2d2)+_0x314c23+_0x50a2fe(0x444)+_0x314c23+';\x20flex-shrink:\x200;\x20margin-top:\x204px;\x20cursor:\x20pointer;\x20z-index:2;\x22\x20onclick=\x22event.stopPropagation();\x20openUserProfile(\x27'+_0x2982b5[_0x50a2fe(0x4f1)]+_0x50a2fe(0x50e)+_0x2982b5[_0x50a2fe(0x1d6)]+_0x50a2fe(0x49d)+_0x1b8294+_0x50a2fe(0x1bf);return _0x50a2fe(0x3ef)+_0x4d471b+_0x50a2fe(0x447)+(_0x518df0?_0x50a2fe(0x1bc):_0x50a2fe(0x3f5))+_0x50a2fe(0x48b)+_0x2dd8c2+_0x50a2fe(0x3d6)+_0x46babe+_0x50a2fe(0x4d9)+_0x1b9f39+_0x50a2fe(0x1c2)+(_0x518df0?'12px':_0x50a2fe(0x32a))+_0x50a2fe(0x1d8)+_0x2982b5[_0x50a2fe(0x4f1)]+_0x50a2fe(0x1ec)+_0x2982b5[_0x50a2fe(0x539)]+_0x50a2fe(0x49a)+_0xe550ed+_0x50a2fe(0x55f)+_0x403d3b+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:\x20flex;\x20align-items:\x20center;\x20gap:\x206px;\x20margin-bottom:\x206px;\x20flex-wrap:\x20wrap;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20class=\x22c-badge\x20'+_0x504ee3+'\x22\x20onclick=\x22event.stopPropagation();\x20openLevelModal('+_0x2ba87a+_0x50a2fe(0x271)+_0x556ca2+'\x27,\x20'+_0x4935a6+_0x50a2fe(0x1e1)+_0x39913c[_0x50a2fe(0x4e7)]+_0x50a2fe(0x56c)+_0x2ba87a+_0x50a2fe(0x498)+_0x3848ae+'\x22>'+_0x4a363b+'</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-size:\x2010px;\x20color:\x20#666;\x20font-family:\x20monospace;\x20letter-spacing:\x200.5px;\x22>'+_0x312a5c+_0x50a2fe(0x32d)+(_0x518df0?_0x50a2fe(0x3af):_0x50a2fe(0x32a))+_0x50a2fe(0x20f)+_0x2982b5[_0x50a2fe(0x1ff)]+_0x50a2fe(0x275)+_0x32dbdf+_0x50a2fe(0x3d7);}function listenToComments(_0x26cedc){const _0x52edab=_0x3e2470;db['ref'](_0x52edab(0x34d)+_0x26cedc)['on'](_0x52edab(0x493),_0x28c25f=>{const _0x3e51c4=_0x52edab,_0x38e7c8=document['getElementById']('comment-list-container'),_0x1f060d=document['getElementById'](_0x3e51c4(0x241));if(!_0x28c25f[_0x3e51c4(0x38c)]()){if(_0x1f060d)_0x1f060d[_0x3e51c4(0x432)]=_0x3e51c4(0x469);if(_0x38e7c8)_0x38e7c8[_0x3e51c4(0x54e)]=_0x3e51c4(0x361);return;}let _0x1b0316=[];_0x28c25f[_0x3e51c4(0x27e)](_0x597451=>{const _0x351030=_0x3e51c4;_0x1b0316['push']({'id':_0x597451[_0x351030(0x2db)],..._0x597451['val']()});});if(_0x1f060d){let _0x48a385=_0x1b0316[_0x3e51c4(0x314)];_0x1f060d[_0x3e51c4(0x432)]=_0x48a385>0x3e8?(_0x48a385/0x3e8)[_0x3e51c4(0x4af)](0x1)+'K\x20Comments':_0x48a385+_0x3e51c4(0x349);}window[_0x3e51c4(0x3ad)]===_0x3e51c4(0x53a)?_0x1b0316[_0x3e51c4(0x4c8)]((_0x32a549,_0x51401b)=>_0x51401b[_0x3e51c4(0x3f1)]-_0x32a549['waktu']):_0x1b0316['sort']((_0x3b3d70,_0x5ae804)=>_0x3b3d70[_0x3e51c4(0x3f1)]-_0x5ae804[_0x3e51c4(0x3f1)]);if(_0x38e7c8)_0x38e7c8[_0x3e51c4(0x54e)]=_0x1b0316[_0x3e51c4(0x3d4)](_0x6b9fac=>generateCommentHtml(_0x6b9fac,![],_0x26cedc,_0x6b9fac['id']))[_0x3e51c4(0x4dd)]('');});}window['openReplyModal']=function(_0x575909,_0x24f14f){const _0x1ca5ea=_0x3e2470;document[_0x1ca5ea(0x25e)](_0x1ca5ea(0x2f2))[_0x1ca5ea(0x4bb)][_0x1ca5ea(0x28e)]=_0x1ca5ea(0x214),document[_0x1ca5ea(0x25e)](_0x1ca5ea(0x2b1))[_0x1ca5ea(0x4bb)]['display']=_0x1ca5ea(0x214),setTimeout(()=>{const _0x596384=_0x1ca5ea;document[_0x596384(0x25e)](_0x596384(0x2b1))[_0x596384(0x476)]['add']('show');},0xa),db[_0x1ca5ea(0x4a4)]('comments/'+_0x575909+'/'+_0x24f14f)['once'](_0x1ca5ea(0x493))[_0x1ca5ea(0x4a2)](_0x4c5672=>{const _0x11ce5e=_0x1ca5ea;if(_0x4c5672[_0x11ce5e(0x38c)]()){let _0x35c434={'id':_0x4c5672['key'],..._0x4c5672[_0x11ce5e(0x421)]()};document[_0x11ce5e(0x25e)](_0x11ce5e(0x2ce))[_0x11ce5e(0x54e)]=generateCommentHtml(_0x35c434,![],_0x575909,_0x4c5672[_0x11ce5e(0x2db)]);}}),db[_0x1ca5ea(0x4a4)](_0x1ca5ea(0x52f)+_0x24f14f)['on'](_0x1ca5ea(0x493),_0x4bb5f0=>{const _0x2eef9d=_0x1ca5ea,_0xb4031a=document[_0x2eef9d(0x25e)](_0x2eef9d(0x353));if(!_0x4bb5f0[_0x2eef9d(0x38c)]()){_0xb4031a[_0x2eef9d(0x54e)]=_0x2eef9d(0x2f0);return;}let _0x5b214b=[];_0x4bb5f0['forEach'](_0x4f8f74=>_0x5b214b['push']({'id':_0x4f8f74['key'],..._0x4f8f74[_0x2eef9d(0x421)]()})),_0x5b214b[_0x2eef9d(0x4c8)]((_0x531537,_0x3cc322)=>_0x531537[_0x2eef9d(0x3f1)]-_0x3cc322[_0x2eef9d(0x3f1)]),_0xb4031a[_0x2eef9d(0x54e)]=_0x5b214b[_0x2eef9d(0x3d4)](_0x43f2f3=>generateCommentHtml(_0x43f2f3,!![],null,_0x24f14f))[_0x2eef9d(0x4dd)]('');});const _0xd628c9=document[_0x1ca5ea(0x25e)](_0x1ca5ea(0x37b));if(!currentUser)_0xd628c9[_0x1ca5ea(0x54e)]=_0x1ca5ea(0x32f);else{const _0x2f9bb8=currentUser[_0x1ca5ea(0x1c6)]||_0x1ca5ea(0x3d2);_0xd628c9[_0x1ca5ea(0x54e)]=_0x1ca5ea(0x3c7)+_0x2f9bb8+_0x1ca5ea(0x4b0)+_0x24f14f+_0x1ca5ea(0x208)+_0x24f14f+_0x1ca5ea(0x39b),db[_0x1ca5ea(0x4a4)]('users/'+currentUser[_0x1ca5ea(0x4f1)])[_0x1ca5ea(0x472)]('value')[_0x1ca5ea(0x4a2)](_0xa50879=>{const _0x119940=_0x1ca5ea;let _0x35bf9f=_0xa50879['val']();if(_0x35bf9f&&_0x35bf9f[_0x119940(0x41a)]&&window['BORDER_CATALOG']&&window[_0x119940(0x39f)][_0x35bf9f[_0x119940(0x41a)]]){let _0x4b7ced=window[_0x119940(0x39f)][_0x35bf9f['activeBorder']][_0x119940(0x374)],_0xddf4ad=document['getElementById'](_0x119940(0x379));_0xddf4ad&&(_0xddf4ad[_0x119940(0x54e)]=_0x119940(0x48d)+_0x2f9bb8+'\x22\x20style=\x22width:\x20100%;\x20height:\x20100%;\x20border-radius:\x2050%;\x20object-fit:\x20cover;\x20display:block;\x22><div\x20class=\x22avatar-deco-overlay\x22\x20style=\x22background-image:url(\x27'+_0x4b7ced+'\x27);\x22></div>');}});}},window[_0x3e2470(0x3e2)]=function(){const _0x371474=_0x3e2470,_0x45ecad=document[_0x371474(0x25e)](_0x371474(0x2b1));_0x45ecad['classList'][_0x371474(0x318)](_0x371474(0x540)),setTimeout(()=>{const _0x38dd32=_0x371474;document[_0x38dd32(0x25e)]('replyModalOverlay')[_0x38dd32(0x4bb)][_0x38dd32(0x28e)]=_0x38dd32(0x442),_0x45ecad[_0x38dd32(0x4bb)]['display']=_0x38dd32(0x442);},0x12c);},window['postReply']=function(_0x5af88e){const _0x5bd2e2=_0x3e2470,_0x59df14=document['getElementById'](_0x5bd2e2(0x519)),_0x44276f=_0x59df14['value'];if(!_0x44276f[_0x5bd2e2(0x3ed)]()||!currentUser)return;db['ref'](_0x5bd2e2(0x247)+currentUser['uid'])['once'](_0x5bd2e2(0x493))['then'](_0x1fef7d=>{const _0x1e4c04=_0x5bd2e2,_0x19acc1=_0x1fef7d[_0x1e4c04(0x421)](),_0x2014fd=_0x19acc1[_0x1e4c04(0x577)]||_0x1e4c04(0x1c7),_0x30b120=_0x19acc1[_0x1e4c04(0x1f4)]||0x1,_0x419ebc=_0x2014fd===_0x1e4c04(0x1d3)||_0x2014fd===_0x1e4c04(0x302)||_0x30b120>=0x32,_0x16320e=()=>{const _0x3ae5bd=_0x1e4c04;db[_0x3ae5bd(0x4a4)](_0x3ae5bd(0x52f)+_0x5af88e)['push']()[_0x3ae5bd(0x2fb)]({'uid':currentUser[_0x3ae5bd(0x4f1)],'nama':_0x19acc1['nama'],'foto':_0x19acc1['foto'],'role':_0x19acc1['role']||_0x3ae5bd(0x1c7),'level':_0x19acc1[_0x3ae5bd(0x1f4)]||0x1,'teks':_0x44276f,'waktu':Date[_0x3ae5bd(0x3bf)]()}),_0x59df14[_0x3ae5bd(0x493)]='',addXP(0x5);};_0x419ebc?_0x16320e():db[_0x1e4c04(0x4a4)](_0x1e4c04(0x52f)+_0x5af88e)[_0x1e4c04(0x56e)](_0x1e4c04(0x4f1))['equalTo'](currentUser[_0x1e4c04(0x4f1)])[_0x1e4c04(0x472)]('value')[_0x1e4c04(0x4a2)](_0x6e5ba3=>{const _0x2d5575=_0x1e4c04;_0x6e5ba3[_0x2d5575(0x38c)]()?window['showToast'](_0x2d5575(0x3f9),_0x2d5575(0x49b)):_0x16320e();});});},window['allowExitApp']=![],window['historyTrapSet']=![];function setupHistoryTrap(){const _0x1ac207=_0x3e2470;!window['historyTrapSet']&&(history[_0x1ac207(0x4a1)](null,'',_0x1ac207(0x500)),history[_0x1ac207(0x439)](null,'',_0x1ac207(0x1eb)),window[_0x1ac207(0x308)]=!![]);}window[_0x3e2470(0x240)]('touchstart',setupHistoryTrap,{'once':!![],'passive':!![]}),window[_0x3e2470(0x240)](_0x3e2470(0x41e),setupHistoryTrap,{'once':!![],'passive':!![]}),window['addEventListener'](_0x3e2470(0x219),_0x5effc4=>{const _0x347862=_0x3e2470;if(window[_0x347862(0x524)])return;let _0x256816=window[_0x347862(0x255)][_0x347862(0x54f)],_0x4b0c3a=document[_0x347862(0x25e)](_0x347862(0x2e0));_0x4b0c3a&&_0x256816!==_0x347862(0x2a9)&&(_0x4b0c3a[_0x347862(0x4a6)]='');if(_0x256816===_0x347862(0x500)||_0x256816===''){openExitModal(),history[_0x347862(0x439)](null,'',_0x347862(0x1eb));return;}let _0x4eecea=_0x256816[_0x347862(0x3a0)]('#','')||'home';switchTab(_0x4eecea);}),window[_0x3e2470(0x394)]=function(){const _0x96b61d=_0x3e2470;window[_0x96b61d(0x255)][_0x96b61d(0x54f)]!=='#home'&&history['back']();},window['backToDetail']=function(){const _0x298e64=_0x3e2470;window['currentPlayingAnime']=null,window[_0x298e64(0x3d0)](),window[_0x298e64(0x255)][_0x298e64(0x54f)]===_0x298e64(0x2a9)?history[_0x298e64(0x576)]():switchTab('detail');},window[_0x3e2470(0x2e5)]=function(){const _0x35d5db=_0x3e2470;if(document[_0x35d5db(0x25e)](_0x35d5db(0x550)))return;const _0x4889a2=document[_0x35d5db(0x286)]('div');_0x4889a2['id']=_0x35d5db(0x550),_0x4889a2['innerHTML']=_0x35d5db(0x3b0),document['body'][_0x35d5db(0x411)](_0x4889a2);},window['openExitModal']=function(){const _0x296b58=_0x3e2470;document['getElementById']('exitModalOverlay')[_0x296b58(0x4bb)][_0x296b58(0x28e)]=_0x296b58(0x214),document[_0x296b58(0x25e)]('exitModal')[_0x296b58(0x4bb)][_0x296b58(0x28e)]=_0x296b58(0x214),setTimeout(()=>{const _0x44eec5=_0x296b58;document[_0x44eec5(0x25e)](_0x44eec5(0x2ad))['style']['opacity']='1',document[_0x44eec5(0x25e)](_0x44eec5(0x2ad))[_0x44eec5(0x4bb)]['transform']='translate(-50%,\x20-50%)\x20scale(1)';},0xa);},window[_0x3e2470(0x3ea)]=function(){const _0x4e480e=_0x3e2470;document[_0x4e480e(0x25e)](_0x4e480e(0x2ad))[_0x4e480e(0x4bb)][_0x4e480e(0x36b)]='0',document[_0x4e480e(0x25e)](_0x4e480e(0x2ad))[_0x4e480e(0x4bb)][_0x4e480e(0x47f)]=_0x4e480e(0x4ca),setTimeout(()=>{const _0x14de42=_0x4e480e;document[_0x14de42(0x25e)](_0x14de42(0x3ca))[_0x14de42(0x4bb)][_0x14de42(0x28e)]=_0x14de42(0x442),document[_0x14de42(0x25e)](_0x14de42(0x2ad))[_0x14de42(0x4bb)][_0x14de42(0x28e)]=_0x14de42(0x442);},0x12c);},window[_0x3e2470(0x26f)]=function(){const _0x4213c5=_0x3e2470;window[_0x4213c5(0x524)]=!![],window[_0x4213c5(0x1fa)]['go'](-0x2),setTimeout(()=>{window['close']();},0x12c);};let commentToDelete=null;window['injectDeleteModal']=function(){const _0x435dda=_0x3e2470;if(document[_0x435dda(0x25e)](_0x435dda(0x1db)))return;const _0x460c94=document[_0x435dda(0x286)](_0x435dda(0x36a));_0x460c94['id']=_0x435dda(0x1db),_0x460c94[_0x435dda(0x54e)]='<div\x20id=\x22deleteModalOverlay\x22\x20class=\x22modal-overlay\x22\x20onclick=\x22closeDeleteModal()\x22\x20style=\x22display:none;\x20position:fixed;\x20top:0;\x20left:0;\x20width:100%;\x20height:100%;\x20background:rgba(0,0,0,0.7);\x20z-index:9999998;\x20backdrop-filter:blur(2px);\x22></div><div\x20id=\x22deleteModal\x22\x20style=\x22display:none;\x20position:fixed;\x20top:50%;\x20left:50%;\x20transform:translate(-50%,\x20-50%)\x20scale(0.9);\x20background:#1c1c1e;\x20width:300px;\x20border-radius:24px;\x20z-index:9999999;\x20padding:25px\x2020px\x2020px\x2020px;\x20transition:0.3s\x20cubic-bezier(0.4,\x200,\x200.2,\x201);\x20opacity:0;\x20box-shadow:0\x2010px\x2030px\x20rgba(0,0,0,0.8);\x20border:\x201px\x20solid\x20#2c2c2e;\x20text-align:\x20center;\x22><div\x20style=\x22width:50px;\x20height:50px;\x20background:#ef4444;\x20border-radius:50%;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x20margin:\x20-40px\x20auto\x2015px\x20auto;\x20box-shadow:\x200\x200\x2015px\x20rgba(239,\x2068,\x2068,\x200.5);\x22><svg\x20width=\x2224\x22\x20height=\x2224\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22none\x22\x20stroke=\x22#fff\x22\x20stroke-width=\x222\x22><polyline\x20points=\x223\x206\x205\x206\x2021\x206\x22></polyline><path\x20d=\x22M19\x206v14a2\x202\x200\x200\x201-2\x202H7a2\x202\x200\x200\x201-2-2V6m3\x200V4a2\x202\x200\x200\x201\x202-2h4a2\x202\x200\x200\x201\x202\x202v2\x22></path><line\x20x1=\x2210\x22\x20y1=\x2211\x22\x20x2=\x2210\x22\x20y2=\x2217\x22></line><line\x20x1=\x2214\x22\x20y1=\x2211\x22\x20x2=\x2214\x22\x20y2=\x2217\x22></line></svg></div><h3\x20style=\x22color:#fff;\x20margin:0\x200\x2010px\x200;\x20font-size:18px;\x20font-weight:900;\x22>Hapus\x20Komentar?</h3><p\x20style=\x22color:#888;\x20font-size:13px;\x20margin-bottom:20px;\x20line-height:1.5;\x22>Komentar\x20ini\x20akan\x20dihapus\x20secara\x20permanen\x20dan\x20tidak\x20bisa\x20dikembalikan.</p><div\x20style=\x22display:flex;\x20gap:10px;\x22><button\x20onclick=\x22closeDeleteModal()\x22\x20style=\x22flex:1;\x20background:#2c2c2e;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20transition:0.2s;\x22>Batal</button><button\x20onclick=\x22confirmDeleteComment()\x22\x20style=\x22flex:1;\x20background:#ef4444;\x20color:#fff;\x20border:none;\x20padding:12px;\x20border-radius:16px;\x20font-weight:800;\x20font-size:14px;\x20cursor:pointer;\x20box-shadow:\x200\x204px\x2010px\x20rgba(239,\x2068,\x2068,\x200.4);\x20transition:0.2s;\x22>Ya,\x20Hapus</button></div></div>',document['body'][_0x435dda(0x411)](_0x460c94);},window[_0x3e2470(0x3d9)]=function(_0x5a3011,_0x2fbacc,_0x2dff6e,_0x42dbb5){const _0x1f39be=_0x3e2470;commentToDelete={'isReply':_0x5a3011,'epID':_0x2fbacc,'parentID':_0x2dff6e,'replyID':_0x42dbb5},injectDeleteModal(),document[_0x1f39be(0x25e)](_0x1f39be(0x4c7))[_0x1f39be(0x4bb)]['display']=_0x1f39be(0x214),document[_0x1f39be(0x25e)]('deleteModal')[_0x1f39be(0x4bb)]['display']=_0x1f39be(0x214),setTimeout(()=>{const _0x3427a8=_0x1f39be;document['getElementById'](_0x3427a8(0x400))[_0x3427a8(0x4bb)][_0x3427a8(0x36b)]='1',document[_0x3427a8(0x25e)](_0x3427a8(0x400))[_0x3427a8(0x4bb)][_0x3427a8(0x47f)]=_0x3427a8(0x28f);},0xa);},window['closeDeleteModal']=function(){const _0x137d64=_0x3e2470,_0x15a4e9=document['getElementById'](_0x137d64(0x400)),_0x5f4afd=document[_0x137d64(0x25e)](_0x137d64(0x4c7));_0x15a4e9&&(_0x15a4e9[_0x137d64(0x4bb)][_0x137d64(0x36b)]='0',_0x15a4e9['style'][_0x137d64(0x47f)]=_0x137d64(0x4ca),setTimeout(()=>{const _0x1472c4=_0x137d64;_0x5f4afd[_0x1472c4(0x4bb)][_0x1472c4(0x28e)]=_0x1472c4(0x442),_0x15a4e9[_0x1472c4(0x4bb)][_0x1472c4(0x28e)]=_0x1472c4(0x442),commentToDelete=null;},0x12c));},window['confirmDeleteComment']=function(){const _0x4a9cfe=_0x3e2470;if(!commentToDelete)return;const {isReply:_0x126927,epID:_0x5a0fae,parentID:_0x150509,replyID:_0x57f150}=commentToDelete;_0x126927?db['ref'](_0x4a9cfe(0x52f)+_0x150509+'/'+_0x57f150)[_0x4a9cfe(0x318)]()['then'](()=>{const _0x57b0aa=_0x4a9cfe;window[_0x57b0aa(0x460)]('Balasan\x20berhasil\x20dihapus!','success'),closeDeleteModal();}):db[_0x4a9cfe(0x4a4)](_0x4a9cfe(0x34d)+_0x5a0fae+'/'+_0x150509)[_0x4a9cfe(0x318)]()['then'](()=>{const _0x166ee0=_0x4a9cfe;db[_0x166ee0(0x4a4)](_0x166ee0(0x52f)+_0x150509)[_0x166ee0(0x318)](),window['showToast'](_0x166ee0(0x2d4),_0x166ee0(0x22c)),closeDeleteModal();const _0x203589=document[_0x166ee0(0x25e)](_0x166ee0(0x2b1));_0x203589&&_0x203589[_0x166ee0(0x476)][_0x166ee0(0x455)](_0x166ee0(0x540))&&closeReplyModal();});},window[_0x3e2470(0x456)]=null;function injectScheduleStyles(){const _0x4be234=_0x3e2470;if(document[_0x4be234(0x25e)](_0x4be234(0x1d7)))return;const _0x2f1437=document[_0x4be234(0x286)](_0x4be234(0x4bb));_0x2f1437['id']=_0x4be234(0x1d7),_0x2f1437['innerHTML']=_0x4be234(0x380),document[_0x4be234(0x48f)]['appendChild'](_0x2f1437);}window['currentJadwalDay']=new Date()[_0x3e2470(0x297)]();const NAMA_HARI=[_0x3e2470(0x1d5),_0x3e2470(0x45c),_0x3e2470(0x291),_0x3e2470(0x2e2),'Kam','Jum',_0x3e2470(0x486)],NAMA_HARI_FULL=[_0x3e2470(0x4b2),_0x3e2470(0x301),_0x3e2470(0x331),_0x3e2470(0x3c3),_0x3e2470(0x54c),_0x3e2470(0x210),_0x3e2470(0x425)];window['initJadwal']=async function(){const _0x5251c3=_0x3e2470;injectScheduleStyles(),document[_0x5251c3(0x25e)](_0x5251c3(0x3bb))[_0x5251c3(0x54e)]===''&&(renderJadwalDays(window[_0x5251c3(0x24f)]),await loadJadwalData(window[_0x5251c3(0x24f)]));},window[_0x3e2470(0x254)]=function(_0x21ad1e){const _0x207141=_0x3e2470;let _0x5a3ecc=window[_0x207141(0x24f)]+_0x21ad1e;if(_0x5a3ecc>0x6)_0x5a3ecc=0x0;if(_0x5a3ecc<0x0)_0x5a3ecc=0x6;window[_0x207141(0x24f)]=_0x5a3ecc,renderJadwalDays(_0x5a3ecc),loadJadwalData(_0x5a3ecc);},window[_0x3e2470(0x554)]=function(_0x28fb17){const _0x21a753=_0x3e2470;window[_0x21a753(0x24f)]=_0x28fb17,renderJadwalDays(_0x28fb17),loadJadwalData(_0x28fb17);};function renderJadwalDays(_0x1ed0a9){const _0x3709e7=_0x3e2470,_0xba1edf=document['getElementById'](_0x3709e7(0x34b)),_0x3a573c=new Date(),_0x600361=_0x3a573c[_0x3709e7(0x297)]();let _0x17d899='';for(let _0x5405d4=0x0;_0x5405d4<0x7;_0x5405d4++){let _0x3eac4e=_0x5405d4-_0x600361,_0x3197a9=new Date(_0x3a573c);_0x3197a9['setDate'](_0x3a573c['getDate']()+_0x3eac4e);let _0x2beed1=_0x3197a9[_0x3709e7(0x2b5)](),_0xc03bf7=_0x5405d4===_0x1ed0a9?_0x3709e7(0x396):'';_0x17d899+=_0x3709e7(0x33e)+_0xc03bf7+_0x3709e7(0x4ab)+_0x5405d4+_0x3709e7(0x514)+NAMA_HARI[_0x5405d4]+'</div><div\x20class=\x22s-date\x22>'+_0x2beed1+_0x3709e7(0x3ff);}_0xba1edf[_0x3709e7(0x54e)]=_0x17d899;let _0x1bce4f=_0x1ed0a9-0x1;if(_0x1bce4f<0x0)_0x1bce4f=0x6;let _0x358a9a=_0x1ed0a9+0x1;if(_0x358a9a>0x6)_0x358a9a=0x0;document[_0x3709e7(0x25e)](_0x3709e7(0x262))[_0x3709e7(0x432)]=NAMA_HARI_FULL[_0x1bce4f],document['getElementById'](_0x3709e7(0x30f))[_0x3709e7(0x432)]=NAMA_HARI_FULL[_0x358a9a];}async function loadJadwalData(_0x196113){const _0x4406dc=_0x3e2470,_0x3264ab=document['getElementById'](_0x4406dc(0x3bb));!window[_0x4406dc(0x456)]&&loader(!![]);try{let _0x58c4a8;if(window['cachedScheduleData'])_0x58c4a8=window[_0x4406dc(0x456)];else{const _0x16a879=await fetchTimeout(API_BASE+_0x4406dc(0x3de),0x2710);_0x58c4a8=await _0x16a879[_0x4406dc(0x1d9)]();if(!_0x58c4a8||_0x58c4a8[_0x4406dc(0x314)]===0x0)throw new Error('No\x20data');window[_0x4406dc(0x456)]=_0x58c4a8;}let _0x2d2615=_0x5b47a6=>{const _0x3a04d0=_0x4406dc;let _0x24ddfd=Math[_0x3a04d0(0x222)](_0x5b47a6++)*0x2710;return _0x24ddfd-Math[_0x3a04d0(0x35f)](_0x24ddfd);},_0x4fbde9=_0x58c4a8[_0x4406dc(0x27a)]((_0x275428,_0x408739)=>_0x2d2615(_0x196113*0xa+_0x408739)>0.4);_0x4fbde9[_0x4406dc(0x27e)]((_0x406aa9,_0x3e6b68)=>{const _0x1f3b0a=_0x4406dc;let _0x5390ff=Math[_0x1f3b0a(0x35f)](_0x2d2615(_0x196113*0x14+_0x3e6b68)*0x18),_0x54ebca=Math[_0x1f3b0a(0x35f)](_0x2d2615(_0x196113*0x1e+_0x3e6b68)*0x3c);_0x406aa9[_0x1f3b0a(0x504)]=String(_0x5390ff)['padStart'](0x2,'0')+':'+String(_0x54ebca)['padStart'](0x2,'0'),_0x406aa9[_0x1f3b0a(0x51c)]=_0x5390ff;}),_0x4fbde9[_0x4406dc(0x4c8)]((_0x17c2bb,_0x399689)=>_0x399689[_0x4406dc(0x51c)]-_0x17c2bb[_0x4406dc(0x51c)]);let _0x345b28='',_0x3e5f52=new Date()[_0x4406dc(0x330)](),_0xd6a636=_0x196113===new Date()[_0x4406dc(0x297)]();_0x4fbde9[_0x4406dc(0x27e)]((_0x5c835d,_0x1bb13f)=>{const _0x55f004=_0x4406dc;let _0x45a95e=_0xd6a636?_0x5c835d['releaseHour']<=_0x3e5f52:_0x196113<new Date()[_0x55f004(0x297)](),_0x7b1861=_0x45a95e?_0x55f004(0x532):_0x55f004(0x1da),_0x594f9c=Math['floor'](_0x2d2615(_0x1bb13f)*0xc8+0xa)+','+Math['floor'](_0x2d2615(_0x1bb13f+0x1)*0x9)+'K',_0x554f2f=(_0x2d2615(_0x1bb13f+0x2)*0x2+0x6)[_0x55f004(0x4af)](0x2),_0x583313=getEpBadge(_0x5c835d)||_0x55f004(0x31b);_0x345b28+=_0x55f004(0x2c3)+_0x5c835d[_0x55f004(0x374)]+'\x27)\x22><div\x20class=\x22sched-time\x22>'+_0x5c835d[_0x55f004(0x504)]+_0x55f004(0x3d5)+getHighRes(_0x5c835d[_0x55f004(0x27d)])+'\x22\x20class=\x22sched-img\x22\x20onerror=\x22this.src=\x27https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime\x27\x22><div\x20class=\x22sched-info\x22><div\x20class=\x22sched-title\x22>'+_0x5c835d[_0x55f004(0x4d0)]+_0x55f004(0x1cf)+_0x583313+_0x55f004(0x24d)+_0x594f9c+_0x55f004(0x38f)+_0x554f2f+'</span></div><div\x20class=\x22sched-status\x22>'+_0x7b1861+'</div></div></div>';}),_0x4fbde9[_0x4406dc(0x314)]===0x0&&(_0x345b28='<div\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#555;\x22>Tidak\x20ada\x20jadwal\x20rilis\x20hari\x20ini.</div>'),_0x3264ab['innerHTML']=_0x345b28;}catch(_0x2a1282){_0x3264ab[_0x4406dc(0x54e)]='<div\x20style=\x22text-align:center;\x20padding:\x2050px;\x20color:#ef4444;\x22>Gagal\x20memuat\x20jadwal.\x20Server\x20sedang\x20sibuk.</div>';}loader(![]);}function showUpdateNotification(_0x3454c8){const _0x921029=_0x3e2470;if(!document['getElementById'](_0x921029(0x416))){const _0x2b41d1=document[_0x921029(0x286)](_0x921029(0x36a));_0x2b41d1['id']='in-app-notif-container',_0x2b41d1[_0x921029(0x4bb)][_0x921029(0x404)]='position:fixed;\x20top:15px;\x20left:50%;\x20transform:translateX(-50%);\x20z-index:9999999;\x20display:flex;\x20flex-direction:column;\x20gap:10px;\x20width:90%;\x20max-width:350px;\x20pointer-events:none;',document[_0x921029(0x39c)]['appendChild'](_0x2b41d1);}const _0xb3336a=document[_0x921029(0x25e)]('in-app-notif-container');_0x3454c8[_0x921029(0x27e)]((_0x1868fc,_0x57c4f8)=>{setTimeout(()=>{const _0x508727=_0x3f78,_0x2f3680=document[_0x508727(0x286)](_0x508727(0x36a));_0x2f3680[_0x508727(0x4bb)]['cssText']=_0x508727(0x50c),_0x2f3680[_0x508727(0x54e)]=_0x508727(0x48d)+getHighRes(_0x1868fc[_0x508727(0x27d)])+_0x508727(0x4a0)+_0x1868fc[_0x508727(0x4d0)]+_0x508727(0x3e9)+_0x1868fc[_0x508727(0x213)]+_0x508727(0x534),_0x2f3680[_0x508727(0x264)]=()=>{const _0xc30c7b=_0x508727;_0x2f3680[_0xc30c7b(0x4bb)][_0xc30c7b(0x36b)]='0',_0x2f3680[_0xc30c7b(0x4bb)][_0xc30c7b(0x47f)]=_0xc30c7b(0x372),setTimeout(()=>_0x2f3680['remove'](),0x12c),loadDetail(_0x1868fc[_0xc30c7b(0x374)]);},_0xb3336a[_0x508727(0x411)](_0x2f3680),setTimeout(()=>{const _0x1140ce=_0x508727;_0x2f3680[_0x1140ce(0x4bb)][_0x1140ce(0x47f)]='translateY(0)\x20scale(1)',_0x2f3680[_0x1140ce(0x4bb)][_0x1140ce(0x36b)]='1';},0xa),setTimeout(()=>{const _0x3513c0=_0x508727;_0x2f3680[_0x3513c0(0x212)]&&(_0x2f3680['style'][_0x3513c0(0x36b)]='0',_0x2f3680[_0x3513c0(0x4bb)][_0x3513c0(0x47f)]=_0x3513c0(0x372),setTimeout(()=>{const _0x38b19c=_0x3513c0;if(_0x2f3680[_0x38b19c(0x212)])_0x2f3680['remove']();},0x12c));},0x1770);},_0x57c4f8*0x4b0);});}async function checkAnimeUpdates(){const _0x1cf700=_0x3e2470;try{const _0x479a3f=await getFavorites();if(!_0x479a3f||_0x479a3f[_0x1cf700(0x314)]===0x0)return;const _0xe1b959=await fetchTimeout(API_BASE+'/latest',0x2710);if(!_0xe1b959||!_0xe1b959['ok'])return;const _0x578a5f=await _0xe1b959[_0x1cf700(0x1d9)]();let _0x502605=[];const _0x59d33c=await initDB();for(const _0x1c35a5 of _0x578a5f){const _0x1d565a=_0x479a3f[_0x1cf700(0x4fc)](_0x3c049a=>_0x3c049a['url']===_0x1c35a5[_0x1cf700(0x374)]);if(_0x1d565a){const _0xdf33b1=_0x58b747=>{const _0x292244=_0x1cf700;if(!_0x58b747)return 0x0;let _0x534a4b=String(_0x58b747)[_0x292244(0x2a1)](/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);if(_0x534a4b)return parseFloat(_0x534a4b[0x1]);let _0x545a61=String(_0x58b747)['match'](/\d+/g);return _0x545a61?parseFloat(_0x545a61[_0x545a61[_0x292244(0x314)]-0x1]):0x0;};let _0x2a9f8a=_0xdf33b1(_0x1d565a['episode']),_0x4f6ba2=_0xdf33b1(getEpBadge(_0x1c35a5));_0x4f6ba2>_0x2a9f8a&&(_0x502605[_0x1cf700(0x49e)]({'title':_0x1d565a[_0x1cf700(0x4d0)],'newEp':_0x4f6ba2,'url':_0x1d565a['url'],'image':_0x1d565a[_0x1cf700(0x27d)]}),_0x1d565a[_0x1cf700(0x41d)]=_0x1cf700(0x503)+_0x4f6ba2,_0x59d33c[_0x1cf700(0x44d)](STORE_FAV,_0x1cf700(0x3ce))[_0x1cf700(0x571)](STORE_FAV)['put'](_0x1d565a));}}if(_0x502605[_0x1cf700(0x314)]>0x0)showUpdateNotification(_0x502605);}catch(_0x42025d){}}function switchTab(_0x4cff68){const _0x40fed5=_0x3e2470;document[_0x40fed5(0x325)](_0x40fed5(0x516))['forEach'](_0x3d5585=>_0x3d5585[_0x40fed5(0x4bb)][_0x40fed5(0x28e)]='none'),document[_0x40fed5(0x325)](_0x40fed5(0x3e4))[_0x40fed5(0x27e)](_0xb23529=>{const _0x4e760c=_0x40fed5;_0xb23529[_0x4e760c(0x4bb)][_0x4e760c(0x28e)]=_0x4e760c(0x442),_0xb23529[_0x4e760c(0x476)][_0x4e760c(0x318)](_0x4e760c(0x540));}),[_0x40fed5(0x43e),'recent-view','favorite-view',_0x40fed5(0x431),'detail-view','watch-view',_0x40fed5(0x26a),_0x40fed5(0x1c1)][_0x40fed5(0x27e)](_0x378ecf=>{const _0x370707=_0x40fed5;let _0xfdfbdf=document[_0x370707(0x25e)](_0x378ecf);if(_0xfdfbdf)_0xfdfbdf[_0x370707(0x476)][_0x370707(0x536)](_0x370707(0x537));}),document['getElementById']('mainNavbar')[_0x40fed5(0x4bb)][_0x40fed5(0x28e)]=_0x4cff68==='home'||_0x4cff68===_0x40fed5(0x50f)?_0x40fed5(0x284):_0x40fed5(0x442),document[_0x40fed5(0x25e)](_0x40fed5(0x234))[_0x40fed5(0x4bb)][_0x40fed5(0x28e)]=_0x4cff68==='detail'||_0x4cff68===_0x40fed5(0x457)?_0x40fed5(0x442):_0x40fed5(0x284),document[_0x40fed5(0x325)](_0x40fed5(0x3f7))[_0x40fed5(0x27e)](_0x26e881=>_0x26e881[_0x40fed5(0x476)][_0x40fed5(0x318)](_0x40fed5(0x396)));let _0x271183=document['getElementById'](_0x4cff68+_0x40fed5(0x4f3));if(_0x271183)_0x271183[_0x40fed5(0x476)][_0x40fed5(0x318)](_0x40fed5(0x537));let _0x522e12=document[_0x40fed5(0x25e)](_0x40fed5(0x2a7)+_0x4cff68);if(_0x522e12)_0x522e12['classList'][_0x40fed5(0x536)](_0x40fed5(0x396));if(_0x4cff68===_0x40fed5(0x26e)&&document['getElementById'](_0x40fed5(0x43e))['innerHTML']==='')loadLatest();if(_0x4cff68===_0x40fed5(0x3c8))loadRecentHistory();if(_0x4cff68==='favorite')loadFavorites();if(_0x4cff68===_0x40fed5(0x1dd))initJadwal();}function initApp(){const _0x500d22=_0x3e2470;updateDevUI(),injectReportModal(),injectExitModal(),injectDeleteModal(),injectChangeNameModal(),injectLogoutModal(),injectTransactionModal(),window['location']['hash']===''&&history['replaceState'](null,'',_0x500d22(0x1eb)),switchTab('home'),setTimeout(()=>{checkAnimeUpdates();},0xbb8);}window[_0x3e2470(0x43d)]={'borders':{'glitch_merah':{'nama':_0x3e2470(0x3fa),'harga':0x3e8,'url':_0x3e2470(0x1cb)},'blue_premium':{'nama':_0x3e2470(0x206),'harga':0x1f4,'url':_0x3e2470(0x575)},'phoenix':{'nama':_0x3e2470(0x441),'harga':0x2ee,'url':_0x3e2470(0x1cd)},'venom':{'nama':_0x3e2470(0x563),'harga':0x320,'url':_0x3e2470(0x377)},'black-mana':{'nama':_0x3e2470(0x2a6),'harga':0x3e8,'url':_0x3e2470(0x555)},'the-haxcore':{'nama':'The\x20Hacxcore','harga':0x7d0,'url':_0x3e2470(0x515)},'fishbones':{'nama':_0x3e2470(0x1bb),'harga':0x5dc,'url':_0x3e2470(0x2fc)},'hologram-dragon':{'nama':_0x3e2470(0x42e),'harga':0xbb8,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated'},'baby-displacer-beast':{'nama':_0x3e2470(0x46d),'harga':0x1f4,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated'},'fallen-angel-(black)':{'nama':_0x3e2470(0x340),'harga':0x2bc,'url':_0x3e2470(0x50d)},'spider-man':{'nama':_0x3e2470(0x268),'harga':0x3e8,'url':_0x3e2470(0x3aa)},'super-recognizer':{'nama':'Super\x20Recognizer','harga':0x4b0,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated'},'infinite-swirl':{'nama':'Infinite\x20Swirl','harga':0x320,'url':_0x3e2470(0x218)},'juggernaut-astro':{'nama':'Juggernaut\x20Astro','harga':0x3e8,'url':_0x3e2470(0x3ae)},'the-anomaly':{'nama':_0x3e2470(0x463),'harga':0x7d0,'url':_0x3e2470(0x502)},'purple-animation':{'nama':'Purple-Animation','harga':0x3e8,'url':_0x3e2470(0x1f2)},'dark-hood':{'nama':_0x3e2470(0x221),'harga':0x1f4,'url':_0x3e2470(0x475)},'dark-hood\x20(crimson)':{'nama':'Drak\x20Hood\x20(crimson)','harga':0x1f4,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated'},'zombie-food':{'nama':_0x3e2470(0x4e0),'harga':0x5dc,'url':_0x3e2470(0x522)},'juri':{'nama':_0x3e2470(0x327),'harga':0x3e8,'url':'https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated'}},'commentplates':{'dark_nebula':{'nama':_0x3e2470(0x1d4),'harga':0x4b0,'style':_0x3e2470(0x402)},'toxic_green':{'nama':_0x3e2470(0x2f5),'harga':0x4b0,'style':_0x3e2470(0x47b)}}},window['currentShopCategory']=_0x3e2470(0x260),window[_0x3e2470(0x217)]=function(_0x1edf5d,_0x3cdc44){const _0x161018=_0x3e2470;if(!currentUser)return;let _0x3237f9='Halo\x20Admin,\x20saya\x20mau\x20Top\x20Up\x20Koin\x20Animeku.%0A%0AUID\x20Saya:\x20'+currentUser[_0x161018(0x4f1)]+'%0ANama:\x20'+currentUser['displayName']+_0x161018(0x23d)+_0x1edf5d+_0x161018(0x3e6)+_0x3cdc44;window[_0x161018(0x299)](_0x161018(0x395)+_0x3237f9);},window[_0x3e2470(0x2b9)]=function(){const _0x18f2a8=_0x3e2470;if(!currentUser)return window[_0x18f2a8(0x460)]('Login\x20dulu\x20untuk\x20belanja!','error');if(!document['getElementById']('borderShopModal')){const _0x1fe39d=document[_0x18f2a8(0x286)]('div');_0x1fe39d['innerHTML']=_0x18f2a8(0x512),document[_0x18f2a8(0x39c)][_0x18f2a8(0x411)](_0x1fe39d);}document['getElementById'](_0x18f2a8(0x229))[_0x18f2a8(0x4bb)][_0x18f2a8(0x28e)]=_0x18f2a8(0x214);const _0x1562b0=document['getElementById'](_0x18f2a8(0x220));_0x1562b0[_0x18f2a8(0x4bb)][_0x18f2a8(0x28e)]=_0x18f2a8(0x214),setTimeout(()=>{const _0x432737=_0x18f2a8;_0x1562b0[_0x432737(0x4bb)][_0x432737(0x36b)]='1',_0x1562b0[_0x432737(0x4bb)]['transform']=_0x432737(0x28f);},0xa),db[_0x18f2a8(0x4a4)](_0x18f2a8(0x247)+currentUser[_0x18f2a8(0x4f1)])['on']('value',_0x118608=>{const _0x464e4b=_0x18f2a8;window['currentUserData']=_0x118608['val']();if(!window[_0x464e4b(0x4fe)])return;document['getElementById'](_0x464e4b(0x480))[_0x464e4b(0x432)]=window['currentUserData'][_0x464e4b(0x3bc)]||0x0,window[_0x464e4b(0x205)]();const _0x5855b5=[{'koin':0x64,'harga':_0x464e4b(0x551)},{'koin':0x1f4,'harga':_0x464e4b(0x3c5)},{'koin':0x3e8,'harga':_0x464e4b(0x324)},{'koin':0x1388,'harga':'Rp\x20100.000'}];let _0x28d607=_0x464e4b(0x558);_0x5855b5['forEach'](_0x3fb469=>{const _0xde5e35=_0x464e4b;_0x28d607+=_0xde5e35(0x427)+_0x3fb469[_0xde5e35(0x3bc)]+_0xde5e35(0x41c)+_0x3fb469[_0xde5e35(0x3bc)]+_0xde5e35(0x271)+_0x3fb469[_0xde5e35(0x56b)]+_0xde5e35(0x2fa)+_0x3fb469['harga']+_0xde5e35(0x2bf);}),document[_0x464e4b(0x25e)](_0x464e4b(0x3e5))[_0x464e4b(0x54e)]=_0x28d607;});},window[_0x3e2470(0x465)]=function(_0x773cc7){const _0x2f4403=_0x3e2470;window[_0x2f4403(0x3da)]=_0x773cc7,document[_0x2f4403(0x25e)](_0x2f4403(0x4ad))[_0x2f4403(0x4bb)][_0x2f4403(0x1e4)]=_0x773cc7==='borders'?_0x2f4403(0x4cd):_0x2f4403(0x319),document[_0x2f4403(0x25e)](_0x2f4403(0x4b5))['style']['color']=_0x773cc7===_0x2f4403(0x458)?_0x2f4403(0x4cd):_0x2f4403(0x319),window['renderShopContent']();},window[_0x3e2470(0x205)]=function(){const _0x1363ce=_0x3e2470;if(!window[_0x1363ce(0x4fe)])return;const _0x1be53c=window[_0x1363ce(0x4fe)],_0x411753=window['currentShopCategory']||_0x1363ce(0x260),_0x40d9ad=window[_0x1363ce(0x43d)][_0x411753],_0x121f60=_0x411753===_0x1363ce(0x260)?_0x1363ce(0x40f):_0x1363ce(0x371),_0x155e76=_0x411753===_0x1363ce(0x260)?'activeBorder':_0x1363ce(0x415),_0x615585=_0x1be53c[_0x121f60]||{},_0x13b542=_0x1be53c[_0x155e76]||'';let _0x50bb3c='',_0x3cf5f5='';for(let _0x3b782e in _0x40d9ad){let _0x4f2ddb=_0x40d9ad[_0x3b782e],_0x1f2cbc=_0x615585[_0x3b782e],_0x2cdbce=_0x13b542===_0x3b782e,_0x58c6cb=_0x2cdbce?'<button\x20onclick=\x22equipItem(\x27'+_0x411753+_0x1363ce(0x545):_0x1f2cbc?'<button\x20onclick=\x22equipItem(\x27'+_0x411753+_0x1363ce(0x55b)+_0x3b782e+'\x27)\x22\x20style=\x22background:#10b981;\x20color:#fff;\x20border:none;\x20padding:6px\x2012px;\x20border-radius:8px;\x20font-size:11px;\x20font-weight:800;\x20cursor:pointer;\x22>Pakai</button>':_0x1363ce(0x279)+_0x411753+_0x1363ce(0x55b)+_0x3b782e+_0x1363ce(0x40a)+_0x4f2ddb[_0x1363ce(0x56b)]+_0x1363ce(0x2a3),_0x50f0c0=_0x411753==='borders'?_0x1363ce(0x4f9)+(_0x1be53c[_0x1363ce(0x1d6)]||_0x1363ce(0x51b))+_0x1363ce(0x309)+_0x4f2ddb[_0x1363ce(0x374)]+_0x1363ce(0x423):_0x1363ce(0x405)+_0x4f2ddb[_0x1363ce(0x4bb)]+_0x1363ce(0x307);_0x50bb3c+=_0x1363ce(0x38a)+(_0x2cdbce?_0x1363ce(0x4d2):'#1a1a1a')+_0x1363ce(0x568)+_0x50f0c0+_0x1363ce(0x2bd)+_0x4f2ddb[_0x1363ce(0x539)]+_0x1363ce(0x346)+(_0x1f2cbc?_0x1363ce(0x1dc):'#facc15')+_0x1363ce(0x4d3)+(_0x1f2cbc?_0x1363ce(0x344):_0x4f2ddb['harga']+_0x1363ce(0x4a9))+_0x1363ce(0x265)+_0x58c6cb+_0x1363ce(0x3ff),_0x3cf5f5+=_0x1363ce(0x24b)+_0x50f0c0+_0x1363ce(0x2bd)+_0x4f2ddb['nama']+'</div><div\x20style=\x22color:#facc15;\x20font-size:11px;\x20font-weight:700;\x22>Harga:\x20'+_0x4f2ddb[_0x1363ce(0x56b)]+_0x1363ce(0x2b8)+_0x411753+'\x27,\x20\x27'+_0x3b782e+'\x27,\x20'+_0x4f2ddb['harga']+')\x22\x20style=\x22background:#f59e0b;\x20color:#000;\x20border:none;\x20padding:6px\x2016px;\x20border-radius:8px;\x20font-size:11px;\x20font-weight:800;\x20cursor:pointer;\x20box-shadow:\x200\x202px\x205px\x20rgba(245,\x20158,\x2011,\x200.3);\x22>Gift</button></div></div>';}document[_0x1363ce(0x25e)]('view-shop')[_0x1363ce(0x54e)]=_0x50bb3c,document[_0x1363ce(0x25e)](_0x1363ce(0x4b7))['innerHTML']=_0x3cf5f5;},window[_0x3e2470(0x354)]=function(_0x140795){const _0x2e5c74=_0x3e2470;document['getElementById'](_0x2e5c74(0x43b))[_0x2e5c74(0x4bb)][_0x2e5c74(0x28e)]=_0x140795===_0x2e5c74(0x54d)?_0x2e5c74(0x214):_0x2e5c74(0x442),document[_0x2e5c74(0x25e)](_0x2e5c74(0x2cf))['style'][_0x2e5c74(0x28e)]=_0x140795===_0x2e5c74(0x326)?'block':_0x2e5c74(0x442),document['getElementById']('view-topup')[_0x2e5c74(0x4bb)][_0x2e5c74(0x28e)]=_0x140795===_0x2e5c74(0x4e3)?_0x2e5c74(0x214):_0x2e5c74(0x442),document[_0x2e5c74(0x25e)]('tab-shop')[_0x2e5c74(0x4bb)]['background']=_0x140795===_0x2e5c74(0x54d)?_0x2e5c74(0x4d2):'#1c1c1e',document[_0x2e5c74(0x25e)]('tab-gift')[_0x2e5c74(0x4bb)][_0x2e5c74(0x41b)]=_0x140795==='gift'?'#3b82f6':_0x2e5c74(0x446),document[_0x2e5c74(0x25e)](_0x2e5c74(0x364))['style'][_0x2e5c74(0x41b)]=_0x140795==='topup'?'#3b82f6':_0x2e5c74(0x446),document[_0x2e5c74(0x25e)](_0x2e5c74(0x45a))[_0x2e5c74(0x4bb)]['display']=_0x140795==='topup'?_0x2e5c74(0x442):_0x2e5c74(0x284);},window['closeBorderShop']=function(){const _0x89733b=_0x3e2470,_0x977378=document[_0x89733b(0x25e)](_0x89733b(0x220)),_0x1d23da=document[_0x89733b(0x25e)](_0x89733b(0x229));_0x977378&&(_0x977378[_0x89733b(0x4bb)][_0x89733b(0x36b)]='0',_0x977378['style'][_0x89733b(0x47f)]='translate(-50%,\x20-50%)\x20scale(0.9)',setTimeout(()=>{const _0x2b20ad=_0x89733b;_0x1d23da[_0x2b20ad(0x4bb)][_0x2b20ad(0x28e)]=_0x2b20ad(0x442),_0x977378[_0x2b20ad(0x4bb)][_0x2b20ad(0x28e)]='none';},0x12c)),db[_0x89733b(0x4a4)](_0x89733b(0x247)+currentUser[_0x89733b(0x4f1)])[_0x89733b(0x27c)]();},window['showPurchaseSuccessModal']=function(_0x4519bf,_0x33c862,_0xa81ccb){const _0x17cca5=_0x3e2470;let _0x27bc2a=document[_0x17cca5(0x25e)](_0x17cca5(0x3cd));!_0x27bc2a&&(_0x27bc2a=document[_0x17cca5(0x286)](_0x17cca5(0x36a)),_0x27bc2a['id']=_0x17cca5(0x3cd),document[_0x17cca5(0x39c)][_0x17cca5(0x411)](_0x27bc2a));let _0x7b9415=_0x17cca5(0x517);if(_0x33c862&&_0xa81ccb&&window[_0x17cca5(0x43d)][_0x33c862]&&window[_0x17cca5(0x43d)][_0x33c862][_0xa81ccb]){let _0x43edf8=window['COSMETIC_CATALOG'][_0x33c862][_0xa81ccb];if(_0x33c862==='borders')_0x7b9415=_0x17cca5(0x506)+_0x43edf8[_0x17cca5(0x374)]+_0x17cca5(0x520);else _0x33c862==='commentplates'&&(_0x7b9415=_0x17cca5(0x3f2)+_0x43edf8['style']+_0x17cca5(0x307));}_0x27bc2a[_0x17cca5(0x54e)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-overlay\x22\x20style=\x22top:\x2010%;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-card\x22\x20id=\x22tiktok-purchase-el\x22\x20style=\x22border-color:\x20#3b82f6;\x20box-shadow:\x200\x2010px\x2030px\x20rgba(0,0,0,0.8),\x200\x200\x2020px\x20rgba(59,\x20130,\x20246,\x200.3);\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22tiktok-gift-icon-container\x22>'+_0x7b9415+_0x17cca5(0x256)+_0x4519bf+_0x17cca5(0x33b);if(typeof injectGiftStyles===_0x17cca5(0x2af))injectGiftStyles();setTimeout(()=>{const _0x1bc492=_0x17cca5;let _0x266ce9=document[_0x1bc492(0x25e)](_0x1bc492(0x52e));_0x266ce9&&(_0x266ce9['style'][_0x1bc492(0x258)]=_0x1bc492(0x31e),setTimeout(()=>{const _0x55d395=_0x1bc492;_0x27bc2a[_0x55d395(0x54e)]='';},0x1f4));},0xdac);};function _0x3f78(_0x53c0c2,_0x5172cb){_0x53c0c2=_0x53c0c2-0x1ba;const _0x2f4aa0=_0x2f4a();let _0x3f7899=_0x2f4aa0[_0x53c0c2];return _0x3f7899;}let pendingTx=null;window[_0x3e2470(0x393)]=function(){const _0x147439=_0x3e2470;if(document['getElementById'](_0x147439(0x3c1)))return;const _0xd38dad=document['createElement']('div');_0xd38dad['id']='transaction-modal-injected',_0xd38dad[_0x147439(0x54e)]=_0x147439(0x2c4),document[_0x147439(0x39c)][_0x147439(0x411)](_0xd38dad);},window[_0x3e2470(0x29c)]=function(){const _0x942555=_0x3e2470;document['getElementById'](_0x942555(0x45d))[_0x942555(0x4bb)]['display']='block',document['getElementById'](_0x942555(0x2b6))[_0x942555(0x4bb)]['display']='block',setTimeout(()=>{const _0x2de2fc=_0x942555;document['getElementById']('transactionModal')[_0x2de2fc(0x4bb)]['opacity']='1',document[_0x2de2fc(0x25e)]('transactionModal')['style']['transform']=_0x2de2fc(0x28f);},0xa);},window[_0x3e2470(0x253)]=function(){const _0x469aaa=_0x3e2470,_0x33800d=document[_0x469aaa(0x25e)](_0x469aaa(0x2b6)),_0x4ca8e9=document[_0x469aaa(0x25e)]('transactionModalOverlay');_0x33800d&&(_0x33800d[_0x469aaa(0x4bb)][_0x469aaa(0x36b)]='0',_0x33800d[_0x469aaa(0x4bb)][_0x469aaa(0x47f)]=_0x469aaa(0x4ca),setTimeout(()=>{const _0xe5ee1a=_0x469aaa;_0x4ca8e9['style'][_0xe5ee1a(0x28e)]=_0xe5ee1a(0x442),_0x33800d[_0xe5ee1a(0x4bb)][_0xe5ee1a(0x28e)]=_0xe5ee1a(0x442),pendingTx=null;},0x12c));},window[_0x3e2470(0x21c)]=function(_0x4673da,_0x53eb7b,_0x33a916){const _0x20dbc8=_0x3e2470;let _0x2d140d=window[_0x20dbc8(0x4fe)]&&window[_0x20dbc8(0x4fe)][_0x20dbc8(0x3bc)]?window[_0x20dbc8(0x4fe)]['koin']:0x0;if(_0x2d140d<_0x33a916)return window[_0x20dbc8(0x460)](_0x20dbc8(0x569),_0x20dbc8(0x49b));let _0x25276c=window['COSMETIC_CATALOG'][_0x4673da][_0x53eb7b],_0x17f3c5=_0x25276c['nama'];pendingTx={'type':_0x20dbc8(0x56d),'cat':_0x4673da,'id':_0x53eb7b,'harga':_0x33a916,'itemName':_0x17f3c5};let _0x5c5350='',_0x19afed=window[_0x20dbc8(0x4fe)]&&window[_0x20dbc8(0x4fe)][_0x20dbc8(0x1d6)]?window[_0x20dbc8(0x4fe)][_0x20dbc8(0x1d6)]:'https://placehold.co/100';_0x4673da===_0x20dbc8(0x260)?_0x5c5350=_0x20dbc8(0x200)+_0x19afed+'\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:absolute;\x20top:50%;\x20left:50%;\x20width:130%;\x20height:130%;\x20transform:translate(-50%,\x20-50%);\x20background-image:url(\x27'+_0x25276c[_0x20dbc8(0x374)]+_0x20dbc8(0x507):_0x5c5350=_0x20dbc8(0x25b)+_0x25276c[_0x20dbc8(0x4bb)]+_0x20dbc8(0x307),document[_0x20dbc8(0x25e)](_0x20dbc8(0x21e))['innerHTML']=_0x5c5350,document['getElementById'](_0x20dbc8(0x257))['innerText']=_0x20dbc8(0x4d7),document['getElementById']('transaction-desc')[_0x20dbc8(0x54e)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20Beli\x20<b>'+_0x17f3c5+_0x20dbc8(0x452)+_0x33a916+_0x20dbc8(0x543),window['openTransactionModal']();},window[_0x3e2470(0x4ec)]=function(_0x18431b,_0x498377,_0x52fc97){const _0x1313be=_0x3e2470;let _0x19f02e=document[_0x1313be(0x25e)](_0x1313be(0x3a6))['value']['replace']('#','')[_0x1313be(0x3ed)]()[_0x1313be(0x276)]();if(!_0x19f02e||_0x19f02e[_0x1313be(0x314)]!==0x6)return window['showToast'](_0x1313be(0x43a),_0x1313be(0x49b));let _0x2fba7d=window['currentUserData']&&window[_0x1313be(0x4fe)]['koin']?window['currentUserData'][_0x1313be(0x3bc)]:0x0;if(_0x2fba7d<_0x52fc97)return window['showToast'](_0x1313be(0x471),_0x1313be(0x49b));db[_0x1313be(0x4a4)](_0x1313be(0x33a))['once'](_0x1313be(0x493))[_0x1313be(0x4a2)](_0x349e0e=>{const _0x1d11a2=_0x1313be;let _0x1b1be1=null,_0x36cd4c=null;_0x349e0e[_0x1d11a2(0x27e)](_0x2c0cb5=>{const _0x4de30c=_0x1d11a2;_0x2c0cb5[_0x4de30c(0x2db)][_0x4de30c(0x483)](0x0,0x6)[_0x4de30c(0x276)]()===_0x19f02e&&(_0x1b1be1=_0x2c0cb5[_0x4de30c(0x2db)],_0x36cd4c=_0x2c0cb5['val']());});if(!_0x1b1be1)return window[_0x1d11a2(0x460)](_0x1d11a2(0x248),_0x1d11a2(0x49b));if(_0x1b1be1===currentUser[_0x1d11a2(0x4f1)])return window[_0x1d11a2(0x460)](_0x1d11a2(0x226),_0x1d11a2(0x49b));let _0x224398=window[_0x1d11a2(0x43d)][_0x18431b][_0x498377],_0x44a432=window['currentUserData'][_0x1d11a2(0x539)]||_0x1d11a2(0x1f3);pendingTx={'type':_0x1d11a2(0x326),'cat':_0x18431b,'id':_0x498377,'harga':_0x52fc97,'targetFullUid':_0x1b1be1,'targetName':_0x36cd4c[_0x1d11a2(0x539)],'itemName':_0x224398['nama']};let _0xfb46b4='',_0x1a4a3e=_0x36cd4c[_0x1d11a2(0x1d6)]||'https://placehold.co/100';_0x18431b==='borders'?_0xfb46b4=_0x1d11a2(0x560)+_0x1a4a3e+'\x22\x20style=\x22width:100%;\x20height:100%;\x20border-radius:50%;\x20object-fit:cover;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22position:absolute;\x20top:50%;\x20left:50%;\x20width:130%;\x20height:130%;\x20transform:translate(-50%,\x20-50%);\x20background-image:url(\x27'+_0x224398['url']+'\x27);\x20background-size:contain;\x20background-position:center;\x20background-repeat:no-repeat;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>':_0xfb46b4=_0x1d11a2(0x3e0)+_0x224398[_0x1d11a2(0x4bb)]+_0x1d11a2(0x307),document[_0x1d11a2(0x25e)](_0x1d11a2(0x21e))[_0x1d11a2(0x54e)]=_0xfb46b4,document[_0x1d11a2(0x25e)](_0x1d11a2(0x257))[_0x1d11a2(0x432)]=_0x1d11a2(0x25a),document['getElementById']('transaction-desc')[_0x1d11a2(0x54e)]=_0x1d11a2(0x542)+_0x44a432+_0x1d11a2(0x233)+_0x36cd4c['nama']+'</b></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Kirim\x20<b>'+_0x224398['nama']+_0x1d11a2(0x2cb)+_0x52fc97+_0x1d11a2(0x358),window[_0x1d11a2(0x29c)]();});},window['previewGiftUser']=function(_0x53ec3b){const _0x2c9df8=_0x3e2470;let _0x288a84=_0x53ec3b[_0x2c9df8(0x3a0)]('#','')[_0x2c9df8(0x3ed)]()['toUpperCase'](),_0x261cdc=document['getElementById'](_0x2c9df8(0x3cb)),_0x4de17f=document['getElementById'](_0x2c9df8(0x274)),_0x41ab74=document[_0x2c9df8(0x25e)](_0x2c9df8(0x231)),_0x436bc9=document[_0x2c9df8(0x25e)](_0x2c9df8(0x333));_0x288a84[_0x2c9df8(0x314)]===0x6?db[_0x2c9df8(0x4a4)](_0x2c9df8(0x33a))[_0x2c9df8(0x472)](_0x2c9df8(0x493))[_0x2c9df8(0x4a2)](_0x242790=>{const _0x284a5b=_0x2c9df8;let _0x4b45ec=![];_0x242790[_0x284a5b(0x27e)](_0x259d28=>{const _0x5a0a89=_0x284a5b;if(_0x259d28[_0x5a0a89(0x2db)]['substring'](0x0,0x6)[_0x5a0a89(0x276)]()===_0x288a84){let _0x2e2307=_0x259d28['val']();_0x4de17f['innerText']=_0x2e2307[_0x5a0a89(0x539)]||_0x5a0a89(0x544),_0x41ab74['src']=_0x2e2307[_0x5a0a89(0x1d6)]||'https://placehold.co/100',_0x436bc9['innerText']='#'+_0x288a84,_0x261cdc[_0x5a0a89(0x4bb)]['display']='flex',_0x4b45ec=!![];}}),!_0x4b45ec&&(_0x261cdc[_0x284a5b(0x4bb)][_0x284a5b(0x28e)]=_0x284a5b(0x442),window[_0x284a5b(0x460)](_0x284a5b(0x313),'error'));}):_0x261cdc[_0x2c9df8(0x4bb)][_0x2c9df8(0x28e)]='none';},window[_0x3e2470(0x1f1)]=function(){const _0x48bc86=_0x3e2470;if(!pendingTx)return;let {type:_0x90ac21,cat:_0x3d4454,id:_0x1e9d56,harga:_0x3b1149,targetFullUid:_0x5cef39,targetName:_0x3163fe,itemName:_0x40f15f}=pendingTx,_0x5b2bbd=window['currentUserData'][_0x48bc86(0x3bc)]||0x0;if(_0x5b2bbd<_0x3b1149)return window[_0x48bc86(0x460)](_0x48bc86(0x471),'error'),closeTransactionModal();if(_0x90ac21===_0x48bc86(0x56d)){let _0x359e16=_0x3d4454===_0x48bc86(0x260)?'ownedBorders/'+_0x1e9d56:_0x48bc86(0x567)+_0x1e9d56,_0x16cd7d={'koin':_0x5b2bbd-_0x3b1149};_0x16cd7d[_0x359e16]=!![],db[_0x48bc86(0x4a4)]('users/'+currentUser[_0x48bc86(0x4f1)])[_0x48bc86(0x370)](_0x16cd7d)['then'](()=>{const _0x347dbb=_0x48bc86;window[_0x347dbb(0x2df)](),showPurchaseSuccessModal(_0x40f15f,_0x3d4454,_0x1e9d56);});}else{if(_0x90ac21===_0x48bc86(0x326)){let _0x246ab4=_0x3d4454===_0x48bc86(0x260)?_0x48bc86(0x40f):'ownedCommentplates';db['ref'](_0x48bc86(0x247)+currentUser[_0x48bc86(0x4f1)])[_0x48bc86(0x370)]({'koin':_0x5b2bbd-_0x3b1149});let _0xe71e7b={};_0xe71e7b[_0x246ab4+'/'+_0x1e9d56]=!![],db[_0x48bc86(0x4a4)](_0x48bc86(0x247)+_0x5cef39)[_0x48bc86(0x370)](_0xe71e7b),db['ref'](_0x48bc86(0x247)+_0x5cef39+'/newGift')[_0x48bc86(0x2fb)]({'from':window[_0x48bc86(0x4fe)]['nama']||_0x48bc86(0x3cf),'itemName':_0x40f15f,'cat':_0x3d4454,'itemId':_0x1e9d56,'timestamp':Date[_0x48bc86(0x3bf)]()}),window[_0x48bc86(0x2df)](),showGiftSentModal(_0x3163fe,_0x40f15f,_0x3d4454,_0x1e9d56);}}closeTransactionModal(),pendingTx=null;},window[_0x3e2470(0x3ee)]=function(_0x5d9aa1,_0xa84ea4){const _0x365afe=_0x3e2470;if(!currentUser)return;let _0x122c05=_0x5d9aa1==='borders'?_0x365afe(0x41a):_0x365afe(0x415),_0x5f53ef={};_0x5f53ef[_0x122c05]=_0xa84ea4;if(_0x5d9aa1===_0x365afe(0x260)){let _0x52b72b=_0xa84ea4&&window[_0x365afe(0x43d)]['borders'][_0xa84ea4]?window[_0x365afe(0x43d)][_0x365afe(0x260)][_0xa84ea4][_0x365afe(0x374)]:'',_0x45e556=document[_0x365afe(0x325)](_0x365afe(0x40c));_0x45e556[_0x365afe(0x27e)](_0x254244=>{const _0x28b1f0=_0x365afe;let _0x1b31f3=_0x254244['querySelector']('.avatar-deco-overlay');if(_0x1b31f3)_0x1b31f3[_0x28b1f0(0x318)]();if(_0x52b72b){let _0xba3722=document[_0x28b1f0(0x286)](_0x28b1f0(0x36a));_0xba3722[_0x28b1f0(0x21a)]=_0x28b1f0(0x426),_0xba3722[_0x28b1f0(0x4bb)][_0x28b1f0(0x462)]=_0x28b1f0(0x43f)+_0x52b72b+'\x27)',_0x254244[_0x28b1f0(0x411)](_0xba3722);}});let _0xaad79d=document[_0x365afe(0x325)](_0x365afe(0x3dd));_0xaad79d[_0x365afe(0x27e)](_0x591c23=>{const _0x50ef29=_0x365afe;let _0x4c2a30=_0x591c23[_0x50ef29(0x429)]('.avatar-deco-overlay');if(_0x4c2a30)_0x4c2a30[_0x50ef29(0x318)]();if(_0x52b72b){let _0xa06e22=document['createElement']('div');_0xa06e22['className']=_0x50ef29(0x426),_0xa06e22[_0x50ef29(0x4bb)][_0x50ef29(0x462)]=_0x50ef29(0x43f)+_0x52b72b+'\x27)',_0x591c23[_0x50ef29(0x411)](_0xa06e22);}});}db[_0x365afe(0x4a4)](_0x365afe(0x247)+currentUser[_0x365afe(0x4f1)])[_0x365afe(0x370)](_0x5f53ef)[_0x365afe(0x4a2)](()=>{const _0x3b41a2=_0x365afe;let _0x2ec515=_0xa84ea4===''?_0x3b41a2(0x482):_0x3b41a2(0x3e1);window[_0x3b41a2(0x460)](_0x3b41a2(0x329)+_0x2ec515+'!',_0x3b41a2(0x22c));})[_0x365afe(0x32c)](_0x58a731=>{const _0xbfbe78=_0x365afe;window['showToast'](_0xbfbe78(0x3eb)+_0x58a731['message'],_0xbfbe78(0x49b));});},window[_0x3e2470(0x541)]=function(){const _0x1d7dfe=_0x3e2470;if(document[_0x1d7dfe(0x25e)](_0x1d7dfe(0x2ae)))return;const _0x2c39d8=document[_0x1d7dfe(0x286)](_0x1d7dfe(0x36a));_0x2c39d8['id']='change-name-modal-injected',_0x2c39d8[_0x1d7dfe(0x54e)]=_0x1d7dfe(0x1e5),document[_0x1d7dfe(0x39c)][_0x1d7dfe(0x411)](_0x2c39d8);},window[_0x3e2470(0x242)]=function(){const _0x295fe1=_0x3e2470;if(!currentUser)return window[_0x295fe1(0x460)](_0x295fe1(0x578),_0x295fe1(0x49b));window['injectChangeNameModal'](),db[_0x295fe1(0x4a4)](_0x295fe1(0x247)+currentUser[_0x295fe1(0x4f1)])[_0x295fe1(0x472)]('value')[_0x295fe1(0x4a2)](_0xb68609=>{const _0x59e8d4=_0x295fe1;let _0x37fc52=_0xb68609[_0x59e8d4(0x421)](),_0x5204d4=_0x37fc52[_0x59e8d4(0x4cb)]||0x0,_0x4ec538=document[_0x59e8d4(0x25e)](_0x59e8d4(0x4e5));_0x5204d4===0x0?_0x4ec538['innerHTML']='Ganti\x20nama\x20pertamamu\x20<b\x20style=\x27color:#10b981;\x27>GRATIS!</b>':_0x4ec538[_0x59e8d4(0x54e)]=_0x59e8d4(0x25c);document[_0x59e8d4(0x25e)]('new-name-input')[_0x59e8d4(0x493)]=_0x37fc52[_0x59e8d4(0x539)]||'',document['getElementById'](_0x59e8d4(0x574))[_0x59e8d4(0x4bb)][_0x59e8d4(0x28e)]=_0x59e8d4(0x214);let _0x38cb7d=document['getElementById'](_0x59e8d4(0x52c));_0x38cb7d[_0x59e8d4(0x4bb)][_0x59e8d4(0x28e)]=_0x59e8d4(0x214),setTimeout(()=>{const _0x1d9933=_0x59e8d4;_0x38cb7d[_0x1d9933(0x4bb)][_0x1d9933(0x36b)]='1',_0x38cb7d[_0x1d9933(0x4bb)][_0x1d9933(0x47f)]=_0x1d9933(0x28f);},0xa);});},window[_0x3e2470(0x367)]=function(){const _0x1a7238=_0x3e2470;let _0x3540f1=document[_0x1a7238(0x25e)](_0x1a7238(0x52c)),_0x522f26=document[_0x1a7238(0x25e)](_0x1a7238(0x574));_0x3540f1&&(_0x3540f1[_0x1a7238(0x4bb)][_0x1a7238(0x36b)]='0',_0x3540f1[_0x1a7238(0x4bb)][_0x1a7238(0x47f)]=_0x1a7238(0x4ca),setTimeout(()=>{const _0x1aeff9=_0x1a7238;_0x522f26[_0x1aeff9(0x4bb)]['display']=_0x1aeff9(0x442),_0x3540f1[_0x1aeff9(0x4bb)]['display']='none';},0x12c));},window[_0x3e2470(0x4f2)]=function(){const _0x576d79=_0x3e2470;let _0x256075=document[_0x576d79(0x25e)](_0x576d79(0x3b9))[_0x576d79(0x493)]['trim']();if(_0x256075[_0x576d79(0x314)]<0x3)return window['showToast']('Minimal\x203\x20karakter!',_0x576d79(0x49b));if(_0x256075['length']>0x19)return window['showToast'](_0x576d79(0x3c0),_0x576d79(0x49b));db[_0x576d79(0x4a4)]('users/'+currentUser[_0x576d79(0x4f1)])['once'](_0x576d79(0x493))[_0x576d79(0x4a2)](_0x3b8ba2=>{const _0x2d767b=_0x576d79;let _0x20dbba=_0x3b8ba2['val'](),_0x24424f=_0x20dbba[_0x2d767b(0x4cb)]||0x0,_0x4af238=_0x20dbba[_0x2d767b(0x3bc)]||0x0,_0x401ed6=_0x24424f===0x0?0x0:0x3e8;if(_0x401ed6>0x0&&_0x4af238<_0x401ed6)return window[_0x2d767b(0x460)](_0x2d767b(0x559),_0x2d767b(0x49b));let _0x362cc3={'nama':_0x256075,'nameChangeCount':_0x24424f+0x1};if(_0x401ed6>0x0)_0x362cc3[_0x2d767b(0x3bc)]=_0x4af238-_0x401ed6;db[_0x2d767b(0x4a4)](_0x2d767b(0x247)+currentUser[_0x2d767b(0x4f1)])[_0x2d767b(0x370)](_0x362cc3)[_0x2d767b(0x4a2)](()=>{const _0x3bc2f9=_0x2d767b;window[_0x3bc2f9(0x460)](_0x3bc2f9(0x464),_0x3bc2f9(0x22c)),window[_0x3bc2f9(0x367)]();let _0x35cacc=document[_0x3bc2f9(0x25e)](_0x3bc2f9(0x368));if(_0x35cacc)_0x35cacc[_0x3bc2f9(0x432)]=_0x256075;if(currentUser)currentUser[_0x3bc2f9(0x1fb)]({'displayName':_0x256075})[_0x3bc2f9(0x32c)](()=>{});});});},window['injectGiftStyles']=function(){const _0x1dd183=_0x3e2470;if(document[_0x1dd183(0x25e)](_0x1dd183(0x2fe)))return;const _0x4a14d3=document[_0x1dd183(0x286)](_0x1dd183(0x4bb));_0x4a14d3['id']=_0x1dd183(0x2fe),_0x4a14d3[_0x1dd183(0x54e)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20@keyframes\x20slideInGift\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20transform:\x20translateX(100%)\x20scale(0.8);\x20opacity:\x200;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2080%\x20{\x20transform:\x20translateX(-5%)\x20scale(1.1);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20translateX(0)\x20scale(1);\x20opacity:\x201;\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20@keyframes\x20floatGift\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x200%,\x20100%\x20{\x20transform:\x20translateY(0);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2050%\x20{\x20transform:\x20translateY(-8px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20@keyframes\x20fadeOutGift\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20opacity:\x201;\x20transform:\x20translateY(0);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20opacity:\x200;\x20transform:\x20translateY(-20px);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20@keyframes\x20glowSpin\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x200%\x20{\x20transform:\x20rotate(0deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20100%\x20{\x20transform:\x20rotate(360deg);\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.tiktok-gift-overlay\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20position:\x20fixed;\x20top:\x2015%;\x20left:\x200;\x20right:\x200;\x20display:\x20flex;\x20justify-content:\x20center;\x20pointer-events:\x20none;\x20z-index:\x2099999999;\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.tiktok-gift-card\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background:\x20linear-gradient(135deg,\x20rgba(15,15,20,0.95),\x20rgba(30,30,40,0.95));\x20border:\x201px\x20solid\x20rgba(250,\x20204,\x2021,\x200.5);\x20border-radius:\x2050px;\x20padding:\x208px\x2025px\x208px\x2012px;\x20display:\x20flex;\x20align-items:\x20center;\x20gap:\x2015px;\x20box-shadow:\x200\x2010px\x2030px\x20rgba(0,0,0,0.8),\x200\x200\x2020px\x20rgba(250,\x20204,\x2021,\x200.3);\x20animation:\x20slideInGift\x200.6s\x20cubic-bezier(0.34,\x201.56,\x200.64,\x201)\x20forwards;\x20backdrop-filter:\x20blur(5px);\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20\x20\x20\x20\x20.tiktok-gift-icon-container\x20{\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20width:\x2050px;\x20height:\x2050px;\x20position:\x20relative;\x20animation:\x20floatGift\x202s\x20infinite\x20ease-in-out;\x20display:flex;\x20align-items:center;\x20justify-content:center;\x0a\x20\x20\x20\x20\x20\x20\x20\x20}\x0a\x20\x20\x20\x20',document[_0x1dd183(0x48f)][_0x1dd183(0x411)](_0x4a14d3);},window[_0x3e2470(0x259)]=function(_0x5aa87e,_0x40d494,_0x4e741d,_0x2599d8){const _0x4fd425=_0x3e2470;let _0x2e9a71=document['getElementById'](_0x4fd425(0x478));!_0x2e9a71&&(_0x2e9a71=document[_0x4fd425(0x286)](_0x4fd425(0x36a)),_0x2e9a71['id']=_0x4fd425(0x478),document[_0x4fd425(0x39c)][_0x4fd425(0x411)](_0x2e9a71)),_0x2e9a71[_0x4fd425(0x54e)]=_0x4fd425(0x3ec)+_0x40d494+'</b>\x20ke\x20<b>'+_0x5aa87e+_0x4fd425(0x33b),injectGiftStyles(),setTimeout(()=>{const _0x6896e1=_0x4fd425;let _0x3feed7=document[_0x6896e1(0x25e)](_0x6896e1(0x42d));_0x3feed7&&(_0x3feed7[_0x6896e1(0x4bb)][_0x6896e1(0x258)]=_0x6896e1(0x31e),setTimeout(()=>{_0x2e9a71['innerHTML']='';},0x1f4));},0xdac);},window[_0x3e2470(0x4ac)]=function(_0x486e98,_0x549943,_0x37aff9,_0x5d0636){const _0x20aa6c=_0x3e2470;let _0x34b09d=document['getElementById']('gift-anim-container');!_0x34b09d&&(_0x34b09d=document[_0x20aa6c(0x286)](_0x20aa6c(0x36a)),_0x34b09d['id']='gift-anim-container',document[_0x20aa6c(0x39c)][_0x20aa6c(0x411)](_0x34b09d));let _0xfe66a8=_0x20aa6c(0x56f);if(_0x37aff9&&_0x5d0636&&window[_0x20aa6c(0x43d)][_0x37aff9]&&window[_0x20aa6c(0x43d)][_0x37aff9][_0x5d0636]){let _0x2de01f=window[_0x20aa6c(0x43d)][_0x37aff9][_0x5d0636];if(_0x37aff9===_0x20aa6c(0x260))_0xfe66a8=_0x20aa6c(0x1ba)+_0x2de01f[_0x20aa6c(0x374)]+'\x27);\x20background-size:contain;\x20background-position:center;\x20background-repeat:no-repeat;\x20filter:\x20drop-shadow(0\x200\x2010px\x20rgba(250,\x20204,\x2021,\x200.8));\x22></div>';else _0x37aff9===_0x20aa6c(0x458)&&(_0xfe66a8=_0x20aa6c(0x1ef)+_0x2de01f[_0x20aa6c(0x4bb)]+_0x20aa6c(0x307));}_0x34b09d['innerHTML']=_0x20aa6c(0x328)+_0xfe66a8+_0x20aa6c(0x51d)+_0x486e98+_0x20aa6c(0x232)+_0x549943+_0x20aa6c(0x33b),injectGiftStyles(),setTimeout(()=>{const _0x5928a9=_0x20aa6c;let _0x28abb2=document['getElementById'](_0x5928a9(0x24e));_0x28abb2&&(_0x28abb2[_0x5928a9(0x4bb)][_0x5928a9(0x258)]=_0x5928a9(0x31e),setTimeout(()=>{const _0x1b84d8=_0x5928a9;_0x34b09d[_0x1b84d8(0x54e)]='';},0x1f4));},0xfa0);},window[_0x3e2470(0x4c3)]=function(){const _0x3966eb=_0x3e2470;if(!currentUser)return;db[_0x3966eb(0x4a4)](_0x3966eb(0x247)+currentUser[_0x3966eb(0x4f1)]+_0x3966eb(0x347))['on'](_0x3966eb(0x493),_0x382294=>{const _0x375cdd=_0x3966eb;if(_0x382294[_0x375cdd(0x38c)]()){let _0x1a9566=_0x382294[_0x375cdd(0x421)]();db[_0x375cdd(0x4a4)](_0x375cdd(0x247)+currentUser[_0x375cdd(0x4f1)]+_0x375cdd(0x347))['remove'](),showGiftReceivedModal(_0x1a9566[_0x375cdd(0x4b4)],_0x1a9566[_0x375cdd(0x4d5)],_0x1a9566[_0x375cdd(0x3db)],_0x1a9566['itemId']);}});},window[_0x3e2470(0x4a7)]=function(){const _0x3f63af=_0x3e2470;if(document[_0x3f63af(0x25e)](_0x3f63af(0x437)))return;const _0x29c6c6=document['createElement'](_0x3f63af(0x36a));_0x29c6c6['id']=_0x3f63af(0x437),_0x29c6c6[_0x3f63af(0x54e)]=_0x3f63af(0x289),document[_0x3f63af(0x39c)][_0x3f63af(0x411)](_0x29c6c6);},window['openLogoutModal']=function(){const _0x2ab22e=_0x3e2470;document[_0x2ab22e(0x25e)](_0x2ab22e(0x32e))['style']['display']=_0x2ab22e(0x214),document[_0x2ab22e(0x25e)](_0x2ab22e(0x2d1))[_0x2ab22e(0x4bb)][_0x2ab22e(0x28e)]=_0x2ab22e(0x214),setTimeout(()=>{const _0x1383af=_0x2ab22e;document[_0x1383af(0x25e)](_0x1383af(0x2d1))[_0x1383af(0x4bb)][_0x1383af(0x36b)]='1',document['getElementById']('logoutModal')[_0x1383af(0x4bb)]['transform']=_0x1383af(0x28f);},0xa);},window[_0x3e2470(0x362)]=function(){const _0x36dcc3=_0x3e2470,_0x2962ae=document[_0x36dcc3(0x25e)](_0x36dcc3(0x2d1)),_0x48b290=document[_0x36dcc3(0x25e)]('logoutModalOverlay');_0x2962ae&&(_0x2962ae[_0x36dcc3(0x4bb)][_0x36dcc3(0x36b)]='0',_0x2962ae[_0x36dcc3(0x4bb)][_0x36dcc3(0x47f)]=_0x36dcc3(0x4ca),setTimeout(()=>{const _0xa9df49=_0x36dcc3;_0x48b290[_0xa9df49(0x4bb)][_0xa9df49(0x28e)]=_0xa9df49(0x442),_0x2962ae['style'][_0xa9df49(0x28e)]=_0xa9df49(0x442);},0x12c));},window[_0x3e2470(0x2e6)]=function(){const _0x59238e=_0x3e2470;auth[_0x59238e(0x34a)]()['then'](()=>{const _0x4eadf5=_0x59238e;window['showToast']('Berhasil\x20keluar\x20dari\x20akun.',_0x4eadf5(0x22c)),closeLogoutModal(),setTimeout(()=>{const _0x43aa3b=_0x4eadf5;location[_0x43aa3b(0x1e2)]();},0x5dc);});},document[_0x3e2470(0x240)](_0x3e2470(0x3f8),_0x4cfdad=>_0x4cfdad['preventDefault']()),document[_0x3e2470(0x2ca)]=function(_0x13542c){const _0x51e242=_0x3e2470;if(event[_0x51e242(0x2b3)]==0x7b)return![];if(_0x13542c[_0x51e242(0x2dd)]&&_0x13542c['shiftKey']&&_0x13542c[_0x51e242(0x2b3)]=='I'[_0x51e242(0x373)](0x0))return![];if(_0x13542c[_0x51e242(0x2dd)]&&_0x13542c[_0x51e242(0x4aa)]&&_0x13542c[_0x51e242(0x2b3)]=='C'[_0x51e242(0x373)](0x0))return![];if(_0x13542c['ctrlKey']&&_0x13542c[_0x51e242(0x4aa)]&&_0x13542c[_0x51e242(0x2b3)]=='J'[_0x51e242(0x373)](0x0))return![];if(_0x13542c['ctrlKey']&&_0x13542c[_0x51e242(0x2b3)]=='U'[_0x51e242(0x373)](0x0))return![];},window[_0x3e2470(0x491)]=function(){const _0x27ef4c=_0x3e2470;if(document[_0x27ef4c(0x25e)](_0x27ef4c(0x3df)))return;const _0x140e19=document[_0x27ef4c(0x286)]('div');_0x140e19['id']=_0x27ef4c(0x3df),_0x140e19[_0x27ef4c(0x54e)]=_0x27ef4c(0x2a5),document[_0x27ef4c(0x39c)][_0x27ef4c(0x411)](_0x140e19);},window['openDevModal']=function(_0x3c5f2d=''){const _0x4071bd=_0x3e2470;window[_0x4071bd(0x491)]();if(_0x3c5f2d)document[_0x4071bd(0x25e)]('dev-uid')['value']=_0x3c5f2d;document[_0x4071bd(0x25e)](_0x4071bd(0x27b))[_0x4071bd(0x4bb)][_0x4071bd(0x28e)]='block',document[_0x4071bd(0x25e)]('devModal')[_0x4071bd(0x4bb)][_0x4071bd(0x28e)]='block',setTimeout(()=>document[_0x4071bd(0x25e)]('devModal')[_0x4071bd(0x476)][_0x4071bd(0x536)](_0x4071bd(0x540)),0xa);},window['closeDevModal']=function(){const _0x21dbe6=_0x3e2470,_0x133af3=document[_0x21dbe6(0x25e)](_0x21dbe6(0x21f));_0x133af3&&(_0x133af3[_0x21dbe6(0x476)]['remove'](_0x21dbe6(0x540)),setTimeout(()=>{const _0xfa9a9f=_0x21dbe6;document[_0xfa9a9f(0x25e)](_0xfa9a9f(0x27b))[_0xfa9a9f(0x4bb)]['display']=_0xfa9a9f(0x442),_0x133af3[_0xfa9a9f(0x4bb)][_0xfa9a9f(0x28e)]=_0xfa9a9f(0x442);},0x12c));},window['executeGodMode']=function(){const _0x481816=_0x3e2470;let _0xf18780=document[_0x481816(0x25e)]('dev-uid')[_0x481816(0x493)][_0x481816(0x3ed)]()['replace']('#','')[_0x481816(0x276)]();if(!_0xf18780)return window[_0x481816(0x460)](_0x481816(0x1cc),'error');let _0x15e8c3={},_0x1cdfd5=document['getElementById'](_0x481816(0x2bb))[_0x481816(0x493)],_0x1d3868=document[_0x481816(0x25e)]('dev-exp')[_0x481816(0x493)],_0x601a17=document[_0x481816(0x25e)]('dev-level')[_0x481816(0x493)],_0xe9bf8f=document[_0x481816(0x25e)](_0x481816(0x4c0))[_0x481816(0x493)];if(_0x1cdfd5!=='')_0x15e8c3[_0x481816(0x3bc)]=parseInt(_0x1cdfd5);if(_0x1d3868!=='')_0x15e8c3[_0x481816(0x4db)]=parseInt(_0x1d3868);if(_0x601a17!=='')_0x15e8c3[_0x481816(0x1f4)]=parseInt(_0x601a17);if(_0xe9bf8f!=='')_0x15e8c3[_0x481816(0x577)]=_0xe9bf8f;if(Object['keys'](_0x15e8c3)[_0x481816(0x314)]===0x0)return window[_0x481816(0x460)](_0x481816(0x223),'error');db[_0x481816(0x4a4)](_0x481816(0x33a))[_0x481816(0x472)](_0x481816(0x493))[_0x481816(0x4a2)](_0x8103d0=>{const _0x467d22=_0x481816;let _0x1a441d=null;_0x8103d0[_0x467d22(0x27e)](_0x5d9ce6=>{const _0x35bca8=_0x467d22;(_0x5d9ce6['key']['toUpperCase']()===_0xf18780||_0x5d9ce6[_0x35bca8(0x2db)][_0x35bca8(0x483)](0x0,0x6)[_0x35bca8(0x276)]()===_0xf18780)&&(_0x1a441d=_0x5d9ce6[_0x35bca8(0x2db)]);});if(!_0x1a441d)return window[_0x467d22(0x460)](_0x467d22(0x248),_0x467d22(0x49b));db[_0x467d22(0x4a4)](_0x467d22(0x247)+_0x1a441d)[_0x467d22(0x370)](_0x15e8c3)[_0x467d22(0x4a2)](()=>{const _0x11ed38=_0x467d22;window[_0x11ed38(0x460)]('⚡\x20God\x20Mode\x20Berhasil\x20Diterapkan!',_0x11ed38(0x22c)),window['closeDevModal'](),document[_0x11ed38(0x25e)](_0x11ed38(0x2bb))[_0x11ed38(0x493)]='',document[_0x11ed38(0x25e)](_0x11ed38(0x1d2))[_0x11ed38(0x493)]='',document[_0x11ed38(0x25e)](_0x11ed38(0x3a8))[_0x11ed38(0x493)]='',document[_0x11ed38(0x25e)]('dev-role')[_0x11ed38(0x493)]='';})[_0x467d22(0x32c)](_0xe900f9=>window[_0x467d22(0x460)]('Gagal:\x20'+_0xe900f9['message'],_0x467d22(0x49b)));});};document[_0x3e2470(0x30d)]===_0x3e2470(0x20c)?document[_0x3e2470(0x240)](_0x3e2470(0x3ac),initApp):initApp();
+// ==========================================
+// 1. FIREBASE CONFIGURATION & INIT
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDHtgikUcph-eQh7qZEJELFogpPjIgtB0M",
+  authDomain: "animeku-c39ab.firebaseapp.com",
+  databaseURL: "https://animeku-c39ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "animeku-c39ab",
+  storageBucket: "animeku-c39ab.firebasestorage.app",
+  messagingSenderId: "583107813249",
+  appId: "1:583107813249:web:4a2ebe047393f4f744d280",
+  measurementId: "G-3E8VRPRM0F"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth(); const db = firebase.database(); let currentUser = null;
+
+// ==========================================
+// KATALOG BORDER
+// ==========================================
+window.BORDER_CATALOG = {
+    'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
+    'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
+    'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
+    'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' },
+    'black-mana': { nama: 'Black Mana', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1379220459026911342/animated' },
+    'the-haxcore': { nama: 'The Hacxcore', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165171294268/animated' },
+    'fishbones': { nama: 'FISHBONES!', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
+    'hologram-dragon': { nama: 'Hologram Dragon', harga: 3000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
+    'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
+    'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' },
+    'spider-man': { nama: 'Spider Man', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481384635886862397/animated' },
+    'super-recognizer': { nama: 'Super Recognizer', harga: 1200, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated' },
+    'infinite-swirl': { nama: 'Infinite Swirl', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated' },
+    'juggernaut-astro': { nama: 'Juggernaut Astro', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1387888352639975484/animated' },
+    'the-anomaly': { nama: 'The-Anomaly', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1306752744258011166/animated' },
+    'purple-animation': { nama: 'Purple-Animation', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated' },
+    'dark-hood': { nama: 'Dark Hood', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633615765524/animated' },
+    'dark-hood (crimson)': { nama: 'Drak Hood (crimson)', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated' },
+    'zombie-food': { nama: 'Zombie Food', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated' },
+    'juri': { nama: 'Juri', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated' }
+};
+
+// ==== CUSTOM TOAST NOTIFICATION ====
+window.showToast = function(message, type = 'success') {
+    let container = document.getElementById('custom-toast-container');
+    if (!container) {
+        container = document.createElement('div'); container.id = 'custom-toast-container';
+        container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none; width: 90%; max-width: 350px;';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div'); const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+    const iconSvg = type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
+    toast.style.cssText = `background:#1c1c1e; border:1px solid #333; border-left: 4px solid ${bgColor}; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);`;
+    toast.innerHTML = `<div style="background:${bgColor}; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 0 10px ${bgColor}80;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">${iconSvg}</svg></div><div style="color:#fff; font-size:13px; font-weight:700; line-height:1.4;">${message}</div>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; }, 10);
+    setTimeout(() => { if(toast.parentNode) { toast.style.transform = 'translateY(-30px)'; toast.style.opacity = '0'; setTimeout(() => { if(toast.parentNode) toast.remove(); }, 300); } }, 3000);
+};
+
+// ==== INJEKSI CSS PREMIUM ====
+function injectPremiumStyles() {
+    if(document.getElementById('premium-rank-styles')) document.getElementById('premium-rank-styles').remove();
+    const style = document.createElement('style'); style.id = 'premium-rank-styles';
+    style.innerHTML = `
+        /* TAMBAHAN ANTI KOTAK BAYANGAN SAAT DIPENCET DI HP */
+        * {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+        }
+        
+        @keyframes shimmerPremium { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        .c-badge, .rank-icon { position: relative; overflow: visible !important; } 
+        .rank-icon-emerald, .badge-lvl-emerald { animation: none !important; }
+        .rank-icon-emerald::after, .rank-icon-emerald::before { display: none !important; content: none !important; animation: none !important; }
+        .rank-icon-master, .badge-lvl-master { animation: none !important; }
+        .rank-icon-master::before, .rank-icon-master::after { display: none !important; content: none !important; animation: none !important; }
+        .badge-lvl-diamond, .rank-icon-diamond { box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important; background: linear-gradient(90deg, #2563eb, #06b6d4, #2563eb) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .badge-lvl-mythic, .rank-icon-mythic { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important; background: linear-gradient(90deg, #ef4444, #eab308, #ef4444) !important; background-size: 200% 100% !important; color: #fff !important; border: none !important; animation: shimmerPremium 3s infinite linear !important; }
+        .avatar-rank-emerald { border: none !important; box-shadow: none !important; }
+        .avatar-rank-diamond { border: none !important; box-shadow: none !important; }
+        .avatar-rank-master { border: none !important; box-shadow: none !important; }
+        .avatar-rank-mythic { border: none !important; box-shadow: none !important; }
+        /* CSS PERFECT FIT 120% */
+        .avatar-deco-overlay { position: absolute; top: 50%; left: 50%; width: 120%; height: 120%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; background-size: contain; background-position: center; background-repeat: no-repeat; }
+    `;
+    document.head.appendChild(style);
+}
+
+injectPremiumStyles();
+
+window.syncProgressWithFirebase = function() {
+    if(!currentUser) return;
+    db.ref('progress/' + currentUser.uid).once('value').then(snap => {
+        if(snap.exists()) {
+            let cloudProgress = snap.val();
+            let localProgress = JSON.parse(localStorage.getItem('watchProgress')) || {};
+            let merged = { ...localProgress, ...cloudProgress }; 
+            localStorage.setItem('watchProgress', JSON.stringify(merged));
+            if(typeof window.renderDetailEpisodeUI === 'function') window.renderDetailEpisodeUI();
+        }
+    });
+};
+
+auth.onAuthStateChanged(user => {
+    currentUser = user; 
+    updateDevUI();
+    if(user) { 
+        syncProgressWithFirebase(); 
+        listenForGifts(); // <--- INI PENDETEKSI KADONYA
+    }
+    if(document.getElementById('custom-comment-area')) { try { renderCommentInput(window.currentEpID); } catch(e) {} }
+});
+
+window.loginDenganGoogle = function() {
+    const provider = new firebase.auth.GoogleAuthProvider(); 
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    // Langsung tembak POPUP tanpa basa-basi / animasi Toast, biar HP gak ngeblokir!
+    auth.signInWithPopup(provider).then(res => {
+        const u = res.user;
+        db.ref('users/' + u.uid).once('value').then(snap => {
+            if (!snap.exists()) {
+                db.ref('users/' + u.uid).set({ 
+                    nama: u.displayName, email: u.email, foto: u.photoURL, 
+                    role: 'Member', level: 1, exp: 0, joined: Date.now(), koin: 0 
+                });
+            } else {
+                db.ref('users/' + u.uid).update({ nama: u.displayName, foto: u.photoURL });
+            }
+            window.showToast("Login Berhasil! Selamat datang, " + u.displayName, 'success'); 
+        });
+    }).catch(err => {
+        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') { 
+            window.showToast("Gagal login: " + err.message, 'error'); 
+        }
+    });
+};
+
+window.logoutAkun = function() { auth.signOut().then(() => { window.showToast("Berhasil keluar dari akun.", 'success'); setTimeout(() => { location.reload(); }, 1500); }); };
+
+// Ganti bagian ini di app.js kamu agar warnanya SOLID (Tebal)
+const RANK_TIERS = [
+    { name: "Stone", minLvl: 0, maxLvl: 49, color: "#444444", icon: "🌑" }, 
+    { name: "Bronze", minLvl: 50, maxLvl: 149, color: "#cd7f32", icon: "🥉" },
+    { name: "Silver", minLvl: 150, maxLvl: 499, color: "#bdc3c7", icon: "🥈" }, 
+    { name: "Gold", minLvl: 500, maxLvl: 2499, color: "#f1c40f", icon: "🥇" },
+    { name: "Emerald", minLvl: 2500, maxLvl: 4999, color: "#2ecc71", icon: "🔮" }, 
+    { name: "Diamond", minLvl: 5000, maxLvl: 9999, color: "#3498db", icon: "💎" },
+    { name: "Master", minLvl: 10000, maxLvl: 19999, color: "#9b59b6", icon: "👑" }, 
+    { name: "Mythic", minLvl: 20000, maxLvl: Infinity, color: "#ef4444", icon: "🌟" }
+];
+function getRankInfo(level) { return RANK_TIERS.find(r => level >= r.minLvl && level <= r.maxLvl) || RANK_TIERS[0]; }
+
+function updateDevUI() {
+    const container = document.getElementById('auth-check-container'); 
+    if(!container) return;
+
+    if(!currentUser) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px 20px;"><div style="width: 100px; height: 100px; border-radius: 50%; background: #1a1a1a; border: 3px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h2 style="font-weight:900; color:#fff;">Akses Akun Animeku</h2><p style="color:#888; margin-bottom:25px; font-size:14px; line-height:1.5;">Login untuk membuka fitur Level, ikut berdiskusi di kolom Komentar, dan menyimpan progress kamu.</p><button class="login-btn-google" style="display: flex; align-items: center; gap: 10px; background: #fff; color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; width: 100%; justify-content: center; cursor: pointer; margin-top: 15px;" onclick="loginDenganGoogle()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.52 12.2727C23.52 11.4218 23.4436 10.6036 23.3018 9.81818H12V14.4545H18.4582C18.18 15.9491 17.3345 17.2145 16.0691 18.0655V21.0545H19.9473C22.2164 18.96 23.52 15.8945 23.52 12.2727Z" fill="#4285F4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 24C15.24 24 17.9673 22.92 19.9473 21.0545L16.0691 18.0655C15.0055 18.7855 13.6255 19.2218 12 19.2218C8.85273 19.2218 6.18545 17.0945 5.21455 14.2364H1.22182V17.3345C3.20182 21.2727 7.27636 24 12 24Z" fill="#34A853"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.21455 14.2364C4.96364 13.4836 4.82182 12.6764 4.82182 11.8473C4.82182 11.0182 4.96364 10.2109 5.21455 9.45818V6.36H1.22182C0.447273 7.90909 0 9.81818 0 11.8473C0 13.8764 0.447273 15.7855 1.22182 17.3345L5.21455 14.2364Z" fill="#FBBC05"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.47273C13.7673 4.47273 15.3491 5.08364 16.5927 6.27273L20.0345 2.83091C17.9564 0.894545 15.2291 0 12 0C7.27636 0 3.20182 2.72727 1.22182 6.36L5.21455 9.45818C6.18545 6.6 8.85273 4.47273 12 4.47273Z" fill="#EA4335"/></svg> Lanjutkan dengan Google</button></div>`;
+    } else {
+        container.innerHTML = '<div style="height:50px; display:flex; align-items:center; justify-content:center;"><div class="spinner" style="width:25px; height:25px;"></div></div>';
+        db.ref('users/' + currentUser.uid).on('value', async snap => {
+            try {
+                let data = snap.val(); 
+                if(!data) { 
+                    data = { nama: currentUser.displayName || 'Wibu', email: currentUser.email || '', foto: currentUser.photoURL || 'https://placehold.co/100', role: 'Member', level: 1, exp: 0, joined: Date.now() }; 
+                    await db.ref('users/' + currentUser.uid).set(data); 
+                }
+                
+                let historyData = []; try { historyData = await getHistory(); } catch(e) {}
+                const role = data.role || 'Member'; 
+                const level = data.level || 1; 
+                const exp = data.exp || 0; 
+                const creationDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date();
+                const diffMonths = (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth());
+                const joinMonths = Math.max(1, diffMonths);
+                let totalMenit = Math.floor(exp * 1.2);
+                if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
+                const jamNonton = Math.floor(totalMenit / 60);
+                const userName = data.nama || 'User Animeku'; 
+                const userFoto = data.foto || 'https://placehold.co/100'; 
+                const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
+                
+                let roleBadgeClass = 'badge-member'; 
+                let roleName = role;
+                let roleClickAction = ''; // Default tidak bisa diklik
+
+                if(role === 'Developer') { 
+                    roleBadgeClass = 'badge-dev-anim'; 
+                    roleName = 'DEV'; 
+                    // BISA DIKLIK UNTUK BUKA PANEL
+                    roleClickAction = `onclick="event.stopPropagation(); openDevModal('${shortUid}')" style="cursor:pointer;"`;
+                } 
+                else if(role === 'Wibu Premium' || level >= 50) { 
+                    roleBadgeClass = 'badge-premium-anim'; 
+                    roleName = role !== 'Member' ? role : 'Wibu Premium'; 
+                } 
+                
+                const rankInfo = getRankInfo(level); 
+                let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
+                let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+
+                let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
+                    let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); 
+                    let randProgress = Math.floor(Math.random() * 80 + 20);
+                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
+                }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
+
+                let activeBorderId = data.activeBorder || '';
+                let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
+                let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+                let userKoin = data.koin || 0; 
+
+                container.innerHTML = `
+                    <div style="position: relative; width: 100%; z-index: 1;">
+                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; z-index: 9999;">
+                            ${userKoin} Koin
+                        </button>
+                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
+                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100;">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                                ${decoHtml}
+                            </div>
+                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer;">${userName}</div>
+                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;">
+                                <span class="c-badge ${roleBadgeClass}" ${roleClickAction}>${roleName}</span>
+                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">${rankInfo.icon} Lvl. ${level}</span>
+                                <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                            </div>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                            <div class="stat-box"><div class="stat-val" id="stat-komentar-val">...</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                            <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+                        </div>
+                        <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
+                        <div id="ptab-all" class="ptab-content">${historyHtml}</div>
+                        <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"></div>
+                        <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
+
+                                                <button onclick="openLogoutModal()" style="margin: 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                    </div>
+                `;
+
+                // === LOGIKA ANGKA KOMENTAR (Ditaruh tepat setelah innerHTML profil dipasang) ===
+                const statKomentarVal = document.getElementById('stat-komentar-val');
+                const tabCommentsContainer = document.getElementById('ptab-comments');
+
+                db.ref('comments').once('value').then(commentsSnap => {
+                    let allUserComments = [];
+                    commentsSnap.forEach(epSnap => {
+                        epSnap.forEach(commentSnap => {
+                            let cData = commentSnap.val();
+                            if(cData.uid === currentUser.uid) {
+                                allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData });
+                            }
+                        });
+                    });
+
+                    if(statKomentarVal) statKomentarVal.innerText = allUserComments.length;
+
+                    if(allUserComments.length === 0) {
+                        tabCommentsContainer.innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada komentar.</p>';
+                    } else {
+                        allUserComments.sort((a, b) => b.waktu - a.waktu);
+                        tabCommentsContainer.innerHTML = allUserComments.map(c => generateCommentHtml(c, false, c.epID, c.id)).join('');
+                    }
+                });
+
+            } catch(errorProfile) { 
+                console.error(errorProfile); 
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil.</div>`; 
+            }
+        });
+    }
+}
+
+// ==== FUNGSI UNTUK PROFIL ORANG LAIN ====
+function injectUserProfileModal() {
+    if(document.getElementById('user-profile-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'user-profile-modal-injected';
+    div.innerHTML = `
+        <div id="userProfileOverlay" class="modal-overlay" onclick="closeUserProfileModal()"></div>
+        <div id="userProfileModal" class="bottom-sheet" style="display:none; background:#050505; z-index:999999; border-radius:24px 24px 0 0; padding:0; flex-direction:column; max-height:85vh; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); border-top: 1px solid #1a1a1a;">
+            <div style="padding: 15px 20px; display:flex; justify-content:flex-end; border-bottom: 1px solid #111;">
+                <button onclick="closeUserProfileModal()" style="background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div id="user-profile-content" class="hide-scrollbar" style="overflow-y:auto; flex:1; padding-bottom:20px;"></div>
+        </div>`;
+    document.body.appendChild(div);
+}
+
+window.switchProfileModalTab = function(tabName, element) { 
+    document.querySelectorAll('#userProfileModal .ptab').forEach(el => el.classList.remove('active')); 
+    element.classList.add('active'); 
+    document.querySelectorAll('.modal-ptab-content').forEach(el => el.style.display = 'none'); 
+    document.getElementById('modal-ptab-' + tabName).style.display = 'block'; 
+};
+
+window.openUserProfile = function(uid) {
+    if(!uid || uid === 'undefined') return; injectUserProfileModal();
+    const overlay = document.getElementById('userProfileOverlay'); 
+    const modal = document.getElementById('userProfileModal'); 
+    const content = document.getElementById('user-profile-content');
+    
+    overlay.style.display = 'block'; 
+    modal.style.display = 'flex'; 
+    setTimeout(() => { modal.classList.add('show'); }, 10); 
+    
+    content.innerHTML = '<div style="height:100px; display:flex; align-items:center; justify-content:center;"><div class="spinner"></div></div>';
+    
+    db.ref('users/' + uid).once('value').then(async snap => {
+        if(!snap.exists()) { content.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">User tidak ditemukan.</div>'; return; }
+        const data = snap.val(); 
+        const userName = data.nama || 'Wibu'; 
+        const userFoto = data.foto || 'https://placehold.co/100'; 
+        const role = data.role || 'Member'; 
+        const level = data.level || 1; 
+        const shortUid = "#" + uid.substring(0, 6).toUpperCase();
+        
+        let roleBadgeClass = 'badge-member'; let roleName = role; 
+        if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
+        else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+        else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+
+        let activeBorderId = data.activeBorder || '';
+        let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
+        let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+        
+        const rankInfo = getRankInfo(level); 
+        let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
+        let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
+        
+        let userComments = []; 
+        try { 
+            const commentsSnap = await db.ref('comments').once('value'); 
+            commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === uid) { userComments.push({ epID: epSnap.key, ...c }); } }); }); 
+        } catch(e) {}
+        userComments.sort((a,b) => b.waktu - a.waktu); 
+        
+        let commentsHtml = userComments.length > 0 ? userComments.map(c => {
+            let d = new Date(c.waktu || Date.now()); 
+            let months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; 
+            let exactDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            let aTitle = c.animeTitle || 'Anime Tidak Diketahui'; 
+            let aImage = c.animeImage || 'https://placehold.co/100'; 
+            let aEp = c.animeEp || 'Episode ?';
+            
+            let actionUrl = c.url ? `closeUserProfileModal(); loadDetail('${c.url}')` : `window.showToast('Komentar ini ada di Episode ID: ${c.epID}', 'success')`;
+            
+                        return `<div style="margin-bottom: 15px; padding: 15px; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 12px;"><div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; cursor: pointer;" onclick="${actionUrl}"><div style="position:relative; flex-shrink:0;"><img src="${aImage}" style="width:48px; height:48px; border-radius:10px; object-fit:cover; border: 1px solid #222;"><div style="position:absolute; bottom:-4px; right:-4px; background:#050505; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:16px; height:16px; border-radius:50%; object-fit:cover; display:block;"></div></div><div style="flex: 1; min-width: 0;"><div style="font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${aTitle}</div><div style="font-size: 12px; color: #a1a1aa; font-weight: 500;">${aEp} • ${exactDateStr}</div></div></div><div style="font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px; word-wrap: break-word; padding-right: 10px;">${c.teks}</div><div style="font-size: 13px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block;" onclick="${actionUrl}">Buka Episode</div></div>`;
+        }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>';
+
+        let userExp = data.exp || 0;
+        let totalMenit = Math.floor(userExp * 1.2) || (level * 120);
+        let joinMonths = data.joined ? Math.max(1, Math.floor((Date.now() - data.joined) / (1000 * 60 * 60 * 24 * 30))) : 1;
+        
+        let historyHtml = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Riwayat tontonan bersifat privat.</p>';
+
+        content.innerHTML = `
+            <div class="profile-header" style="margin-top:-10px; display:flex; flex-direction:column; align-items:center;">
+                <div class="profile-avatar-container" style="width:90px; height:90px; position:relative; display:inline-block; margin-bottom:10px; border-radius:50%;">
+                    <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                    ${decoHtml}
+                </div>
+                <div class="profile-name" style="font-size:20px;">${userName}</div>
+                <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:20px;">
+                    <span class="c-badge ${roleBadgeClass}" style="font-size:11px; padding:4px 10px;">${roleName}</span>
+                    <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;">${rankInfo.icon} Lvl. ${level}</span>
+                    <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                </div>
+            </div>
+            <div class="profile-stats" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 5px; padding: 0 10px 25px 10px;">
+                <div class="stat-box"><div class="stat-val">${totalMenit}</div><div class="stat-lbl">menit<br>menonton</div></div>
+                <div class="stat-box"><div class="stat-val">${userComments.length}</div><div class="stat-lbl">jumlah<br>komentar</div></div>
+                <div class="stat-box"><div class="stat-val">${joinMonths}</div><div class="stat-lbl">bulan<br>bergabung</div></div>
+            </div>
+            <div class="profile-tabs" style="border-bottom: 1px solid #1a1a1a; margin-bottom: 20px;">
+                <div class="ptab active" onclick="switchProfileModalTab('all', this)">All</div>
+                <div class="ptab" onclick="switchProfileModalTab('comments', this)">Comments</div>
+                <div class="ptab" onclick="switchProfileModalTab('history', this)">History</div>
+            </div>
+            <div id="modal-ptab-all" class="modal-ptab-content" style="padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-comments" class="modal-ptab-content" style="display:none; padding: 0 15px;">${commentsHtml}</div>
+            <div id="modal-ptab-history" class="modal-ptab-content" style="display:none; padding: 0 15px;">${historyHtml}</div>
+        `;
+    });
+};
+
+window.closeUserProfileModal = function() { 
+    const modal = document.getElementById('userProfileModal'); 
+    const overlay = document.getElementById('userProfileOverlay');
+    if(modal) { 
+        modal.classList.remove('show'); 
+        setTimeout(() => { 
+            overlay.style.display = 'none'; 
+            modal.style.display = 'none'; 
+        }, 300); 
+    } 
+};
+
+// ==========================================
+// MODAL & UI LAINNYA
+// ==========================================
+window.openLevelModal = function(currentLvl, currentExp, jamNonton) {
+    const modalOverlay = document.getElementById('levelModalOverlay'); const modal = document.getElementById('levelModal'); const listContainer = document.getElementById('level-modal-list');
+    const currRank = getRankInfo(currentLvl); document.getElementById('level-modal-subtitle').innerText = `Level ${currentLvl} • ${currRank.name}`; 
+    document.getElementById('level-modal-total-exp').innerText = typeof currentExp === 'number' ? currentExp.toLocaleString('id-ID') : currentExp; 
+    document.getElementById('level-modal-total-time').innerText = `${jamNonton}j 0m`;
+    let html = '';
+    RANK_TIERS.forEach(rank => {
+        let isCurrent = (currentLvl >= rank.minLvl && currentLvl <= rank.maxLvl); let isPassed = currentLvl > rank.maxLvl;
+        let statusIcon = isCurrent ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : (isPassed ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>');
+        let bgStyle = isCurrent ? 'background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px;' : 'padding: 15px 0;';
+        let reqText = rank.maxLvl === Infinity ? `Level ${rank.minLvl}+` : `Level ${rank.minLvl} - ${rank.maxLvl}`;
+        html += `<div class="level-rank-item" style="${bgStyle}"><div class="rank-info"><div class="rank-icon rank-icon-${rank.name.toLowerCase()}" style="background: ${rank.color}; border: 1px solid ${rank.color.replace('0.15', '0.3').replace('0.25', '0.6')};">${rank.icon}</div><div><div class="rank-title" style="color: ${isCurrent ? '#facc15' : (isPassed ? '#fff' : '#888')}">${rank.name}</div><div class="rank-req">${reqText}</div></div></div><div class="rank-status">${statusIcon}</div></div>`;
+    });
+    listContainer.innerHTML = html; modalOverlay.style.display = 'block'; modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10);
+};
+
+window.closeLevelModal = function() { const modal = document.getElementById('levelModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('levelModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.switchProfileTab = function(tabName, element) { document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active')); element.classList.add('active'); document.querySelectorAll('.ptab-content').forEach(el => el.style.display = 'none'); document.getElementById('ptab-' + tabName).style.display = 'block'; };
+
+const API_BASE = '/api'; 
+const DB_NAME = 'AnimekuDB';
+const STORE_HISTORY = 'history';
+const STORE_FAV = 'favorites';
+window.currentFavData = []; 
+window.currentPlayingAnime = null; 
+
+window.epSortOrder = 'desc'; window.epLayoutMode = 'list'; 
+window.toggleEpLayout = function() { window.epLayoutMode = window.epLayoutMode === 'grid' ? 'list' : 'grid'; window.renderDetailEpisodeUI(); };
+window.toggleEpSort = function() { window.epSortOrder = window.epSortOrder === 'desc' ? 'asc' : 'desc'; window.renderDetailEpisodeUI(); };
+
+window.renderDetailEpisodeUI = function() {
+    let containerDetail = document.getElementById('episode-list-detail-container'); if(!containerDetail) return;
+    let listIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> List`;
+    let gridIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Grid`;
+    let sortText = window.epSortOrder === 'desc' ? 'Sort: 99 &#9660; 1' : 'Sort: 1 &#9650; 99';
+    document.querySelectorAll('.btn-ep-layout').forEach(btn => btn.innerHTML = window.epLayoutMode === 'list' ? gridIcon : listIcon);
+    document.querySelectorAll('.btn-ep-sort').forEach(btn => btn.innerHTML = sortText);
+
+    let eps = [...(window.currentAnimeEpisodes || [])]; if (window.epSortOrder === 'desc') eps.reverse();
+    
+    // FIX NGELAG: Pakai 'Set' biar pengecekan data HP secepat kilat walau episodenya ribuan
+    let watchedEpsArray = JSON.parse(localStorage.getItem('watchedEps')) || []; 
+    let watchedEpsSet = new Set(watchedEpsArray); 
+    let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; 
+    let currentUrl = window.currentPlayingAnime ? window.currentPlayingAnime.url : ''; 
+    let renderHtml = '';
+
+    if (window.epLayoutMode === 'grid') {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px;"; 
+            if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; } else if (watchedEpsSet.has(ep.url)) { c += " active"; }
+            return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`;
+        }).join('');
+        containerDetail.style = "display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px;"; containerDetail.innerHTML = renderHtml; 
+    } else {
+        renderHtml = eps.map((ep, index) => {
+            let realIndex = window.epSortOrder === 'desc' ? (eps.length - index) : (index + 1); let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); let eNum = m ? m[1] : realIndex;
+            let mockEpViews = `${Math.floor(Math.random()*200 + 10)},${Math.floor(Math.random()*9)}K Views`; let mockEpDate = `16 Apr 2026`;
+            let progress = watchProgress[ep.url]; let isCurrent = (ep.url === currentUrl); let btnBg = 'rgba(255,255,255,0.1)'; let btnText = 'Buka';
+            if (progress >= 100 || watchedEpsSet.has(ep.url)) { btnBg = '#3b82f6'; btnText = 'Ditonton'; } else if (progress > 0) { btnBg = '#3b82f6'; btnText = 'Lanjut'; }
+            if (isCurrent) { btnBg = '#ef4444'; btnText = 'Diputar'; }
+                        return `<div onclick="loadVideo('${ep.url}')" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border:1px solid ${isCurrent ? '#3b82f6' : '#2c2c2e'}; cursor:pointer; background: ${isCurrent ? 'rgba(59, 130, 246, 0.1)' : '#1c1c1e'}; border-radius: 12px; margin-bottom: 10px; transition:0.2s;"><div><div style="font-size:15px; font-weight:800; color:${isCurrent ? '#3b82f6' : '#fff'}; margin-bottom:6px;">Episode ${eNum}</div><div style="font-size:12px; color:#888; display:flex; align-items:center; gap:6px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockEpViews} • ${mockEpDate}</div></div><div><button style="background:${btnBg}; border:none; color:#fff; font-size:12px; font-weight:800; padding:8px 20px; border-radius:20px; cursor:pointer; transition:0.2s;">${btnText}</button></div></div>`;
+        }).join('');
+        containerDetail.style = "display: flex; flex-direction: column;"; containerDetail.innerHTML = renderHtml; 
+    }
+};
+
+function getHighRes(url) { if(!url) return ''; try { return url.replace(/\/s\d+(-[a-zA-Z0-9]+)?\//g, '/s0/').replace(/=s\d+/g, '=s0'); } catch(e) { return url; } }
+function removeDuplicates(array, key) { const seen = new Set(); return array.filter(item => { if (!item || !item[key]) return false; if (seen.has(item[key])) return false; seen.add(item[key]); return true; }); }
+function getEpBadge(anime) { 
+    if (!anime) return 'Anime'; let text = String(anime.episode || anime.episodes || anime.status || anime.type || ''); if (!text || text === 'undefined' || text.trim() === '') return 'Anime'; 
+    let lowText = text.toLowerCase().trim(); if (lowText.includes('tamat') || lowText.includes('completed')) return 'Tamat'; if (lowText.includes('movie')) return 'Movie'; if (lowText.includes('ongoin')) return 'Ongoing';
+    if (/^\d+(\.\d+)?$/.test(lowText)) return `Episode ${lowText}`; let epMatch = text.match(/(episode|eps|ep)\s*(\d+(\.\d+)?)/i); if (epMatch) return `Episode ${epMatch[1]}`; let numMatch = text.match(/\d+/g); if (numMatch) return `Episode ${numMatch[numMatch.length - 1]}`; return text.length > 10 ? text.substring(0, 10) : text; 
+}
+function formatTimelineDate(timestamp) { const date = new Date(timestamp); const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); if (date.toDateString() === today.toDateString()) return "Hari ini"; if (date.toDateString() === yesterday.toDateString()) return "Kemarin"; const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]; return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`; }
+function timeAgo(ms) { const seconds = Math.floor((new Date() - ms) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " thn lalu"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " bln lalu"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " hr lalu"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " mnt lalu"; return "Baru saja"; }
+
+// ==== LOGIKA EXP SAJA (TIDAK ADA KOIN) ====
+function addXP(amount) {
+    if(!currentUser) return; 
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val(); if(!d) return;
+        let currentExp = d.exp || 0;
+        let currentLvl = d.level || 1;
+        
+        // SINKRONISASI: Jika EXP ketinggalan jauh dari Level, paksa EXP naik dulu
+        let minExpForLevel = (currentLvl - 1) * 200;
+        if (currentExp < minExpForLevel) {
+            currentExp = minExpForLevel;
+        }
+
+        let nExp = currentExp + amount; 
+        let nLvl = Math.floor(nExp / 200) + 1; 
+        let isLevelUp = nLvl > currentLvl;
+        
+        db.ref('users/' + currentUser.uid).update({ exp: nExp, level: nLvl });
+        let currentLevelProgress = nExp % 200; 
+        let progressPercent = Math.floor((currentLevelProgress / 200) * 100);
+        showXPModal(amount, nLvl, progressPercent, isLevelUp);
+    });
+}
+function showXPModal(addedAmount, level, progress, isLevelUp) {
+    const overlay = document.getElementById('xp-modal-overlay'); const card = document.getElementById('xp-modal-card'); const titleText = document.getElementById('xp-title-text'); const amountText = document.getElementById('xp-amount-text'); const levelText = document.getElementById('xp-level-text'); const progressText = document.getElementById('xp-progress-text'); const progressFill = document.getElementById('xp-progress-fill');
+    amountText.innerText = `+${addedAmount}`; levelText.innerText = `Level ${level}`; progressText.innerText = `${progress}%`; progressFill.style.width = `${progress}%`;
+    if (isLevelUp) { titleText.innerText = "LEVEL UP!"; titleText.style.color = "#3b82f6"; } else { titleText.innerText = "EXP Gained"; titleText.style.color = "#fff"; }
+    overlay.style.display = 'flex'; setTimeout(() => { overlay.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 10);
+    setTimeout(() => { overlay.style.opacity = '0'; card.style.transform = 'translateY(20px)'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }, 2500);
+}
+
+function initDB() { return new Promise((res, rej) => { const req = indexedDB.open(DB_NAME, 2); req.onupgradeneeded = (e) => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE_HISTORY)) d.createObjectStore(STORE_HISTORY, { keyPath: 'url' }); if (!d.objectStoreNames.contains(STORE_FAV)) d.createObjectStore(STORE_FAV, { keyPath: 'url' }); }; req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+// 1. Fungsi Bantuan untuk Ambil Data Lokal (Buat yang belum login)
+async function getLocalHistory() {
+    try { 
+        const d = await initDB(); 
+        return new Promise((res) => { 
+            const req = d.transaction(STORE_HISTORY, 'readonly').objectStore(STORE_HISTORY).getAll(); 
+            req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
+            req.onerror = () => res([]); 
+        }); 
+    } catch(e) { return []; }
+}
+
+// 2. Fungsi Simpan History (Firebase + Lokal)
+async function saveHistory(a) { 
+    a.timestamp = Date.now(); 
+    
+    // Simpan ke Lokal (buat jaga-jaga kalau offline/belum login)
+    try { 
+        const d = await initDB(); 
+        d.transaction(STORE_HISTORY, 'readwrite').objectStore(STORE_HISTORY).put(a); 
+    } catch(e) { console.error(e); } 
+    
+    // Simpan ke Firebase (Kalau sudah login)
+    if (currentUser) {
+        // Firebase nggak ngebolehin karakter kayak titik (.) atau slash (/) buat ID, jadi kita ubah dulu URL-nya
+        const safeKey = a.url.replace(/[^a-zA-Z0-9]/g, '_'); 
+        db.ref(`history/${currentUser.uid}/${safeKey}`).set(a);
+    }
+}
+
+// 3. Fungsi Ambil History (Prioritas dari Firebase)
+async function getHistory() { 
+    if (currentUser) {
+        try {
+            // Kalau udah login, tarik datanya dari Firebase!
+            const snap = await db.ref(`history/${currentUser.uid}`).once('value');
+            let historyData = [];
+            if (snap.exists()) {
+                snap.forEach(child => { historyData.push(child.val()); });
+            }
+            return historyData.sort((a,b) => b.timestamp - a.timestamp);
+        } catch(e) {
+            console.error("Gagal ambil history dari Firebase", e);
+            return await getLocalHistory(); // Fallback kalau gagal
+        }
+    } else {
+        // Kalau belum login, tarik dari HP (Lokal)
+        return await getLocalHistory(); 
+    }
+}
+// 1. Fungsi Bantuan untuk Ambil Data Lokal (Offline/Belum Login)
+async function getLocalFavorites() { 
+    try { 
+        const d = await initDB(); 
+        return new Promise((res) => { 
+            const req = d.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).getAll(); 
+            req.onsuccess = () => res(req.result.sort((a,b) => b.timestamp - a.timestamp)); 
+            req.onerror = () => res([]); 
+        }); 
+    } catch(e) { return []; } 
+}
+
+// 2. Fungsi Ambil Subscribe (Prioritas dari Firebase)
+async function getFavorites() { 
+    if (currentUser) {
+        try {
+            const snap = await db.ref(`favorites/${currentUser.uid}`).once('value');
+            let favData = [];
+            if (snap.exists()) {
+                snap.forEach(child => { favData.push(child.val()); });
+            }
+            return favData.sort((a,b) => b.timestamp - a.timestamp);
+        } catch(e) { 
+            console.error(e);
+            return await getLocalFavorites(); 
+        }
+    } else {
+        return await getLocalFavorites(); 
+    }
+}
+
+// 3. Fungsi Cek Apakah Anime Sudah di-Subscribe
+async function checkFavorite(url) { 
+    if (currentUser) {
+        const safeKey = url.replace(/[^a-zA-Z0-9]/g, '_');
+        const snap = await db.ref(`favorites/${currentUser.uid}/${safeKey}`).once('value');
+        return snap.exists();
+    } else {
+        try { 
+            const database = await initDB(); 
+            return new Promise((res) => { 
+                const req = database.transaction(STORE_FAV, 'readonly').objectStore(STORE_FAV).get(url); 
+                req.onsuccess = () => res(!!req.result); 
+                req.onerror = () => res(false); 
+            }); 
+        } catch(e) { return false; } 
+    }
+}
+
+// 4. Fungsi Klik Subscribe / Unsubscribe (Firebase + Lokal)
+async function toggleFavorite(url, title, image, score, episode) {
+    try {
+        const isFav = await checkFavorite(url); 
+        const btn = document.getElementById('favBtn');
+        const safeKey = url.replace(/[^a-zA-Z0-9]/g, '_');
+        const favData = {url, title, image, score, episode, timestamp: Date.now()};
+
+        // Siapkan penyimpanan Lokal
+        const database = await initDB(); 
+        const tx = database.transaction(STORE_FAV, 'readwrite'); 
+        const store = tx.objectStore(STORE_FAV);
+
+        if (isFav) { 
+            // Hapus dari Lokal & Firebase
+            store.delete(url); 
+            if(currentUser) db.ref(`favorites/${currentUser.uid}/${safeKey}`).remove();
+            
+            // Ubah UI Tombol
+            if(btn) { 
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Subscribe`; 
+                btn.style.color = '#fff'; 
+            } 
+        } else { 
+            // Simpan ke Lokal & Firebase
+            store.put(favData); 
+            if(currentUser) db.ref(`favorites/${currentUser.uid}/${safeKey}`).set(favData);
+            
+            // Ubah UI Tombol
+            if(btn) { 
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Disubscribe`; 
+                btn.style.color = '#ef4444'; 
+            } 
+        }
+    } catch(e) { console.error(e); }
+}
+
+window.toggleLikeAction = function(btn, type) {
+    let likeBtn = document.getElementById('btn-like-action'); let dislikeBtn = document.getElementById('btn-dislike-action');
+    const isActive = btn.style.backgroundColor === 'rgb(59, 130, 246)' || btn.style.backgroundColor === 'rgb(239, 68, 68)' || btn.style.backgroundColor === '#3b82f6' || btn.style.backgroundColor === '#ef4444';
+    if (type === 'like') { if (isActive) { btn.style.backgroundColor = 'transparent'; } else { btn.style.backgroundColor = '#3b82f6'; if(dislikeBtn) { dislikeBtn.style.backgroundColor = 'transparent'; } } } 
+    else { if (isActive) { btn.style.backgroundColor = 'transparent'; } else { btn.style.backgroundColor = '#ef4444'; if(likeBtn) { likeBtn.style.backgroundColor = 'transparent'; } } }
+};
+window.toggleSynopsis = function() { const text = document.getElementById('detail-synopsis-text'); const btn = document.getElementById('read-more-btn'); if(text.classList.contains('expanded')) { text.classList.remove('expanded'); btn.innerHTML = 'Selengkapnya ▼'; } else { text.classList.add('expanded'); btn.innerHTML = 'Sembunyikan ▲'; } };
+
+const HOME_SECTIONS = [
+    { title: "Action Anime", queries: ["action", "kimetsu", "jujutsu", "piece"] }, { title: "Romance & Drama", queries: ["romance", "kanojo", "gotoubun"] },
+    { title: "Sci-Fi Anime", queries: ["sci-fi", "science", "dr. stone"] }, { title: "Comedy Anime", queries: ["comedy", "spy", "bocchi", "kaguya"] },
+    { title: "Fantasy Anime", queries: ["fantasy", "magic", "maou", "elf"] }, { title: "Isekai Anime", queries: ["isekai", "slime", "mushoku"] },
+    { title: "School Anime", queries: ["school", "classroom", "academy"] }, { title: "Movie Anime", queries: ["movie", "film"] }
+];
+
+let sliderInterval;
+const show = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'block'; };
+const hide = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+function loader(state) { const el = document.getElementById('loading'); if(el) { state ? el.classList.remove('hidden') : el.classList.add('hidden'); } };
+
+function generateCardHtml(anime) { let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="scroll-card" onclick="loadDetail('${anime.url}')"><div class="scroll-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="badge-ep">${epsBadge}</div><div class="badge-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="scroll-card-title">${anime.title}</div></div>`; }
+function generateRecentCardHtml(anime) { let epsBadge = getEpBadge(anime); const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'"; return `<div class="recent-card" onclick="loadDetail('${anime.url}')"><div class="recent-img-box"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="recent-overlay"></div><div class="recent-ep-text">${epsBadge}</div></div><div class="recent-title">${anime.title}</div></div>`; }
+function generateFavCardHtml(anime) { if (!anime) return ''; let epsBadge = getEpBadge(anime); let scoreStr = anime.score || anime.skor || anime.rating || '?'; let finalScore = (scoreStr && scoreStr !== '?' && scoreStr !== '0' && scoreStr !== '') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2); const fallbackImg = "this.src='https://placehold.co/150x200/1a1a1a/3b82f6?text=Anime'"; return `<div class="fav-card" onclick="loadDetail('${anime.url}')"><div class="fav-card-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" loading="lazy" onerror="${fallbackImg}"><div class="fav-overlay"></div><div class="fav-ep">${epsBadge}</div><div class="fav-score"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> ${finalScore}</div></div><div class="fav-title">${anime.title}</div></div>`; }
+
+async function fetchTimeout(url, timeoutMs = 15000) { const controller = new AbortController(); const id = setTimeout(() => controller.abort(), timeoutMs); try { const res = await fetch(url, { signal: controller.signal }); clearTimeout(id); return res; } catch (e) { clearTimeout(id); throw e; } }
+
+async function loadLatest() {
+    loader(true); const homeContainer = document.getElementById('home-view'); homeContainer.innerHTML = ''; let hasAnyData = false;
+    try {
+        try { let sliderData = []; const res = await fetchTimeout(`${API_BASE}/latest`, 15000); if (res && res.ok) { sliderData = await res.json(); if (sliderData && sliderData.length > 0) { renderHeroSlider(sliderData.slice(0, 20), homeContainer); hasAnyData = true; } } } catch (e) {}
+        try { const historyData = await getHistory(); if (historyData && historyData.length > 0) { const histDiv = document.createElement('div'); histDiv.innerHTML = `<div class="header-flex"><h2>Terakhir Ditonton</h2><span class="more-link" onclick="switchTab('recent')">Lihat Lainnya ></span></div><div class="horizontal-scroll" style="gap: 12px;">${historyData.slice(0, 15).map(anime => generateRecentCardHtml(anime)).join('')}</div>`; homeContainer.appendChild(histDiv); hasAnyData = true; } } catch (e) {}
+        
+        const sectionContainers = [];
+        for (const section of HOME_SECTIONS) { const div = document.createElement('div'); div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2></div><div class="horizontal-scroll" style="padding: 0 15px;"><div style="width:100%; height:160px; border-radius:8px; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666; font-size:12px; border:1px dashed #333;"><div style="width:24px; height:24px; border:3px solid rgba(255,255,255,0.1); border-left-color:#3b82f6; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:8px;"></div>Memuat Anime...</div></div>`; homeContainer.appendChild(div); sectionContainers.push({ section, div }); }
+        const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+        const batches = chunkArray(sectionContainers, 3);
+        for (const batch of batches) {
+            await Promise.all(batch.map(async ({ section, div }) => {
+                try {
+                    let combinedData = [];
+                    const fetchPromises = section.queries.slice(0, 4).map(async (q) => { try { const res = await fetchTimeout(`${API_BASE}/search?q=${encodeURIComponent(q)}`, 10000); if (res && res.ok) { const data = await res.json(); if (Array.isArray(data)) combinedData.push(...data); } } catch(e) {} });
+                    await Promise.all(fetchPromises);
+                    combinedData = removeDuplicates(combinedData, 'url');
+                    if (combinedData.length > 0) { div.innerHTML = `<div class="header-flex"><h2>${section.title}</h2><span class="more-link" onclick="handleSearch('${section.queries[0]}')">Lihat Lainnya ></span></div><div class="horizontal-scroll">${combinedData.slice(0, 15).map(anime => generateCardHtml(anime)).join('')}</div>`; hasAnyData = true; } else { div.remove(); }
+                } catch(e) { div.remove(); }
+            }));
+        }
+        if (!hasAnyData) { homeContainer.innerHTML = `<div style="text-align:center; padding: 60px 20px; display:flex; flex-direction:column; align-items:center;"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><h2 style="font-size:18px; margin:0 0 8px 0; color:#fff;">Gagal Memuat Data</h2><p style="font-size:13px; color:#888; margin-bottom:20px; line-height:1.5;">Server API kamu sedang sibuk atau menolak koneksi. Silakan coba lagi nanti.</p><button onclick="loadLatest()" style="background:#3b82f6; color:#fff; border:none; padding:12px 24px; border-radius:24px; font-weight:800; cursor:pointer;">Coba Lagi</button></div>`; }
+    } catch (err) { console.error("Home loading failed total", err); } finally { loader(false); }
+}
+
+function renderHeroSlider(data, container) {
+    const sectionContainer = document.createElement('div'); sectionContainer.className = 'hero-section-container';
+    const sliderDiv = document.createElement('div'); sliderDiv.className = 'hero-slider';
+    const loopData = [...data, data[0]]; const fallbackBanner = "this.src='https://placehold.co/800x400/1a1a1a/3b82f6?text=Anime'";
+    const slidesHtml = loopData.map((anime, index) => { return `<div class="hero-slide" onclick="loadDetail('${anime.url}')" style="cursor:pointer;"><img src="${getHighRes(anime.image)}" class="hero-bg" onerror="${fallbackBanner}" alt="${anime.title}" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="hero-overlay"></div><div class="hero-content"><div class="hero-badge">${getEpBadge(anime)}</div><h2 class="hero-title">${anime.title}</h2><button class="hero-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Putar</button></div></div>`; }).join('');
+    sliderDiv.innerHTML = `<div class="hero-wrapper" id="heroWrapper">${slidesHtml}</div>`; sectionContainer.appendChild(sliderDiv); container.appendChild(sectionContainer);
+    const wrapper = document.getElementById('heroWrapper'); let currentSlide = 0; const totalSlides = loopData.length; let touchStartX = 0; let touchEndX = 0;
+    function nextSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; currentSlide++; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; if (currentSlide >= totalSlides - 1) { setTimeout(() => { if(!wrapper) return; wrapper.style.transition = 'none'; currentSlide = 0; wrapper.style.transform = `translateX(0)`; }, 500); } }
+    function prevSlide() { if (!wrapper || document.getElementById('home-view').classList.contains('hidden')) return; if (currentSlide === 0) { wrapper.style.transition = 'none'; currentSlide = totalSlides - 1; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; wrapper.offsetHeight; } currentSlide--; wrapper.style.transition = 'transform 0.5s ease-in-out'; wrapper.style.transform = `translateX(-${currentSlide * 100}%)`; }
+    function startAutoSlide() { if (sliderInterval) clearInterval(sliderInterval); sliderInterval = setInterval(nextSlide, 5000); }
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; if (sliderInterval) clearInterval(sliderInterval); }, {passive: true});
+    wrapper.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; const swipeThreshold = 50; if (touchStartX - touchEndX > swipeThreshold) nextSlide(); if (touchEndX - touchStartX > swipeThreshold) prevSlide(); startAutoSlide(); }, {passive: true});
+    startAutoSlide();
+}
+
+async function handleSearch(query) {
+    if (!query) { switchTab('home'); return; }
+    switchTab('search'); loader(true); document.getElementById('tab-home').classList.add('active'); 
+    try { const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`); const data = await res.json(); document.getElementById('search-view').innerHTML = `<div class="header-flex" style="padding-top:20px;"><h2>Pencarian: "${query}"</h2></div><div class="anime-grid">${data.map(anime => generateCardHtml(anime)).join('')}</div>`; } catch (err) {} finally { loader(false); }
+}
+
+function injectReportModal() {
+    if(document.getElementById('report-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'report-modal-injected';
+    div.innerHTML = `<div id="reportModalOverlay" class="modal-overlay" onclick="closeReportModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999998; backdrop-filter:blur(2px);"></div><div id="reportModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:320px; border-radius:24px; z-index:999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e;"><div style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:60px; height:60px; background:#050505; border-radius:50%; display:flex; align-items:center; justify-content:center;"><div style="width:46px; height:46px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></div></div><h3 style="text-align:center; color:#3b82f6; margin:15px 0 20px 0; font-size:18px; font-weight:900;">Report Episode</h3><div style="display:flex; flex-direction:column; gap:16px; margin-bottom:25px; padding: 0 10px;"><label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;"><input type="radio" name="reportReason" value="Video Tidak Bisa Diputar" style="accent-color:#3b82f6; width:20px; height:20px;" checked>Video Tidak Bisa Diputar</label><label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;"><input type="radio" name="reportReason" value="Subtitle Rusak" style="accent-color:#3b82f6; width:20px; height:20px;">Subtitle Rusak</label><label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;"><input type="radio" name="reportReason" value="Anime Berbeda" style="accent-color:#3b82f6; width:20px; height:20px;">Anime Berbeda</label><label style="display:flex; align-items:center; gap:12px; cursor:pointer; color:#fff; font-size:14px; font-weight:700;"><input type="radio" name="reportReason" value="DMCA (Email)" style="accent-color:#3b82f6; width:20px; height:20px;">DMCA (Email)</label></div><div style="display:flex; gap:12px;"><button onclick="closeReportModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button><button onclick="submitReport()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);">Report</button></div></div>`;
+    document.body.appendChild(div);
+}
+
+window.openReportModal = function() { injectReportModal(); const overlay = document.getElementById('reportModalOverlay'); const modal = document.getElementById('reportModal'); overlay.style.display = 'block'; modal.style.display = 'block'; setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10); };
+window.closeReportModal = function() { const overlay = document.getElementById('reportModalOverlay'); const modal = document.getElementById('reportModal'); if(!modal) return; modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); };
+window.submitReport = function() { 
+    // Ambil alasan yang dipilih user
+    const selected = document.querySelector('input[name="reportReason"]:checked'); 
+    if(!selected) return; 
+    let reason = selected.value; 
+    
+    // Ambil data judul anime dan episode dari pemutar video saat ini
+    let animeTitle = window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Judul Tidak Diketahui';
+    let animeEp = window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?';
+
+    // Susun pesan WhatsApp biar rapi
+    let text = `Halo Admin, saya mau report episode error.\n\n` +
+               `*Anime:* ${animeTitle}\n` +
+               `*Episode:* ${animeEp}\n` +
+               `*Alasan:* ${reason}\n` +
+               `*Link:* ${window.location.href}`; 
+               
+    // Buka WhatsApp dengan pesan yang sudah dibuat
+    window.open('https://wa.me/6281315059849?text=' + encodeURIComponent(text)); 
+    
+    // Tutup modal report
+    closeReportModal(); 
+};
+
+window.openServerModal = function() { show('serverModalOverlay'); show('serverModal'); setTimeout(() => { document.getElementById('serverModal').classList.add('show'); }, 10); };
+window.closeServerModal = function() { const modal = document.getElementById('serverModal'); modal.classList.remove('show'); setTimeout(() => { hide('serverModalOverlay'); hide('serverModal'); }, 300); };
+
+window.changeServer = function(url, serverName, btnElement) { 
+    const oldIframe = document.getElementById('video-player');
+    if (oldIframe) { const newIframe = document.createElement('iframe'); newIframe.id = 'video-player'; newIframe.setAttribute('allowfullscreen', 'true'); newIframe.src = url; oldIframe.parentNode.replaceChild(newIframe, oldIframe); }
+    let qualMatch = serverName.match(/\d{3,4}p/i); let displayQuality = qualMatch ? qualMatch[0] + ' Quality' : 'Quality';
+    document.getElementById('current-quality-text').innerText = displayQuality; document.querySelectorAll('.server-list-btn').forEach(b => { b.classList.remove('active'); }); btnElement.classList.add('active'); window.closeServerModal(); 
+};
+
+window.handleDownload = function() { let iframe = document.getElementById('video-player'); if(iframe && iframe.src) { window.open(iframe.src, '_blank'); } else { window.showToast('Video tidak ditemukan atau server belum dimuat.', 'error'); } };
+window.handleShare = function() { if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); } else { window.showToast('Tautan disalin ke clipboard!', 'success'); } };
+
+async function loadRecentHistory() {
+    const container = document.getElementById('recent-results-container'); loader(true);
+    try {
+        const historyData = await getHistory();
+        if (!historyData || historyData.length === 0) { container.innerHTML = `<div class="empty-state" style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada riwayat tontonan</h2></div>`; loader(false); return; }
+        const groupedData = {}; historyData.forEach(anime => { const dateLabel = formatTimelineDate(anime.timestamp); if (!groupedData[dateLabel]) groupedData[dateLabel] = []; groupedData[dateLabel].push(anime); });
+        let timelineHtml = '<div class="timeline-wrapper">';
+        for (const [dateLabel, animes] of Object.entries(groupedData)) {
+            timelineHtml += `<div class="timeline-group"><div class="timeline-date-badge">${dateLabel}</div><div class="timeline-items">`;
+            animes.forEach(anime => {
+                const dateObj = new Date(anime.timestamp); const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+                const progress = Math.floor(Math.random() * 70 + 20); const durasiMenit = 24; const currentMenit = Math.floor((progress/100) * durasiMenit);
+                const currentStr = `${String(currentMenit).padStart(2, '0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} / ${durasiMenit}:00`;
+                const fallbackImg = "this.src='https://placehold.co/160x90/1a1a1a/3b82f6?text=Anime'";
+                timelineHtml += `<div class="timeline-card" onclick="loadDetail('${anime.url}')"><div class="timeline-img"><img src="${getHighRes(anime.image)}" alt="${anime.title}" onerror="${fallbackImg}"><div class="timeline-play-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div><div class="timeline-info"><div class="timeline-header"><div class="timeline-title">${anime.title}</div><div class="timeline-time">${timeStr}</div></div><div class="timeline-ep">${getEpBadge(anime)}</div><div class="timeline-progress-container"><div class="timeline-progress-bg"><div class="timeline-progress-fill" style="width: ${progress}%;"></div></div><div class="timeline-progress-text">${currentStr}</div></div></div></div>`;
+            });
+            timelineHtml += `</div></div>`;
+        }
+        container.innerHTML = timelineHtml + '</div>';
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat riwayat.</h2></div>`; }
+    loader(false);
+}
+
+window.toggleSortMenu = function() { const menu = document.getElementById('sort-dropdown-menu'); menu.style.display = menu.style.display === 'none' ? 'block' : 'none'; };
+window.applyFavSort = function(type, label) { document.getElementById('current-sort-btn').innerHTML = `${label} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>`; document.getElementById('sort-dropdown-menu').style.display = 'none'; if(type === 'new') { window.currentFavData.sort((a, b) => b.timestamp - a.timestamp); } else if(type === 'az') { window.currentFavData.sort((a, b) => a.title.localeCompare(b.title)); } else if(type === 'za') { window.currentFavData.sort((a, b) => b.title.localeCompare(a.title)); } else if(type === 'rating' || type === 'popular') { window.currentFavData.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); } renderFavoritesList(); };
+function renderFavoritesList() { const container = document.getElementById('favorite-results-container'); try { container.innerHTML = `<div class="anime-grid" style="grid-template-columns: repeat(3, 1fr); padding: 0 10px; gap: 12px 8px;">${window.currentFavData.map(anime => generateFavCardHtml(anime)).join('')}</div>`; } catch(e) { console.error("Error render:", e); } }
+
+async function loadFavorites() {
+    const container = document.getElementById('favorite-results-container'); loader(true);
+    try {
+        window.currentFavData = await getFavorites(); const count = window.currentFavData ? window.currentFavData.length : 0;
+        const countTotal = document.getElementById('fav-total-count'); const countCompleted = document.getElementById('fav-completed-count');
+        if(countTotal) countTotal.innerText = count; if(countCompleted) countCompleted.innerText = count;
+        if (count === 0) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#555;"><h2>Belum ada Subscribe Anime</h2></div>`; loader(false); return; }
+        renderFavoritesList();
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;"><h2>Gagal memuat Subscribe.</h2></div>`; }
+    loader(false);
+}
+document.addEventListener('click', function(event) { const btn = document.getElementById('current-sort-btn'); const menu = document.getElementById('sort-dropdown-menu'); if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) { menu.style.display = 'none'; } });
+
+async function loadDetail(url) {
+    history.pushState({page: 'detail'}, '', '#detail'); loader(true);
+    try {
+        const res = await fetch(`${API_BASE}/detail?url=${encodeURIComponent(url)}`); const data = await res.json();
+        
+        // FIX EPISODE GANDA DAN ACAK-ACAKAN
+        let rawEps = data.episodes || [];
+        let cleanEps = [];
+        let seenUrl = new Set();
+        rawEps.forEach(e => {
+            if(!seenUrl.has(e.url)) {
+                seenUrl.add(e.url);
+                cleanEps.push(e);
+            }
+        });
+        cleanEps.sort((a,b) => {
+            let getNum = (t) => {
+                let m = String(t).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i);
+                if(m) return parseFloat(m[1]);
+                let nums = String(t).match(/\d+/g);
+                return nums ? parseFloat(nums[nums.length-1]) : 0;
+            };
+            return getNum(a.title) - getNum(b.title); 
+        });
+        data.episodes = cleanEps;
+        window.currentAnimeMeta = { title: data.title, description: data.description, image: data.image, url: url }; window.currentAnimeEpisodes = data.episodes; window.currentPlayingAnime = null; 
+        switchTab('detail'); 
+        let scoreStr = data.info?.skor || data.info?.score || '8.25'; const score = (scoreStr && scoreStr !== '?' && scoreStr !== '0') ? scoreStr : (Math.random() * 1.5 + 7.0).toFixed(2);
+        const type = data.info?.tipe || data.info?.type || 'TV'; const musim = data.info?.musim || data.info?.season || ''; const rilis = data.info?.dirilis || data.info?.released || ''; const seasonInfo = `${musim} ${rilis}`.trim() || 'Unknown';
+        let newestEpUrl = data.episodes.length > 0 ? data.episodes[0].url : ''; let newestEpNum = data.episodes.length > 0 ? `${data.episodes.length}` : '?';
+        if (data.episodes.length > 0 && data.episodes[0].title) { let epMatch = data.episodes[0].title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); if(epMatch) newestEpNum = epMatch[1]; else { let nums = data.episodes[0].title.match(/\d+/g); if (nums) newestEpNum = nums[nums.length - 1]; } }
+        saveHistory({ url: url, title: data.title, image: data.image, score: score, episode: `Eps ${newestEpNum}` }); const isFav = await checkFavorite(url); 
+        
+        document.getElementById('detail-view').innerHTML = `
+            <div class="detail-hero" style="background-image: url('${getHighRes(data.image)}')"><div class="detail-hero-overlay"></div><div class="detail-hero-content"><div style="background:#3b82f6; color:#fff; display:inline-block; margin-bottom:8px; padding:6px 12px; border-radius:6px; font-weight:bold; font-size:12px;">Episode ${newestEpNum}</div><h1 style="font-size:24px; line-height:1.2; font-weight:800; margin:0 0 8px 0; color:#fff;">${data.title}</h1><div style="font-size: 13px; color: #d1d5db; margin-bottom: 20px; display:flex; align-items:center; gap:8px; font-weight:500;"><span style="color:#fbbf24;">⭐ ${score}</span> • <span>${type}</span> • <span>${seasonInfo}</span></div><div style="display:flex; gap:10px; width:100%;"><button style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="${newestEpUrl ? `loadVideo('${newestEpUrl}')` : `window.showToast('Belum ada episode', 'error')`}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Mulai Tonton</button><button id="favBtn" onclick="toggleFavorite('${url}', '${data.title.replace(/'/g, "\\'")}', '${data.image}', '${score}', 'Eps ${newestEpNum}')" style="flex:1; background:#1c1c1e; color:${isFav ? '#ef4444' : '#fff'}; border:none; padding:12px; border-radius:24px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:0.2s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> ${isFav ? 'Disubscribe' : 'Subscribe'}</button></div></div><div class="nav-back"><button onclick="goHome()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button></div></div>
+            <div style="padding: 15px 12px;"><h2 style="font-size: 18px; margin: 0 0 12px 0; font-weight:bold; border-left: 4px solid #3b82f6; padding-left: 10px;">Sinopsis</h2><p id="detail-synopsis-text" class="synopsis-text">${data.description || 'Tidak ada deskripsi tersedia.'}</p><div id="read-more-btn" class="read-more-btn" onclick="toggleSynopsis()">Selengkapnya ▼</div></div>
+            <div style="padding: 0 12px; margin-top:20px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h2 style="font-size:18px; font-weight:800; margin:0;">Episodes (${data.episodes.length})</h2><div style="display:flex; gap:8px;"><button onclick="toggleEpLayout()" class="btn-ep-layout" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; transition:0.2s;"></button><button onclick="toggleEpSort()" class="btn-ep-sort" style="background:#1c1c1e; border:1px solid #333; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:700; cursor:pointer; transition:0.2s;"></button></div></div><div id="episode-list-detail-container"></div></div><div style="padding-bottom: 40px;"></div>
+        `;
+        window.renderDetailEpisodeUI(); 
+    } catch (err) { console.error(err); } finally { loader(false); }
+}
+
+window.currentCommentSort = 'top';
+window.apiCache = window.apiCache || {}; 
+
+async function loadVideo(url) {
+    history.pushState({page: 'watch'}, '', '#watch'); 
+    
+    let data;
+    if (window.apiCache['watch_' + url]) {
+        data = window.apiCache['watch_' + url]; 
+    } else {
+        loader(true); 
+        try {
+            const res = await fetch(`${API_BASE}/watch?url=${encodeURIComponent(url)}`); 
+            data = await res.json();
+            window.apiCache['watch_' + url] = data; 
+        } catch (err) {
+            console.error(err);
+            loader(false);
+            window.showToast('Gagal memuat video, periksa koneksi internet.', 'error');
+            return;
+        }
+    }
+    loader(false); 
+    
+    try {
+        switchTab('watch'); addXP(20); 
+        let displayTitle = window.currentAnimeMeta?.title || data.title;
+        let mockViews = `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)} Views`; let mockDate = new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+        let currentEpNum = '1';
+        if(window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { let foundEp = window.currentAnimeEpisodes.find(ep => ep.url === url); if(foundEp) { let epMatch = foundEp.title.match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); currentEpNum = epMatch ? epMatch[1] : (foundEp.title.match(/\d+/g) ? foundEp.title.match(/\d+/g).pop() : "1"); } }
+         window.currentPlayingAnime = { title: window.currentAnimeMeta?.title || displayTitle, image: window.currentAnimeMeta?.image || 'https://placehold.co/100', ep: 'Episode ' + currentEpNum, url: window.currentAnimeMeta?.url || url };
+        
+        try { document.getElementById('silent-audio').play(); } catch (err) {}
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: displayTitle, 
+                artist: 'Animeku • Episode ' + currentEpNum, 
+                artwork: [
+                    { src: getHighRes(window.currentPlayingAnime.image), sizes: '512x512', type: 'image/jpeg' },
+                    { src: './animeku.jpg', sizes: '512x512', type: 'image/jpeg' } 
+                ]
+            });
+        }
+
+        let watchProgress = JSON.parse(localStorage.getItem('watchProgress')) || {}; let oldWatched = JSON.parse(localStorage.getItem('watchedEps')) || []; oldWatched.forEach(oldUrl => { if(watchProgress[oldUrl] === undefined) watchProgress[oldUrl] = 100; }); watchProgress[url] = 100; localStorage.setItem('watchProgress', JSON.stringify(watchProgress));
+        window.renderDetailEpisodeUI();
+
+        let episodeID = url.replace(/[:/.]/g, '_'); 
+        let initialServer = data.streams.length > 0 ? data.streams[0].server : ''; let initQualMatch = initialServer.match(/\d{3,4}p/i); let displayQualText = initQualMatch ? initQualMatch[0] + ' Quality' : 'Quality';
+
+        document.getElementById('watch-view').innerHTML = `
+            <div class="video-container-fixed"><button class="watch-back-btn" onclick="backToDetail()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><iframe id="video-player" src="${data.streams.length > 0 ? data.streams[0].url : ''}" allowfullscreen></iframe></div>
+            <div style="padding: 15px 12px; display: flex; gap: 12px; align-items: center;"><img src="${getHighRes(window.currentPlayingAnime.image)}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #333; flex-shrink: 0;"><div style="flex: 1;"><h2 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; line-height: 1.3;">${displayTitle}</h2><div style="font-size: 12px; color: #a1a1aa; font-weight: 500; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">Episode ${currentEpNum} • <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} • ${mockDate}</div></div></div>
+            <div style="padding: 0 12px 15px 12px; border-bottom: 1px solid #111;"><div class="hide-scrollbar" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: nowrap; overflow-x: auto;"><div style="display: flex; background: #1c1c1e; border: 1px solid #333; border-radius: 20px; overflow: hidden; align-items: center; flex-shrink: 0;"><button id="btn-like-action" onclick="toggleLikeAction(this, 'like')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; border-right: 1px solid #333; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg> 6,3K</button><button id="btn-dislike-action" onclick="toggleLikeAction(this, 'dislike')" style="background: transparent; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg> 28</button></div><button class="action-btn" onclick="openServerModal()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg> <span id="current-quality-text">${displayQualText}</span></button><button class="action-btn" onclick="handleDownload()" style="border-radius: 20px; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg> Download</button></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="action-btn" onclick="handleShare()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button><button class="action-btn" onclick="openReportModal()" style="border-radius: 20px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> Report</button></div></div>
+            <div style="padding: 20px 12px 10px 12px;"><h2 style="font-size:18px; font-weight:800; margin:0 0 15px 0;">Episode List</h2><div id="watch-episode-squares" class="hide-scrollbar" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div></div>
+            <div class="comment-section" style="padding: 20px 12px;"><div id="comment-count-text" style="font-size:16px; font-weight:800; margin:0 0 15px 0;">0 Comments</div><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="comment-filter-btn active" onclick="setCommentFilter('top', this)">Top Comment</button><button class="comment-filter-btn" onclick="setCommentFilter('new', this)">Terbaru</button></div><div id="custom-comment-area" style="margin-bottom: 30px;"></div><div id="comment-list-container"><div style="text-align:center; padding:30px;"><div class="spinner" style="margin:0 auto;"></div><div style="margin-top:10px; color:#666; font-size:12px;">Memuat komentar...</div></div></div></div><div style="padding-bottom: 60px;"></div>
+        `;
+        
+        if (data.streams.length > 0) { const modalServerContainer = document.getElementById('modal-server-list'); modalServerContainer.innerHTML = data.streams.map((stream, idx) => { let isActive = idx === 0 ? "server-list-btn active" : "server-list-btn"; return `<button class="${isActive}" onclick="changeServer('${stream.url}', '${stream.server}', this)"><span>${stream.server}</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10"></path></svg></button>`; }).join(''); }
+        
+        const watchEpListContainer = document.getElementById('watch-episode-squares');
+        if (watchEpListContainer) { 
+            if (window.currentAnimeEpisodes && window.currentAnimeEpisodes.length > 0) { 
+                watchEpListContainer.innerHTML = [...window.currentAnimeEpisodes].map((ep, index) => { 
+                    let m = String(ep.title || '1').match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); 
+                    let eNum = m ? m[1] : (index + 1); 
+                    let progress = watchProgress[ep.url]; let isCurrent = (ep.url === url); let c = "ep-square"; let inlineStyle = "width: 55px; height: 55px; font-size: 16px;";
+                    if (progress >= 100) { c += " active"; if(isCurrent) inlineStyle += ` box-shadow: 0 0 8px rgba(59,130,246,0.8); border: 2px solid #fff;`; } else if (progress > 0) { inlineStyle += ` background: linear-gradient(to right, #3b82f6 ${progress}%, transparent ${progress}%); border-color: #3b82f6; color: #fff;`; } else if (progress === 0 || isCurrent) { c += " watched"; }
+                    return `<div class="${c}" style="${inlineStyle}" onclick="loadVideo('${ep.url}')">${eNum}</div>`; 
+                }).join(''); 
+            } else { watchEpListContainer.innerHTML = `<div class="ep-square watched" style="width: 55px; height: 55px;">${currentEpNum}</div>`; } 
+        }
+        
+        window.currentEpID = episodeID; renderCommentInput(episodeID); listenToComments(episodeID);
+    } catch (err) { console.error(err); } finally { loader(false); }
+}
+
+window.setCommentFilter = function(sortType, btnElement) { document.querySelectorAll('.comment-filter-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); window.currentCommentSort = sortType; if (window.currentEpID) listenToComments(window.currentEpID); };
+
+function renderCommentInput(epID) {
+    const container = document.getElementById('custom-comment-area'); if(!container) return; 
+    if(!currentUser) { 
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div style="flex: 1; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 10px 16px; border-radius: 24px; color: #888; font-size: 13px; cursor: pointer;" onclick="switchTab('developer')">Login untuk menambahkan komentar...</div></div>`; 
+    } 
+    else { 
+        const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
+        container.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;"><div id="comment-input-avatar" style="position: relative; width: 36px; height: 36px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"></div><div style="flex: 1; position: relative;"><input type="text" id="main-comment-input" onkeypress="if(event.key === 'Enter') postComment('${epID}')" placeholder="Tambahkan komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 12px 45px 12px 16px; border-radius: 24px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postComment('${epID}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 8px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        
+        db.ref('users/' + currentUser.uid).once('value').then(snap => {
+            let d = snap.val();
+            if(d && d.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[d.activeBorder]) {
+                let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
+                let avatarContainer = document.getElementById('comment-input-avatar');
+                if(avatarContainer) {
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                }
+            }
+        });
+    }
+}
+
+window.postComment = function(epID) { 
+    const input = document.getElementById('main-comment-input'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        const role = u.role || 'Member';
+        const level = u.level || 1;
+        const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
+
+        const saveComment = () => {
+            // NAH, DI DALAM SINI POSISI YANG BENERNYA 👇
+            db.ref('comments/' + epID).push().set({ 
+                uid: currentUser.uid, 
+                nama: u.nama, 
+                foto: u.foto, 
+                role: u.role || 'Member', 
+                level: u.level || 1, 
+                teks: text, 
+                waktu: Date.now(), 
+                animeTitle: window.currentPlayingAnime ? window.currentPlayingAnime.title : 'Anime Tidak Diketahui', 
+                animeImage: window.currentPlayingAnime ? window.currentPlayingAnime.image : 'https://placehold.co/100', 
+                animeEp: window.currentPlayingAnime ? window.currentPlayingAnime.ep : 'Episode ?', 
+                url: window.currentPlayingAnime ? window.currentPlayingAnime.url : '',
+                activeBorder: u.activeBorder || '',
+                activeCommentplate: u.activeCommentplate || '' // <--- INI DIA
+            }); 
+            input.value = ''; 
+            addXP(10);
+        };
+
+        if (isPremium) {
+            saveComment();
+        } else {
+            db.ref('comments/' + epID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(cSnap => {
+                if (cSnap.exists()) {
+                    window.showToast('Limit tercapai! Wibu Biasa hanya bisa komen 1x per episode.', 'error');
+                } else {
+                    saveComment();
+                }
+            });
+        }
+    }); 
+};
+
+window.postReply = function(parentID) { 
+    const input = document.getElementById('reply-input-text'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        const role = u.role || 'Member';
+        const level = u.level || 1;
+        const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
+
+        const saveReply = () => {
+            db.ref('replies/' + parentID).push().set({ 
+                uid: currentUser.uid, 
+                nama: u.nama, 
+                foto: u.foto, 
+                role: u.role || 'Member', 
+                level: u.level || 1, 
+                teks: text, 
+                waktu: Date.now(),
+                activeBorder: u.activeBorder || '',
+                activeCommentplate: u.activeCommentplate || '' // <--- INI JUGA
+            }); 
+            input.value = ''; 
+            addXP(5); 
+        };
+
+        if (isPremium) {
+            saveReply();
+        } else {
+            db.ref('replies/' + parentID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(rSnap => {
+                if (rSnap.exists()) {
+                    window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error');
+                } else {
+                    saveReply();
+                }
+            });
+        }
+    }); 
+};
+
+
+// Logika Tahan untuk Hapus (Long Press)
+window.commentPressTimer = null;
+window.handleCommentTouchStart = function(isReply, epID, parentID, replyID) {
+    window.commentPressTimer = setTimeout(() => {
+        openDeleteModal(isReply, epID, parentID, replyID);
+    }, 600); // Tahan 0.6 detik
+};
+window.handleCommentTouchEnd = function() {
+    if (window.commentPressTimer) clearTimeout(window.commentPressTimer);
+};
+
+function generateCommentHtml(c, isReply = false, epID = null, parentID = null) {
+    const role = c.role || 'Member'; const level = c.level || 1; const uidStr = c.uid ? "#" + c.uid.substring(0, 7).toUpperCase() : "#0000000"; const timeStr = timeAgo(c.waktu || Date.now());
+    
+    let roleBadgeClass = 'badge-member'; let roleName = role; 
+    if(role === 'Developer') { roleBadgeClass = 'badge-dev-anim'; roleName = 'DEV'; } 
+    else if(role === 'Wibu Premium' || level >= 50) { roleBadgeClass = 'badge-premium-anim'; roleName = role !== 'Member' ? role : 'Wibu Premium'; } 
+    else if(role === 'Member') { roleName = 'Wibu Biasa'; }
+
+    // --- BACA DATA BORDER & EFEK KOMEN DARI SHOP ---
+    let decoUrl = c.activeBorder && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.borders && window.COSMETIC_CATALOG.borders[c.activeBorder] ? window.COSMETIC_CATALOG.borders[c.activeBorder].url : '';
+    let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
+    
+    // Background Effect Komen
+    let plateStyle = c.activeCommentplate && window.COSMETIC_CATALOG && window.COSMETIC_CATALOG.commentplates && window.COSMETIC_CATALOG.commentplates[c.activeCommentplate] ? window.COSMETIC_CATALOG.commentplates[c.activeCommentplate].style : 'background: transparent;';
+    // -----------------------------------------------
+
+    const rankInfo = getRankInfo(level); let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`;
+    const userExp = (level - 1) * 200 + Math.floor(Math.random() * 150); const userJam = level * 2; 
+    
+    let replyBtnHtml = ''; 
+    if(!isReply && epID && parentID) { 
+        replyBtnHtml += `<div style="font-size: 12px; color: #3b82f6; font-weight: 700; cursor: pointer; display: inline-block; margin-right: 15px;" onclick="event.stopPropagation(); openReplyModal('${epID}', '${parentID}')">Reply</div>`; 
+    }
+    
+    let containerAction = ''; let containerCursor = 'default'; let hintHapus = '';
+    
+    if (currentUser && c.uid === currentUser.uid) {
+        let args = isReply ? `true, null, '${parentID}', '${c.id}'` : `false, '${epID}', '${parentID}', null`;
+        containerAction = `onmousedown="handleCommentTouchStart(${args})" onmouseup="handleCommentTouchEnd()" onmouseleave="handleCommentTouchEnd()" ontouchstart="handleCommentTouchStart(${args})" ontouchend="handleCommentTouchEnd()" ontouchmove="handleCommentTouchEnd()"`;
+        containerCursor = 'pointer';
+        hintHapus = `<span style="font-size:10px; color:#ef4444; opacity:0.8; margin-left:auto; font-weight:700; position:relative; z-index:2;">Tahan Hapus</span>`;
+    }
+    
+    let avatarSize = isReply ? '28px' : '36px';
+    let avatarHtml = `<div style="position: relative; width: ${avatarSize}; height: ${avatarSize}; flex-shrink: 0; margin-top: 4px; cursor: pointer; z-index:2;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')"><img src="${c.foto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none;">${decoHtml}</div>`;
+    
+    // Inject plateStyle ke container comment-item
+    return `<div class="comment-item" ${containerAction} style="position: relative; display: flex; gap: 12px; margin-bottom: ${isReply ? '15px' : '25px'}; cursor: ${containerCursor}; transition: 0.2s; padding: 10px; border-radius: 12px; ${plateStyle}">
+        ${avatarHtml}
+        <div style="flex: 1; min-width: 0; position: relative; z-index: 2;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <span style="font-weight: 700; font-size: ${isReply ? '12px' : '13px'}; color:#fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openUserProfile('${c.uid}')">${c.nama}</span>
+                <span style="font-size: 10px; color: #888; flex-shrink: 0;">• ${timeStr}</span>
+                ${hintHapus}
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
+                <span class="c-badge ${lvlClass}" onclick="event.stopPropagation(); openLevelModal(${level}, '${userExp}', ${userJam})" style="cursor: pointer;">${rankInfo.icon} Lvl. ${level}</span>
+                <span class="c-badge ${roleBadgeClass}">${roleName}</span>
+                <span style="font-size: 10px; color: #666; font-family: monospace; letter-spacing: 0.5px;">${uidStr}</span>
+            </div>
+            <div style="font-size: ${isReply ? '12px' : '13px'}; color: #d1d5db; line-height: 1.5; word-wrap: break-word; margin-bottom: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${c.teks}</div>
+            <div style="margin-top: 4px;">${replyBtnHtml}</div>
+        </div>
+    </div>`;
+}
+
+function listenToComments(epID) { db.ref('comments/' + epID).on('value', snap => { const list = document.getElementById('comment-list-container'); const countEl = document.getElementById('comment-count-text'); if(!snap.exists()) { if(countEl) countEl.innerText = "0 Comments"; if(list) list.innerHTML = '<div style="text-align:center; padding:30px 0;"><p style="color:#555; font-size:13px;">Belum ada komentar.</p></div>'; return; } let commentsArr = []; snap.forEach(child => { commentsArr.push({ id: child.key, ...child.val() }); }); if(countEl) { let total = commentsArr.length; countEl.innerText = total > 1000 ? (total/1000).toFixed(1) + 'K Comments' : total + ' Comments'; } if(window.currentCommentSort === 'new') { commentsArr.sort((a, b) => b.waktu - a.waktu); } else { commentsArr.sort((a, b) => a.waktu - b.waktu); } if(list) list.innerHTML = commentsArr.map(c => generateCommentHtml(c, false, epID, c.id)).join(''); }); }
+
+window.openReplyModal = function(epID, parentID) {
+    document.getElementById('replyModalOverlay').style.display = 'block'; document.getElementById('replyModal').style.display = 'block'; setTimeout(() => { document.getElementById('replyModal').classList.add('show'); }, 10);
+    
+    db.ref(`comments/${epID}/${parentID}`).once('value').then(snap => { 
+        if(snap.exists()) {
+            let pData = { id: snap.key, ...snap.val() };
+            document.getElementById('reply-parent-content').innerHTML = generateCommentHtml(pData, false, epID, snap.key); 
+        }
+    });
+    
+    db.ref(`replies/${parentID}`).on('value', snap => { 
+        const list = document.getElementById('reply-list-container'); 
+        if(!snap.exists()) { list.innerHTML = '<div style="font-size:12px; color:#666; padding:10px 0;">Jadilah yang pertama membalas...</div>'; return; } 
+        
+        let repliesArr = []; 
+        snap.forEach(child => repliesArr.push({ id: child.key, ...child.val() })); 
+        repliesArr.sort((a, b) => a.waktu - b.waktu); 
+        list.innerHTML = repliesArr.map(r => generateCommentHtml(r, true, null, parentID)).join(''); 
+    });
+    
+    const inputArea = document.getElementById('reply-input-area'); 
+    if(!currentUser) { 
+        inputArea.innerHTML = `<div style="text-align:center; padding:10px; color:#888; font-size:12px; cursor:pointer;" onclick="closeReplyModal(); switchTab('developer')">Login untuk membalas...</div>`; 
+    } 
+    else { 
+        const userFoto = currentUser.photoURL || 'https://placehold.co/40'; 
+        inputArea.innerHTML = `<div style="display: flex; gap: 10px; align-items: center; margin-top: 15px;"><div id="reply-input-avatar" style="position: relative; width: 32px; height: 32px; flex-shrink: 0;"><img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"></div><div style="flex: 1; position: relative;"><input type="text" id="reply-input-text" onkeypress="if(event.key === 'Enter') postReply('${parentID}')" placeholder="Balas komentar..." style="width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 13px; outline: none; box-sizing: border-box;"><button onclick="postReply('${parentID}')" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div></div>`; 
+        
+        db.ref('users/' + currentUser.uid).once('value').then(snap => {
+            let d = snap.val();
+            if(d && d.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[d.activeBorder]) {
+                let decoUrl = window.BORDER_CATALOG[d.activeBorder].url;
+                let avatarContainer = document.getElementById('reply-input-avatar');
+                if(avatarContainer) {
+                    avatarContainer.innerHTML = `<img src="${userFoto}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display:block;"><div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>`;
+                }
+            }
+        });
+    }
+};
+
+window.closeReplyModal = function() { const modal = document.getElementById('replyModal'); modal.classList.remove('show'); setTimeout(() => { document.getElementById('replyModalOverlay').style.display = 'none'; modal.style.display = 'none'; }, 300); };
+
+window.postReply = function(parentID) { 
+    const input = document.getElementById('reply-input-text'); 
+    const text = input.value; 
+    if(!text.trim() || !currentUser) return; 
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => { 
+        const u = snap.val(); 
+        const role = u.role || 'Member';
+        const level = u.level || 1;
+        const isPremium = (role === 'Wibu Premium' || role === 'Developer' || level >= 50);
+
+        const saveReply = () => {
+            db.ref('replies/' + parentID).push().set({ 
+                uid: currentUser.uid, 
+                nama: u.nama, 
+                foto: u.foto, 
+                role: u.role || 'Member', 
+                level: u.level || 1, 
+                teks: text, 
+                waktu: Date.now() 
+            }); 
+            input.value = ''; 
+            addXP(5); 
+        };
+
+        if (isPremium) {
+            saveReply();
+        } else {
+            db.ref('replies/' + parentID).orderByChild('uid').equalTo(currentUser.uid).once('value').then(rSnap => {
+                if (rSnap.exists()) {
+                    window.showToast('Wibu Biasa hanya bisa membalas 1x di komentar ini.', 'error');
+                } else {
+                    saveReply();
+                }
+            });
+        }
+    }); 
+};
+
+
+window.allowExitApp = false; window.historyTrapSet = false;
+function setupHistoryTrap() { if (!window.historyTrapSet) { history.replaceState(null, '', '#trap'); history.pushState(null, '', '#home'); window.historyTrapSet = true; } }
+window.addEventListener('touchstart', setupHistoryTrap, { once: true, passive: true }); window.addEventListener('click', setupHistoryTrap, { once: true, passive: true });
+window.addEventListener('popstate', (e) => { 
+    if (window.allowExitApp) return; let hash = window.location.hash; let p = document.getElementById('video-player'); if (p && hash !== '#watch') { p.src = ''; }
+    if (hash === '#trap' || hash === '') { openExitModal(); history.pushState(null, '', '#home'); return; }
+    let page = hash.replace('#', '') || 'home'; switchTab(page); 
+});
+
+window.goHome = function() { if (window.location.hash !== '#home') { history.back(); } };
+window.backToDetail = function() { 
+    window.currentPlayingAnime = null;
+    window.renderDetailEpisodeUI();
+    if (window.location.hash === '#watch') { history.back(); } else { switchTab('detail'); } 
+};
+
+window.injectExitModal = function() {
+    if(document.getElementById('exit-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'exit-modal-injected';
+    div.innerHTML = `<div id="exitModalOverlay" class="modal-overlay" onclick="cancelExit()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div><div id="exitModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;"><div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div><h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Yakin ingin keluar?</h3><p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin menutup aplikasi Animeku?</p><div style="display:flex; gap:10px;"><button onclick="cancelExit()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Tidak</button><button onclick="confirmExit()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button></div></div>`;
+    document.body.appendChild(div);
+};
+window.openExitModal = function() { document.getElementById('exitModalOverlay').style.display = 'block'; document.getElementById('exitModal').style.display = 'block'; setTimeout(() => { document.getElementById('exitModal').style.opacity = '1'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(1)'; }, 10); };
+window.cancelExit = function() { document.getElementById('exitModal').style.opacity = '0'; document.getElementById('exitModal').style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { document.getElementById('exitModalOverlay').style.display = 'none'; document.getElementById('exitModal').style.display = 'none'; }, 300); };
+window.confirmExit = function() { window.allowExitApp = true; window.history.go(-2); setTimeout(() => { window.close(); }, 300); };
+
+// ==========================================
+// FITUR MODAL HAPUS KOMENTAR
+// ==========================================
+let commentToDelete = null;
+
+window.injectDeleteModal = function() {
+    if(document.getElementById('delete-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'delete-modal-injected';
+    div.innerHTML = `<div id="deleteModalOverlay" class="modal-overlay" onclick="closeDeleteModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div><div id="deleteModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;"><div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div><h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Hapus Komentar?</h3><p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Komentar ini akan dihapus secara permanen dan tidak bisa dikembalikan.</p><div style="display:flex; gap:10px;"><button onclick="closeDeleteModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button><button onclick="confirmDeleteComment()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Hapus</button></div></div>`;
+    document.body.appendChild(div);
+};
+
+window.openDeleteModal = function(isReply, epID, parentID, replyID) {
+    commentToDelete = { isReply, epID, parentID, replyID };
+    injectDeleteModal();
+    document.getElementById('deleteModalOverlay').style.display = 'block'; 
+    document.getElementById('deleteModal').style.display = 'block'; 
+    setTimeout(() => { 
+        document.getElementById('deleteModal').style.opacity = '1'; 
+        document.getElementById('deleteModal').style.transform = 'translate(-50%, -50%) scale(1)'; 
+    }, 10);
+};
+
+window.closeDeleteModal = function() {
+    const modal = document.getElementById('deleteModal'); const overlay = document.getElementById('deleteModalOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; 
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; commentToDelete = null; }, 300);
+    }
+};
+
+window.confirmDeleteComment = function() {
+    if (!commentToDelete) return;
+    const { isReply, epID, parentID, replyID } = commentToDelete;
+    
+    if (isReply) {
+        db.ref(`replies/${parentID}/${replyID}`).remove().then(() => {
+            window.showToast("Balasan berhasil dihapus!", "success");
+            closeDeleteModal();
+        });
+    } else {
+        db.ref(`comments/${epID}/${parentID}`).remove().then(() => {
+            db.ref(`replies/${parentID}`).remove();
+            window.showToast("Komentar berhasil dihapus!", "success");
+            closeDeleteModal();
+            
+            const replyModal = document.getElementById('replyModal');
+            if (replyModal && replyModal.classList.contains('show')) { closeReplyModal(); }
+        });
+    }
+};
+
+// ==========================================
+// FITUR JADWAL RILIS ANIME
+// ==========================================
+window.cachedScheduleData = null; 
+
+function injectScheduleStyles() {
+    if(document.getElementById('schedule-styles')) return;
+    const style = document.createElement('style'); style.id = 'schedule-styles';
+    style.innerHTML = `
+        .sched-day-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 15px 20px; background: #050505; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; z-index: 10; }
+        .sched-day-scroll::-webkit-scrollbar { display: none; }
+        .sched-day-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #666; font-weight: 700; cursor: pointer; min-width: 40px; transition: 0.2s; }
+        .sched-day-item .s-name { font-size: 12px; }
+        .sched-day-item .s-date { font-size: 16px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .sched-day-item.active { color: #3b82f6; }
+        .sched-day-item.active .s-date { background: #3b82f6; color: #fff; box-shadow: 0 4px 10px rgba(59,130,246,0.4); }
+        .sched-card { display: flex; gap: 12px; padding: 12px; border: 1px solid #2c2c2e; border-radius: 12px; cursor: pointer; transition: 0.2s; background: #1c1c1e; align-items: center; margin: 0 15px 15px 15px; box-sizing: border-box; }
+        .sched-card:hover { border-color: #3b82f6; }
+        .sched-time { font-size: 16px; font-weight: 900; color: #fff; width: 50px; text-align: center; flex-shrink: 0; }
+        .sched-img { width: 75px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #222; flex-shrink: 0; background: #111;}
+        .sched-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        .sched-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sched-ep { font-size: 12px; color: #d1d5db; margin-bottom: 6px; font-weight: 600; }
+        .sched-stats { font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 6px; }
+        .sched-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .status-wait { color: #a1a1aa; } .status-wait::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #555; border-radius: 50%; }
+        .status-done { color: #10b981; } .status-done::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 5px #10b981; }
+        .sched-float-nav { display: flex; justify-content: space-between; padding: 15px 20px; background: linear-gradient(transparent, #050505 40%); position: fixed; bottom: 60px; width: 100%; max-width: 500px; box-sizing: border-box; pointer-events: none; z-index: 10; }
+        .sched-btn { pointer-events: auto; background: #1c1c1e; color: #fff; border: 1px solid #333; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    `;
+    document.head.appendChild(style);
+}
+
+window.currentJadwalDay = new Date().getDay(); 
+const NAMA_HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const NAMA_HARI_FULL = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+window.initJadwal = async function() {
+    injectScheduleStyles();
+    if (document.getElementById('sched-list-container').innerHTML === '') {
+        renderJadwalDays(window.currentJadwalDay); await loadJadwalData(window.currentJadwalDay);
+    }
+};
+
+window.changeJadwalDay = function(direction) { let newDay = window.currentJadwalDay + direction; if(newDay > 6) newDay = 0; if(newDay < 0) newDay = 6; window.currentJadwalDay = newDay; renderJadwalDays(newDay); loadJadwalData(newDay); };
+window.setJadwalDay = function(dayIndex) { window.currentJadwalDay = dayIndex; renderJadwalDays(dayIndex); loadJadwalData(dayIndex); };
+
+function renderJadwalDays(activeDay) {
+    const container = document.getElementById('sched-days-container'); const today = new Date(); const currentDayOfWeek = today.getDay(); 
+    let html = '';
+    for(let i = 0; i < 7; i++) {
+        let diff = i - currentDayOfWeek; let dateOfThisDay = new Date(today); dateOfThisDay.setDate(today.getDate() + diff); let tgl = dateOfThisDay.getDate();
+        let isActive = (i === activeDay) ? 'active' : '';
+        html += `<div class="sched-day-item ${isActive}" onclick="setJadwalDay(${i})"><div class="s-name">${NAMA_HARI[i]}</div><div class="s-date">${tgl}</div></div>`;
+    }
+    container.innerHTML = html;
+    let prevDay = activeDay - 1; if(prevDay < 0) prevDay = 6; let nextDay = activeDay + 1; if(nextDay > 6) nextDay = 0;
+    document.getElementById('sched-text-prev').innerText = NAMA_HARI_FULL[prevDay]; document.getElementById('sched-text-next').innerText = NAMA_HARI_FULL[nextDay];
+}
+
+async function loadJadwalData(dayIndex) {
+    const container = document.getElementById('sched-list-container'); 
+    if (!window.cachedScheduleData) { loader(true); }
+
+    try {
+        let data;
+        if (window.cachedScheduleData) { data = window.cachedScheduleData; } 
+        else { const res = await fetchTimeout(`${API_BASE}/latest`, 10000); data = await res.json(); if(!data || data.length === 0) throw new Error("No data"); window.cachedScheduleData = data; }
+
+        let pseudoRandom = (seed) => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
+        let todaysAnime = data.filter((_, idx) => pseudoRandom(dayIndex * 10 + idx) > 0.4);
+        todaysAnime.forEach((anime, idx) => { let jam = Math.floor(pseudoRandom(dayIndex * 20 + idx) * 24); let menit = Math.floor(pseudoRandom(dayIndex * 30 + idx) * 60); anime.releaseTime = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}`; anime.releaseHour = jam; });
+        todaysAnime.sort((a, b) => b.releaseHour - a.releaseHour); 
+
+        let html = ''; let currentHour = new Date().getHours(); let isToday = dayIndex === new Date().getDay();
+        todaysAnime.forEach((anime, idx) => {
+            let isReleased = isToday ? (anime.releaseHour <= currentHour) : (dayIndex < new Date().getDay());
+            let statusText = isReleased ? `<span class="status-done">Sudah Update Rilis</span>` : `<span class="status-wait">Menunggu Update Baru</span>`;
+            let mockViews = `${Math.floor(pseudoRandom(idx) * 200 + 10)},${Math.floor(pseudoRandom(idx+1)*9)}K`; let mockScore = (pseudoRandom(idx+2) * 2 + 6.0).toFixed(2); let epBadge = getEpBadge(anime) || "Episode ?";
+            html += `<div class="sched-card" onclick="loadDetail('${anime.url}')"><div class="sched-time">${anime.releaseTime}</div><img src="${getHighRes(anime.image)}" class="sched-img" onerror="this.src='https://placehold.co/70x100/1a1a1a/3b82f6?text=Anime'"><div class="sched-info"><div class="sched-title">${anime.title}</div><div class="sched-ep">${epBadge}</div><div class="sched-stats"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${mockViews} <span style="color:#fbbf24; margin-left:8px;">⭐ ${mockScore}</span></div><div class="sched-status">${statusText}</div></div></div>`;
+        });
+        if(todaysAnime.length === 0) { html = `<div style="text-align:center; padding: 50px; color:#555;">Tidak ada jadwal rilis hari ini.</div>`; }
+        container.innerHTML = html;
+    } catch(e) { container.innerHTML = `<div style="text-align:center; padding: 50px; color:#ef4444;">Gagal memuat jadwal. Server sedang sibuk.</div>`; }
+    loader(false);
+}
+
+function showUpdateNotification(updates) {
+    if (!document.getElementById('in-app-notif-container')) { const container = document.createElement('div'); container.id = 'in-app-notif-container'; container.style.cssText = 'position:fixed; top:15px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:350px; pointer-events:none;'; document.body.appendChild(container); }
+    const container = document.getElementById('in-app-notif-container');
+    updates.forEach((update, idx) => {
+        setTimeout(() => {
+            const notif = document.createElement('div');
+            notif.style.cssText = 'pointer-events:auto; background:#1c1c1e; border:1px solid #3b82f6; border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 25px rgba(0,0,0,0.8); transform:translateY(-30px) scale(0.95); opacity:0; transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor:pointer;';
+            notif.innerHTML = `<img src="${getHighRes(update.image)}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #333;"><div style="flex:1; min-width:0;"><div style="color:#3b82f6; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Update Rilis!</div><div style="color:#fff; font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${update.title}</div><div style="color:#a1a1aa; font-size:12px; font-weight:500;">Episode ${update.newEp} sudah tersedia.</div></div><div style="background:rgba(59,130,246,0.15); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></div>`;
+            notif.onclick = () => { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => notif.remove(), 300); loadDetail(update.url); };
+            container.appendChild(notif); setTimeout(() => { notif.style.transform = 'translateY(0) scale(1)'; notif.style.opacity = '1'; }, 10);
+            setTimeout(() => { if(notif.parentNode) { notif.style.opacity = '0'; notif.style.transform = 'translateY(-20px) scale(0.95)'; setTimeout(() => { if(notif.parentNode) notif.remove(); }, 300); } }, 6000);
+        }, idx * 1200); 
+    });
+}
+
+async function checkAnimeUpdates() {
+    try {
+        const favorites = await getFavorites(); if (!favorites || favorites.length === 0) return;
+        const res = await fetchTimeout(`${API_BASE}/latest`, 10000); if (!res || !res.ok) return; const latestData = await res.json();
+        let updatedAnimes = []; const database = await initDB();
+        for (const latest of latestData) {
+            const fav = favorites.find(f => f.url === latest.url);
+            if (fav) {
+                const extractEpNum = (str) => { if (!str) return 0; let m = String(str).match(/(?:Episode|Eps|Ep)\s*(\d+(\.\d+)?)/i); if (m) return parseFloat(m[1]); let nums = String(str).match(/\d+/g); return nums ? parseFloat(nums[nums.length - 1]) : 0; };
+                let favEpNum = extractEpNum(fav.episode); let latestEpNum = extractEpNum(getEpBadge(latest));
+                if (latestEpNum > favEpNum) { updatedAnimes.push({ title: fav.title, newEp: latestEpNum, url: fav.url, image: fav.image }); fav.episode = `Eps ${latestEpNum}`; database.transaction(STORE_FAV, 'readwrite').objectStore(STORE_FAV).put(fav); }
+            }
+        }
+        if (updatedAnimes.length > 0) showUpdateNotification(updatedAnimes);
+    } catch (e) {}
+}
+
+function switchTab(tabName) {
+    // FIX LAYAR NYANGKUT: Tutup paksa semua modal tersembunyi pas pindah halaman
+    document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.bottom-sheet').forEach(el => { el.style.display = 'none'; el.classList.remove('show'); });
+
+    ['home-view', 'recent-view', 'favorite-view', 'developer-view', 'detail-view', 'watch-view', 'search-view', 'jadwal-view'].forEach(v => { let el = document.getElementById(v); if(el) el.classList.add('hidden'); });
+    // ... sisa kode di bawahnya biarkan saja
+    document.getElementById('mainNavbar').style.display = (tabName === 'home' || tabName === 'search') ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = (tabName === 'detail' || tabName === 'watch') ? 'none' : 'flex';
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    let targetView = document.getElementById(tabName + '-view'); if(targetView) targetView.classList.remove('hidden');
+    let targetNav = document.getElementById('tab-' + tabName); if(targetNav) targetNav.classList.add('active');
+    
+    if (tabName === 'home' && document.getElementById('home-view').innerHTML === '') loadLatest();
+    if (tabName === 'recent') loadRecentHistory();
+    if (tabName === 'favorite') loadFavorites();
+    if (tabName === 'jadwal') initJadwal();
+}
+
+function initApp() { 
+    updateDevUI(); injectReportModal(); injectExitModal(); injectDeleteModal(); 
+    injectChangeNameModal(); 
+    injectLogoutModal(); 
+    injectTransactionModal(); // <--- WAJIB ADA BIAR KONFIRMASINYA MUNCUL
+    if(window.location.hash === '') { history.replaceState(null, '', '#home'); }
+    switchTab('home'); 
+    setTimeout(() => { checkAnimeUpdates(); }, 3000);
+}
+
+// ==========================================
+// FITUR MALL KOSMETIK (BORDER & EFEK KOMEN)
+// ==========================================
+window.COSMETIC_CATALOG = {
+    borders: {
+        'glitch_merah': { nama: 'Glitch Merah (Mythic)', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1436367668897775757/animated' },
+        'blue_premium': { nama: 'Blue Premium', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1373015260507930664/animated' },
+        'phoenix': { nama: 'Phoenix', harga: 750, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1298033986622328842/animated' },
+        'venom': { nama: 'Venom', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481388474673139855/animated' },
+        'black-mana': { nama: 'Black Mana', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1379220459026911342/animated' },
+        'the-haxcore': { nama: 'The Hacxcore', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165171294268/animated' },
+        'fishbones': { nama: 'FISHBONES!', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165150322698/animated' },
+        'hologram-dragon': { nama: 'Hologram Dragon', harga: 3000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1366494385583165630/animated' },
+        'baby-displacer-beast': { nama: 'Baby-Displacer-Beast', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1293373563352649961/animated' },
+        'fallen-angel-(black)': { nama: 'Fallen Angel (Black)', harga: 700, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1462116613682757888/animated' },
+        'spider-man': { nama: 'Spider Man', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1481384635886862397/animated' },
+        'super-recognizer': { nama: 'Super Recognizer', harga: 1200, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1437881614062452838/animated' },
+        'infinite-swirl': { nama: 'Infinite Swirl', harga: 800, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1427463138634109027/animated' },
+        'juggernaut-astro': { nama: 'Juggernaut Astro', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1387888352639975484/animated' },
+        'the-anomaly': { nama: 'The-Anomaly', harga: 2000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1306752744258011166/animated' },
+        'purple-animation': { nama: 'Purple-Animation', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1303490165192265799/animated' },
+        'dark-hood': { nama: 'Dark Hood', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633615765524/animated' },
+        'dark-hood (crimson)': { nama: 'Drak Hood (crimson)', harga: 500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633645125653/animated' },
+        'zombie-food': { nama: 'Zombie Food', harga: 1500, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1287835633762701382/animated' },
+        'juri': { nama: 'Juri', harga: 1000, url: 'https://cdn.discordapp.com/media/v1/collectibles-shop/1285465421193154560/animated' }
+    },
+        commentplates: {
+        'dark_nebula': { nama: 'Dark Nebula', harga: 1200, style: 'background: linear-gradient(90deg, rgba(88,28,135,0.3), transparent); border-left: 3px solid #8b5cf6;' },
+        'toxic_green': { nama: 'Toxic Slime', harga: 1200, style: 'background: linear-gradient(90deg, rgba(6,78,59,0.3), transparent); border-left: 3px solid #10b981;' }
+    }
+};
+
+window.currentShopCategory = 'borders';
+
+window.beliKoinWa = function(koin, harga) {
+    if(!currentUser) return;
+    let text = `Halo Admin, saya mau Top Up Koin Animeku.%0A%0AUID Saya: ${currentUser.uid}%0ANama: ${currentUser.displayName}%0APaket: ${koin} Koin seharga ${harga}`;
+    window.open('https://wa.me/6281315059849?text=' + text);
+};
+
+window.openBorderShop = function() {
+    if(!currentUser) return window.showToast('Login dulu untuk belanja!', 'error');
+    if(!document.getElementById('borderShopModal')) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <div id="borderShopOverlay" class="modal-overlay" onclick="closeBorderShop()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+            <div id="borderShopModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#050505; width:340px; border-radius:24px; z-index:9999999; padding:20px; transition:0.3s; opacity:0; border: 1px solid #1a1a1a;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111; padding-bottom: 15px; margin-bottom: 15px;">
+                    <h3 style="color:#fff; margin:0; font-size:18px; font-weight:900;">Mall Kosmetik</h3>
+                    <div style="background:#facc15; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:800;">
+                        <span id="user-coin-balance">0</span> Koin
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button id="tab-shop" onclick="switchBorderTab('shop')" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Shop</button>
+                    <button id="tab-gift" onclick="switchBorderTab('gift')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Gift</button>
+                    <button id="tab-topup" onclick="switchBorderTab('topup')" style="flex:1; background:#1c1c1e; color:#fff; border:none; padding:8px; border-radius:10px; font-weight:800; cursor:pointer; font-size:12px;">Top Up</button>
+                </div>
+
+                <div id="category-selector" style="display:flex; justify-content:center; gap:15px; margin-bottom:15px; border-bottom:1px solid #111; padding-bottom:10px;">
+                    <span onclick="setShopCategory('borders')" class="cat-item active" id="cat-borders" style="color:#fff; font-size:12px; font-weight:800; cursor:pointer;">Border Profil</span>
+                    <span onclick="setShopCategory('commentplates')" class="cat-item" id="cat-commentplates" style="color:#666; font-size:12px; font-weight:800; cursor:pointer;">Efek Komen</span>
+                </div>
+
+                <div id="view-shop" style="max-height: 300px; overflow-y: auto;" class="hide-scrollbar"></div>
+                
+                <div id="view-gift" style="display:none;">
+                <input type="text" id="gift-uid-input" oninput="window.previewGiftUser(this.value)" placeholder="Masukkan UID Teman (#...)" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:10px; outline:none; box-sizing:border-box; font-size:13px;">
+    
+                <div id="gift-user-preview" style="display:none; align-items:center; gap:12px; background:rgba(59, 130, 246, 0.1); padding:12px; border-radius:15px; margin-bottom:15px; border:1px solid #3b82f6; animation: slideInGift 0.3s ease;">
+                <div style="position:relative; width:40px; height:40px;">
+                <img id="gift-preview-img" src="" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:1px solid #3b82f6;">
+               </div>
+                <div style="flex:1;">
+                <div id="gift-preview-name" style="color:#fff; font-size:14px; font-weight:900;">Mencari...</div>
+                <div id="gift-preview-uid" style="color:#3b82f6; font-size:11px; font-weight:700; font-family:monospace;">#XXXXXX</div>
+        </div>
+        <div style="background:#3b82f6; color:#fff; padding:4px 8px; border-radius:8px; font-size:10px; font-weight:900;">TARGET</div>
+    </div>
+    
+    <div id="gift-inventory-list" style="max-height: 200px; overflow-y: auto;" class="hide-scrollbar"></div>
+</div>
+
+                <div id="view-topup" style="display:none; max-height: 300px; overflow-y: auto;" class="hide-scrollbar"></div>
+                <button onclick="closeBorderShop()" style="width:100%; background:#1c1c1e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; margin-top:15px; cursor:pointer;">Tutup</button>
+            </div>
+        `;
+        document.body.appendChild(div);
+    }
+
+    document.getElementById('borderShopOverlay').style.display = 'block'; 
+    const modal = document.getElementById('borderShopModal'); modal.style.display = 'block';
+    setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
+    
+    db.ref('users/' + currentUser.uid).on('value', snap => {
+        window.currentUserData = snap.val(); if(!window.currentUserData) return;
+        document.getElementById('user-coin-balance').innerText = window.currentUserData.koin || 0;
+        window.renderShopContent();
+        
+        const topupPackages = [{koin: 100, harga: "Rp 2.000"}, {koin: 500, harga: "Rp 10.000"}, {koin: 1000, harga: "Rp 20.000"}, {koin: 5000, harga: "Rp 100.000"}];
+        let topupHtml = '<p style="color:#888; font-size:12px; margin-bottom:10px;">Pilih jumlah koin yang ingin kamu beli via WhatsApp.</p>';
+        topupPackages.forEach(p => { topupHtml += `<div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:12px; margin-bottom:10px;"><div style="color:#facc15; font-weight:900; font-size:15px;">${p.koin} Koin</div><button onclick="beliKoinWa(${p.koin}, '${p.harga}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;">${p.harga}</button></div>`; });
+        document.getElementById('view-topup').innerHTML = topupHtml;
+    });
+};
+
+window.setShopCategory = function(cat) {
+    window.currentShopCategory = cat;
+    document.getElementById('cat-borders').style.color = cat === 'borders' ? '#fff' : '#666';
+    document.getElementById('cat-commentplates').style.color = cat === 'commentplates' ? '#fff' : '#666';
+    window.renderShopContent();
+};
+
+window.renderShopContent = function() {
+    if(!window.currentUserData) return;
+    const d = window.currentUserData; const cat = window.currentShopCategory || 'borders';
+    const catalog = window.COSMETIC_CATALOG[cat];
+    const ownedKey = cat === 'borders' ? 'ownedBorders' : 'ownedCommentplates';
+    const activeKey = cat === 'borders' ? 'activeBorder' : 'activeCommentplate';
+    const owned = d[ownedKey] || {}; const active = d[activeKey] || '';
+    
+    let html = ''; let giftHtml = '';
+    for(let key in catalog) {
+        let item = catalog[key]; let isOwned = owned[key]; let isActive = active === key;
+        
+        // Tombol untuk Shop
+        let btn = isActive ? `<button onclick="equipItem('${cat}', '')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Lepas</button>` 
+                  : isOwned ? `<button onclick="equipItem('${cat}', '${key}')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Pakai</button>` 
+                  : `<button onclick="buyItem('${cat}', '${key}', ${item.harga})" style="background:#3b82f6; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">Beli</button>`;
+
+        // Preview Ikon (Dipakai untuk Shop & Gift)
+        let displayIcon = cat === 'borders' 
+            ? `<div style="width:40px; height:40px; position:relative; flex-shrink:0;"><img src="${d.foto || 'https://placehold.co/100'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;"><div style="position:absolute; top:50%; left:50%; width:120%; height:120%; transform:translate(-50%, -50%); pointer-events:none; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div></div>`
+            : `<div style="width:40px; height:40px; border-radius:8px; flex-shrink:0; border:1px solid #333; ${item.style}"></div>`;
+
+        // Tampilan List Shop
+        html += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid ${isActive ? '#3b82f6' : '#1a1a1a'};">${displayIcon}<div style="flex:1;"><div style="font-weight:800; font-size:13px; color:#fff;">${item.nama}</div><div style="color:${isOwned ? '#10b981' : '#facc15'}; font-size:11px; font-weight:700;">${isOwned ? 'Milikmu' : item.harga + ' Koin'}</div></div><div>${btn}</div></div>`;
+        
+        // Tampilan List Gift (Dibuat SAMA PERSIS dengan Shop)
+        giftHtml += `<div style="display:flex; align-items:center; gap:12px; background:#111; padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid #1a1a1a;">${displayIcon}<div style="flex:1;"><div style="font-weight:800; font-size:13px; color:#fff;">${item.nama}</div><div style="color:#facc15; font-size:11px; font-weight:700;">Harga: ${item.harga} Koin</div></div><div><button onclick="giftItem('${cat}', '${key}', ${item.harga})" style="background:#f59e0b; color:#000; border:none; padding:6px 16px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);">Gift</button></div></div>`;
+    }
+    document.getElementById('view-shop').innerHTML = html;
+    document.getElementById('gift-inventory-list').innerHTML = giftHtml;
+};
+
+window.switchBorderTab = function(tab) {
+    document.getElementById('view-shop').style.display = tab === 'shop' ? 'block' : 'none';
+    document.getElementById('view-gift').style.display = tab === 'gift' ? 'block' : 'none';
+    document.getElementById('view-topup').style.display = tab === 'topup' ? 'block' : 'none';
+    document.getElementById('tab-shop').style.background = tab === 'shop' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-gift').style.background = tab === 'gift' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('tab-topup').style.background = tab === 'topup' ? '#3b82f6' : '#1c1c1e';
+    document.getElementById('category-selector').style.display = tab === 'topup' ? 'none' : 'flex';
+};
+
+window.closeBorderShop = function() { const modal = document.getElementById('borderShopModal'); const overlay = document.getElementById('borderShopOverlay'); if(modal) { modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300); } db.ref('users/' + currentUser.uid).off(); };
+
+// ==========================================
+// EFEK ANIMASI PEMBELIAN SUKSES (SLIDE BIRU)
+// ==========================================
+window.showPurchaseSuccessModal = function(itemName, cat, itemId) {
+    let container = document.getElementById('purchase-anim-container');
+    if(!container) { container = document.createElement('div'); container.id = 'purchase-anim-container'; document.body.appendChild(container); }
+    
+    let displayIconHtml = '<div style="font-size:35px; filter: drop-shadow(0 0 10px #3b82f6);">🛍️</div>'; 
+    if (cat && itemId && window.COSMETIC_CATALOG[cat] && window.COSMETIC_CATALOG[cat][itemId]) {
+        let item = window.COSMETIC_CATALOG[cat][itemId];
+        if (cat === 'borders') {
+            displayIconHtml = `<div style="width:45px; height:45px; position:relative; background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.8));"></div>`;
+        } else if (cat === 'commentplates') {
+            displayIconHtml = `<div style="width:40px; height:40px; border-radius:8px; border:2px solid #fff; box-shadow: 0 0 15px #3b82f6; ${item.style}"></div>`;
+        }
+    }
+
+    container.innerHTML = `
+        <div class="tiktok-gift-overlay" style="top: 10%;">
+            <div class="tiktok-gift-card" id="tiktok-purchase-el" style="border-color: #3b82f6; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(59, 130, 246, 0.3);">
+                <div class="tiktok-gift-icon-container">${displayIconHtml}</div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color:#3b82f6; font-size:12px; font-weight:900; text-transform:uppercase;">Pembelian Sukses!</span>
+                    <span style="color:#fff; font-size:13px; font-weight:700;">Kamu mendapatkan <b>${itemName}</b></span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    if(typeof injectGiftStyles === 'function') injectGiftStyles();
+
+    setTimeout(() => {
+        let card = document.getElementById('tiktok-purchase-el');
+        if(card) {
+            card.style.animation = 'fadeOutGift 0.5s forwards';
+            setTimeout(() => { container.innerHTML = ''; }, 500);
+        }
+    }, 3500);
+};
+
+// ==========================================
+// MODAL KONFIRMASI BELI / GIFT (CEGAH SALAH PENCET)
+// ==========================================
+let pendingTx = null;
+
+window.injectTransactionModal = function() {
+    if(document.getElementById('transaction-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'transaction-modal-injected';
+    div.innerHTML = `
+        <div id="transactionModalOverlay" class="modal-overlay" onclick="closeTransactionModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999998; backdrop-filter:blur(2px);"></div>
+        <div id="transactionModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:99999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;">
+            
+            <div id="transaction-preview-container" style="margin-bottom: 15px;"></div>
+            
+            <h3 id="transaction-title" style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Konfirmasi</h3>
+            <p id="transaction-desc" style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin?</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeTransactionModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="confirmTransaction()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition:0.2s;">Ya, Gas!</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openTransactionModal = function() {
+    document.getElementById('transactionModalOverlay').style.display = 'block'; 
+    document.getElementById('transactionModal').style.display = 'block'; 
+    setTimeout(() => { 
+        document.getElementById('transactionModal').style.opacity = '1'; 
+        document.getElementById('transactionModal').style.transform = 'translate(-50%, -50%) scale(1)'; 
+    }, 10);
+};
+
+window.closeTransactionModal = function() {
+    const modal = document.getElementById('transactionModal'); 
+    const overlay = document.getElementById('transactionModalOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; 
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; pendingTx = null; }, 300);
+    }
+};
+
+window.buyItem = function(cat, id, harga) {
+    // 1. Cek Koin
+    let koin = (window.currentUserData && window.currentUserData.koin) ? window.currentUserData.koin : 0;
+    if(koin < harga) return window.showToast('Koin kamu tidak cukup!', 'error');
+    
+    // 2. Ambil Data Item
+    let item = window.COSMETIC_CATALOG[cat][id];
+    let itemName = item.nama;
+    
+    // 3. Simpan data transaksi sementara
+    pendingTx = { type: 'buy', cat: cat, id: id, harga: harga, itemName: itemName };
+    
+    // 4. Render Preview Gambar di Modal (DIBIKIN NONGOL KE ATAS ALA KELUAR AKUN)
+    let previewHtml = '';
+    let userFoto = (window.currentUserData && window.currentUserData.foto) ? window.currentUserData.foto : 'https://placehold.co/100';
+    
+    if(cat === 'borders') {
+        previewHtml = `
+            <div style="width:60px; height:60px; position:relative; margin: -45px auto 15px auto; border-radius:50%; background:#111; border:2px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);">
+                <img src="${userFoto}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <div style="position:absolute; top:50%; left:50%; width:130%; height:130%; transform:translate(-50%, -50%); background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat; pointer-events:none;"></div>
+            </div>`;
+    } else {
+        previewHtml = `<div style="width:60px; height:45px; border-radius:10px; margin: -45px auto 15px auto; border:2px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); background:#111; ${item.style}"></div>`;
+    }
+    
+    // 5. Update Isi Modal & Munculkan
+    document.getElementById('transaction-preview-container').innerHTML = previewHtml;
+    document.getElementById('transaction-title').innerText = 'Konfirmasi Beli 🛒';
+    document.getElementById('transaction-desc').innerHTML = `
+        Beli <b>${itemName}</b> untuk profilmu?<br>
+        Harga: <span style="color:#facc15; font-weight:900;">${harga} Koin</span>
+    `;
+    
+    window.openTransactionModal();
+};
+
+window.giftItem = function(cat, id, harga) {
+    let targetUidShort = document.getElementById('gift-uid-input').value.replace('#', '').trim().toUpperCase();
+    if(!targetUidShort || targetUidShort.length !== 6) return window.showToast('Ketik UID Teman dulu!', 'error');
+
+    // Ambil data koin kamu
+    let myKoin = (window.currentUserData && window.currentUserData.koin) ? window.currentUserData.koin : 0;
+    if(myKoin < harga) return window.showToast('Koin tidak cukup!', 'error');
+
+    // Cari User di Firebase
+    db.ref('users').once('value').then(snap => {
+        let targetFullUid = null;
+        let targetData = null;
+        
+        snap.forEach(child => {
+            if(child.key.substring(0,6).toUpperCase() === targetUidShort) {
+                targetFullUid = child.key;
+                targetData = child.val();
+            }
+        });
+
+        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+        if(targetFullUid === currentUser.uid) return window.showToast('Gak bisa kirim ke diri sendiri!', 'error');
+
+        let item = window.COSMETIC_CATALOG[cat][id];
+        let senderName = window.currentUserData.nama || 'Kamu';
+        pendingTx = { type: 'gift', cat: cat, id: id, harga: harga, targetFullUid: targetFullUid, targetName: targetData.nama, itemName: item.nama };
+
+        // Render Preview (Foto Target + Border/Efek Hadiah) NONGOL KE ATAS
+        let previewHtml = '';
+        let targetFoto = targetData.foto || 'https://placehold.co/100';
+
+        if(cat === 'borders') {
+            previewHtml = `
+                <div style="width:60px; height:60px; position:relative; margin: -45px auto 15px auto; border-radius:50%; background:#111; border:2px solid #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);">
+                    <img src="${targetFoto}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    <div style="position:absolute; top:50%; left:50%; width:130%; height:130%; transform:translate(-50%, -50%); background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat;"></div>
+                </div>`;
+        } else {
+            previewHtml = `<div style="width:60px; height:45px; border-radius:10px; margin: -45px auto 15px auto; border:2px solid #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.5); background:#111; ${item.style}"></div>`;
+        }
+
+        document.getElementById('transaction-preview-container').innerHTML = previewHtml;
+        document.getElementById('transaction-title').innerText = 'Konfirmasi Gift 🎁';
+        
+        // Tampilkan info detail pengirim & penerima
+        document.getElementById('transaction-desc').innerHTML = `
+            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 12px; text-align: left; border: 1px solid #2c2c2e;">
+                <div style="margin-bottom: 4px;"><span style="color:#888;">Dari:</span> <b style="color:#fff;">${senderName}</b></div>
+                <div><span style="color:#888;">Ke:</span> <b style="color:#facc15;">${targetData.nama}</b></div>
+            </div>
+            Kirim <b>${item.nama}</b>?<br> 
+            Biaya: <b style="color:#facc15;">${harga} Koin</b>
+        `;
+        
+        window.openTransactionModal();
+    });
+};
+
+window.previewGiftUser = function(val) {
+    let uidInput = val.replace('#', '').trim().toUpperCase();
+    let previewBox = document.getElementById('gift-user-preview');
+    let nameEl = document.getElementById('gift-preview-name');
+    let imgEl = document.getElementById('gift-preview-img');
+    let uidEl = document.getElementById('gift-preview-uid');
+
+    if (uidInput.length === 6) {
+        // Cari user di Firebase berdasarkan 6 digit pertama UID
+        db.ref('users').once('value').then(snap => {
+            let found = false;
+            snap.forEach(child => {
+                if (child.key.substring(0, 6).toUpperCase() === uidInput) {
+                    let data = child.val();
+                    nameEl.innerText = data.nama || 'Wibu';
+                    imgEl.src = data.foto || 'https://placehold.co/100';
+                    uidEl.innerText = '#' + uidInput;
+                    previewBox.style.display = 'flex';
+                    found = true;
+                }
+            });
+            if (!found) {
+                previewBox.style.display = 'none';
+                window.showToast('UID tidak ditemukan!', 'error');
+            }
+        });
+    } else {
+        previewBox.style.display = 'none';
+    }
+};
+
+window.confirmTransaction = function() {
+    if(!pendingTx) return;
+    
+    let { type, cat, id, harga, targetFullUid, targetName, itemName } = pendingTx;
+    let myKoin = window.currentUserData.koin || 0;
+    if(myKoin < harga) { window.showToast('Koin tidak cukup!', 'error'); return closeTransactionModal(); }
+
+    if(type === 'buy') {
+        let ownedKey = cat === 'borders' ? `ownedBorders/${id}` : `ownedCommentplates/${id}`;
+        let updateData = { koin: myKoin - harga }; updateData[ownedKey] = true;
+        
+        db.ref('users/' + currentUser.uid).update(updateData).then(() => { 
+            window.closeBorderShop();
+            showPurchaseSuccessModal(itemName, cat, id);
+        });
+    } 
+    else if (type === 'gift') {
+        let ownedKey = cat === 'borders' ? 'ownedBorders' : 'ownedCommentplates';
+        
+        db.ref('users/' + currentUser.uid).update({ koin: myKoin - harga });
+        let updateTarget = {}; updateTarget[`${ownedKey}/${id}`] = true;
+        db.ref('users/' + targetFullUid).update(updateTarget);
+        
+        db.ref('users/' + targetFullUid + '/newGift').set({
+            from: window.currentUserData.nama || 'Seseorang',
+            itemName: itemName,
+            cat: cat,
+            itemId: id,
+            timestamp: Date.now()
+        });
+
+        window.closeBorderShop();
+        showGiftSentModal(targetName, itemName, cat, id);
+    }
+    
+    closeTransactionModal();
+    pendingTx = null;
+};
+
+// ==========================================
+// FITUR PAKAI / LEPAS ITEM KOSMETIK (INSTAN)
+// ==========================================
+window.equipItem = function(cat, id) {
+    if(!currentUser) return;
+    
+    let activeKey = cat === 'borders' ? 'activeBorder' : 'activeCommentplate';
+    let updates = {};
+    updates[activeKey] = id; 
+
+    // ======== OPTIMISTIC UI UPDATE (GANTI INSTAN) ========
+    if (cat === 'borders') {
+        // Ambil URL animasi border, kalau lagi di-"Lepas" (id = '') maka kosong
+        let decoUrl = id && window.COSMETIC_CATALOG.borders[id] ? window.COSMETIC_CATALOG.borders[id].url : '';
+        
+        // 1. Update instan di Profil Utama (Background)
+        let profileAvatars = document.querySelectorAll('.profile-avatar-container');
+        profileAvatars.forEach(container => {
+            let existingOverlay = container.querySelector('.avatar-deco-overlay');
+            if (existingOverlay) existingOverlay.remove(); // Hapus border lama
+            
+            if (decoUrl) {
+                let newOverlay = document.createElement('div');
+                newOverlay.className = 'avatar-deco-overlay';
+                newOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                container.appendChild(newOverlay); // Pasang border baru
+            }
+        });
+
+        // 2. Update instan di Input Komentar / Balasan
+        let commentAvatars = document.querySelectorAll('#comment-input-avatar, #reply-input-avatar');
+        commentAvatars.forEach(container => {
+            let existingOverlay = container.querySelector('.avatar-deco-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
+            if (decoUrl) {
+                let newOverlay = document.createElement('div');
+                newOverlay.className = 'avatar-deco-overlay';
+                newOverlay.style.backgroundImage = `url('${decoUrl}')`;
+                container.appendChild(newOverlay);
+            }
+        });
+    }
+    // =====================================================
+
+    // Simpan ke database di background
+    db.ref('users/' + currentUser.uid).update(updates).then(() => {
+        let actionText = id === '' ? 'dilepas' : 'dipakai';
+        window.showToast(`Item berhasil ${actionText}!`, 'success');
+    }).catch(err => {
+        window.showToast('Gagal mengubah item: ' + err.message, 'error');
+    });
+};
+
+// ==========================================
+// FITUR GANTI NAMA (Klik Nama Langsung)
+// ==========================================
+window.injectChangeNameModal = function() {
+    if(document.getElementById('change-name-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'change-name-modal-injected';
+    div.innerHTML = `
+        <div id="changeNameOverlay" class="modal-overlay" onclick="closeChangeNameModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+        <div id="changeNameModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px; transition:0.3s; opacity:0; border: 1px solid #2c2c2e; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+            <div style="width:50px; height:50px; background:rgba(59, 130, 246, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -45px auto 15px auto; border: 2px solid #3b82f6;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <h3 style="color:#fff; margin:0 0 5px 0; font-size:18px; font-weight:900;">Ganti Nama</h3>
+            <p id="change-name-desc" style="color:#888; font-size:12px; margin-bottom:20px; line-height:1.4;"></p>
+            <input type="text" id="new-name-input" placeholder="Nama Baru..." maxlength="25" style="width:100%; background:#111; border:1px solid #333; color:#fff; padding:12px; border-radius:12px; margin-bottom:20px; outline:none; box-sizing:border-box; text-align:center; font-size:14px; font-weight:bold;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeChangeNameModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer;">Batal</button>
+                <button onclick="confirmChangeName()" style="flex:1; background:#3b82f6; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:13px; cursor:pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openChangeNameModal = function() {
+    if(!currentUser) return window.showToast('Login dulu yuk!', 'error');
+    window.injectChangeNameModal();
+    
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val();
+        let changeCount = d.nameChangeCount || 0; 
+        let descEl = document.getElementById('change-name-desc');
+        
+        if (changeCount === 0) {
+            descEl.innerHTML = "Ganti nama pertamamu <b style='color:#10b981;'>GRATIS!</b>";
+        } else {
+            descEl.innerHTML = "Biaya ganti nama: <b style='color:#facc15;'>1000 Koin</b>";
+        }
+        
+        document.getElementById('new-name-input').value = d.nama || '';
+        document.getElementById('changeNameOverlay').style.display = 'block';
+        let modal = document.getElementById('changeNameModal');
+        modal.style.display = 'block';
+        setTimeout(() => { modal.style.opacity = '1'; modal.style.transform = 'translate(-50%, -50%) scale(1)'; }, 10);
+    });
+};
+
+window.closeChangeNameModal = function() {
+    let modal = document.getElementById('changeNameModal');
+    let overlay = document.getElementById('changeNameOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300);
+    }
+};
+
+window.confirmChangeName = function() {
+    let newName = document.getElementById('new-name-input').value.trim();
+    if(newName.length < 3) return window.showToast('Minimal 3 karakter!', 'error');
+    if(newName.length > 25) return window.showToast('Maksimal 25 karakter!', 'error');
+
+    db.ref('users/' + currentUser.uid).once('value').then(snap => {
+        let d = snap.val();
+        let changeCount = d.nameChangeCount || 0;
+        let koin = d.koin || 0;
+        let cost = (changeCount === 0) ? 0 : 1000;
+
+        if (cost > 0 && koin < cost) return window.showToast('Koin tidak cukup! Butuh 1000.', 'error');
+
+        let updates = { nama: newName, nameChangeCount: changeCount + 1 };
+        if(cost > 0) updates.koin = koin - cost;
+
+        db.ref('users/' + currentUser.uid).update(updates).then(() => {
+            window.showToast('Nama berhasil diganti!', 'success');
+            window.closeChangeNameModal();
+            
+            // BIAR NAMA LANGSUNG KEGANTI DI LAYAR TANPA REFRESH
+            let nameEl = document.getElementById('profile-user-name-display');
+            if (nameEl) nameEl.innerText = newName;
+            
+            // Update nama Google Auth biar 100% sinkron
+            if (currentUser) currentUser.updateProfile({ displayName: newName }).catch(()=>{});
+        });
+    });
+};
+
+// ==========================================
+// FITUR ANIMASI KADO (GIFT) TIKTOK STYLE
+// ==========================================
+window.injectGiftStyles = function() {
+    if(document.getElementById('gift-styles')) return;
+    const style = document.createElement('style'); style.id = 'gift-styles';
+    style.innerHTML = `
+        @keyframes slideInGift {
+            0% { transform: translateX(100%) scale(0.8); opacity: 0; }
+            80% { transform: translateX(-5%) scale(1.1); opacity: 1; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes floatGift {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes fadeOutGift {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        @keyframes glowSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tiktok-gift-overlay {
+            position: fixed; top: 15%; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; z-index: 99999999;
+        }
+        .tiktok-gift-card {
+            background: linear-gradient(135deg, rgba(15,15,20,0.95), rgba(30,30,40,0.95)); border: 1px solid rgba(250, 204, 21, 0.5); border-radius: 50px; padding: 8px 25px 8px 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(250, 204, 21, 0.3); animation: slideInGift 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; backdrop-filter: blur(5px);
+        }
+        .tiktok-gift-icon-container {
+            width: 50px; height: 50px; position: relative; animation: floatGift 2s infinite ease-in-out; display:flex; align-items:center; justify-content:center;
+        }
+    `;
+    document.head.appendChild(style);
+};
+
+// Notifikasi Untuk PENGIRIM (Biar gak layar hitam, langsung pop-up mulus aja)
+window.showGiftSentModal = function(targetName, itemName, cat, itemId) {
+    let container = document.getElementById('gift-sent-container');
+    if(!container) { container = document.createElement('div'); container.id = 'gift-sent-container'; document.body.appendChild(container); }
+    
+    container.innerHTML = `
+        <div class="tiktok-gift-overlay" style="top: 10%;">
+            <div class="tiktok-gift-card" id="tiktok-gift-sent-el" style="border-color: #10b981; box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(16, 185, 129, 0.3);">
+                <div class="tiktok-gift-icon-container">
+                    <div style="font-size:35px; filter: drop-shadow(0 0 10px #10b981);">🎁</div>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color:#10b981; font-size:12px; font-weight:900; text-transform:uppercase;">Terkirim!</span>
+                    <span style="color:#fff; font-size:13px; font-weight:700;"><b>${itemName}</b> ke <b>${targetName}</b></span>
+                </div>
+            </div>
+        </div>
+    `;
+    injectGiftStyles();
+
+    setTimeout(() => {
+        let card = document.getElementById('tiktok-gift-sent-el');
+        if(card) {
+            card.style.animation = 'fadeOutGift 0.5s forwards';
+            setTimeout(() => { container.innerHTML = ''; }, 500);
+        }
+    }, 3500);
+};
+
+// Animasi Epik ala TikTok untuk PENERIMA
+window.showGiftReceivedModal = function(fromName, itemName, cat, itemId) {
+    let container = document.getElementById('gift-anim-container');
+    if(!container) { container = document.createElement('div'); container.id = 'gift-anim-container'; document.body.appendChild(container); }
+    
+    // RENDER ITEM GIFT (Kosongin background muka, tampilin full itemnya aja)
+    let displayIconHtml = '<div style="font-size:40px;">✨</div>'; 
+    if (cat && itemId && window.COSMETIC_CATALOG[cat] && window.COSMETIC_CATALOG[cat][itemId]) {
+        let item = window.COSMETIC_CATALOG[cat][itemId];
+        if (cat === 'borders') {
+            displayIconHtml = `<div style="position:absolute; top:50%; left:50%; width:150%; height:150%; transform:translate(-50%, -50%); background-image:url('${item.url}'); background-size:contain; background-position:center; background-repeat:no-repeat; filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8));"></div>`;
+        } else if (cat === 'commentplates') {
+            displayIconHtml = `<div style="width:40px; height:40px; border-radius:8px; border:2px solid #fff; box-shadow: 0 0 15px #facc15; ${item.style}"></div>`;
+        }
+    }
+
+    container.innerHTML = `
+        <div class="tiktok-gift-overlay">
+            <div class="tiktok-gift-card" id="tiktok-gift-card-el">
+                <div class="tiktok-gift-icon-container">
+                    <div style="position:absolute; top:-25px; left:-25px; width:100px; height:100px; background: radial-gradient(circle, rgba(250,204,21,0.4) 0%, transparent 70%); animation: glowSpin 4s linear infinite;"></div>
+                    ${displayIconHtml}
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color:#fff; font-size:14px; font-weight:800;">${fromName}</span>
+                    <span style="color:#facc15; font-size:12px; font-weight:700;">Mengirim <b style="color:#fff;">${itemName}</b></span>
+                </div>
+            </div>
+        </div>
+    `;
+    injectGiftStyles();
+
+    // AUTO MENGHILANG SETELAH 4 DETIK (Tanpa perlu dipencet)
+    setTimeout(() => {
+        let card = document.getElementById('tiktok-gift-card-el');
+        if(card) {
+            card.style.animation = 'fadeOutGift 0.5s forwards';
+            setTimeout(() => { container.innerHTML = ''; }, 500);
+        }
+    }, 4000);
+};
+
+// Radar Kado (Otomatis hapus dari Firebase biar gak ngulang)
+window.listenForGifts = function() {
+    if(!currentUser) return;
+    db.ref('users/' + currentUser.uid + '/newGift').on('value', snap => {
+        if(snap.exists()) {
+            let gift = snap.val();
+            // Langsung hapus dari database saat itu juga biar cuma muncul 1 kali
+            db.ref('users/' + currentUser.uid + '/newGift').remove(); 
+            // Mainkan animasinya
+            showGiftReceivedModal(gift.from, gift.itemName, gift.cat, gift.itemId);
+        }
+    });
+};
+
+// ==========================================
+// FITUR KONFIRMASI KELUAR AKUN
+// ==========================================
+window.injectLogoutModal = function() {
+    if(document.getElementById('logout-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'logout-modal-injected';
+    div.innerHTML = `
+        <div id="logoutModalOverlay" class="modal-overlay" onclick="closeLogoutModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999998; backdrop-filter:blur(2px);"></div>
+        <div id="logoutModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9); background:#1c1c1e; width:300px; border-radius:24px; z-index:9999999; padding:25px 20px 20px 20px; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity:0; box-shadow:0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2c2c2e; text-align: center;">
+            <div style="width:50px; height:50px; background:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: -40px auto 15px auto; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </div>
+            <h3 style="color:#fff; margin:0 0 10px 0; font-size:18px; font-weight:900;">Keluar Akun?</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:20px; line-height:1.5;">Apakah kamu yakin ingin keluar dari akun ini?</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeLogoutModal()" style="flex:1; background:#2c2c2e; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s;">Batal</button>
+                <button onclick="confirmLogout()" style="flex:1; background:#ef4444; color:#fff; border:none; padding:12px; border-radius:16px; font-weight:800; font-size:14px; cursor:pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition:0.2s;">Ya, Keluar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openLogoutModal = function() {
+    document.getElementById('logoutModalOverlay').style.display = 'block'; 
+    document.getElementById('logoutModal').style.display = 'block'; 
+    setTimeout(() => { 
+        document.getElementById('logoutModal').style.opacity = '1'; 
+        document.getElementById('logoutModal').style.transform = 'translate(-50%, -50%) scale(1)'; 
+    }, 10);
+};
+
+window.closeLogoutModal = function() {
+    const modal = document.getElementById('logoutModal'); 
+    const overlay = document.getElementById('logoutModalOverlay');
+    if(modal) {
+        modal.style.opacity = '0'; modal.style.transform = 'translate(-50%, -50%) scale(0.9)'; 
+        setTimeout(() => { overlay.style.display = 'none'; modal.style.display = 'none'; }, 300);
+    }
+};
+
+window.confirmLogout = function() {
+    auth.signOut().then(() => { 
+        window.showToast("Berhasil keluar dari akun.", 'success'); 
+        closeLogoutModal();
+        setTimeout(() => { location.reload(); }, 1500); 
+    });
+};
+
+// ==========================================
+// ANTI MALING KODE (BLOKIR KLIK KANAN & F12)
+// ==========================================
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.onkeydown = function(e) {
+    if(event.keyCode == 123) { return false; } // Blokir F12
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Blokir Ctrl+Shift+I
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Blokir Ctrl+Shift+C
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Blokir Ctrl+Shift+J
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Blokir Ctrl+U (View Source)
+};
+
+// ==========================================
+// FITUR GOD MODE (KHUSUS DEVELOPER)
+// ==========================================
+window.injectDevModal = function() {
+    if(document.getElementById('dev-modal-injected')) return;
+    const div = document.createElement('div'); div.id = 'dev-modal-injected';
+    div.innerHTML = `
+        <div id="devModalOverlay" class="modal-overlay" onclick="closeDevModal()" style="display:none; z-index:9999998;"></div>
+        <div id="devModal" class="bottom-sheet" style="z-index:9999999; padding:25px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <h3 style="color:#ef4444; margin:0; font-size:18px;">🛠️ Panel God Mode</h3>
+                <button onclick="closeDevModal()" style="background:transparent; border:none; color:#fff; font-size:16px; cursor:pointer;">✖</button>
+            </div>
+            
+            <p style="font-size:12px; color:#888; margin-bottom:15px;">Edit data user lewat UID (Bisa pakai 6 digit awal saja).</p>
+            
+            <input type="text" id="dev-uid" placeholder="Target UID (Contoh: #A1B2C3)" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #ef4444; border-radius:12px; box-sizing:border-box;">
+            
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="number" id="dev-koin" placeholder="Set Koin" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+                <input type="number" id="dev-level" placeholder="Set Level" style="flex:1; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+            </div>
+            
+            <input type="number" id="dev-exp" placeholder="Set EXP" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box;">
+            
+            <select id="dev-role" style="width:100%; padding:12px; margin-bottom:20px; background:#111; color:#fff; border:1px solid #333; border-radius:12px; box-sizing:border-box; outline:none;">
+                <option value="">-- Jangan Ubah Role --</option>
+                <option value="Member">Member (Wibu Biasa)</option>
+                <option value="Wibu Premium">Wibu Premium</option>
+                <option value="Developer">Developer</option>
+            </select>
+            
+            <button onclick="executeGodMode()" style="width:100%; padding:14px; background:linear-gradient(90deg, #dc2626, #7f1d1d); color:#fff; border:none; border-radius:16px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 5px 15px rgba(220, 38, 38, 0.4);">⚡ EKSEKUSI</button>
+        </div>
+    `;
+    document.body.appendChild(div);
+};
+
+window.openDevModal = function(targetUid = '') {
+    window.injectDevModal();
+    if(targetUid) document.getElementById('dev-uid').value = targetUid;
+    document.getElementById('devModalOverlay').style.display = 'block';
+    document.getElementById('devModal').style.display = 'block';
+    setTimeout(() => document.getElementById('devModal').classList.add('show'), 10);
+};
+
+window.closeDevModal = function() {
+    const modal = document.getElementById('devModal');
+    if(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            document.getElementById('devModalOverlay').style.display = 'none';
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
+
+window.executeGodMode = function() {
+    let uidInput = document.getElementById('dev-uid').value.trim().replace('#', '').toUpperCase();
+    if(!uidInput) return window.showToast('UID Target harus diisi!', 'error');
+
+    let updates = {};
+    let koin = document.getElementById('dev-koin').value;
+    let exp = document.getElementById('dev-exp').value;
+    let lvl = document.getElementById('dev-level').value;
+    let role = document.getElementById('dev-role').value;
+
+    if(koin !== "") updates.koin = parseInt(koin);
+    if(exp !== "") updates.exp = parseInt(exp);
+    if(lvl !== "") updates.level = parseInt(lvl);
+    if(role !== "") updates.role = role;
+
+    if(Object.keys(updates).length === 0) return window.showToast('Isi minimal 1 data yang mau diubah!', 'error');
+
+    // Cari target di Firebase
+    db.ref('users').once('value').then(snap => {
+        let targetFullUid = null;
+        snap.forEach(child => {
+            if(child.key.toUpperCase() === uidInput || child.key.substring(0,6).toUpperCase() === uidInput) {
+                targetFullUid = child.key;
+            }
+        });
+
+        if(!targetFullUid) return window.showToast('User tidak ditemukan!', 'error');
+
+        db.ref('users/' + targetFullUid).update(updates).then(() => {
+            window.showToast('⚡ God Mode Berhasil Diterapkan!', 'success');
+            window.closeDevModal();
+            // Reset form
+            document.getElementById('dev-koin').value = '';
+            document.getElementById('dev-exp').value = '';
+            document.getElementById('dev-level').value = '';
+            document.getElementById('dev-role').value = '';
+        }).catch(err => window.showToast('Gagal: ' + err.message, 'error'));
+    });
+};
+
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } else { initApp(); }
