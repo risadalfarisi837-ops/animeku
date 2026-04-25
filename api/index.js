@@ -6,125 +6,165 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
-const BASE_URL = 'https://otakudesu.cloud'; 
+// Domain terbaru dan Proxy untuk menembus blokir Vercel
+const BASE_URL = 'https://v2.samehadaku.how';
 const PROXY = 'https://cors.caliph.my.id/';
 
 const headers = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-  'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Referer': BASE_URL
 };
 
-// Fungsi kebal blokir
-async function fetchHtml(url) {
+// --- FUNGSI SCRAPER DENGAN PROXY ---
+
+async function animeterbaru(page = 1) {
   try {
-    const { data } = await axios.get(url, { headers, timeout: 8000 });
+    const res = await axios.get(`${PROXY}${BASE_URL}/anime-terbaru/page/${page}/`, { headers });
+    const $ = cheerio.load(res.data);
+    const data = [];
+    $('.post-show ul li').each((_, e) => {
+      const a = $(e).find('.dtla h2 a');
+      if (a.length > 0) {
+        data.push({
+          title: a.text().trim(),
+          url: a.attr('href'),
+          image: $(e).find('.thumb img').attr('src'),
+          episode: $(e).find('.dtla span:contains("Episode")').text().replace('Episode', '').trim(),
+        });
+      }
+    });
     return data;
-  } catch (e) {
-    const { data } = await axios.get(`${PROXY}${url}`, { headers, timeout: 10000 });
-    return data;
-  }
+  } catch (e) { throw new Error("Gagal mengambil data terbaru via Proxy"); }
 }
+
+async function search(query) {
+  try {
+    const res = await axios.get(`${PROXY}${BASE_URL}/?s=${encodeURIComponent(query)}`, { headers });
+    const $ = cheerio.load(res.data);
+    const data = [];
+    $('.animpost').each((_, e) => {
+      data.push({
+        title: $(e).find('.data .title h2').text().trim(),
+        image: $(e).find('.content-thumb img').attr('src'),
+        type: $(e).find('.type').text().trim(),
+        score: $(e).find('.score').text().trim(),
+        url: $(e).find('a').attr('href')
+      });
+    });
+    return data;
+  } catch (e) { throw new Error("Pencarian gagal via Proxy"); }
+}
+
+async function detail(link) {
+  try {
+    const targetUrl = link.startsWith('http') ? link : `${BASE_URL}${link}`;
+    const res = await axios.get(`${PROXY}${targetUrl}`, { headers });
+    const $ = cheerio.load(res.data);
+
+    const episodes = [];
+    $('.lstepsiode ul li').each((_, e) => {
+      episodes.push({
+        title: $(e).find('.epsleft .lchx a').text().trim(),
+        url: $(e).find('.epsleft .lchx a').attr('href'),
+        date: $(e).find('.epsleft .date').text().trim()
+      });
+    });
+
+    const info = {};
+    $('.anim-senct .right-senc .spe span').each((_, e) => {
+      const t = $(e).text();
+      if (t.includes(':')) {
+        const [k, v] = t.split(':');
+        info[k.trim().toLowerCase().replace(/\s+/g, '_')] = v.trim();
+      }
+    });
+
+    return {
+      title: $('title').text().replace(' - Samehadaku', '').trim(),
+      image: $('meta[property="og:image"]').attr('content'),
+      description: $('.entry-content').text().trim() || $('meta[name="description"]').attr('content'),
+      episodes,
+      info
+    };
+  } catch (e) { throw new Error("Gagal mengambil detail anime"); }
+}
+
+async function download(link) {
+  try {
+    const targetUrl = link.startsWith('http') ? link : `${BASE_URL}${link}`;
+    const res = await axios.get(`${PROXY}${targetUrl}`, { headers });
+    const cookies = res.headers['set-cookie']?.map(v => v.split(';')[0]).join('; ') || '';
+    const $ = cheerio.load(res.data);
+    const data = [];
+
+    for (const li of $('div#server > ul > li').toArray()) {
+      const div = $(li).find('div');
+      const post = div.attr('data-post');
+      const nume = div.attr('data-nume');
+      const type = div.attr('data-type');
+      const name = $(li).find('span').text().trim();
+      if (!post) continue;
+
+      const body = new URLSearchParams({ action: 'player_ajax', post, nume, type }).toString();
+      
+      try {
+        const r = await axios.post(`${PROXY}${BASE_URL}/wp-admin/admin-ajax.php`, body, {
+          headers: {
+            ...headers,
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Cookie': cookies,
+            'Referer': targetUrl
+          }
+        });
+        const $$ = cheerio.load(r.data);
+        const iframe = $$('iframe').attr('src');
+        if (iframe) data.push({ server: name, url: iframe });
+      } catch (e) {
+        console.log("Error fetching server:", name);
+      }
+    }
+
+    return {
+      title: $('h1[itemprop="name"]').text().trim(),
+      streams: data
+    };
+  } catch (e) { throw new Error("Gagal mengambil link tonton"); }
+}
+
+// --- ROUTES API ---
 
 app.get('/api/latest', async (req, res) => {
   try {
-    const page = req.query.page || 1;
-    const html = await fetchHtml(`${BASE_URL}/ongoing-anime/page/${page}/`);
-    const $ = cheerio.load(html);
-    const result = [];
-    $('.venz ul li').each((i, el) => {
-      result.push({
-        title: $(el).find('.jdlflm').text().trim(),
-        url: $(el).find('.thumb a').attr('href'),
-        image: $(el).find('.thumbz img').attr('src'),
-        episode: $(el).find('.epz').text().trim(),
-      });
-    });
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Gagal memuat anime terbaru." });
-  }
+    const data = await animeterbaru(req.query.page || 1);
+    res.json(data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/api/search', async (req, res) => {
   try {
-    const query = req.query.q;
-    const html = await fetchHtml(`${BASE_URL}/?s=${encodeURIComponent(query)}&post_type=anime`);
-    const $ = cheerio.load(html);
-    const result = [];
-    $('.chivsrc li').each((i, el) => {
-      let scoreRaw = $(el).find('.set').first().text();
-      result.push({
-        title: $(el).find('h2 a').text().trim(),
-        url: $(el).find('h2 a').attr('href'),
-        image: $(el).find('img').attr('src'),
-        type: "TV", 
-        score: scoreRaw ? scoreRaw.replace('Rating : ', '').trim() : "?",
-      });
-    });
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Pencarian gagal." });
-  }
+    const data = await search(req.query.q);
+    res.json(data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/api/detail', async (req, res) => {
   try {
-    const targetUrl = req.query.url;
-    // Blokir link Samehadaku jadul yang nyangkut di HP lu
-    if(targetUrl.includes('samehadaku')) {
-        return res.status(400).json({ error: "Link usang. Clear data browser lu." });
-    }
-
-    const html = await fetchHtml(targetUrl);
-    const $ = cheerio.load(html);
-    const episodes = [];
-    
-    $('.episodelist:not(.bookmark) ul li').each((i, el) => {
-      episodes.push({
-        title: $(el).find('a').text().trim(),
-        url: $(el).find('a').attr('href'),
-        date: $(el).find('.zee').text().trim()
-      });
-    });
-
-    episodes.reverse();
-
-    res.json({
-      title: $('.fotoanime .infozin .infozingle p:contains("Judul")').text().replace('Judul: ', '').trim(),
-      image: $('.fotoanime img').attr('src'),
-      description: $('.sinopc').text().trim(),
-      episodes: episodes,
-      info: {
-        skor: $('.fotoanime .infozin .infozingle p:contains("Skor")').text().replace('Skor: ', '').trim(),
-        tipe: "TV",
-        musim: "",
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Gagal memuat detail anime." });
-  }
+    const data = await detail(req.query.url);
+    res.json(data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/api/watch', async (req, res) => {
   try {
-    const targetUrl = req.query.url;
-    const html = await fetchHtml(targetUrl);
-    const $ = cheerio.load(html);
-    const streams = [];
-    
-    const iframeSrc = $('#lightsVideo iframe').attr('src');
-    if (iframeSrc) streams.push({ server: "Server Utama (HD)", url: iframeSrc });
-
-    res.json({
-      title: $('.venutama h1').text().trim(),
-      streams: streams
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Gagal memuat video." });
-  }
+    const data = await download(req.query.url);
+    res.json(data);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Jalankan Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server jalan di port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 module.exports = app;
