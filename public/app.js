@@ -172,8 +172,7 @@ function updateDevUI() {
                 const level = data.level || 1; 
                 const exp = data.exp || 0; 
                 const creationDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime) : new Date();
-                const diffMonths = (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth());
-                const joinMonths = Math.max(1, diffMonths);
+                const joinMonths = Math.max(1, (new Date().getFullYear() - creationDate.getFullYear()) * 12 + (new Date().getMonth() - creationDate.getMonth()));
                 let totalMenit = Math.floor(exp * 1.2);
                 if (totalMenit === 0) totalMenit = (historyData.length || 0) * 24;
                 const jamNonton = Math.floor(totalMenit / 60);
@@ -181,51 +180,34 @@ function updateDevUI() {
                 const userFoto = data.foto || 'https://placehold.co/100'; 
                 const shortUid = "#" + currentUser.uid.substring(0, 6).toUpperCase();
                 
-                let roleBadgeClass = 'badge-member'; 
-                let roleName = role;
-                let roleClickAction = ''; // Default tidak bisa diklik
+                let roleBadgeClass = (role === 'Developer') ? 'badge-dev-anim' : (role === 'Wibu Premium' || level >= 50) ? 'badge-premium-anim' : 'badge-member'; 
+                let roleName = (role === 'Developer') ? 'DEV' : (role === 'Wibu Premium' || level >= 50) ? 'Wibu Premium' : role;
+                let roleClickAction = (role === 'Developer') ? `onclick="event.stopPropagation(); openDevModal('${shortUid}')" style="cursor:pointer;"` : '';
 
-                if(role === 'Developer') { 
-                    roleBadgeClass = 'badge-dev-anim'; 
-                    roleName = 'DEV'; 
-                    // BISA DIKLIK UNTUK BUKA PANEL
-                    roleClickAction = `onclick="event.stopPropagation(); openDevModal('${shortUid}')" style="cursor:pointer;"`;
-                } 
-                else if(role === 'Wibu Premium' || level >= 50) { 
-                    roleBadgeClass = 'badge-premium-anim'; 
-                    roleName = role !== 'Member' ? role : 'Wibu Premium'; 
-                } 
-                
                 const rankInfo = getRankInfo(level); 
                 let lvlClass = `badge-lvl-${rankInfo.name.toLowerCase()}`; 
                 let avatarClass = `avatar-rank-${rankInfo.name.toLowerCase()}`;
 
                 let historyHtml = (historyData && historyData.length > 0) ? historyData.map(item => {
                     let daysAgo = Math.max(1, Math.floor((Date.now() - item.timestamp) / (1000 * 60 * 60 * 24))); 
-                    let randProgress = Math.floor(Math.random() * 80 + 20);
-                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div><div style="display:flex; align-items:center; gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg><div class="pli-progress-bg"><div class="pli-progress-fill" style="width: ${randProgress}%;"></div></div><span style="font-size:11px; color:#a1a1aa; font-weight:800;">23:40</span></div></div></div>`;
+                    return `<div class="profile-list-item" onclick="loadDetail('${item.url}')"><div style="position:relative;"><img src="${item.image}" class="pli-img"><div style="position:absolute; bottom:-5px; right:-5px; background:#111; border-radius:50%; padding:2px;"><img src="${userFoto}" style="width:22px; height:22px; border-radius:50%; object-fit:cover; display:block;"></div></div><div class="pli-info"><div class="pli-title">${item.title}</div><div class="pli-ep">${item.episode || 'Episode ?'} • ${daysAgo} hari lalu</div></div></div>`;
                 }).join('') : '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada riwayat tontonan.</p>';
 
-                let activeBorderId = data.activeBorder || '';
-                let decoUrl = activeBorderId && window.BORDER_CATALOG && window.BORDER_CATALOG[activeBorderId] ? window.BORDER_CATALOG[activeBorderId].url : '';
+                let decoUrl = data.activeBorder && window.BORDER_CATALOG && window.BORDER_CATALOG[data.activeBorder] ? window.BORDER_CATALOG[data.activeBorder].url : '';
                 let decoHtml = decoUrl ? `<div class="avatar-deco-overlay" style="background-image:url('${decoUrl}');"></div>` : '';
-                let userKoin = data.koin || 0; 
 
                 container.innerHTML = `
                     <div style="position: relative; width: 100%; z-index: 1;">
-                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; z-index: 9999;">
-                            ${userKoin} Koin
-                        </button>
-                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center; position: relative; z-index: 50;">
-                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px; z-index: 100;">
-                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
-                                ${decoHtml}
+                        <button onclick="window.openBorderShop()" style="position: absolute; top: 15px; right: 15px; background: rgba(250, 204, 21, 0.1); border: 1px solid #facc15; color: #facc15; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; z-index: 9999;">${data.koin || 0} Koin</button>
+                        <div class="profile-header" style="padding-top: 40px; display:flex; flex-direction:column; align-items:center;">
+                            <div class="profile-avatar-container" onclick="window.openBorderShop()" style="cursor:pointer; position:relative; width:90px; height:90px; border-radius:50%; margin-bottom:10px;">
+                                <img src="${userFoto}" class="profile-avatar ${avatarClass}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">${decoHtml}
                             </div>
-                            <div id="profile-user-name-display" class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer;">${userName}</div>
-                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center; align-items:center; cursor:pointer;">
+                            <div class="profile-name" onclick="window.openChangeNameModal()" style="cursor:pointer;">${userName}</div>
+                            <div class="profile-badges" style="display:flex; gap:8px; justify-content:center;">
                                 <span class="c-badge ${roleBadgeClass}" ${roleClickAction}>${roleName}</span>
-                                <span class="c-badge ${lvlClass}" style="font-size:11px; padding:4px 10px;" onclick="openLevelModal(${level}, '${exp}', ${jamNonton})">${rankInfo.icon} Lvl. ${level}</span>
-                                <span class="c-badge" style="font-size:11px; padding:4px 10px; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1);">${shortUid}</span>
+                                <span class="c-badge ${lvlClass}" onclick="openLevelModal(${level}, ${exp}, ${jamNonton})">${rankInfo.icon} Lvl. ${level}</span>
+                                <span class="c-badge" style="background: rgba(255,255,255,0.05); color: #a1a1aa;">${shortUid}</span>
                             </div>
                         </div>
                         <div class="profile-stats">
@@ -235,42 +217,34 @@ function updateDevUI() {
                         </div>
                         <div class="profile-tabs"><div class="ptab active" onclick="switchProfileTab('all', this)">All</div><div class="ptab" onclick="switchProfileTab('comments', this)">Comments</div><div class="ptab" onclick="switchProfileTab('history', this)">History</div></div>
                         <div id="ptab-all" class="ptab-content">${historyHtml}</div>
-                        <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"></div>
+                        <div id="ptab-comments" class="ptab-content" style="display:none; padding-top: 10px;"><div style="text-align:center; padding:30px;"><div class="spinner" style="width:20px; height:20px; margin:0 auto;"></div></div></div>
                         <div id="ptab-history" class="ptab-content" style="display:none;">${historyHtml}</div>
-
-                                                <button onclick="openLogoutModal()" style="margin: 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">Keluar Akun</button>
+                        <button onclick="openLogoutModal()" style="margin: 20px; width:calc(100% - 40px); background:transparent; border:1px solid #333; color:#ef4444; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">Keluar Akun</button>
                     </div>
                 `;
 
-                // === LOGIKA ANGKA KOMENTAR (Ditaruh tepat setelah innerHTML profil dipasang) ===
-                const statKomentarVal = document.getElementById('stat-komentar-val');
-                const tabCommentsContainer = document.getElementById('ptab-comments');
-
                 db.ref('comments').once('value').then(commentsSnap => {
-                    let allUserComments = [];
-                    commentsSnap.forEach(epSnap => {
-                        epSnap.forEach(commentSnap => {
-                            let cData = commentSnap.val();
-                            if(cData.uid === currentUser.uid) {
-                                allUserComments.push({ id: commentSnap.key, epID: epSnap.key, ...cData });
-                            }
-                        });
-                    });
-
-                    if(statKomentarVal) statKomentarVal.innerText = allUserComments.length;
-
-                    if(allUserComments.length === 0) {
-                        tabCommentsContainer.innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada komentar.</p>';
-                    } else {
-                        allUserComments.sort((a, b) => b.waktu - a.waktu);
-                        tabCommentsContainer.innerHTML = allUserComments.map(c => generateCommentHtml(c, false, c.epID, c.id)).join('');
+                    let myComments = [];
+                    commentsSnap.forEach(epSnap => { epSnap.forEach(cSnap => { let c = cSnap.val(); if(c.uid === currentUser.uid) myComments.push({ ...c, date: new Date(c.waktu || Date.now()).toLocaleDateString('id-ID') }); }); });
+                    document.getElementById('stat-komentar-val').innerText = myComments.length;
+                    const tabComments = document.getElementById('ptab-comments');
+                    if(myComments.length === 0) { tabComments.innerHTML = '<p style="text-align:center; color:#555; font-size:13px; margin-top:30px;">Belum ada aktivitas komentar.</p>'; } 
+                    else {
+                        myComments.sort((a, b) => b.waktu - a.waktu);
+                        tabComments.innerHTML = myComments.map(c => `
+                            <div style="margin: 0 10px 15px 10px; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 16px; padding: 12px;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px;">
+                                    <img src="${c.animeImage || 'https://placehold.co/100'}" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border: 1px solid #222;">
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="font-weight: 800; font-size: 13px; color: #3b82f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.animeTitle || 'Anime'}</div>
+                                        <div style="font-size: 11px; color: #a1a1aa;">${c.animeEp || 'Episode ?'} • ${c.date}</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 13px; color: #fff; line-height: 1.5; font-style: italic;">"${c.teks}"</div>
+                            </div>`).join('');
                     }
                 });
-
-            } catch(errorProfile) { 
-                console.error(errorProfile); 
-                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#ef4444;">Gagal memuat profil.</div>`; 
-            }
+            } catch(e) { console.error(e); }
         });
     }
 }
