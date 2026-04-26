@@ -1,12 +1,6 @@
 {
   "name": "Animeku",
   "short_name": "Animeku",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#050505",
-  "theme_color": "#050505",
-  "orientation": "portrait",
-  "scope": "./",
   "icons": [
     {
       "src": "./animeku.jpg",
